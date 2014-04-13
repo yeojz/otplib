@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "main": "lib/index.js",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "homepage": "http://github.com/yeojz/otplib",
-  "bugs": "user/repo/issues",
+  "homepage": "https://github.com/yeojz/otplib",
+  "bugs": "https://github.com/yeojz/otplib/issues",
   "author": {
     "name": "Gerald Yeo",
     "email": "contact@fusedthought.com",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/yeojz/otplib.git"
+    "url": "https://github.com/yeojz/otplib.git"
   },
   "licenses": [
     {

@@ -38,9 +38,9 @@ var secret = 'user secret' || otp.core.secret(),
 // Generating OTP
 var code = otp.core.totp(secret);
 
+console.log('OTP: ' + code);
+
 ```
-
-
 
 
 
@@ -54,6 +54,8 @@ var secret = 'user secret', // From database etc.
 
 // True / False
 var status = otp.google.check(code, secret);
+
+console.log('Is Token Valid: ' + status);
 
 ```
 
@@ -82,8 +84,9 @@ var otplib = require('otplib');
 var secret = 'base 32 encoded user secret' || otp.google.secret(),
     qrcode = otp.core.qrcode('user', 'domain', secret);
 
-
 var code = otp.google.generate(secret);
+
+console.log('OTP: ' + code);
 
 ```
 

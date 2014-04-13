@@ -1,3 +1,7 @@
+/*
+ *  Sample Token Checking
+ *  Command Line
+ */
 
 
 var prompt = require('prompt'),

@@ -1,10 +1,14 @@
+/*
+ *  Sample Token and Secret Generation
+ *  Command Line
+ */
+
+
 
 var otp = require('../lib/index'),
     secret = '';
 
-
 otp.google.debug(true);
-
 
 
 function getOTP(){
@@ -23,8 +27,6 @@ function getTimer(){
 
     process.stdout.write(".");
 }
-
-
 
 
 

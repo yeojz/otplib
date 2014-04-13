@@ -30,7 +30,7 @@ exports.otplib = {
   'no args': function(test) {
     test.expect(1);
     // tests here
-    //test.equal(otplib.awesome(), 'awesome', 'should be awesome.');
+    // test.equal(otplib.awesome(), 'awesome', 'should be awesome.');
     test.done();
   }
 };
