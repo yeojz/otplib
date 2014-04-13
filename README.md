@@ -26,18 +26,35 @@ var otplib = require('otplib');
 ## Sample Usage
 
 
-Token Generation
+###Token Generation
 ```javascript
 var otplib = require('otplib');
+
+
+// Basic
+var secret = 'user secret' || otp.core.secret(),
+    qrcode = otp.core.qrcode('user', 'domain', secret);
+
+// Generating OTP
+var code = otp.core.totp(secret);
+
 ```
 
 
 
 
 
-Token Validation
+###Token Validation
+
 ```javascript
 var otplib = require('otplib');
+
+var secret = 'user secret', // From database etc.
+    code = 'user input one time pass';
+
+// True / False
+var status = otp.google.check(code, secret);
+
 ```
 
 
@@ -60,12 +77,20 @@ but it will NOT be compatible with Google Authenticator.
 
 ```javascript
 var otplib = require('otplib');
+
+
+var secret = 'base 32 encoded user secret' || otp.google.secret(),
+    qrcode = otp.core.qrcode('user', 'domain', secret);
+
+
+var code = otp.google.generate(secret);
+
 ```
 
 
 ## Documentation
 
-
+_(TO BE UPDATED)_
 
 
 
