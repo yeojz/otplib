@@ -32,7 +32,7 @@ function getTimer(){
 
 // Generate a random secret: otp.google.secret();
 var secret = otp.google.secret(), //'GBTDMYRRMRRW2NZYNQ2DS23LMRTG6MRUGJXWMMDM',
-    qrcode = otp.google.qrcode('test', 'localhost', secret);
+    qrcode = otp.google.qrcode('user@localhost', 'myservice', secret);
 
 
 console.log('\n Secret : ' + secret);

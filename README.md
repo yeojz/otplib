@@ -176,19 +176,19 @@ Sets debug message printouts
 Generate a secret
 
 
-`keyuri(user, host, secret)`
+`keyuri(user, service, secret)`
 Key-uri _eg. outauth://totp/user:localhost?secet=NKEIBAOUFA_
 
- * `user` (_**string**_) _eg. joe_
- * `host` (_**string**_) _eg. github.com_
+ * `user` (_**string**_) _eg. joe@localhost_
+ * `service` (_**string**_) _eg. MyService_
  * `secret` (_**string**_) _user secret_
 
 
-`qrcode(user, host, secret)`
+`qrcode(user, service, secret)`
 Generates a QR Code image using Google Charts
 
- * `user` (_**string**_) _eg. joe_
- * `host` (_**string**_) _eg. github.com_
+ * `user` (_**string**_) _eg. joe@localhost_
+ * `service` (_**string**_) _eg. MyService_
  * `secret` (_**string**_) _user secret_
 
 
