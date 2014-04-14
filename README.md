@@ -231,6 +231,7 @@ Base32 decoding
 
 | Version    | Notes       |
 |:-----------|:------------|
+| 0.0.3      | Version Bump for publish |
 | 0.0.2      | API movement |
 | 0.0.1      | First Release |
 
