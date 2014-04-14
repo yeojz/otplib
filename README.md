@@ -133,22 +133,6 @@ Time based OTP
 
 
 
-#### `details.uri(user, host, secret)`
-Identifier - otpauth://totp/
-
- * `user` (_**string**_) _eg. joe_
- * `host` (_**string**_) _eg. github.com_
- * `secret` (_**string**_) _user secret_
-
-
-
-#### `details.qrcode(uri)`
-Generates a QR Code image using Google Charts
-
- * `uri` (_**string**_) _eg. outauth://totp/user:localhost?secet=NKEIBAOUFA_
-
-
-
 #### `helpers.stringToHex(value)`  
 Converts String to Hex
 
@@ -192,9 +176,16 @@ Sets debug message printouts
 Generate a secret
 
 
+`keyuri(user, host, secret)`
+Key-uri _eg. outauth://totp/user:localhost?secet=NKEIBAOUFA_
+
+ * `user` (_**string**_) _eg. joe_
+ * `host` (_**string**_) _eg. github.com_
+ * `secret` (_**string**_) _user secret_
+
 
 `qrcode(user, host, secret)`
-Retrive QR code
+Generates a QR Code image using Google Charts
 
  * `user` (_**string**_) _eg. joe_
  * `host` (_**string**_) _eg. github.com_
@@ -240,6 +231,7 @@ Base32 decoding
 
 | Version    | Notes       |
 |:-----------|:------------|
+| 0.0.2      | API movement |
 | 0.0.1      | First Release |
 
 
