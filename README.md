@@ -177,7 +177,7 @@ Generate a secret
 
 
 `keyuri(user, service, secret)`
-Key-uri _eg. outauth://totp/user:localhost?secet=NKEIBAOUFA_
+Key-uri _eg. outauth://totp/service:user?secret=NKEIBAOUFA&issuer=service_
 
  * `user` (_**string**_) _eg. joe@localhost_
  * `service` (_**string**_) _eg. MyService_
