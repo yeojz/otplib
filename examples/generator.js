@@ -1,6 +1,8 @@
 /*
  *  Sample Token and Secret Generation
  *  Command Line
+ *
+ *  Requires "prompt" pacakge if running this file
  */
 
 

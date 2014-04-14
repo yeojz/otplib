@@ -1,6 +1,8 @@
 /*
  *  Sample Token Checking
  *  Command Line
+ *
+ *  Requires "prompt" pacakge if running this file
  */
 
 
