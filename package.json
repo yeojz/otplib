@@ -22,7 +22,7 @@
   "files": [
     ""
   ],
-  "keywords": [],
+  "keywords": ["otp", "totp", "hotp", "one time password", "google authenticator", "authentication"],
   "devDependencies": {
     "grunt-contrib-jshint": "~0.7.0",
     "grunt-contrib-nodeunit": "~0.2.0",
