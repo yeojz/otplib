@@ -2,6 +2,11 @@
 Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
 
+
+
+
+
+
 ## About
 
 otplib is another node based One Time Password (OTP) Library.
@@ -16,6 +21,11 @@ This library is compatible with [Google Authenticator](http://code.google.com/p/
 methods to allow you to easily work with Google Authenticator
 
 
+
+
+
+
+
 ## Getting Started
 Install the module with: `npm install otplib`
 
@@ -23,13 +33,9 @@ Install the module with: `npm install otplib`
 var otplib = require('otplib');
 ```
 
-## Sample Usage
-
-
-###Token Generation
+### Token Generation
 ```javascript
 var otplib = require('otplib');
-
 
 // Basic
 var secret = 'user secret' || otp.core.secret(),
@@ -39,24 +45,22 @@ var secret = 'user secret' || otp.core.secret(),
 var code = otp.core.totp(secret);
 
 console.log('OTP: ' + code);
-
 ```
 
 
-
-###Token Validation
+### Token Validation
 
 ```javascript
 var otplib = require('otplib');
 
-var secret = 'user secret', // From database etc.
-    code = 'user input one time pass';
+// From database etc.
+var secret = 'user secret',
+    code = 'user provided OTP';
 
 // True / False
 var status = otp.google.check(code, secret);
 
 console.log('Is Token Valid: ' + status);
-
 ```
 
 
@@ -75,11 +79,10 @@ Google Authenticator requires an [RFC 3548](http://tools.ietf.org/html/rfc3548) 
 OTP calculation will still work should you want to use other base32 encoding methods (like Crockford's Base 32)
 but it will NOT be compatible with Google Authenticator.
 
-### Sample
+### GAuth Sample
 
 ```javascript
 var otplib = require('otplib');
-
 
 var secret = 'base 32 encoded user secret' || otp.google.secret(),
     qrcode = otp.core.qrcode('user', 'domain', secret);
@@ -87,19 +90,137 @@ var secret = 'base 32 encoded user secret' || otp.google.secret(),
 var code = otp.google.generate(secret);
 
 console.log('OTP: ' + code);
-
 ```
+
+
+
 
 
 ## Documentation
 
 _(TO BE UPDATED)_
 
+### Core
+
+
+
+
+#### `otplib.hotp(secret, counter)`
+HMAC based OTP
+
+  * `secret` (_**string**_) _user secret_
+  * `counter` (_**integer**_)
+
+#### `otplib.totp(secret)`
+Time based OTP
+
+  * `secret` (_**string**_) _user secret_
+
+#### `otplib.secret`
+
+ `otplib.secret.generate(radix)`
+ Generate a random secret
+
+ * radix (_**string**_) [optional]
+
+#### `otplib.details`
+
+`otplib.details.uri(user, host, secret)`
+Identifier - otpauth://totp/
+
+ * `user` (_**string**_) _eg. joe_
+ * `host` (_**string**_) _eg. github.com_
+ * `secret` (_**string**_) _user secret_
+
+`otplib.details.qrcode(uri)`
+Generates a QR Code image using Google Charts
+
+ * `uri` (_**string**_) _eg. outauth://totp/user:localhost?secet=NKEIBAOUFA_
+
+
+
+
+
+#### `otplib.helpers`
+
+`otplib.helpers.stringToHex(value)`  
+Converts String to Hex
+
+  * `value` (_**string**_)
+
+`otplib.helpers.hexToInt(hex)`
+Converts Hex into an Integer
+
+ * `hex` (_**string**_) _hexadecimal string_
+
+`otplib.helpers.intToHex(number)`
+Parse number into an Integer and convert to Hex
+
+ * `number` (_**string/integer**_) _parseInt(base 10) will be called on the number_
+
+`otplib.helpers.pad(value, total)`
+Do a left padding of the value based on the total
+
+ * `value` (_**string**_) _string to pad_
+ * `total` (_**string**_) _total number of characters in string_
+
+
+
+
+### googleAuthenticator
+
+
+`debug(status)`
+Sets debug message printouts
+
+ * `status` (_**boolean**_) _true/false_
+
+`secret()`
+Generate a secret
+
+`qrcode(user, host, secret)`
+Retrive QR code
+
+ * `user` (_**string**_) _eg. joe_
+ * `host` (_**string**_) _eg. github.com_
+ * `secret` (_**string**_) _user secret_
+
+`generate(secret)`
+Generate One Time Pass
+
+ * `secret` (_**string**_) _user secret_
+
+`check(token, secret)`
+Check for token validity
+
+ * `token` (_**string**_) _user provided one time pass_
+ * `secret` (_**string**_) _user secret_
+
+
+`encode(secret)`
+Base32 encoding
+
+ * `secret` (_**string**_) _user secret_
+
+`decode(secret)`
+Base32 decoding
+
+ * `secret` (_**string**_) _user secret_
+
+
+
+
+
+
 
 
 ## Release History
 
- * 0.0.1 - First Release
+| Version    | Notes       |
+|:-----------|:------------|
+| 0.0.1      | First Release |
+
+
 
 
 
