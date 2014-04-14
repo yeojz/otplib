@@ -9,7 +9,7 @@ Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
 ## About
 
-otplib is another node based One Time Password (OTP) Library.
+`otplib` is another node based One Time Password (OTP) Library.
 It was initially created for me to understand how One Time Passwords work in implementation.
 
 It implements:
@@ -45,11 +45,11 @@ var otplib = require('otplib');
 var otplib = require('otplib');
 
 // Basic
-var secret = 'user secret' || otp.core.secret(),
-    qrcode = otp.core.qrcode('user', 'domain', secret);
+var secret = 'user secret' || otplib.core.secret(),
+    qrcode = otplib.core.qrcode('user', 'domain', secret);
 
 // Generating OTP
-var code = otp.core.totp(secret);
+var code = otplib.core.totp(secret);
 
 console.log('OTP: ' + code);
 ```
@@ -65,7 +65,7 @@ var secret = 'user secret',
     code = 'user provided OTP';
 
 // True / False
-var status = otp.google.check(code, secret);
+var status = otplib.google.check(code, secret);
 
 console.log('Is Token Valid: ' + status);
 ```
@@ -92,10 +92,10 @@ but it will NOT be compatible with Google Authenticator.
 ```javascript
 var otplib = require('otplib');
 
-var secret = 'base 32 encoded user secret' || otp.google.secret(),
-    qrcode = otp.core.qrcode('user', 'domain', secret);
+var secret = 'base 32 encoded user secret' || otplib.google.secret(),
+    qrcode = otplib.core.qrcode('user', 'domain', secret);
 
-var code = otp.google.generate(secret);
+var code = otplib.google.generate(secret);
 
 console.log('OTP: ' + code);
 ```
