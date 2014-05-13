@@ -45,8 +45,7 @@ var otplib = require('otplib');
 var otplib = require('otplib');
 
 // Basic
-var secret = 'user secret' || otplib.core.secret(),
-    qrcode = otplib.core.qrcode('user', 'domain', secret);
+var secret = 'user secret' || otplib.core.secret();
 
 // Generating OTP
 var code = otplib.core.totp(secret);
@@ -65,7 +64,7 @@ var secret = 'user secret',
     code = 'user provided OTP';
 
 // True / False
-var status = otplib.google.check(code, secret);
+var status = otplib.core.token.check(code, secret, 'totp');
 
 console.log('Is Token Valid: ' + status);
 ```
@@ -93,7 +92,7 @@ but it will NOT be compatible with Google Authenticator.
 var otplib = require('otplib');
 
 var secret = 'base 32 encoded user secret' || otplib.google.secret(),
-    qrcode = otplib.core.qrcode('user', 'domain', secret);
+    qrcode = otplib.google.qrcode('user@domain', 'service', secret);
 
 var code = otplib.google.generate(secret);
 
@@ -130,6 +129,16 @@ Time based OTP
  Generate a random secret
 
  * radix (_**string**_) [optional]
+
+
+
+#### `token.check(token, secret, type, counter)`
+Simple checking method for token
+
+ * `token` (_**string**_) _user provided one time pass_
+ * `secret` (_**string**_) _user secret_
+ * `type` (_**string**_) _'hotp' or 'totp'_
+ * `counter` (_**string**_) [optional] _required for hotp_ 
 
 
 
@@ -231,6 +240,7 @@ Base32 decoding
 
 | Version    | Notes       |
 |:-----------|:------------|
+| 1.1.0      | Added check function to core and readme change |
 | 1.0.0      | Stable Release |
 | 0.0.3      | Version Bump for publish |
 | 0.0.2      | API movement |

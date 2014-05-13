@@ -3,6 +3,7 @@
  *  Command Line
  *
  *  Requires "prompt" pacakge if running this file
+ *  `npm install prompt`
  */
 
 
