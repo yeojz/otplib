@@ -30,7 +30,7 @@ exports.otplib = {
   'no args': function(test) {
     test.expect(1);
     // tests here
-    // test.equal(otplib.awesome(), 'awesome', 'should be awesome.');
+    // test.equal(otplib.google.encode(1), otplib.google.decode(1), 'Encode/Decode Equal');
     test.done();
   }
 };

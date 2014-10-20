@@ -23,10 +23,10 @@ module.exports = function (grunt) {
       },
       lib: {
         src: ['lib/**/*.js']
-      },
-      test: {
-        src: ['test/**/*.js']
       }
+      // test: {
+      //   src: ['test/**/*.js']
+      // }
     },
 
     watch: {
@@ -47,6 +47,7 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'nodeunit']);
+  // grunt.registerTask('default', ['jshint', 'nodeunit']);
+  grunt.registerTask('default', ['jshint']);
 
 };
