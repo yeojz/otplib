@@ -240,6 +240,7 @@ Base32 decoding
 
 | Version    | Notes       |
 |:-----------|:------------|
+| 1.1.2      | Bug in string to hex conversion resulting in failed Google Apps Code Generation|
 | 1.1.1      | Bug in decoding (uppercase) resulting in unsync tokens + jshint fixes|
 | 1.1.0      | Added check function to core and readme change |
 | 1.0.0      | Stable Release |

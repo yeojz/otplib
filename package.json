@@ -1,6 +1,6 @@
 {
   "name": "otplib",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "lib/index.js",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
   "homepage": "https://github.com/yeojz/otplib",
@@ -22,7 +22,7 @@
   "files": [
     ""
   ],
-  "keywords": ["otp", "totp", "hotp", "one time password", "google authenticator", "authentication"],
+  "keywords": ["otp", "totp", "hotp", "one time password", "google authenticator", "authentication", "2FA", "2 factor"],
   "devDependencies": {
     "grunt-contrib-jshint": "~0.7.0",
     "grunt-contrib-nodeunit": "~0.2.0",
