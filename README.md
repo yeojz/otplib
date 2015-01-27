@@ -1,8 +1,9 @@
 # otplib
 Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
-
-
+- [`API`](/API.md)
+- [`Changelog`](/CHANGELOG.md)
+- [`License`](/LICENSE.md)
 
 
 
@@ -106,7 +107,7 @@ console.log('Is Token Valid: ' + status);
 
 
 
-## Google Authenticator
+## Note on Google Authenticator
 
 ### Base32 Keys
 
@@ -136,11 +137,7 @@ console.log('OTP: ' + code);
 
 
 
-## Documentations
 
-- [`API`](/API.md)
-- [`Changelog`](/CHANGELOG.md)
-- [`License`](/LICENSE.md)
 
 
 
