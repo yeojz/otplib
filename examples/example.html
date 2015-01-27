@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>OTP Example</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">    
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="../bin/otplib.js"></script>
+
+  <style type="text/css">
+    body {
+      background: #888;
+    }
+    .example {
+      width: 60%;
+      margin: 3em auto;
+
+      border: 1px #ddd solid;
+      background: #fefefe;
+    }
+
+    .example header{
+      padding: 1em;
+      border-bottom: 1px #ddd solid;
+      background: #eee;
+    }
+
+    .two-col {
+      float: left;
+      width: 50%;
+      padding: 1em;
+    }
+
+    .two-col-1 {
+      width: 200px;
+    }
+
+    .two-col ul li{
+      margin-bottom: 1em;
+    }
+
+    .two-col ul strong{
+      display: inline-block;
+      width: 100px;
+    }
+
+    .clearfix {
+      clear: both;
+    }
+  </style>
+</head>
+<body>
+  <!-- Not the most beautiful html -->
+
+
+  <section class="example">
+    <header>
+      <h1>OTP</h1>
+      <p>Scan the code using Google Authenticator</p>
+    </header>
+
+    <div class="two-col two-col-1">
+      <img id="ga-content-qrcode" />
+    </div>
+    <div class="two-col">
+        <ul>
+          <li><strong>Secret </strong>: <span id="ga-content-secret"></span></li>
+          <li><strong>OTP Token </strong>: <span id="ga-content-otp"></span></li>
+          <li><strong>Epoch </strong>: <span id="ga-content-countdown"></span></li>
+        </ul>
+    </div>
+
+    <div class="clearfix"></div>
+  </section>
+
+
+  <section class="example">
+
+    <header>
+      <h1>Random Secret</h1>
+      <p>Non-Google Authenticator</p>
+    </header>
+    
+    <div class="two-col two-col-1">
+      <img id="random-content-qrcode" />
+    </div>
+    <div class="two-col">
+        <ul>
+          <li><strong>Secret </strong>: <span id="random-content-secret"></span></li>
+          <li><strong>Refresh in </strong>: <span id="random-content-countdown"></span>s</li>
+        </ul>
+    </div>
+
+    <div class="clearfix"></div>
+  </section>
+
+  <script type="text/javascript">
+    var otplib = require('otplib');
+
+    var store = {
+      ga: ''
+    };
+
+    /*
+     *  Helper
+     */
+    function generate(id, type){
+
+      var secret, qrcode;
+
+      if (type === 'goog'){
+        secret = otplib.google.secret();
+        qrcode = otplib.google.qrcode('otplib@localhost', 'otplib: Example', secret);
+
+        store[id] = secret;
+      } else {
+        secret = otplib.core.secret.generate(16);
+        qrcode = '';
+      }
+      
+      secret = otplib.core.secret.divideIntoSetsOf(4, secret);
+
+      document.getElementById(id+'-content-secret').innerHTML = secret;
+      document.getElementById(id+'-content-qrcode').src = qrcode;
+    }
+
+
+
+
+
+    /*
+     *  Google Authenticator Sample
+     */
+
+
+
+    function getOTP(){
+      var otp = otplib.google.generate(store['ga']);
+      document.getElementById('ga-content-otp').innerHTML = otp;
+    }
+
+
+    function getTimer(){
+      var epoch = Math.floor(new Date().getTime() / 1000.0);
+
+      if (epoch % 30 === 0){
+        getOTP();
+      }
+      document.getElementById('ga-content-countdown').innerHTML = epoch;
+    }
+
+
+    generate('ga', 'goog');
+    getOTP();
+    setInterval(getTimer, 1000);
+
+
+    /*
+     *  Random Secret.
+     */
+
+    var counter = 30;
+
+    function otprand(){
+      generate('random');
+
+      counter = 30;
+    }
+
+    function countdown(){
+      counter = counter - 1;
+      document.getElementById('random-content-countdown').innerHTML = counter;
+
+    }
+
+    countdown();
+    otprand();
+
+    setInterval(otprand, 30000); 
+    setInterval(countdown, 1000);
+
+  </script>
+</body>
+</html>

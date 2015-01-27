@@ -59,7 +59,7 @@ var cryptoHmac = require('crypto');
 /*
  *  Initialization
  */
-var otplib = function otplib() {
+var OTP = function otp() {
 
   // Final OTP Length
   this.digits = 6;
@@ -78,13 +78,12 @@ var otplib = function otplib() {
 
 
 
-
 /*
  *  HMAC based OTP
  *
  *  Note: SHA1 -> 160 bits, 40 char hex length, 1 char = 4bits
  */
-otplib.prototype.hotp = function hotp(secret, counter) {
+OTP.prototype.hotp = function hotp(secret, counter) {
 
       // Convert to hex
   var _secret = this.helpers.stringToHex(secret);
@@ -132,12 +131,10 @@ otplib.prototype.hotp = function hotp(secret, counter) {
 
 
 
-
-
 /*
  *  Time based OTP
  */
-otplib.prototype.totp = function totp(secret) {
+OTP.prototype.totp = function totp(secret) {
 
   // Current System Time (T0)
   var _epoch = new Date().getTime(),
@@ -150,7 +147,6 @@ otplib.prototype.totp = function totp(secret) {
 
       // Send it over to HOTP
       _totp = this.hotp(secret, _timeCounter);
-
 
   if (this.debug){
     console.log(' time : ' + _timeCounter);
@@ -166,34 +162,33 @@ otplib.prototype.totp = function totp(secret) {
 
 
 
-
-
-
-
-
-
-
-
 /*
  *  Utilities to management secrets
  */
-otplib.prototype.secret = {
+OTP.prototype.secret = {
 
   // Generate a random secret
-  // secret length must be multiples of 5 to prevent "=" padding from encoding
-  generate: function generate(radix) {
+  generate: function generate(length) {
+    var _random = '';
 
-    var _radix = radix || 26,
-        _random = Math.random()          // Maths random -> maybe use something else if possible
-                      .toString(_radix)  // Corresponds to length
-                      .slice(2);        // Get floating point
+    for (var i = 0; i < length; i++){
+      _random += Math.random().toString(26).slice(2,3);
+    }
 
+    return _random;
+  },
 
-    // Ensuring base32 encoding without padding
-    var _padding = _random.length % 5;
-    _random = _random.slice(0, _random.length - _padding);
+  removeSpaces: function removeSpaces(secret){
+    return secret.replace(/\s+/g, '');
+  },
 
-    return _random.toUpperCase();
+  divideIntoSetsOf: function divideIntoSetsOf(num, secret){
+    var regex = '';
+
+    num = num || 4;    
+    regex = new RegExp('.{1,'+num+'}', 'g');
+
+    return (secret) ? secret.match(regex).join(' ') : '';
   }
 
 };
@@ -205,18 +200,10 @@ otplib.prototype.secret = {
 
 
 
-
-
-
-
-
-
-
-
 /*
  *  Utilities to management token
  */
-otplib.prototype.token = {
+OTP.prototype.token = {
 
   // Simple checking method for token
   check: function check(token, secret, type, counter){
@@ -247,7 +234,7 @@ otplib.prototype.token = {
 /*
  *  Helpers (mostly for internal use)
  */
-otplib.prototype.helpers = {
+OTP.prototype.helpers = {
 
 
   // Converts String to Hex
@@ -299,4 +286,4 @@ otplib.prototype.helpers = {
 
 
 
-module.exports = new otplib();
+module.exports = new OTP();

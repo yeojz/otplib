@@ -33,7 +33,7 @@
 /*
  *  Libraries
  */
-var otplib = require('./otplib'),
+var core = require('./core'),
     base32 = require('thirty-two');
 
 
@@ -44,18 +44,21 @@ var otplib = require('./otplib'),
 /*
  *  Google OTP Auth Object
  */
-var googleAuthenticator = {
+var GoogleAuthenticator = {
 
   // Set debug messages
   debug: function debug(status) {
-    otplib.debug = status;
+    core.debug = status;
   },
 
 
   // Generate the secret
-  secret: function secret() {
-    var _secret = otplib.secret.generate();
-    return this.encode(_secret);
+  // Common length = 16
+  secret: function secret(length) {
+    length = length || 16;
+    var _secret = core.secret.generate(40);
+
+    return this.encode(_secret).slice(0, length);
   },
 
 
@@ -68,9 +71,6 @@ var googleAuthenticator = {
         _secret = secret || '',
         _data = '%service:%user?secret=%secret&issuer=%service',
         _protocol = 'otpauth://totp/';
-
-    // Ensure Unifromity
-    _secret = _secret.toUpperCase();
 
     // Repalce string
     _data = _data.replace('%user', _user);
@@ -94,8 +94,9 @@ var googleAuthenticator = {
 
   // Generate OTP
   generate: function generate(secret) {
+
     var _secret = this.decode(secret),
-        _code = otplib.totp(_secret);
+        _code = core.totp(_secret);
 
     return _code;
   },
@@ -110,17 +111,19 @@ var googleAuthenticator = {
 
 
   // Base32 encoding
-  encode: function encode(secret) {
-    return base32.encode(secret).replace(/=/g,'');
+  encode: function encode(secret, type) {
+    type = type || 'binary';
+    return base32.encode(secret).toString(type);
   },
 
 
   // Base32 decoding
-  decode: function decode(secret) {
-    return base32.decode(secret);
-  }
+  decode: function decode(secret, type) {
+    type = type || 'binary';
+    return base32.decode(secret).toString(type);
+  },
 };
 
 
 
-module.exports = googleAuthenticator;
+module.exports = GoogleAuthenticator;

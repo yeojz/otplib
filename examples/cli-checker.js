@@ -8,7 +8,7 @@
 
 
 var prompt = require('prompt'),
-    otp = require('../lib/index'),
+    otp = require('../src'),
     verified = false,
     secret = '';
 
@@ -24,16 +24,13 @@ function getOTP() {
 
     console.log('');
 
-    if (err){
-      return;
-    }
+    if (err){ return; }
 
-    if (result.OTP != 'q'){
+    if (result.OTP !== 'q'){
 
       // verify
       console.log(' System Token : ' + otp.google.generate(secret));
       verified = otp.google.check(result.OTP, secret);
-
 
       console.log("\n Verification Status : "+ verified);
       // recurse
@@ -42,7 +39,6 @@ function getOTP() {
     } else {
       return;
     }
-
   });
 }
 
@@ -50,7 +46,6 @@ function getOTP() {
 
 console.log("\nEnter Your Secret:");
 prompt.get(['secret'], function (err, result) {
-    //result.secret = 'GBTDMYRRMRRW2NZYNQ2DS23LMRTG6MRUGJXWMMDM';
     console.log('Your Secret : ' + result.secret);
     secret = result.secret;
 

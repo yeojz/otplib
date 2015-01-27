@@ -8,8 +8,8 @@
  */
 
 
-var core = require('./components/otplib'),
-    ga = require('./components/googleAuthenticator');
+var core = require('./core'),
+    ga = require('./ga');
 
 
 

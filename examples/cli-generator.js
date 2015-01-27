@@ -5,22 +5,22 @@
 
 
 
-var otp = require('../lib/index'),
+var otp = require('../src'),
     secret = '';
 
 otp.google.debug(true);
 
 
 function getOTP(){
-  var token = otp.google.generate(secret);
+  otp.google.generate(secret);
 }
 
 
 function getTimer(){
     var epoch = Math.floor(new Date().getTime() / 1000.0);
-    var countDown = 30 - (epoch % 30);
+    // var countDown = 30 - (epoch % 30);
 
-    if (epoch % 30 == 0){
+    if (epoch % 30 === 0){
       console.log('');
       getOTP();
     }
@@ -31,7 +31,7 @@ function getTimer(){
 
 
 // Generate a random secret: otp.google.secret();
-var secret = otp.google.secret(), //'GBTDMYRRMRRW2NZYNQ2DS23LMRTG6MRUGJXWMMDM',
+var secret = otp.google.secret(),
     qrcode = otp.google.qrcode('user@localhost', 'myservice', secret);
 
 
