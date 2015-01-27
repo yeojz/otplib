@@ -121,7 +121,7 @@ var GoogleAuthenticator = {
   decode: function decode(secret, type) {
     type = type || 'binary';
     return base32.decode(secret).toString(type);
-  },
+  }
 };
 
 
