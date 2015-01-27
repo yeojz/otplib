@@ -9,8 +9,10 @@ Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
 ## About
 
-`otplib` is another node based One Time Password (OTP) Library.
+`otplib` is a JavaScript One Time Password (OTP) Library. 
+
 It was initially created for me to understand how One Time Passwords work in implementation.
+
 
 It implements:
 
@@ -27,11 +29,39 @@ methods to allow you to easily work with Google Authenticator.
 
 
 ## Installation
-Install the module with: `npm install otplib`
+Install the module via `npm`
 
+```
+ $ npm install otplib
+```
+
+
+
+
+
+
+
+
+
+## Usage
+
+While this package is primarily a `node.js` module, a browser-based version which is compiled using `browserify` can be found in `bin/otplib.js`. 
+
+
+### node.js
 ```javascript
 var otplib = require('otplib');
 ```
+
+### browser
+```html
+<script src="bin/otplib.js"></script>
+
+<script type="text/javascript">
+   var otplib = require('otplib');
+</script>
+```
+
 
 
 
@@ -45,7 +75,7 @@ var otplib = require('otplib');
 var otplib = require('otplib');
 
 // Basic
-var secret = 'user secret' || otplib.core.secret();
+var secret = otplib.core.secret.generate(); //'user secret'
 
 // Generating OTP
 var code = otplib.core.totp(secret);
@@ -73,6 +103,9 @@ console.log('Is Token Valid: ' + status);
 
 
 
+
+
+
 ## Google Authenticator
 
 ### Base32 Keys
@@ -86,18 +119,22 @@ Google Authenticator requires an [RFC 3548](http://tools.ietf.org/html/rfc3548) 
 OTP calculation will still work should you want to use other base32 encoding methods (like Crockford's Base 32)
 but it will NOT be compatible with Google Authenticator.
 
-### GAuth Sample
+### Sample
 
 ```javascript
 var otplib = require('otplib');
 
-var secret = 'base 32 encoded user secret' || otplib.google.secret(),
+var secret = otplib.google.secret(), //'base 32 encoded user secret'
     qrcode = otplib.google.qrcode('user@domain', 'service', secret);
 
 var code = otplib.google.generate(secret);
 
 console.log('OTP: ' + code);
 ```
+
+
+
+
 
 ## Documentations
 

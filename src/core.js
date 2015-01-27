@@ -171,6 +171,8 @@ OTP.prototype.secret = {
   generate: function generate(length) {
     var _random = '';
 
+    length = length || 16;
+
     for (var i = 0; i < length; i++){
       _random += Math.random().toString(26).slice(2,3);
     }
