@@ -1,6 +1,6 @@
 {
   "name": "otplib",
-  "version": "2.0.0",
+  "version": "2.0.0-beta",
   "main": "src/index.js",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
   "homepage": "https://github.com/yeojz/otplib",
