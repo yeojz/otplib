@@ -214,11 +214,11 @@ OTP.prototype.token = {
         _counter;
 
     if (type === 'totp'){
-      _systemToken = this.totp(secret);
+      _systemToken = (new OTP()).totp(secret);
       
     } else {
       _counter = counter || 0;
-      _systemToken = this.hotp(secret, _counter);
+      _systemToken = (new OTP()).hotp(secret, _counter);
     }
 
     return (_systemToken === token) ? true : false;
