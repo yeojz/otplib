@@ -69,6 +69,9 @@ var OTP = function otp() {
 
   // Console log debug messages
   this.debug = false;
+
+  // Testing
+  this.test = false;
 };
 
 
@@ -136,8 +139,11 @@ OTP.prototype.hotp = function hotp(secret, counter) {
  */
 OTP.prototype.totp = function totp(secret) {
 
+  // Debug
+  var depoch = (this.test) ? arguments[1] : undefined;
+
   // Current System Time (T0)
-  var _epoch = new Date().getTime(),
+  var _epoch = depoch || new Date().getTime(),
 
       // Time in Seconds (TS)
       _timeStep = this.timeStep,
@@ -203,27 +209,20 @@ OTP.prototype.secret = {
 
 
 /*
- *  Utilities to management token
+ *  Simple checking method for token
  */
-OTP.prototype.token = {
+OTP.prototype.checkTOTP = function checkTOTP(token, secret){
+  var _systemToken = this.totp(secret, arguments[2]);
 
-  // Simple checking method for token
-  check: function check(token, secret, type, counter){
+  return this.helpers.compareToken(token, _systemToken);
+};
 
-    var _systemToken = '',
-        _counter;
+OTP.prototype.checkHOTP = function checkHOTP(token, secret, counter){
 
-    if (type === 'totp'){
-      _systemToken = (new OTP()).totp(secret);
-      
-    } else {
-      _counter = counter || 0;
-      _systemToken = (new OTP()).hotp(secret, _counter);
-    }
+  var _counter = counter || 0,
+      _systemToken = this.hotp(secret, _counter);
 
-    return (_systemToken === token) ? true : false;
-  }
-
+  return this.helpers.compareToken(token, _systemToken);
 };
 
 
@@ -237,7 +236,9 @@ OTP.prototype.token = {
  *  Helpers (mostly for internal use)
  */
 OTP.prototype.helpers = {
-
+  compareToken: function(token, systemToken){
+    return (parseInt(systemToken) === parseInt(token)) ? true : false;
+  },
 
   // Converts String to Hex
   stringToHex: function stringToHex(value) {

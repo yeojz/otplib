@@ -3,7 +3,6 @@
 All examples assumes `var otplib = require('otplib');` as the base.
 
 
-<div style="margin-top:6em;"></div>
 
 ### `otplib.core.METHOD` - Core
 
@@ -24,6 +23,26 @@ Time based OTP
 #### `.totp(secret)`
 
   * `secret` (_**string**_) _user secret_
+
+--
+HOTP Check
+
+#### `.checkHOTP(token, secret, counter)` 
+
+
+ * `token` (_**string**_) _user provided one time pass_
+ * `secret` (_**string**_) _user secret_
+ * `counter` (_**string**_) 
+
+-- 
+
+TOTP Check
+
+#### `.checkTOTP(token, secret)` 
+
+
+ * `token` (_**string**_) _user provided one time pass_
+ * `secret` (_**string**_) _user secret_
 
 --
 
@@ -53,17 +72,6 @@ Divides a string into sets according to the specified number
 
 -- 
 
-Simple checking method for token
-
-#### `.token.check(token, secret, type, counter)` 
-
-
- * `token` (_**string**_) _user provided one time pass_
- * `secret` (_**string**_) _user secret_
- * `type` (_**string**_) _'hotp' or 'totp'_
- * `counter` (_**string**_) [optional] _required for hotp_ 
-
---
 
 Converts String to Hex
 
@@ -98,14 +106,13 @@ Do a left padding of the value based on the total
 
 --
 
-<div style="margin-top:6em;"></div>
 
 ### `otplib.google.METHOD` - Google Authenticator 
 --
 
 Sets debug message printouts
 
-### `debug(status)` 
+#### `.debug(status)` 
 
  * `status` (_**boolean**_) _true/false_
 
@@ -113,7 +120,7 @@ Sets debug message printouts
 
 Generate a secret
 
-#### `secret(length)` 
+#### `.secret(length)` 
 
  * length (_**integer**_) [optional, default: _16_] 
 
@@ -122,7 +129,7 @@ Generate a secret
 
 otpauth://totp/service:user?secret=NKEIBAOUFA&issuer=service
 
-#### `keyuri(user, service, secret)` 
+#### `.keyuri(user, service, secret)` 
 
  * `user` (_**string**_) _eg. joe@localhost_
  * `service` (_**string**_) _eg. MyService_
@@ -132,7 +139,7 @@ otpauth://totp/service:user?secret=NKEIBAOUFA&issuer=service
 
 Generates a QR Code image using Google Charts
 
-`qrcode(user, service, secret)` 
+`.qrcode(user, service, secret)` 
 
  * `user` (_**string**_) _eg. joe@localhost_
  * `service` (_**string**_) _eg. MyService_
@@ -143,7 +150,7 @@ Generates a QR Code image using Google Charts
 
 Generate One Time Pass
 
-#### `generate(secret)` 
+#### `.generate(secret)` 
 
  * `secret` (_**string**_) _user secret_
 
@@ -152,7 +159,7 @@ Generate One Time Pass
 
 Check for token validity
 
-#### `check(token, secret)` 
+#### `.check(token, secret)` 
 
  * `token` (_**string**_) _user provided one time pass_
  * `secret` (_**string**_) _user secret_
@@ -162,7 +169,7 @@ Check for token validity
 
 Base32 encoding
 
-#### `encode(secret, type)` 
+#### `.encode(secret, type)` 
 
  * `secret` (_**string**_) _user secret_
  * `type` (_**string**_) [optional, default: _binary_] _encoding: binary, utf8, ascii_
@@ -171,7 +178,7 @@ Base32 encoding
 
 Base32 decoding
 
-#### `decode(secret, type)` 
+#### `.decode(secret, type)` 
 
  * `secret` (_**string**_) _user secret_
  * `type` (_**string**_) [optional, default: _binary_] _encoding: binary, utf8, ascii_ 

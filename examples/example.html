@@ -87,12 +87,11 @@
 </head>
 <body>
   <!-- Not the most beautiful html -->
-  <h1>otplib: samples</h1>
+  <h1>One-Time Password: samples</h1>
 
   <section class="example">
     <header>
-      <h1>OTP</h1>
-      <p>Scan the code using Google Authenticator</p>
+      <h1>Scan the code using Google Authenticator</h1>
     </header>
 
     <div class="two-col two-col-1">
@@ -113,8 +112,7 @@
   <section class="example">
 
     <header>
-      <h1>Random Secret</h1>
-      <p>Non-Google Authenticator</p>
+      <h1>Random Secret: Non-Google Authenticator</h1>
     </header>
     
     <div class="one-col">
@@ -201,7 +199,7 @@
      *  Random Secret.
      */
 
-    var random_counter = 45;
+    var random_counter = 60;
 
     function randomTimer(){
       var epoch = Math.floor(new Date().getTime() / 1000.0);
@@ -216,7 +214,7 @@
     function randomGenerate(){
       generate('random');
 
-      random_counter = 45;
+      random_counter = 60;
     }
 
     function randomRefresh(){
@@ -231,7 +229,7 @@
     getOTP('random');    
 
     setInterval(randomTimer, 1000);
-    setInterval(randomGenerate, 45000); 
+    setInterval(randomGenerate, 60000); 
     setInterval(randomRefresh, 1000);
 
   </script>

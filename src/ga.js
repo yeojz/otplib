@@ -56,7 +56,12 @@ var GoogleAuthenticator = {
   // Common length = 16
   secret: function secret(length) {
     length = length || 16;
-    var _secret = core.secret.generate(40);
+
+    var _secret = '';
+
+    while (_secret.length < length){
+      _secret += core.secret.generate(40);
+    }
 
     return this.encode(_secret).slice(0, length);
   },
@@ -106,7 +111,7 @@ var GoogleAuthenticator = {
   check: function check(token, secret) {
     var _systemToken = this.generate(secret);
 
-    return (_systemToken === token) ? true : false;
+    return core.helpers.compareToken(token, _systemToken);
   },
 
 

@@ -17102,6 +17102,9 @@ var OTP = function otp() {
 
   // Console log debug messages
   this.debug = false;
+
+  // Testing
+  this.test = false;
 };
 
 
@@ -17169,8 +17172,11 @@ OTP.prototype.hotp = function hotp(secret, counter) {
  */
 OTP.prototype.totp = function totp(secret) {
 
+  // Debug
+  var depoch = (this.test) ? arguments[1] : undefined;
+
   // Current System Time (T0)
-  var _epoch = new Date().getTime(),
+  var _epoch = depoch || new Date().getTime(),
 
       // Time in Seconds (TS)
       _timeStep = this.timeStep,
@@ -17236,27 +17242,22 @@ OTP.prototype.secret = {
 
 
 /*
- *  Utilities to management token
+ *  Simple checking method for token
  */
-OTP.prototype.token = {
+OTP.prototype.checkTOTP = function checkTOTP(token, secret){
+  
+  delete arguments[0];
+  var _systemToken = this.totp.apply(arguments);
 
-  // Simple checking method for token
-  check: function check(token, secret, type, counter){
+  return (_systemToken === token) ? true : false;
+};
 
-    var _systemToken = '',
-        _counter;
+OTP.prototype.checkHOTP = function checkHOTP(token, secret, counter){
 
-    if (type === 'totp'){
-      _systemToken = this.totp(secret);
-      
-    } else {
-      _counter = counter || 0;
+  var _counter = counter || 0,
       _systemToken = this.hotp(secret, _counter);
-    }
 
-    return (_systemToken === token) ? true : false;
-  }
-
+  return (_systemToken === token) ? true : false;
 };
 
 
@@ -17383,7 +17384,12 @@ var GoogleAuthenticator = {
   // Common length = 16
   secret: function secret(length) {
     length = length || 16;
-    var _secret = core.secret.generate(40);
+
+    var _secret = '';
+    
+    while (_secret.length < length){
+      _secret += core.secret.generate(40);
+    }
 
     return this.encode(_secret).slice(0, length);
   },
@@ -17448,7 +17454,7 @@ var GoogleAuthenticator = {
   decode: function decode(secret, type) {
     type = type || 'binary';
     return base32.decode(secret).toString(type);
-  },
+  }
 };
 
 
