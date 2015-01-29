@@ -14,7 +14,7 @@ var prompt = require('prompt'),
     secret = '';
 
 
-otp.google.debug(false);
+otp.core.debug = true;
 
 prompt.start();
 

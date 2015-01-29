@@ -211,18 +211,22 @@ OTP.prototype.secret = {
 /*
  *  Simple checking method for token
  */
+
 OTP.prototype.checkTOTP = function checkTOTP(token, secret){
   var _systemToken = this.totp(secret, arguments[2]);
 
-  return this.helpers.compareToken(token, _systemToken);
+  return this.helpers.isSameToken(token, _systemToken);
 };
+
+
+
 
 OTP.prototype.checkHOTP = function checkHOTP(token, secret, counter){
 
   var _counter = counter || 0,
       _systemToken = this.hotp(secret, _counter);
 
-  return this.helpers.compareToken(token, _systemToken);
+  return this.helpers.isSameToken(token, _systemToken);
 };
 
 
@@ -236,9 +240,12 @@ OTP.prototype.checkHOTP = function checkHOTP(token, secret, counter){
  *  Helpers (mostly for internal use)
  */
 OTP.prototype.helpers = {
-  compareToken: function(token, systemToken){
-    return (parseInt(systemToken) === parseInt(token)) ? true : false;
+
+  // Compares 2 tokens
+  isSameToken: function(token1, token2){
+    return (parseInt(token1) === parseInt(token2)) ? true : false;
   },
+
 
   // Converts String to Hex
   stringToHex: function stringToHex(value) {

@@ -72,7 +72,6 @@ Divides a string into sets according to the specified number
 
 -- 
 
-
 Converts String to Hex
 
 #### `.helpers.stringToHex(value)` 
@@ -106,16 +105,16 @@ Do a left padding of the value based on the total
 
 --
 
+Check if 2 tokens are the same
 
-### `otplib.google.METHOD` - Google Authenticator 
+#### `helpers.isSameToken(token1, token2)` 
+
+ * `token1` (_**string**_) 
+ * `token2` (_**string**_) 
+
 --
 
-Sets debug message printouts
-
-#### `.debug(status)` 
-
- * `status` (_**boolean**_) _true/false_
-
+### `otplib.google.METHOD` - Google Authenticator 
 --
 
 Generate a secret

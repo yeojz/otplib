@@ -46,12 +46,6 @@ var core = require('./core'),
  */
 var GoogleAuthenticator = {
 
-  // Set debug messages
-  debug: function debug(status) {
-    core.debug = status;
-  },
-
-
   // Generate the secret
   // Common length = 16
   secret: function secret(length) {
@@ -111,7 +105,7 @@ var GoogleAuthenticator = {
   check: function check(token, secret) {
     var _systemToken = this.generate(secret);
 
-    return core.helpers.compareToken(token, _systemToken);
+    return core.helpers.isSameToken(token, _systemToken);
   },
 
 

@@ -8,7 +8,7 @@
 var otp = require('../src'),
     secret = '';
 
-otp.google.debug(true);
+otp.core.debug = true;
 
 
 function getOTP(){
