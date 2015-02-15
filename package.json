@@ -1,20 +1,16 @@
 {
   "name": "otplib",
   "version": "2.0.0-beta",
-  "main": "src/index.js",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "homepage": "https://github.com/yeojz/otplib",
-  "bugs": "https://github.com/yeojz/otplib/issues",
-  "author": {
-    "name": "Gerald Yeo",
-    "email": "contact@fusedthought.com",
-    "url": "http://fusedthought.com"
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha ./test",
+    "build": "browserify -r ./src/index.js:otplib > ./bin/otplib.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/yeojz/otplib.git"
-  },
-  "licenses": "MIT",
+  },  
   "keywords": [
     "otp",
     "totp",
@@ -23,12 +19,17 @@
     "google authenticator",
     "authentication",
     "2FA",
-    "2 factor"
+    "2 factor",
+    "node",
+    "browser",
+    "browserify"
   ],
-  "scripts": {
-    "test": "mocha ./test",
-    "build": "browserify -r ./src/index.js:otplib > ./bin/otplib.js"
-  },
+  "author": "Gerald Yeo <contact@fusedthought.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yeojz/otplib/issues"
+  },  
+  "homepage": "https://github.com/yeojz/otplib",
   "devDependencies": {
     "browserify": "^8.1.1",
     "expect.js": "^0.3.1",
