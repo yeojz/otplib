@@ -1,9 +1,8 @@
 # otplib
 Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
-[![Build Status](https://travis-ci.org/yeojz/otplib.svg?branch=master)](https://travis-ci.org/yeojz/otplib)
-[![Dependency Status](https://david-dm.org/yeojz/otplib.svg)](https://david-dm.org/yeojz/otplib)
-[![devDependency Status](https://david-dm.org/yeojz/otplib/dev-status.svg)](https://david-dm.org/yeojz/otplib#info=devDependencies)
+[![npm](https://img.shields.io/npm/v/metalsmith-react-templates.svg)](https://www.npmjs.com/package/metalsmith-react-templates)
+[![Build Status](https://img.shields.io/travis/yeojz/otplib.svg)](https://travis-ci.org/yeojz/otplib)
 
 
 - [`API`](/API.md)
