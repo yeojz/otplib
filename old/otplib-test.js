@@ -1,8 +1,8 @@
 var expect = require('expect.js');
 
-console.log("  Classification: ");
-console.log("     [Assurance] = Backward Compatibility");
-console.log("     [.method] = Method that is tested");
+console.log('  Classification: ');
+console.log('     [Assurance] = Backward Compatibility');
+console.log('     [.method] = Method that is tested');
 
 describe('otplib', function(){
 
@@ -22,24 +22,24 @@ describe('otplib', function(){
   var failSet = [
     ['9821741871231', 1078968, 'Should fail'],
     ['18748612', 982671, '18748612'],
-    ['18748612', 982671, 125832],
+    ['18748612', 982671, 125832]
   ];
 
 
 
 
-  beforeEach(function(){ 
+  beforeEach(function(){
     otplib = require('../src');
   });
-  
 
-  afterEach(function(){ 
+
+  afterEach(function(){
     otplib = '';
   });
 
 
   it('[Assurance] Ensure important entry methods exist', function(){
-    
+
     // Module Exports
     expect(otplib).to.be.an('object');
     expect(otplib.google).to.be.an('object');
@@ -62,11 +62,11 @@ describe('otplib', function(){
   it('[core.hotp] Ensure correct code generation', function(){
 
     for (var i in passSet){
-      expect(otplib.core.hotp(passSet[i][0], passSet[i][1])).to.be.eql(passSet[i][2]);      
+      expect(otplib.core.hotp(passSet[i][0], passSet[i][1])).to.be.eql(passSet[i][2]);
     }
 
-    for (var i in failSet){
-      expect(otplib.core.hotp(failSet[i][0], failSet[i][1])).to.not.eql(failSet[i][2]);      
+    for (var j in failSet){
+      expect(otplib.core.hotp(failSet[j][0], failSet[j][1])).to.not.eql(failSet[j][2]);
     }
 
   });
@@ -75,11 +75,11 @@ describe('otplib', function(){
   it('[core.checkHOTP]', function(){
 
     for (var i in passSet){
-      expect(otplib.core.checkHOTP(passSet[i][2], passSet[i][0], passSet[i][1])).to.be.eql(true);      
+      expect(otplib.core.checkHOTP(passSet[i][2], passSet[i][0], passSet[i][1])).to.be.eql(true);
     }
-    
-    for (var i in failSet){
-      expect(otplib.core.checkHOTP(failSet[i][2], failSet[i][0], failSet[i][1])).to.be.eql(false);      
+
+    for (var j in failSet){
+      expect(otplib.core.checkHOTP(failSet[j][2], failSet[j][0], failSet[j][1])).to.be.eql(false);
     }
   });
 
@@ -88,11 +88,11 @@ describe('otplib', function(){
     var key = 972213;
 
     otplib.core.test = true;
-    
-    expect(otplib.core.checkTOTP(key, '12341234123412341234', 59*1000)).to.be.eql(true);
-    expect(otplib.core.checkTOTP(key+1, '12341234123412341234', 59*1000)).to.be.eql(false);
+
+    expect(otplib.core.checkTOTP(key, '12341234123412341234', 59 * 1000)).to.be.eql(true);
+    expect(otplib.core.checkTOTP(key + 1, '12341234123412341234', 59 * 1000)).to.be.eql(false);
   });
-  
+
 
   it('[core.secret.generate] Should generate secret of specified length', function(){
     expect(otplib.core.secret.generate(-1).length).to.be.eql(0);
@@ -120,16 +120,16 @@ describe('otplib', function(){
 
     // Secret length between 10 and 50
     function secret(){
-      var length = (Math.random() *  39 + 10).toString(10).slice(0,2);
+      var length = (Math.random() * 39 + 10).toString(10).slice(0, 2);
       return Math.random().toString(25).slice(2, length);
     }
 
     for (var i = 0; i < 6; i++) {
-      expect(otplib.google.generate(secret()).length).to.be.eql(6);  
+      expect(otplib.google.generate(secret()).length).to.be.eql(6);
     }
 
   });
-  
+
 
 });
 

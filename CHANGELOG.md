@@ -1,7 +1,10 @@
-#Changelog
+# Changelog
 
+## v3.00
+ - Refactor to ES6 classes
+ - Clean up APIs
 
-## `Stable` v2.0.0
+## v2.0.0
  - API changes
  	- `otplib.google.encode`
 	- `otplib.google.decode`
@@ -11,25 +14,25 @@
  - Removed Grunt (Preference for `npm run`) 
  - Added some test
 	
-## `Stable` v1.1.2  
+## v1.1.2  
   - Fix Bug in string to hex conversion resulting in failed Google Apps Code Generation|
 
-## `Stable` v1.1.1
+## v1.1.1
   - Bug in decoding (uppercase) resulting in unsync tokens + 
   - jshint fixes
 
-## `Stable` v1.1.0     
+## v1.1.0     
  - Added check function to core 
  - readme change
  
-## `Stable` v1.0.0
+## v1.0.0
  - Stable Release
  
-## `Alpha` v0.0.3
+## v0.0.3
  - Version Bump for publish
  
-## `Alpha` v0.0.2
+## v0.0.2
  - API movement
  
-## `Alpha` v0.0.1
+## v0.0.1
  - First Prototype

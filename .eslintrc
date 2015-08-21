@@ -1,0 +1,19 @@
+{
+  "env": {
+    "es6": true,
+    "node": true,
+    "mocha": true
+  },
+
+  "ecmaFeatures": {
+    "generators": true,
+    "modules": true
+  },
+
+  "rules": {
+    "no-underscore-dangle": 0,
+    "quotes": [2, "single"],
+    "space-in-brackets": [2, "never"],
+    "strict": 0
+  }
+}
