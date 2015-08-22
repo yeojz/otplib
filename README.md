@@ -24,14 +24,15 @@ It implements:
  * [RFC 4226](http://tools.ietf.org/html/rfc4226) - [HOTP](http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm)
  * [RFC 6238](http://tools.ietf.org/html/rfc6238) - [TOTP](http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm)
 
-This library is compatible with [Google Authenticator](http://code.google.com/p/google-authenticator/), and includes additional
-methods to allow you to easily work with Google Authenticator.
+This library is compatible with [Google Authenticator](http://code.google.com/p/google-authenticator/), and includes additional methods to allow you to easily work with Google Authenticator.
 
 
 
+## Changes in API for v3.x.x
 
+As the library is rewritten and refactored into ES6 classes, v3.0.0 includes __BREAKING CHANGES__ to the API. 
 
-
+Please check [`Upgrade Notes`](https://github.com/yeojz/otplib/wiki/UPGRADE-NOTES) for more information.
 
 ## Installation
 Install the module via `npm`
@@ -56,23 +57,40 @@ While this package is primarily a `node.js` module, you can also use it within t
 ### node.js
 
 There are serveral variants:
+
+#### All (object)
 ```javascript
-
-// {hotp, totp, authenticator} object
+// object: {authenticator, hotp, totp}
 var otplib = require('otplib');
-
-// Authenticator only
-var otplib = require('otplib/authenticator');
-
-// HOTP only
-var otplib = require('otplib/hotp');
-
-// TOTP only
-var otplib = require('otplib/totp');
-
 ```
 
-### browser
+#### Authenticator
+```javascript
+var authenticator = require('otplib/authenticator');
+
+// OR
+var otplib = require('otplib');
+var authenticator = otplib.authenticator;
+```
+#### HOTP
+```javascript
+var hotp = require('otplib/hotp');
+
+// OR
+var otplib = require('otplib');
+var hotp = otplib.hotp;
+```
+#### TOTP
+```javascript
+var totp = require('otplib/totp');
+
+// OR
+var otplib = require('otplib');
+var totp = otplib.totp;
+```
+
+
+### Browser
 ```html
 <script src="public/lib/otplib.js"></script>
 
@@ -93,13 +111,11 @@ var otplib = require('otplib/totp');
 ```javascript
 var totp = require('otplib/totp');
 
-// Basic
-var secret = totp.utils.generateSecret(); //'user secret'
+// user secret key
+var secret = totp.utils.generateSecret();
 
-// Generating OTP
+// OTP
 var code = totp.generate(secret);
-
-console.log('OTP: ' + code);
 ```
 
 
@@ -114,8 +130,6 @@ var code = 'user provided OTP';
 
 // True / False
 var status = totp.check(code, secret);
-
-console.log('Is Token Valid: ' + status);
 ```
 
 
@@ -141,14 +155,13 @@ but it will NOT be compatible with Google Authenticator.
 ### Sample
 
 ```javascript
-var authenticator = require('otplib/authenticator');
+var gauth = require('otplib/authenticator');
 
-var secret = authenticator.generateSecret(); //'base 32 encoded user secret'
-var qrcode = authenticator.qrcode('user@domain', 'service', secret);
+// base 32 encoded user secret key
+var secret = gauth.generateSecret(); 
 
+// OTP
 var code = authenticator.generate(secret);
-
-console.log('OTP: ' + code);
 ```
 
 
