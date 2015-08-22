@@ -1,6 +1,14 @@
+
+
+import base32 from 'thirty-two';
+import TOTP from './TOTP';
+
+
+
+
 /**
  *
- * Authenticator - Google Authenticator adapter
+ * Google Authenticator adapter
  *
  * References
  * --------------------------
@@ -8,48 +16,74 @@
  *
  * Algorithm
  * --------------------------
+ * ```
  *  secret := base32decode(secret)
  *  message := floor(current Unix time / 30)
  *  hash := HMAC-SHA1(secret, message)
  *  offset := last nibble of hash
  *  truncatedHash := hash[offset..offset+3]  //4 bytes starting at the offset
- *  Set the first bit of truncatedHash to zero  //remove the most significant bit
+ *  set the first bit of truncatedHash to zero  //remove the most significant bit
  *  code := truncatedHash mod 1000000
  *  pad code with 0 until length of code is 6
+ *
  *  return code
+ * ```
+ *
+ * @extends {TOTP}
+ * @since 3.0.0
+ * @author Gerald Yeo <contact@fusedthought.com>
+ * @license MIT
  *
  */
+export default class Authenticator extends TOTP {
 
-import base32 from 'thirty-two';
-import TOTP from './TOTP';
-
-
-// Class Definition
-// --------------------------------------------------------
-class Authenticator extends TOTP {
-
+  /**
+   * Creates the instance
+   */
   constructor() {
     super();
 
+    /**
+     * @type {string}
+     */
     this.chart = 'https://chart.googleapis.com/chart?cht=qr&chs=150x150&choe=UTF-8&chld=M|0&chl=%uri';
+
+    /**
+     * @type {number}
+     */
     this.step = 30;
   }
 
 
+
+
+  /**
+   * Option Setter
+   *
+   * @param {object} opt - Custom options
+   */
   options(opt = {}) {
     super.options(opt);
     this.chart = opt.chart || this.chart;
   }
 
 
-  // Identifier
-  // eg: otpauth://totp/user:localhost?secet=NKEIBAOUFA
+
+
+  /**
+   * Generates an otpauth uri
+   *
+   * @param {string} user - The name/id of your user
+   * @param {string} service - The name of your service
+   * @param {string} secret - Your secret that is used to generate the token
+   *
+   * @return {string} otpauth uri. Example: otpauth://totp/user:localhost?secet=NKEIBAOUFA
+   */
   keyuri(user = 'user', service = 'service', secret = '') {
 
     let data = '%service:%user?secret=%secret&issuer=%service';
     let protocol = 'otpauth://totp/';
 
-    // Repalce string
     data = data.replace('%user', user);
     data = data.replace('%secret', secret);
     data = data.replace(/%service/g, service);
@@ -58,7 +92,19 @@ class Authenticator extends TOTP {
   }
 
 
-  // Generates a QR Code image using Google Charts
+
+
+  /**
+   * Generates a QR Code image
+   *
+   * By default, it uses Google Charts as it's charting tool
+   *
+   * @param {string} user - The name/id of your user
+   * @param {string} service - The name of your service
+   * @param {string} secret - Your secret that is used to generate the token
+   *
+   * @return {string} the QR code image url
+   */
   qrcode(user, service, secret) {
     let uri = this.keyuri(user, service, secret);
     let chart = this.chart;
@@ -68,19 +114,46 @@ class Authenticator extends TOTP {
     return chart;
   }
 
-  // Base32 encoding
+
+
+
+  /**
+   * Encodes secret into base32
+   *
+   * @param {string} secret - Your secret that is used to generate the token
+   * @param {string} type - encoding. Any value supported by Node Buffer
+   *
+   * @return {string} Base32 string
+   */
   encode(secret, type = 'binary') {
     return base32.encode(secret).toString(type);
   }
 
 
-  // Base32 decoding
-  decode(secret, type = 'binary') {
-    return base32.decode(secret).toString(type);
+
+
+  /**
+   * Decodes base32 value to secret.
+   *
+   * @param {string} eSecret - Your secret that is used to generate the token
+   * @param {string} type - encoding. Any value supported by Node Buffer
+   *
+   * @return {string} Decoded string
+   */
+  decode(eSecret, type = 'binary') {
+    return base32.decode(eSecret).toString(type);
   }
 
 
-  // Generate OTP
+
+
+  /**
+   * Generates the OTP code
+   *
+   * @param {string} secret - Your secret that is used to generate the token
+   *
+   * @return {number} OTP Code
+   */
   generate(secret) {
     secret = this.decode(secret);
 
@@ -89,8 +162,15 @@ class Authenticator extends TOTP {
   }
 
 
-  // Generate the secret
-  // Common length = 16
+
+
+  /**
+   * Generates a secret key
+   *
+   * @param {number} length - Length of secret (default: 16)
+   *
+   * @return {string} secret key
+   */
   generateSecret(length = 16) {
     let secret = '';
 
@@ -108,7 +188,8 @@ class Authenticator extends TOTP {
 
 
 
-// Export
-// --------------------------------------------------------
+/**
+ * @type {class}
+ */
 export default Authenticator;
 

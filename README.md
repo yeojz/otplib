@@ -5,9 +5,9 @@ Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 [![Build Status](https://img.shields.io/travis/yeojz/otplib.svg?style=flat-square)](https://travis-ci.org/yeojz/otplib)
 
 
-- [`API`](/API.md)
-- [`Changelog`](/CHANGELOG.md)
-- [`License`](/LICENSE.md)
+- [`API`](https://yeojz.github.io/otplib/docs)
+- [`Changelog`](https://github.com/yeojz/otplib/wiki/CHANGELOG)
+- [`License`](https://github.com/yeojz/otplib/blob/master/LICENSE.md)
 
 
 
@@ -57,13 +57,19 @@ While this package is primarily a `node.js` module, you can also use it within t
 
 There are serveral variants:
 ```javascript
-var otplib = require('otplib'); // {hotp, totp, authenticator} object
 
-var otplib = require('otplib/authenticator'); // Authenticator only
+// {hotp, totp, authenticator} object
+var otplib = require('otplib');
 
-var otplib = require('otplib/hotp'); // HOTP only
+// Authenticator only
+var otplib = require('otplib/authenticator');
 
-var otplib = require('otplib/totp'); // TOTP only
+// HOTP only
+var otplib = require('otplib/hotp');
+
+// TOTP only
+var otplib = require('otplib/totp');
+
 ```
 
 ### browser
@@ -144,12 +150,6 @@ var code = authenticator.generate(secret);
 
 console.log('OTP: ' + code);
 ```
-
-
-
-
-
-
 
 
 

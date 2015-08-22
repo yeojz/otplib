@@ -1,18 +1,40 @@
 /**
- * OTPUtils
  *
- * Common utilities for otp
+ * OTP Utilities
+ *
+ * @since 3.0.0
+ * @author Gerald Yeo <contact@fusedthought.com>
+ * @license MIT
+ *
  */
+export default class OTPUtils {
 
-class OTPUtils {
-
-  // Simple comparison of 2 tokens
+  /**
+   * Simple comparison of 2 tokens
+   *
+   * @static
+   *
+   * @param {string} token1 - value
+   * @param {string} token2 - value to compare
+   *
+   * @return {boolean}
+   */
   static isSameToken(token1, token2) {
     return (parseInt(token1) === parseInt(token2));
   }
 
 
-  // Converts a string to Hex value
+
+
+  /**
+   * Converts a string to Hex value
+   *
+   * @static
+   *
+   * @param {string} value - the string value to convert
+   *
+   * @return {string}
+   */
   static stringToHex(value) {
     let hex = '';
     let tmp = '';
@@ -30,25 +52,55 @@ class OTPUtils {
   }
 
 
-  // Converts Hex into an Integer
+
+
+  /**
+   * Converts Hex into an Integer
+   *
+   * @static
+   *
+   * @param {string} value - the hex value to convert
+   *
+   * @return {string}
+   */
   static hexToInt(hex) {
     return parseInt(hex, 16);
   }
 
 
-  // Parse number into an Integer and convert to Hex
+
+
+  /**
+   * Parses a number into an Integer and converts to it to Hex value
+   *
+   * @static
+   *
+   * @param {number|string} num - the number to convert to hex
+   *
+   * @return {string}
+   */
   static intToHex (num) {
     return parseInt(num).toString(16);
   }
 
 
-  // Do a left padding of the value based on the total
+
+
+  /**
+   * Do a left padding of the value based on the total
+   *
+   * @static
+   *
+   * @param {integer} num - the number to convert to hex
+   *
+   * @return {string}
+   */
   static pad(value, total = 0) {
 
-    // Convert to string
+    /* Convert to string */
     value = value + '';
 
-    // Padding
+    /* Padding */
     while (value.length < total){
       value = '0' + value;
     }
@@ -57,7 +109,17 @@ class OTPUtils {
   }
 
 
-  // Naive Secret generation tool
+
+
+  /**
+   * Naive secret key generation tool
+   *
+   * @static
+   *
+   * @param {integer} length - the key length
+   *
+   * @return {string}
+   */
   static generateSecret(length = 16) {
     let random = '';
 
@@ -69,13 +131,34 @@ class OTPUtils {
   }
 
 
-  // Strips and replace space values
+
+
+  /**
+   * Removes all spaces
+   *
+   * @static
+   *
+   * @param {string} value - string to parse
+   *
+   * @return {string}
+   */
   static removeSpaces(value = '') {
     return value.replace(/\s+/g, '');
   }
 
 
-  // Divides number into defined sets
+
+
+  /**
+   * Divides number/string into defined quantity per set
+   *
+   * @static
+   *
+   * @param {string} value - string value to split
+   * @param {integer} num - quantity per set
+   *
+   * @return {string}
+   */
   static setsOf(value, num = 4) {
     let regex = new RegExp('.{1,' + num + '}', 'g');
     value = value + '';
@@ -86,6 +169,3 @@ class OTPUtils {
 
 
 
-// Export
-// --------------------------------------------------------
-export default OTPUtils;

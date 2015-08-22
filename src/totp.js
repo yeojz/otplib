@@ -1,10 +1,18 @@
-/**
- * otplib - totp
- *
- * Time-based One-Time Password library
- */
+
 
 import TOTP from './classes/TOTP';
 
-let otp = new TOTP();
-export default otp;
+
+
+
+/**
+ *
+ * Instance of TOTP
+ *
+ * Time-based One-Time Password library
+ *
+ * @since 3.0.0
+ * @author Gerald Yeo <contact@fusedthought.com>
+ * @license MIT
+ */
+export default new TOTP();

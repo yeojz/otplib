@@ -1,7 +1,7 @@
 /**
- *  otpgen-cli
+ * Sample Google Authenticator compatible token generator.
  *
- *  Sample Google Authenticator compatible token generator.
+ * @since 3.0.0
  */
 
 

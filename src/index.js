@@ -1,20 +1,24 @@
-/**
- * otplib
- *
- * One-Time Password Library
- */
+
 
 import HOTP from './classes/HOTP';
 import TOTP from './classes/TOTP';
 import Authenticator from './classes/Authenticator';
 
-let authenticator = new Authenticator();
-let hotp = new HOTP();
-let totp = new TOTP();
 
 
+
+/**
+ * 
+ * Instance of otplib (Entry File)
+ *
+ * One-Time Password Library
+ *
+ * @since 3.0.0
+ * @author Gerald Yeo <contact@fusedthought.com>
+ * @license MIT
+ */
 export default {
-  authenticator,
-  hotp,
-  totp
+  authenticator: new Authenticator(),
+  hotp: new HOTP(),
+  totp: new TOTP()
 };

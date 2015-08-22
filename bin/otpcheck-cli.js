@@ -1,7 +1,7 @@
 /**
- *  optcheck-cli
+ * Sample token check against system generated token.
  *
- *  Sample token check against system generated token.
+ * @since 3.0.0
  */
 
 

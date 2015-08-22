@@ -1,21 +1,21 @@
 
-// Library
-// --------------------------------------------------------
+/* Library
+ * -------------------------------------------------------- */
 var path = require('path');
 var webpack = require('webpack');
 
 
 
 
-// Variables
-// --------------------------------------------------------
+/* Variables
+ * -------------------------------------------------------- */
 var ENV = process.env.NODE_ENV;
 
 
 
 
-// Folders
-// --------------------------------------------------------
+/* Folders
+ * -------------------------------------------------------- */
 var ROOT_FOLDER = path.resolve(__dirname);
 var SOURCE_FOLDER = path.join(ROOT_FOLDER, 'src');
 var BUILD_FOLDER = path.join(ROOT_FOLDER, 'public/lib');
@@ -24,11 +24,11 @@ var BUILD_FOLDER = path.join(ROOT_FOLDER, 'public/lib');
 
 
 
-// Options List
-// --------------------------------------------------------
+/* Options List
+ * -------------------------------------------------------- */
 
-// Entries
-// ------------------
+/* Entries
+ * ------------------ */
 var entries = {
   'otplib': SOURCE_FOLDER + '/index.js',
   'otplib.ga': SOURCE_FOLDER + '/authenticator.js',
@@ -37,8 +37,8 @@ var entries = {
 };
 
 
-// Output
-// ------------------
+/* Output
+ * ------------------ */
 var outputs = {
   library: 'otplib',
   libraryTarget: 'umd',
@@ -47,8 +47,8 @@ var outputs = {
 };
 
 
-// Loaders
-// ------------------
+/* Loaders
+ * ------------------ */
 var loaders = [];
 loaders.push({
   test: /\.js?$/,
@@ -57,15 +57,15 @@ loaders.push({
 });
 
 
-// Plugins
-// ------------------
+/* Plugins
+ * ------------------ */
 var plugins = [];
 plugins.push(new webpack.DefinePlugin({'process.env': {'NODE_ENV': JSON.stringify(ENV)}}));
 // plugins.push(new webpack.NoErrorsPlugin());
 
 
-// Modifications
-// ------------------
+/* Modifications
+ * ------------------ */
 if (ENV === 'production'){
   plugins.push(new webpack.optimize.UglifyJsPlugin({
     compress: {warnings: false}
@@ -77,8 +77,8 @@ if (ENV === 'production'){
 
 
 
-// Configuration Options
-// --------------------------------------------------------
+/* Configuration Options
+ * -------------------------------------------------------- */
 var config = {
 
   entry: entries,
