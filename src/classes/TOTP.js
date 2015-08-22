@@ -28,7 +28,7 @@ import HOTP from './HOTP';
  *
  * @extends {HOTP}
  * @since 3.0.0
- * @author Gerald Yeo <contact@fusedthought.com>
+ * @author Gerald Yeo
  * @license MIT
  *
  */
@@ -57,7 +57,7 @@ export default class TOTP extends HOTP {
   /**
    * Option Setter
    *
-   * @param {object} opt - Custom options
+   * @param {Object} opt - Custom options
    */
   options(opt = {}) {
     super.options(opt);

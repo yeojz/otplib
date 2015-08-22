@@ -31,7 +31,7 @@ import TOTP from './TOTP';
  *
  * @extends {TOTP}
  * @since 3.0.0
- * @author Gerald Yeo <contact@fusedthought.com>
+ * @author Gerald Yeo
  * @license MIT
  *
  */
@@ -60,7 +60,7 @@ export default class Authenticator extends TOTP {
   /**
    * Option Setter
    *
-   * @param {object} opt - Custom options
+   * @param {Object} opt - Custom options
    */
   options(opt = {}) {
     super.options(opt);

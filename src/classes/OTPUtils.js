@@ -3,7 +3,7 @@
  * OTP Utilities
  *
  * @since 3.0.0
- * @author Gerald Yeo <contact@fusedthought.com>
+ * @author Gerald Yeo
  * @license MIT
  *
  */

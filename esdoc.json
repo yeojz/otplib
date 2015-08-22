@@ -1,4 +1,15 @@
 {
   "source": "./src",
-  "destination": "./public/docs"
+  "destination": "./public/docs",
+  "plugins": [
+    {
+      "name": "esdoc-importpath-plugin",
+      "option": {
+        "replaces": [
+          {"from": "^src/", "to": ""},
+          {"from": ".js", "to": ""}
+        ]
+      }
+    }
+  ]
 }
