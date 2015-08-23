@@ -8,7 +8,7 @@
     "clean": "rm -rf ./lib",
     "compile": "export NODE_ENV=production && webpack",
     "compile-docs": "node_modules/jsdoc/jsdoc.js -c jsdoc.json",
-    "ghpages": "git subtree push --prefix public origin gh-pages",
+    "ghpages": "git subtree split --prefix public -b gh-pages && git push -f origin gh-pages:gh-pages && git branch -D gh-pages",
     "prepublish": "npm run build && npm run compile",
     "pretest": "npm run build",
     "publish-site": "npm run compile && npm run compile-docs && npm run ghpages",

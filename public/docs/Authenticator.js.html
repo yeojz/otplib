@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Authenticator.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Authenticator.html">Authenticator</a></li><li><a href="HOTP.html">HOTP</a></li><li><a href="OTPUtils.html">OTPUtils</a></li><li><a href="TOTP.html">TOTP</a></li></ul><h3>Global</h3><ul><li><a href="global.html#check">check</a></li><li><a href="global.html#decode">decode</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#generate">generate</a></li><li><a href="global.html">generateSecret</a></li><li><a href="global.html">hexToInt</a></li><li><a href="global.html">intToHex</a></li><li><a href="global.html">isSameToken</a></li><li><a href="global.html#keyuri">keyuri</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html">pad</a></li><li><a href="global.html#qrcode">qrcode</a></li><li><a href="global.html">removeSpaces</a></li><li><a href="global.html">setsOf</a></li><li><a href="global.html">stringToHex</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Authenticator.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
+
+import base32 from 'thirty-two';
+import TOTP from './TOTP';
+
+
+
+
+/**
+ *
+ * Google Authenticator adapter
+ *
+ * References
+ * --------------------------
+ * - http://en.wikipedia.org/wiki/Google_Authenticator
+ *
+ * Algorithm
+ * --------------------------
+ * ```
+ *  secret := base32decode(secret)
+ *  message := floor(current Unix time / 30)
+ *  hash := HMAC-SHA1(secret, message)
+ *  offset := last nibble of hash
+ *  truncatedHash := hash[offset..offset+3]  //4 bytes starting at the offset
+ *  set the first bit of truncatedHash to zero  //remove the most significant bit
+ *  code := truncatedHash mod 1000000
+ *  pad code with 0 until length of code is 6
+ *
+ *  return code
+ * ```
+ *
+ * @class Authenticator
+ * @extends {TOTP}
+ * @since 3.0.0
+ * @author Gerald Yeo
+ * @license MIT
+ *
+ */
+export default class Authenticator extends TOTP {
+
+  /**
+   * Creates the instance
+   */
+  constructor() {
+    super();
+
+    /**
+     * @type {string}
+     */
+    this.chart = 'https://chart.googleapis.com/chart?cht=qr&amp;chs=150x150&amp;choe=UTF-8&amp;chld=M|0&amp;chl=%uri';
+
+    /**
+     * @type {number}
+     */
+    this.step = 30;
+  }
+
+
+
+
+  /**
+   * Option Setter
+   *
+   * @method options
+   *
+   * @param {Object} opt - Custom options
+   */
+  options(opt = {}) {
+    super.options(opt);
+    this.chart = opt.chart || this.chart;
+  }
+
+
+
+
+  /**
+   * Generates an otpauth uri
+   *
+   * @method keyuri
+   *
+   * @param {string} user - The name/id of your user
+   * @param {string} service - The name of your service
+   * @param {string} secret - Your secret that is used to generate the token
+   * @return {string} otpauth uri. Example: otpauth://totp/user:localhost?secet=NKEIBAOUFA
+   */
+  keyuri(user = 'user', service = 'service', secret = '') {
+
+    let data = '%service:%user?secret=%secret&amp;issuer=%service';
+    let protocol = 'otpauth://totp/';
+
+    data = data.replace('%user', user);
+    data = data.replace('%secret', secret);
+    data = data.replace(/%service/g, service);
+
+    return encodeURIComponent(protocol + data);
+  }
+
+
+
+
+  /**
+   * Generates a QR Code image
+   *
+   * By default, it uses Google Charts as it's charting tool
+   *
+   * @method qrcode
+   *
+   * @param {string} user - The name/id of your user
+   * @param {string} service - The name of your service
+   * @param {string} secret - Your secret that is used to generate the token
+   * @return {string} the QR code image url
+   */
+  qrcode(user, service, secret) {
+    let uri = this.keyuri(user, service, secret);
+    let chart = this.chart;
+
+    chart = chart.replace('%uri', uri);
+
+    return chart;
+  }
+
+
+
+
+  /**
+   * Encodes secret into base32
+   *
+   * @method encode
+   *
+   * @param {string} secret - Your secret that is used to generate the token
+   * @param {string} type - encoding. Any value supported by Node Buffer
+   * @return {string} Base32 string
+   */
+  encode(secret, type = 'binary') {
+    return base32.encode(secret).toString(type);
+  }
+
+
+
+
+  /**
+   * Decodes base32 value to secret.
+   *
+   * @method decode
+   *
+   * @param {string} eSecret - Your secret that is used to generate the token
+   * @param {string} type - encoding. Any value supported by Node Buffer
+   * @return {string} Decoded string
+   */
+  decode(eSecret, type = 'binary') {
+    return base32.decode(eSecret).toString(type);
+  }
+
+
+
+
+  /**
+   * Generates the OTP code
+   *
+   * @method generate
+   *
+   * @param {string} secret - Your secret that is used to generate the token
+   * @return {number} OTP Code
+   */
+  generate(secret) {
+    secret = this.decode(secret);
+
+    let code = super.generate(secret);
+    return code;
+  }
+
+
+
+
+  /**
+   * Generates a secret key
+   *
+   * @method generateSecret
+   *
+   * @param {number} length - Length of secret (default: 16)
+   * @return {string} secret key
+   */
+  generateSecret(length = 16) {
+    let secret = '';
+
+    while (secret.length &lt; length){
+      secret += this.utils.generateSecret(40);
+    }
+
+    return this.encode(secret).slice(0, length);
+  }
+
+}
+
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Sun Aug 23 2015 16:27:14 GMT+0800 (SGT) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
