@@ -61,7 +61,7 @@ export default class HOTP {
    *
    * @method options
    *
-   * @param {Object} opt - Custom options
+   * @param {Object} opt - custom options
    */
   options(opt = {}) {
     this.digits = opt.digits || this.digits;
@@ -75,8 +75,8 @@ export default class HOTP {
    *
    * @method generate
    *
-   * @param {string} secret - Your secret that is used to generate the token
-   * @param {number} counter - The OTP counter (usually it's an incremental count)
+   * @param {string} secret - your secret that is used to generate the token
+   * @param {number} counter - the OTP counter (usually it's an incremental count)
    * @return {number} OTP Code
    */
   generate(secret, counter) {
@@ -84,11 +84,11 @@ export default class HOTP {
     // ##### Apply Algorithm
 
     // Convert secret to hex
-    secret = this.utils.stringToHex(secret);
+    secret = OTPUtils.stringToHex(secret);
 
     // Ensure counter is a buffer or string (for HMAC creation)
-    counter = this.utils.intToHex(counter);
-    counter = this.utils.pad(counter, 16);
+    counter = OTPUtils.intToHex(counter);
+    counter = OTPUtils.pad(counter, 16);
 
     // HMAC creation
     let cryptoHmac = crypto.createHmac('sha1', new Buffer(secret, 'hex'));
@@ -97,7 +97,7 @@ export default class HOTP {
     let hmac = cryptoHmac.update(new Buffer(counter, 'hex')).digest('hex');
 
     // offset := last nibble of hash
-    let offset = this.utils.hexToInt(hmac.substr(hmac.length - 1));
+    let offset = OTPUtils.hexToInt(hmac.substr(hmac.length - 1));
 
     // truncatedHash := hash[offset..offset+3]
     // (4 bytes starting at the offset)
@@ -105,13 +105,13 @@ export default class HOTP {
 
     // Set the first bit of truncatedHash to zero
     // (i.e. remove the most significant bit)
-    let sigbit0 = this.utils.hexToInt(truncatedHash) & this.utils.hexToInt('7fffffff');
+    let sigbit0 = OTPUtils.hexToInt(truncatedHash) & OTPUtils.hexToInt('7fffffff');
 
     // code := truncatedHash mod 1000000
     let code = sigbit0 % Math.pow(10, this.digits);
 
     // Pad code with 0 until length of code is 6
-    code = this.utils.pad(code, this.digits);
+    code = OTPUtils.pad(code, this.digits);
 
     return code;
   }
@@ -124,14 +124,14 @@ export default class HOTP {
    *
    * @method check
    *
-   * @param {string} token - The OTP token to check
-   * @param {string} secret - Your secret that is used to generate the token
-   * @param {number} counter - The OTP counter (usually it's an incremental count)
+   * @param {string} token - the OTP token to check
+   * @param {string} secret - your secret that is used to generate the token
+   * @param {number} counter - the OTP counter (usually it's an incremental count)
    * @return {boolean}
    */
   check(token, secret, counter = 0) {
     let systemToken = this.generate(secret, counter);
-    return this.utils.isSameToken(token, systemToken);
+    return OTPUtils.isSameToken(token, systemToken);
   }
 }
 

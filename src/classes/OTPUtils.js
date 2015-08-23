@@ -1,3 +1,10 @@
+
+
+import crypto from 'crypto';
+
+
+
+
 /**
  *
  * OTP Utilities
@@ -118,15 +125,18 @@ export default class OTPUtils {
    * @method generateSecret
    * @static
    *
-   * @param {integer} length - the key length
+   * @param {integer} len - the key length
+   * @param {string} format - any crypto module supported format
    * @return {string}
    */
-  static generateSecret(length = 16) {
-    let random = '';
-
-    for (let i = 0; i < length; i++){
-      random += Math.random().toString(26).slice(2, 3);
+  static generateSecret(len = 16, format = 'base64') {
+    if (len < 1){
+      return '';
     }
+
+    let random = crypto.randomBytes(len)
+            .toString(format) // convert format
+            .slice(0, len); // return required number of characters
 
     return random;
   }

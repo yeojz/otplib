@@ -5,7 +5,7 @@ Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 [![Build Status](https://img.shields.io/travis/yeojz/otplib.svg?style=flat-square)](https://travis-ci.org/yeojz/otplib)
 
 
-- [`API`](https://yeojz.github.io/otplib/docs)
+- [`Documentation`](https://yeojz.github.io/otplib/docs)
 - [`Changelog`](https://github.com/yeojz/otplib/wiki/CHANGELOG)
 - [`License`](https://github.com/yeojz/otplib/blob/master/LICENSE.md)
 
@@ -30,9 +30,13 @@ This library is compatible with [Google Authenticator](http://code.google.com/p/
 
 ## Changes in API for v3.x.x
 
-As the library is rewritten and refactored into ES6 classes, v3.0.0 includes __BREAKING CHANGES__ to the API. 
+As the library is rewritten and refactored into ES6 classes, v3.0.0 includes __BREAKING CHANGES__ to the API. A compatibility library has been added, but it's highly recommended to migrate instead.
 
 Please check [`Upgrade Notes`](https://github.com/yeojz/otplib/wiki/UPGRADE-NOTES) for more information.
+
+
+
+
 
 ## Installation
 Install the module via `npm`
