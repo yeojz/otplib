@@ -6,7 +6,7 @@
   "scripts": {
     "build": "babel ./src --out-dir ./dist/lib",
     "clean": "rm -rf ./lib",
-    "compile": "export NODE_ENV=production && webpack",
+    "compile": "npm run build && export NODE_ENV=production && webpack",
     "compile-docs": "node_modules/jsdoc/jsdoc.js -c jsdoc.json",
     "ghpages": "git subtree split --prefix dist -b gh-pages && git push -f origin gh-pages:gh-pages && git branch -D gh-pages",
     "prepublish": "npm run build && npm run compile",

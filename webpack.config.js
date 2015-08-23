@@ -34,7 +34,7 @@ var entries = {
   'otplib.ga': SOURCE_FOLDER + '/authenticator.js',
   'otplib.hotp': SOURCE_FOLDER + '/hotp.js',
   'otplib.totp': SOURCE_FOLDER + '/totp.js',
-  'otplib.legacy': SOURCE_FOLDER + '/legacy.js'
+  'otplib.legacy': SOURCE_FOLDER + '/v2.js'
 };
 
 

@@ -1,6 +1,6 @@
 {
   "source": "./src",
-  "destination": "./public/docs",
+  "destination": "./dist/docs",
   "plugins": [
     {
       "name": "esdoc-importpath-plugin",

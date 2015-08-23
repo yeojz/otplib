@@ -1,6 +1,6 @@
 {
   "opts": {
-    "destination": "./public/docs",
+    "destination": "./dist/docs",
     "recurse": true,
     "template": "./node_modules/minami"
   },
