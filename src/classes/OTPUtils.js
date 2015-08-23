@@ -126,7 +126,7 @@ export default class OTPUtils {
    * @static
    *
    * @param {integer} len - the key length
-   * @param {string} format - any crypto module supported format
+   * @param {string} format - any format supported by node's `crypto`
    * @return {string}
    */
   static generateSecret(len = 16, format = 'base64') {

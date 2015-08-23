@@ -143,15 +143,12 @@ var status = totp.check(code, secret);
 
 
 
-## Note on Google Authenticator
+## Google Authenticator compatibility notes
 
-### Base32 Keys
+### Base32 Keys and RFC3548
 
 Google Authenticator requires keys to be base32 encoded.
-
-### RFC3548
-
-Google Authenticator requires an [RFC 3548](http://tools.ietf.org/html/rfc3548) compliant encoder.
+It also requires the base32 encoder to be [RFC 3548](http://tools.ietf.org/html/rfc3548) compliant.
 
 OTP calculation will still work should you want to use other base32 encoding methods (like Crockford's Base 32)
 but it will NOT be compatible with Google Authenticator.

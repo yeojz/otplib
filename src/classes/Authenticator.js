@@ -129,7 +129,7 @@ export default class Authenticator extends TOTP {
    * @method encode
    *
    * @param {string} secret - your secret that is used to generate the token
-   * @param {string} format - any value supported by Node Buffer
+   * @param {string} format - any format supported by node's `Buffer`
    * @return {string} Base32 string
    */
   encode(secret, format = 'binary') {
@@ -145,7 +145,7 @@ export default class Authenticator extends TOTP {
    * @method decode
    *
    * @param {string} eSecret - your secret that is used to generate the token
-   * @param {string} format - any value supported by Node Buffer
+   * @param {string} format - any format supported by node's `Buffer`
    * @return {string} Decoded string
    */
   decode(eSecret, format = 'binary') {
