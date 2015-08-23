@@ -25,7 +25,7 @@ describe('Legacy Test (2.x.x adapter)', function(){
 
 
   beforeEach(function(){
-    otplib = require('../../dist/lib/v2');
+    otplib = require('../../lib/v2');
   });
 
 
