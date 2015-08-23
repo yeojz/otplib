@@ -18,7 +18,7 @@ var ENV = process.env.NODE_ENV;
  * -------------------------------------------------------- */
 var ROOT_FOLDER = path.resolve(__dirname);
 var SOURCE_FOLDER = path.join(ROOT_FOLDER, 'src');
-var BUILD_FOLDER = path.join(ROOT_FOLDER, 'public/lib');
+var BUILD_FOLDER = path.join(ROOT_FOLDER, 'public/js');
 
 
 
