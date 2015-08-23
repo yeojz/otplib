@@ -1,15 +1,22 @@
 
+/**
+ * v3 to v2 adapter
+ *
+ * This file provides method mappings between
+ * version 3 and version 2 of the library.
+ *
+ * @since 3.0.0
+ */
+
+
+
+
 import HOTP from './classes/HOTP';
 import TOTP from './classes/TOTP';
 import Authenticator from './classes/Authenticator';
 import OTPUtils from './classes/OTPUtils';
 
 
-/**
- * v3 to v2 method map
- *
- * @since 3.0.0
- */
 
 let hotp = new HOTP();
 let totp = new TOTP();
@@ -17,6 +24,12 @@ let authenticator = new Authenticator();
 
 
 
+
+
+/**
+ * Helpers
+ * --------------------------------------------------------
+ */
 function checkTOTP(token, secret) {
   if (this.test){
     totp.options({
@@ -35,6 +48,10 @@ function checkHOTP(token, secret, counter = 0) {
 
 
 
+/**
+ * Core
+ * --------------------------------------------------------
+ */
 var Core = function(){
 
   this.test = false;
@@ -67,10 +84,10 @@ Core.prototype.secret = {
 
 
 
+
 /**
- * otplib - Google Authenticator
- *
- * @deprecated
+ * Google Authenticator
+ * --------------------------------------------------------
  */
 var Goog = function() {
   this.digits = 6;
@@ -87,6 +104,10 @@ Goog.prototype.decode = authenticator.decode;
 
 
 
+/**
+ * Export
+ * --------------------------------------------------------
+ */
 export default {
   core: new Core(),
   google: new Goog()

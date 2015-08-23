@@ -18,7 +18,7 @@ var ENV = process.env.NODE_ENV;
  * -------------------------------------------------------- */
 var ROOT_FOLDER = path.resolve(__dirname);
 var SOURCE_FOLDER = path.join(ROOT_FOLDER, 'src');
-var BUILD_FOLDER = path.join(ROOT_FOLDER, 'public/js');
+var BUILD_FOLDER = path.join(ROOT_FOLDER, 'dist/browser');
 
 
 
@@ -33,7 +33,8 @@ var entries = {
   'otplib': SOURCE_FOLDER + '/index.js',
   'otplib.ga': SOURCE_FOLDER + '/authenticator.js',
   'otplib.hotp': SOURCE_FOLDER + '/hotp.js',
-  'otplib.totp': SOURCE_FOLDER + '/totp.js'
+  'otplib.totp': SOURCE_FOLDER + '/totp.js',
+  'otplib.legacy': SOURCE_FOLDER + '/legacy.js'
 };
 
 
