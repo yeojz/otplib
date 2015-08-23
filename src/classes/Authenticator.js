@@ -29,6 +29,7 @@ import TOTP from './TOTP';
  *  return code
  * ```
  *
+ * @class Authenticator
  * @extends {TOTP}
  * @since 3.0.0
  * @author Gerald Yeo
@@ -60,6 +61,8 @@ export default class Authenticator extends TOTP {
   /**
    * Option Setter
    *
+   * @method options
+   *
    * @param {Object} opt - Custom options
    */
   options(opt = {}) {
@@ -73,10 +76,11 @@ export default class Authenticator extends TOTP {
   /**
    * Generates an otpauth uri
    *
+   * @method keyuri
+   *
    * @param {string} user - The name/id of your user
    * @param {string} service - The name of your service
    * @param {string} secret - Your secret that is used to generate the token
-   *
    * @return {string} otpauth uri. Example: otpauth://totp/user:localhost?secet=NKEIBAOUFA
    */
   keyuri(user = 'user', service = 'service', secret = '') {
@@ -99,10 +103,11 @@ export default class Authenticator extends TOTP {
    *
    * By default, it uses Google Charts as it's charting tool
    *
+   * @method qrcode
+   *
    * @param {string} user - The name/id of your user
    * @param {string} service - The name of your service
    * @param {string} secret - Your secret that is used to generate the token
-   *
    * @return {string} the QR code image url
    */
   qrcode(user, service, secret) {
@@ -120,9 +125,10 @@ export default class Authenticator extends TOTP {
   /**
    * Encodes secret into base32
    *
+   * @method encode
+   *
    * @param {string} secret - Your secret that is used to generate the token
    * @param {string} type - encoding. Any value supported by Node Buffer
-   *
    * @return {string} Base32 string
    */
   encode(secret, type = 'binary') {
@@ -135,9 +141,10 @@ export default class Authenticator extends TOTP {
   /**
    * Decodes base32 value to secret.
    *
+   * @method decode
+   *
    * @param {string} eSecret - Your secret that is used to generate the token
    * @param {string} type - encoding. Any value supported by Node Buffer
-   *
    * @return {string} Decoded string
    */
   decode(eSecret, type = 'binary') {
@@ -150,8 +157,9 @@ export default class Authenticator extends TOTP {
   /**
    * Generates the OTP code
    *
-   * @param {string} secret - Your secret that is used to generate the token
+   * @method generate
    *
+   * @param {string} secret - Your secret that is used to generate the token
    * @return {number} OTP Code
    */
   generate(secret) {
@@ -167,8 +175,9 @@ export default class Authenticator extends TOTP {
   /**
    * Generates a secret key
    *
-   * @param {number} length - Length of secret (default: 16)
+   * @method generateSecret
    *
+   * @param {number} length - Length of secret (default: 16)
    * @return {string} secret key
    */
   generateSecret(length = 16) {
@@ -183,13 +192,4 @@ export default class Authenticator extends TOTP {
 
 }
 
-
-
-
-
-
-/**
- * @type {class}
- */
-export default Authenticator;
 

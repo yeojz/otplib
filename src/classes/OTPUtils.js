@@ -2,6 +2,7 @@
  *
  * OTP Utilities
  *
+ * @class OTPUtils
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT
@@ -12,11 +13,11 @@ export default class OTPUtils {
   /**
    * Simple comparison of 2 tokens
    *
+   * @method isSameToken
    * @static
    *
    * @param {string} token1 - value
    * @param {string} token2 - value to compare
-   *
    * @return {boolean}
    */
   static isSameToken(token1, token2) {
@@ -29,10 +30,10 @@ export default class OTPUtils {
   /**
    * Converts a string to Hex value
    *
+   * @method stringToHex
    * @static
    *
    * @param {string} value - the string value to convert
-   *
    * @return {string}
    */
   static stringToHex(value) {
@@ -57,10 +58,10 @@ export default class OTPUtils {
   /**
    * Converts Hex into an Integer
    *
+   * @method hexToInt
    * @static
    *
    * @param {string} value - the hex value to convert
-   *
    * @return {string}
    */
   static hexToInt(hex) {
@@ -73,10 +74,10 @@ export default class OTPUtils {
   /**
    * Parses a number into an Integer and converts to it to Hex value
    *
+   * @method intToHex
    * @static
    *
    * @param {number|string} num - the number to convert to hex
-   *
    * @return {string}
    */
   static intToHex (num) {
@@ -89,10 +90,10 @@ export default class OTPUtils {
   /**
    * Do a left padding of the value based on the total
    *
+   * @method pad
    * @static
    *
    * @param {integer} num - the number to convert to hex
-   *
    * @return {string}
    */
   static pad(value, total = 0) {
@@ -114,10 +115,10 @@ export default class OTPUtils {
   /**
    * Naive secret key generation tool
    *
+   * @method generateSecret
    * @static
    *
    * @param {integer} length - the key length
-   *
    * @return {string}
    */
   static generateSecret(length = 16) {
@@ -136,10 +137,10 @@ export default class OTPUtils {
   /**
    * Removes all spaces
    *
+   * @method removeSpaces
    * @static
    *
    * @param {string} value - string to parse
-   *
    * @return {string}
    */
   static removeSpaces(value = '') {
@@ -152,11 +153,11 @@ export default class OTPUtils {
   /**
    * Divides number/string into defined quantity per set
    *
+   * @method setsOf
    * @static
    *
    * @param {string} value - string value to split
    * @param {integer} num - quantity per set
-   *
    * @return {string}
    */
   static setsOf(value, num = 4) {

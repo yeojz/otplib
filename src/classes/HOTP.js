@@ -28,6 +28,7 @@ import OTPUtils from './OTPUtils';
  *  HOTP-Value = HOTP(K,C) mod 10d, where d is the desired number of digits
  * ```
  *
+ * @class HOTP
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT
@@ -58,6 +59,8 @@ export default class HOTP {
   /**
    * Option Setter
    *
+   * @method options
+   *
    * @param {Object} opt - Custom options
    */
   options(opt = {}) {
@@ -70,9 +73,10 @@ export default class HOTP {
   /**
    * Generates the OTP code
    *
+   * @method generate
+   *
    * @param {string} secret - Your secret that is used to generate the token
    * @param {number} counter - The OTP counter (usually it's an incremental count)
-   *
    * @return {number} OTP Code
    */
   generate(secret, counter) {
@@ -118,10 +122,11 @@ export default class HOTP {
   /**
    * Checks the provided OTP token against system generated token
    *
+   * @method check
+   *
    * @param {string} token - The OTP token to check
    * @param {string} secret - Your secret that is used to generate the token
    * @param {number} counter - The OTP counter (usually it's an incremental count)
-   *
    * @return {boolean}
    */
   check(token, secret, counter = 0) {

@@ -26,6 +26,7 @@ import HOTP from './HOTP';
  *  TOTP-Value = TOTP mod 10d, where d is the desired number of digits of the one-time password.
  * ```
  *
+ * @class TOTP
  * @extends {HOTP}
  * @since 3.0.0
  * @author Gerald Yeo
@@ -57,6 +58,8 @@ export default class TOTP extends HOTP {
   /**
    * Option Setter
    *
+   * @method options
+   *
    * @param {Object} opt - Custom options
    */
   options(opt = {}) {
@@ -70,8 +73,9 @@ export default class TOTP extends HOTP {
   /**
    * Generates the OTP code
    *
-   * @param {string} secret - Your secret that is used to generate the token
+   * @method generate
    *
+   * @param {string} secret - Your secret that is used to generate the token
    * @return {number} OTP Code
    */
   generate(secret) {
@@ -89,9 +93,10 @@ export default class TOTP extends HOTP {
   /**
    * Checks the provided OTP token against system generated token
    *
+   * @method check
+   *
    * @param {string} token - The OTP token to check
    * @param {string} secret - Your secret that is used to generate the token
-   *
    * @return {boolean}
    */
   check(token, secret){
