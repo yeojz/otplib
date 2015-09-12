@@ -1,4 +1,6 @@
+archive
+dist/docs
+node_modules
 public
-dist
 src
 test
