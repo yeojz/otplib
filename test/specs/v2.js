@@ -1,26 +1,9 @@
 import {expect} from 'chai';
+import data from '../helpers/data';
 
-
-describe('Legacy Test (2.x.x adapter)', function(){
+describe('Legacy (2.x.x adapter)', function(){
 
     let otplib;
-
-    // pass
-    let passSet = [
-        ['i6im0gc96j0mn00c', 47412420, '196182'],
-        ['65jh84eo38k32edm', 47412423, '963234'],
-        ['f4515l6ob3gkganp', 47412433, '415572'],
-        ['2o9989k76ij7eh9c', 47412435, '343659']
-    ];
-
-
-    // Fail
-    let failSet = [
-        ['9821741871231', 1078968, 'Should fail'],
-        ['18748612', 982671, '18748612'],
-        ['18748612', 982671, '125832']
-    ];
-
 
     beforeEach(() => {
         otplib = require('../../src/v2');
@@ -32,7 +15,7 @@ describe('Legacy Test (2.x.x adapter)', function(){
     });
 
 
-    it('[Core] Ensure entry methods exist', () => {
+    it('[Core] ensure entry methods exist', () => {
 
         expect(otplib).to.be.an('object');
         expect(otplib.core).to.be.an('object');
@@ -45,7 +28,7 @@ describe('Legacy Test (2.x.x adapter)', function(){
     });
 
 
-    it('[GA] Ensure entry methods exist', () => {
+    it('[GA] ensure entry methods exist', () => {
 
         expect(otplib.google).to.be.an('object');
         expect(otplib.google.generate).to.be.an('function');
@@ -54,48 +37,71 @@ describe('Legacy Test (2.x.x adapter)', function(){
     });
 
 
-    it('[Core/HOTP] Ensure correct code generation', () => {
+    it('[Core/HOTP] ensure correct code generation', () => {
 
-        for (let i in passSet){
-            expect(otplib.core.hotp(passSet[i][0], passSet[i][1])).to.be.eql(passSet[i][2]);
+        for (let i in data.passes){
+            expect(otplib.core.hotp(
+                data.passes[i][0],
+                data.passes[i][1])
+            ).to.be.eql(data.passes[i][2]);
         }
 
-        for (let j in failSet){
-            expect(otplib.core.hotp(failSet[j][0], failSet[j][1])).to.not.eql(failSet[j][2]);
+        for (let j in data.fails){
+            expect(otplib.core.hotp(
+                data.fails[j][0],
+                data.fails[j][1])
+            ).to.not.eql(data.fails[j][2]);
         }
 
     });
 
 
-    it('[Core/HOTP] Check Function', function(){
+    it('[Core/HOTP] method `check`', function(){
 
-        for (let i in passSet){
-            expect(otplib.core.checkHOTP(passSet[i][2], passSet[i][0], passSet[i][1])).to.be.eql(true);
+        for (let i in data.passes){
+            expect(otplib.core.checkHOTP(
+                data.passes[i][2],
+                data.passes[i][0],
+                data.passes[i][1])
+            ).to.be.eql(true);
         }
 
-        for (let j in failSet){
-            expect(otplib.core.checkHOTP(failSet[j][2], failSet[j][0], failSet[j][1])).to.be.eql(false);
+        for (let j in data.fails){
+            expect(otplib.core.checkHOTP(
+                data.fails[j][2],
+                data.fails[j][0],
+                data.fails[j][1])
+            ).to.be.eql(false);
         }
     });
 
 
-    it('[Core/TOTP] Ensure correct code generation', () => {
+    it('[Core/TOTP] ensure correct code generation', () => {
         otplib.core.epoch = 59 * 1000;
         expect(otplib.core.totp('12341234123412341234')).to.be.eql('972213');
     });
 
 
-    it('[Core/TOTP] Check Function', () => {
+    it('[Core/TOTP] method `check`', () => {
         let key = 972213;
 
         otplib.core.test = true;
 
-        expect(otplib.core.checkTOTP(key, '12341234123412341234', 59 * 1000)).to.be.eql(true);
-        expect(otplib.core.checkTOTP(key + 1, '12341234123412341234', 59 * 1000)).to.be.eql(false);
+        expect(otplib.core.checkTOTP(
+            key,
+            '12341234123412341234',
+            59 * 1000)
+        ).to.be.eql(true);
+
+        expect(otplib.core.checkTOTP(
+            key + 1,
+            '12341234123412341234',
+            59 * 1000)
+        ).to.be.eql(false);
     });
 
 
-    it('[Core/Secret] Should generate secret of specified length', () => {
+    it('[Core/Secret] should generate secret of specified length', () => {
         expect(otplib.core.secret.generate(-1).length).to.be.eql(0);
 
         expect(otplib.core.secret.generate().length).to.be.eql(16);
@@ -106,7 +112,7 @@ describe('Legacy Test (2.x.x adapter)', function(){
     });
 
 
-    it('[GA/Secret] Should generate secret of specified length', () => {
+    it('[GA/Secret] should generate secret of specified length', () => {
         expect(otplib.google.secret(-1).length).to.be.eql(0);
 
         expect(otplib.google.secret().length).to.be.eql(16);
@@ -117,7 +123,7 @@ describe('Legacy Test (2.x.x adapter)', function(){
     });
 
 
-    it('[GA/encode-decode] Should check encoding and decoding correctness', () => {
+    it('[GA/encode-decode] should check encoding and decoding correctness', () => {
         let s = otplib.google.secret();
 
         let e = otplib.google.encode(s);
@@ -127,7 +133,7 @@ describe('Legacy Test (2.x.x adapter)', function(){
     });
 
 
-    it('[GA/OTP] Ensure correct token length', () => {
+    it('[GA/OTP] ensure correct token length', () => {
 
         // Secret length between 10 and 50
         function rlen() {
