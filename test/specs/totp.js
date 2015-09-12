@@ -11,7 +11,7 @@ describe('TOTP', function(){
         otp = new TOTP();
     });
 
-    it('check method existence', () => {
+    it('check existence of methods', () => {
 
         let methods = [
             'options',
@@ -31,11 +31,20 @@ describe('TOTP', function(){
 
     it('[method/generate] correct codes', () => {
         otp.options({
-            epoch: 59 * 1000
+            epoch: data.totp[1]
         });
 
-        expect(otp.generate('12341234123412341234')).to.be.equal('972213')
+        expect(otp.generate(data.totp[0])).to.be.equal(data.totp[2]);
     });
 
+
+    it('[method/check] pass/fail', () => {
+        otp.options({
+            epoch: data.totp[1]
+        });
+
+        expect(otp.check(data.totp[2], data.totp[0])).to.be.equal(true);
+        expect(otp.check(data.totp[2], data.totp[0] + 1)).to.be.equal(false);
+    });
 
 });

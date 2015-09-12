@@ -11,7 +11,7 @@ describe('Authenticator', function(){
         otp = new Authenticator();
     });
 
-    it('check method existence', () => {
+    it('check existence of methods', () => {
 
         let methods = [
             'options',
@@ -32,7 +32,6 @@ describe('Authenticator', function(){
             }
         });
     });
-
 
 
     it('[method/generateSecret] length of key', () => {
@@ -59,5 +58,17 @@ describe('Authenticator', function(){
     });
 
 
+    it('[method/encode] check for correct encoding', () => {
+        data.endec.forEach((entry) => {
+            expect(otp.encode(entry[0])).to.be.equal(entry[1]);
+        });
+    });
+
+
+    it('[method/decode] check for correct decoding', () => {
+        data.endec.forEach((entry) => {
+            expect(otp.decode(entry[1])).to.be.equal(entry[0]);
+        });
+    });
 
 });

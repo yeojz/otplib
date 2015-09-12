@@ -11,7 +11,7 @@ describe('HOTP', function(){
         otp = new HOTP();
     });
 
-    it('check method existence', () => {
+    it('check existence of methods', () => {
 
         let methods = [
             'options',
@@ -31,50 +31,44 @@ describe('HOTP', function(){
 
 
     it('[method/generate] correct codes', () => {
-        for (let i in data.passes){
+        data.passes.forEach((entry) => {
             expect(otp.generate(
-                data.passes[i][0],
-                data.passes[i][1])
-            ).to.be.eql(data.passes[i][2]);
-        }
+                entry[0],
+                entry[1])
+            ).to.be.eql(entry[2]);
+        });
     });
 
 
     it('[method/generate] incorrect codes', () => {
-        for (let j in data.fails){
+        data.fails.forEach((entry) => {
             expect(otp.generate(
-                data.fails[j][0],
-                data.fails[j][1])
-            ).to.not.eql(data.fails[j][2]);
-        }
+                entry[0],
+                entry[1])
+            ).to.not.eql(entry[2]);
+        });
     });
 
 
     it('[method/check] pass', () => {
-        for (let i in data.passes){
+        data.passes.forEach((entry) => {
             expect(otp.check(
-                data.passes[i][2],
-                data.passes[i][0],
-                data.passes[i][1])
+                entry[2],
+                entry[0],
+                entry[1])
             ).to.be.eql(true);
-        }
+        });
     });
 
 
     it('[method/check] fails', () => {
-        for (let j in data.fails){
+        data.fails.forEach((entry) => {
             expect(otp.check(
-                data.fails[j][2],
-                data.fails[j][0],
-                data.fails[j][1])
+                entry[2],
+                entry[0],
+                entry[1])
             ).to.be.eql(false);
-        }
+        });
     });
-
-
-
-
-
-
 
 });

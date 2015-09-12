@@ -39,40 +39,41 @@ describe('Legacy (2.x.x adapter)', function(){
 
     it('[Core/HOTP] ensure correct code generation', () => {
 
-        for (let i in data.passes){
+        data.passes.forEach((entry) => {
             expect(otplib.core.hotp(
-                data.passes[i][0],
-                data.passes[i][1])
-            ).to.be.eql(data.passes[i][2]);
-        }
+                entry[0],
+                entry[1])
+            ).to.be.eql(entry[2]);
+        });
 
-        for (let j in data.fails){
+        data.fails.forEach((entry) => {
             expect(otplib.core.hotp(
-                data.fails[j][0],
-                data.fails[j][1])
-            ).to.not.eql(data.fails[j][2]);
-        }
+                entry[0],
+                entry[1])
+            ).to.not.eql(entry[2]);
+        });
 
     });
 
 
     it('[Core/HOTP] method `check`', function(){
 
-        for (let i in data.passes){
-            expect(otplib.core.checkHOTP(
-                data.passes[i][2],
-                data.passes[i][0],
-                data.passes[i][1])
-            ).to.be.eql(true);
-        }
 
-        for (let j in data.fails){
+        data.passes.forEach((entry) => {
             expect(otplib.core.checkHOTP(
-                data.fails[j][2],
-                data.fails[j][0],
-                data.fails[j][1])
+                entry[2],
+                entry[0],
+                entry[1])
+            ).to.be.eql(true);
+        });
+
+        data.fails.forEach((entry) => {
+            expect(otplib.core.checkHOTP(
+                entry[2],
+                entry[0],
+                entry[1])
             ).to.be.eql(false);
-        }
+        });
     });
 
 

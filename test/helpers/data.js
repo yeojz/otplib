@@ -14,10 +14,19 @@ let fails = [
 ];
 
 
+let endec = [
+    ['testing secret key', 'ORSXG5DJNZTSA43FMNZGK5BANNSXS==='],
+    ['the quick brown fox', 'ORUGKIDROVUWG2ZAMJZG653OEBTG66A='],
+    ['mvomjsunp qwerty', 'NV3G63LKON2W44BAOF3WK4TUPE======'],
+    ['abcd efgh ijkl mnop qrstu', 'MFRGGZBAMVTGO2BANFVGW3BANVXG64BAOFZHG5DV']
+];
 
+let totp = ['12341234123412341234', 59000, '972213'];
 
 
 export default {
+    endec,
+    fails,
     passes,
-    fails
+    totp
 }
