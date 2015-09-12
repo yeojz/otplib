@@ -69,7 +69,7 @@ var lib = require('otplib');
 
 #### Authenticator
 ```javascript
-var authenticator = require('otplib/authenticator');
+var authenticator = require('otplib/lib/authenticator');
 
 // OR
 var lib = require('otplib');
@@ -77,7 +77,7 @@ var authenticator = lib.authenticator;
 ```
 #### HOTP
 ```javascript
-var hotp = require('otplib/hotp');
+var hotp = require('otplib/lib/hotp');
 
 // OR
 var lib = require('otplib');
@@ -85,7 +85,7 @@ var hotp = lib.hotp;
 ```
 #### TOTP
 ```javascript
-var totp = require('otplib/totp');
+var totp = require('otplib/lib/totp');
 
 // OR
 var lib = require('otplib');
@@ -112,7 +112,7 @@ var totp = lib.totp;
 
 ### Token Generation
 ```javascript
-var otp = require('otplib/totp');
+var otp = require('otplib/lib/totp');
 
 // user secret key
 var secret = otp.utils.generateSecret();
@@ -125,7 +125,7 @@ var code = otp.generate(secret);
 ### Token Validation
 
 ```javascript
-var otp = require('otplib/totp');
+var otp = require('otplib/lib/totp');
 
 // from database etc.
 var secret = 'user secret';
@@ -155,7 +155,7 @@ but it will NOT be compatible with Google Authenticator.
 ### Sample
 
 ```javascript
-var otp = require('otplib/authenticator');
+var otp = require('otplib/lib/authenticator');
 
 // base 32 encoded user secret key
 var secret = otp.generateSecret();
