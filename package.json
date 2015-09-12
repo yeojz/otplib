@@ -9,7 +9,7 @@
     "compile": "npm run build && export NODE_ENV=production && webpack",
     "compile-docs": "node_modules/jsdoc/jsdoc.js -c jsdoc.json",
     "ghpages": "git subtree split --prefix dist -b gh-pages && git push -f origin gh-pages:gh-pages && git branch -D gh-pages",
-    "prepublish": "npm run build && npm run compile",
+    "prepublish": "npm run compile",
     "publish-site": "npm run compile && npm run compile-docs && npm run ghpages",
     "test": "mocha --compilers js:babel/register test/specs/**/*.js"
   },
