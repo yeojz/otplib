@@ -55,7 +55,7 @@
 <li><a href="https://github.com/yeojz/otplib/wiki/CHANGELOG"><code>Changelog</code></a></li>
 <li><a href="https://github.com/yeojz/otplib/blob/master/LICENSE.md"><code>License</code></a></li>
 </ul>
-<h2>About</h2><p><code>otplib</code> is a JavaScript One Time Password (OTP) Library. </p>
+<h2>About</h2><p><code>otplib</code> is a JavaScript One Time Password (OTP) Library.</p>
 <p>It was initially created for me to understand how One Time Passwords work in implementation.</p>
 <p>It implements:</p>
 <ul>
@@ -66,49 +66,49 @@
 <h2>Changes in API for v3.x.x</h2><p>As the library is rewritten and refactored into ES6 classes, v3.0.0 includes <strong>BREAKING CHANGES</strong> to the API. A compatibility library has been added, but it's highly recommended to migrate instead.</p>
 <p>Please check <a href="https://github.com/yeojz/otplib/wiki/UPGRADE-NOTES"><code>Upgrade Notes</code></a> for more information.</p>
 <h2>Installation</h2><p>Install the module via <code>npm</code></p>
-<pre class="prettyprint source"><code> $ npm install otplib</code></pre><h2>Usage</h2><p>While this package is primarily a <code>node.js</code> module, you can also use it within the browser</p>
+<pre class="prettyprint source"><code> $ npm install otplib</code></pre><h2>Usage</h2><p>While this package is primarily a <code>node.js</code> module, you can also use it within the browser.</p>
 <h3>node.js</h3><p>There are serveral variants:</p>
-<h4>All (object)</h4><pre class="prettyprint source lang-javascript"><code>// object: {authenticator, hotp, totp}
-var otplib = require('otplib');</code></pre><h4>Authenticator</h4><pre class="prettyprint source lang-javascript"><code>var authenticator = require('otplib/authenticator');
+<h4>All (object)</h4><pre class="prettyprint source lang-javascript"><code>var lib = require('otplib');
+// lib == {authenticator, hotp, totp}</code></pre><h4>Authenticator</h4><pre class="prettyprint source lang-javascript"><code>var authenticator = require('otplib/authenticator');
 
 // OR
-var otplib = require('otplib');
-var authenticator = otplib.authenticator;</code></pre><h4>HOTP</h4><pre class="prettyprint source lang-javascript"><code>var hotp = require('otplib/hotp');
+var lib = require('otplib');
+var authenticator = lib.authenticator;</code></pre><h4>HOTP</h4><pre class="prettyprint source lang-javascript"><code>var hotp = require('otplib/hotp');
 
 // OR
-var otplib = require('otplib');
-var hotp = otplib.hotp;</code></pre><h4>TOTP</h4><pre class="prettyprint source lang-javascript"><code>var totp = require('otplib/totp');
+var lib = require('otplib');
+var hotp = lib.hotp;</code></pre><h4>TOTP</h4><pre class="prettyprint source lang-javascript"><code>var totp = require('otplib/totp');
 
 // OR
-var otplib = require('otplib');
-var totp = otplib.totp;</code></pre><h3>Browser</h3><pre class="prettyprint source lang-html"><code>&lt;script src=&quot;public/lib/otplib.js&quot;>&lt;/script>
+var lib = require('otplib');
+var totp = lib.totp;</code></pre><h3>Browser</h3><pre class="prettyprint source lang-html"><code>&lt;script src=&quot;browser/otplib.js&quot;>&lt;/script>
 
 &lt;script type=&quot;text/javascript&quot;>
-   var otplib = require('otplib');
-&lt;/script></code></pre><h2>Quick Start</h2><h3>Token Generation</h3><pre class="prettyprint source lang-javascript"><code>var totp = require('otplib/totp');
+   var otp = window.otplib;
+&lt;/script></code></pre><h2>Quick Start</h2><h3>Token Generation</h3><pre class="prettyprint source lang-javascript"><code>var otp = require('otplib/totp');
 
 // user secret key
-var secret = totp.utils.generateSecret();
+var secret = otp.utils.generateSecret();
 
-// OTP
-var code = totp.generate(secret);</code></pre><h3>Token Validation</h3><pre class="prettyprint source lang-javascript"><code>var totp = require('otplib/totp');
+// OTP code
+var code = otp.generate(secret);</code></pre><h3>Token Validation</h3><pre class="prettyprint source lang-javascript"><code>var otp = require('otplib/totp');
 
-// From database etc.
+// from database etc.
 var secret = 'user secret';
 var code = 'user provided OTP';
 
-// True / False
-var status = totp.check(code, secret);</code></pre><h2>Google Authenticator compatibility notes</h2><h3>Base32 Keys and RFC3548</h3><p>Google Authenticator requires keys to be base32 encoded.
+// true / false
+var status = otp.check(code, secret);</code></pre><h2>Google Authenticator compatibility notes</h2><h3>Base32 Keys and RFC3548</h3><p>Google Authenticator requires keys to be base32 encoded.
 It also requires the base32 encoder to be <a href="http://tools.ietf.org/html/rfc3548">RFC 3548</a> compliant.</p>
 <p>OTP calculation will still work should you want to use other base32 encoding methods (like Crockford's Base 32)
 but it will NOT be compatible with Google Authenticator.</p>
-<h3>Sample</h3><pre class="prettyprint source lang-javascript"><code>var gauth = require('otplib/authenticator');
+<h3>Sample</h3><pre class="prettyprint source lang-javascript"><code>var otp = require('otplib/authenticator');
 
 // base 32 encoded user secret key
-var secret = gauth.generateSecret(); 
+var secret = otp.generateSecret();
 
-// OTP
-var code = authenticator.generate(secret);</code></pre></article>
+// otp code
+var code = otp.generate(secret);</code></pre></article>
     </section>
 
 
@@ -121,7 +121,7 @@ var code = authenticator.generate(secret);</code></pre></article>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Sun Sep 13 2015 00:07:59 GMT+0800 (SGT) using the Minami theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Sun Sep 13 2015 00:14:57 GMT+0800 (SGT) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
