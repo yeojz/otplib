@@ -1,8 +1,5 @@
 
-
 import TOTP from './classes/TOTP';
-
-
 
 
 /**

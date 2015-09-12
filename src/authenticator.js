@@ -1,9 +1,5 @@
 
-
-
 import Authenticator from './classes/Authenticator';
-
-
 
 
 /**
