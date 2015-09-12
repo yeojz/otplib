@@ -2,10 +2,16 @@
   "name": "otplib",
   "version": "2.0.0",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "mocha ./test",
-    "build": "browserify -r ./src/index.js:otplib > ./bin/otplib.js"
+    "build": "babel ./src --out-dir ./lib",
+    "clean": "rm -rf ./lib",
+    "compile": "npm run build && export NODE_ENV=production && webpack",
+    "compile-docs": "node_modules/jsdoc/jsdoc.js -c jsdoc.json",
+    "ghpages": "git subtree split --prefix dist -b gh-pages && git push -f origin gh-pages:gh-pages && git branch -D gh-pages",
+    "prepublish": "npm run build && npm run compile",
+    "publish-site": "npm run compile && npm run compile-docs && npm run ghpages",
+    "test": "mocha --compilers js:babel/register test/specs/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -17,12 +23,12 @@
     "hotp",
     "one time password",
     "google authenticator",
+    "authenticator",
     "authentication",
     "2FA",
     "2 factor",
     "node",
-    "browser",
-    "browserify"
+    "browser"
   ],
   "author": "Gerald Yeo <contact@fusedthought.com>",
   "license": "MIT",
@@ -31,10 +37,13 @@
   },
   "homepage": "https://github.com/yeojz/otplib",
   "devDependencies": {
-    "browserify": "^8.1.1",
-    "expect.js": "^0.3.1",
+    "babel": "^5.8.21",
+    "babel-loader": "^5.3.2",
+    "chai": "^3.2.0",
+    "jsdoc": "git+https://github.com/jsdoc3/jsdoc.git",
     "mocha": "^2.1.0",
-    "prompt": "^0.2.12"
+    "prompt": "^0.2.12",
+    "webpack": "^1.11.0"
   },
   "dependencies": {
     "thirty-two": "0.0.2"

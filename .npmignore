@@ -1,0 +1,8 @@
+archive
+dist/docs
+node_modules
+public
+src
+test
+esdoc.json
+jsdoc.json

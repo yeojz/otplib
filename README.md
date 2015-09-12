@@ -1,20 +1,20 @@
 # otplib
 Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
-[![npm](https://img.shields.io/npm/v/otplib.svg)](https://www.npmjs.com/package/otplib)
-[![Build Status](https://img.shields.io/travis/yeojz/otplib.svg)](https://travis-ci.org/yeojz/otplib)
+[![npm](https://img.shields.io/npm/v/otplib.svg?style=flat-square)](https://www.npmjs.com/package/otplib)
+[![Build Status](https://img.shields.io/travis/yeojz/otplib.svg?style=flat-square)](https://travis-ci.org/yeojz/otplib)
 
 
-- [`API`](/API.md)
-- [`Changelog`](/CHANGELOG.md)
-- [`License`](/LICENSE.md)
+- [`Documentation`](https://yeojz.github.io/otplib/docs)
+- [`Changelog`](https://github.com/yeojz/otplib/wiki/CHANGELOG)
+- [`License`](https://github.com/yeojz/otplib/blob/master/LICENSE.md)
 
 
 
 
 ## About
 
-`otplib` is a JavaScript One Time Password (OTP) Library. 
+`otplib` is a JavaScript One Time Password (OTP) Library.
 
 It was initially created for me to understand how One Time Passwords work in implementation.
 
@@ -24,10 +24,15 @@ It implements:
  * [RFC 4226](http://tools.ietf.org/html/rfc4226) - [HOTP](http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm)
  * [RFC 6238](http://tools.ietf.org/html/rfc6238) - [TOTP](http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm)
 
-This library is compatible with [Google Authenticator](http://code.google.com/p/google-authenticator/), and includes additional
-methods to allow you to easily work with Google Authenticator.
+This library is compatible with [Google Authenticator](http://code.google.com/p/google-authenticator/), and includes additional methods to allow you to easily work with Google Authenticator.
 
 
+
+## Changes in API for v3.x.x
+
+As the library is rewritten and refactored into ES6 classes, v3.0.0 includes __BREAKING CHANGES__ to the API. A compatibility library has been added, but it's highly recommended to migrate instead.
+
+Please check [`Upgrade Notes`](https://github.com/yeojz/otplib/wiki/UPGRADE-NOTES) for more information.
 
 
 
@@ -50,20 +55,50 @@ Install the module via `npm`
 
 ## Usage
 
-While this package is primarily a `node.js` module, a browser-based version which is compiled using `browserify` can be found in `bin/otplib.js`. 
-
+While this package is primarily a `node.js` module, you can also use it within the browser.
 
 ### node.js
+
+There are serveral variants:
+
+#### All (object)
 ```javascript
-var otplib = require('otplib');
+var lib = require('otplib');
+// lib == {authenticator, hotp, totp}
 ```
 
-### browser
+#### Authenticator
+```javascript
+var authenticator = require('otplib/authenticator');
+
+// OR
+var lib = require('otplib');
+var authenticator = lib.authenticator;
+```
+#### HOTP
+```javascript
+var hotp = require('otplib/hotp');
+
+// OR
+var lib = require('otplib');
+var hotp = lib.hotp;
+```
+#### TOTP
+```javascript
+var totp = require('otplib/totp');
+
+// OR
+var lib = require('otplib');
+var totp = lib.totp;
+```
+
+
+### Browser
 ```html
-<script src="bin/otplib.js"></script>
+<script src="browser/otplib.js"></script>
 
 <script type="text/javascript">
-   var otplib = require('otplib');
+   var otp = window.otplib;
 </script>
 ```
 
@@ -77,31 +112,27 @@ var otplib = require('otplib');
 
 ### Token Generation
 ```javascript
-var otplib = require('otplib');
+var otp = require('otplib/totp');
 
-// Basic
-var secret = otplib.core.secret.generate(); //'user secret'
+// user secret key
+var secret = otp.utils.generateSecret();
 
-// Generating OTP
-var code = otplib.core.totp(secret);
-
-console.log('OTP: ' + code);
+// OTP code
+var code = otp.generate(secret);
 ```
 
 
 ### Token Validation
 
 ```javascript
-var otplib = require('otplib');
+var otp = require('otplib/totp');
 
-// From database etc.
-var secret = 'user secret',
-    code = 'user provided OTP';
+// from database etc.
+var secret = 'user secret';
+var code = 'user provided OTP';
 
-// True / False
-var status = otplib.core.token.check(code, secret, 'totp');
-
-console.log('Is Token Valid: ' + status);
+// true / false
+var status = otp.check(code, secret);
 ```
 
 
@@ -111,15 +142,12 @@ console.log('Is Token Valid: ' + status);
 
 
 
-## Note on Google Authenticator
+## Google Authenticator compatibility notes
 
-### Base32 Keys
+### Base32 Keys and RFC3548
 
 Google Authenticator requires keys to be base32 encoded.
-
-### RFC3548
-
-Google Authenticator requires an [RFC 3548](http://tools.ietf.org/html/rfc3548) compliant encoder.
+It also requires the base32 encoder to be [RFC 3548](http://tools.ietf.org/html/rfc3548) compliant.
 
 OTP calculation will still work should you want to use other base32 encoding methods (like Crockford's Base 32)
 but it will NOT be compatible with Google Authenticator.
@@ -127,21 +155,14 @@ but it will NOT be compatible with Google Authenticator.
 ### Sample
 
 ```javascript
-var otplib = require('otplib');
+var otp = require('otplib/authenticator');
 
-var secret = otplib.google.secret(), //'base 32 encoded user secret'
-    qrcode = otplib.google.qrcode('user@domain', 'service', secret);
+// base 32 encoded user secret key
+var secret = otp.generateSecret();
 
-var code = otplib.google.generate(secret);
-
-console.log('OTP: ' + code);
+// otp code
+var code = otp.generate(secret);
 ```
-
-
-
-
-
-
 
 
 

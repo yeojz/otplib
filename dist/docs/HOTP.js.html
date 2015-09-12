@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>HOTP.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Authenticator.html">Authenticator</a></li><li><a href="HOTP.html">HOTP</a></li><li><a href="OTPUtils.html">OTPUtils</a></li><li><a href="TOTP.html">TOTP</a></li></ul><h3>Global</h3><ul><li><a href="global.html#check">check</a></li><li><a href="global.html#decode">decode</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#generate">generate</a></li><li><a href="global.html">generateSecret</a></li><li><a href="global.html">hexToInt</a></li><li><a href="global.html">intToHex</a></li><li><a href="global.html">isSameToken</a></li><li><a href="global.html#keyuri">keyuri</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html">pad</a></li><li><a href="global.html#qrcode">qrcode</a></li><li><a href="global.html">removeSpaces</a></li><li><a href="global.html">setsOf</a></li><li><a href="global.html">stringToHex</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">HOTP.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
+import crypto from 'crypto';
+import OTPUtils from './OTPUtils';
+
+
+/**
+ *
+ * HMAC-based One-time Password Algorithm
+ *
+ * References
+ * --------------------------
+ * - http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
+ * - http://tools.ietf.org/html/rfc4226
+ *
+ * Algorithm
+ * --------------------------
+ * ```
+ *  K be a secret secret
+ *  C be a counter
+ *  HMAC(K,C) = SHA1(K &amp; 0x5c5c... | SHA1(K &amp; 0x3636... | C))
+ *  be an HMAC calculated with the SHA-1 cryptographic hash algorithm
+ *  Truncate be a function that selects 4 bytes from the result of the
+ *  HMAC in a defined manner
+ *  HOTP(K,C) = Truncate(HMAC(K,C)) &amp; 0x7FFFFFFF
+ *  HOTP-Value = HOTP(K,C) mod 10d, where d is the desired number of digits
+ * ```
+ *
+ * @class HOTP
+ * @since 3.0.0
+ * @author Gerald Yeo
+ * @license MIT
+ *
+ */
+export default class HOTP {
+
+    /**
+     * Creates the instance
+     */
+    constructor() {
+
+        /**
+         * @type {class}
+         */
+        this.utils = OTPUtils;
+
+        /**
+         * @type {number}
+         */
+        this.digits = 6;
+    }
+
+
+    /**
+     * Option Setter
+     *
+     * @method options
+     *
+     * @param {Object} opt - custom options
+     */
+    options(opt = {}) {
+        this.digits = opt.digits || this.digits;
+    }
+
+
+    /**
+     * Generates the OTP code
+     *
+     * @method generate
+     *
+     * @param {string} secret - your secret that is used to generate the token
+     * @param {number} counter - the OTP counter (usually it's an incremental count)
+     * @return {number} OTP Code
+     */
+    generate(secret, counter) {
+
+        // Convert secret to hex
+        secret = OTPUtils.stringToHex(secret);
+
+        // Ensure counter is a buffer or string (for HMAC creation)
+        counter = OTPUtils.intToHex(counter);
+        counter = OTPUtils.pad(counter, 16);
+
+        // HMAC creation
+        let cryptoHmac = crypto.createHmac('sha1', new Buffer(secret, 'hex'));
+
+        // Update HMAC with the counter
+        let hmac = cryptoHmac.update(new Buffer(counter, 'hex')).digest('hex');
+
+        // offset := last nibble of hash
+        let offset = OTPUtils.hexToInt(hmac.substr(hmac.length - 1));
+
+        // truncatedHash := hash[offset..offset+3]
+        // (4 bytes starting at the offset)
+        let truncatedHash = hmac.substr(offset * 2, 8);
+
+        // Set the first bit of truncatedHash to zero
+        // (i.e. remove the most significant bit)
+        let sigbit0 = OTPUtils.hexToInt(truncatedHash) &amp; OTPUtils.hexToInt('7fffffff');
+
+        // code := truncatedHash mod 1000000
+        let code = sigbit0 % Math.pow(10, this.digits);
+
+        // Pad code with 0 until length of code is 6
+        code = OTPUtils.pad(code, this.digits);
+
+        return code;
+    }
+
+
+    /**
+     * Checks the provided OTP token against system generated token
+     *
+     * @method check
+     *
+     * @param {string} token - the OTP token to check
+     * @param {string} secret - your secret that is used to generate the token
+     * @param {number} counter - the OTP counter (usually it's an incremental count)
+     * @return {boolean}
+     */
+    check(token, secret, counter = 0) {
+        let systemToken = this.generate(secret, counter);
+        return OTPUtils.isSameToken(token, systemToken);
+    }
+}
+
+
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Sun Sep 13 2015 00:14:57 GMT+0800 (SGT) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

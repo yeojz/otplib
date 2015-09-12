@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Authenticator.html">Authenticator</a></li><li><a href="HOTP.html">HOTP</a></li><li><a href="OTPUtils.html">OTPUtils</a></li><li><a href="TOTP.html">TOTP</a></li></ul><h3>Global</h3><ul><li><a href="global.html#check">check</a></li><li><a href="global.html#decode">decode</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#generate">generate</a></li><li><a href="global.html">generateSecret</a></li><li><a href="global.html">hexToInt</a></li><li><a href="global.html">intToHex</a></li><li><a href="global.html">isSameToken</a></li><li><a href="global.html#keyuri">keyuri</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html">pad</a></li><li><a href="global.html#qrcode">qrcode</a></li><li><a href="global.html">removeSpaces</a></li><li><a href="global.html">setsOf</a></li><li><a href="global.html">stringToHex</a></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1>otplib</h1><p>Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library</p>
+<p><a href="https://www.npmjs.com/package/otplib"><img src="https://img.shields.io/npm/v/otplib.svg?style=flat-square" alt="npm"></a>
+<a href="https://travis-ci.org/yeojz/otplib"><img src="https://img.shields.io/travis/yeojz/otplib.svg?style=flat-square" alt="Build Status"></a></p>
+<ul>
+<li><a href="https://yeojz.github.io/otplib/docs"><code>Documentation</code></a></li>
+<li><a href="https://github.com/yeojz/otplib/wiki/CHANGELOG"><code>Changelog</code></a></li>
+<li><a href="https://github.com/yeojz/otplib/blob/master/LICENSE.md"><code>License</code></a></li>
+</ul>
+<h2>About</h2><p><code>otplib</code> is a JavaScript One Time Password (OTP) Library.</p>
+<p>It was initially created for me to understand how One Time Passwords work in implementation.</p>
+<p>It implements:</p>
+<ul>
+<li><a href="http://tools.ietf.org/html/rfc4226">RFC 4226</a> - <a href="http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm">HOTP</a></li>
+<li><a href="http://tools.ietf.org/html/rfc6238">RFC 6238</a> - <a href="http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm">TOTP</a></li>
+</ul>
+<p>This library is compatible with <a href="http://code.google.com/p/google-authenticator/">Google Authenticator</a>, and includes additional methods to allow you to easily work with Google Authenticator.</p>
+<h2>Changes in API for v3.x.x</h2><p>As the library is rewritten and refactored into ES6 classes, v3.0.0 includes <strong>BREAKING CHANGES</strong> to the API. A compatibility library has been added, but it's highly recommended to migrate instead.</p>
+<p>Please check <a href="https://github.com/yeojz/otplib/wiki/UPGRADE-NOTES"><code>Upgrade Notes</code></a> for more information.</p>
+<h2>Installation</h2><p>Install the module via <code>npm</code></p>
+<pre class="prettyprint source"><code> $ npm install otplib</code></pre><h2>Usage</h2><p>While this package is primarily a <code>node.js</code> module, you can also use it within the browser.</p>
+<h3>node.js</h3><p>There are serveral variants:</p>
+<h4>All (object)</h4><pre class="prettyprint source lang-javascript"><code>var lib = require('otplib');
+// lib == {authenticator, hotp, totp}</code></pre><h4>Authenticator</h4><pre class="prettyprint source lang-javascript"><code>var authenticator = require('otplib/authenticator');
+
+// OR
+var lib = require('otplib');
+var authenticator = lib.authenticator;</code></pre><h4>HOTP</h4><pre class="prettyprint source lang-javascript"><code>var hotp = require('otplib/hotp');
+
+// OR
+var lib = require('otplib');
+var hotp = lib.hotp;</code></pre><h4>TOTP</h4><pre class="prettyprint source lang-javascript"><code>var totp = require('otplib/totp');
+
+// OR
+var lib = require('otplib');
+var totp = lib.totp;</code></pre><h3>Browser</h3><pre class="prettyprint source lang-html"><code>&lt;script src=&quot;browser/otplib.js&quot;>&lt;/script>
+
+&lt;script type=&quot;text/javascript&quot;>
+   var otp = window.otplib;
+&lt;/script></code></pre><h2>Quick Start</h2><h3>Token Generation</h3><pre class="prettyprint source lang-javascript"><code>var otp = require('otplib/totp');
+
+// user secret key
+var secret = otp.utils.generateSecret();
+
+// OTP code
+var code = otp.generate(secret);</code></pre><h3>Token Validation</h3><pre class="prettyprint source lang-javascript"><code>var otp = require('otplib/totp');
+
+// from database etc.
+var secret = 'user secret';
+var code = 'user provided OTP';
+
+// true / false
+var status = otp.check(code, secret);</code></pre><h2>Google Authenticator compatibility notes</h2><h3>Base32 Keys and RFC3548</h3><p>Google Authenticator requires keys to be base32 encoded.
+It also requires the base32 encoder to be <a href="http://tools.ietf.org/html/rfc3548">RFC 3548</a> compliant.</p>
+<p>OTP calculation will still work should you want to use other base32 encoding methods (like Crockford's Base 32)
+but it will NOT be compatible with Google Authenticator.</p>
+<h3>Sample</h3><pre class="prettyprint source lang-javascript"><code>var otp = require('otplib/authenticator');
+
+// base 32 encoded user secret key
+var secret = otp.generateSecret();
+
+// otp code
+var code = otp.generate(secret);</code></pre></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Sun Sep 13 2015 00:14:57 GMT+0800 (SGT) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

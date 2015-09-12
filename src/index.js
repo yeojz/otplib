@@ -1,20 +1,21 @@
-/*
- * otplib - module
- * http://github.com/yeojz/otplib
+
+import HOTP from './classes/HOTP';
+import TOTP from './classes/TOTP';
+import Authenticator from './classes/Authenticator';
+
+
+/**
  *
- * Copyright (c) 2014 Gerald Yeo
- * Licensed under the MIT license.
+ * Instance of otplib (Entry File)
  *
+ * One-Time Password Library
+ *
+ * @since 3.0.0
+ * @author Gerald Yeo
+ * @license MIT
  */
-
-
-var core = require('./core'),
-    ga = require('./ga');
-
-
-
-
-module.exports = {
-  core: core,
-  google: ga
+export default {
+    authenticator: new Authenticator(),
+    hotp: new HOTP(),
+    totp: new TOTP()
 };
