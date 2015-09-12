@@ -52,7 +52,7 @@ function checkHOTP(token, secret, counter = 0) {
  * Core
  * --------------------------------------------------------
  */
-var Core = function(){
+let Core = function(){
 
   this.test = false;
 
@@ -89,7 +89,7 @@ Core.prototype.secret = {
  * Google Authenticator
  * --------------------------------------------------------
  */
-var Goog = function() {
+let Goog = function() {
   this.digits = 6;
   this.step = 30;
 };

@@ -10,9 +10,8 @@
     "compile-docs": "node_modules/jsdoc/jsdoc.js -c jsdoc.json",
     "ghpages": "git subtree split --prefix dist -b gh-pages && git push -f origin gh-pages:gh-pages && git branch -D gh-pages",
     "prepublish": "npm run build && npm run compile",
-    "pretest": "npm run build",
     "publish-site": "npm run compile && npm run compile-docs && npm run ghpages",
-    "test": "mocha"
+    "test": "mocha --compilers js:babel/register test/specs/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -39,9 +38,8 @@
   "homepage": "https://github.com/yeojz/otplib",
   "devDependencies": {
     "babel": "^5.8.21",
-    "babel-core": "^5.8.22",
     "babel-loader": "^5.3.2",
-    "expect.js": "^0.3.1",
+    "chai": "^3.2.0",
     "jsdoc": "git+https://github.com/jsdoc3/jsdoc.git",
     "mocha": "^2.1.0",
     "prompt": "^0.2.12",
