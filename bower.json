@@ -1,0 +1,41 @@
+{
+  "name": "otplib",
+  "version": "3.0.2",
+  "authors": [
+    "Gerald Yeo <contact@fusedthought.com>"
+  ],
+  "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
+  "main": "dist/browser/otplib.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "otp",
+    "totp",
+    "hotp",
+    "one time password",
+    "google authenticator",
+    "authenticator",
+    "authentication",
+    "2FA",
+    "2 factor"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/yeojz/otplib/",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "archive",
+    "dist/docs",
+    "node_modules",
+    "public",
+    "src",
+    "esdoc.json",
+    "jsdoc.json"
+  ]
+}
