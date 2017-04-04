@@ -1,0 +1,27 @@
+machine:
+  node:
+    version: "6"
+general:
+  branches:
+    ignore:
+      - gh-pages
+test:
+  pre:
+    - npm run clean
+  override:
+    - npm run test
+    - npm run lint
+deployment:
+  coverage:
+    branch: [master, /^hotfix\/.*$/, /^feature\/.*$/]
+    commands:
+      - npm run coveralls
+  release:
+    tag: /^v[0-9]+(\.[0-9]+)*$/
+    owner: <your username>
+    commands:
+      - npm run clean
+      - npm run build
+      - echo -e "$NPM_USER\n$NPM_PASS\n$NPM_EMAIL" | npm login
+      - npm publish
+      - npm logout

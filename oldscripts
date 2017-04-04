@@ -1,0 +1,16 @@
+"build": "babel ./src --out-dir ./lib",
+"clean": "rm -rf ./lib",
+"compile": "npm run build && export NODE_ENV=production && webpack",
+"compile-docs": "node_modules/jsdoc/jsdoc.js -c jsdoc.json",
+"ghpages": "git subtree split --prefix dist -b gh-pages && git push -f origin gh-pages:gh-pages && git branch -D gh-pages",
+"prepublish": "npm run compile",
+"publish-site": "npm run compile && npm run compile-docs && npm run ghpages",
+"test": "mocha --compilers js:babel/register test/specs/**/*.js"
+
+
+"babel-cli": "^6.23.0",
+"babel-loader": "^6.4.1",
+"chai": "^3.2.0",
+"mocha": "^3.2.0",
+"prompt": "^1.0.0",
+"webpack": "^2.3.3"
