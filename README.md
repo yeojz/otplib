@@ -2,7 +2,7 @@
 Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
 [![npm](https://img.shields.io/npm/v/otplib.svg?style=flat-square)](https://www.npmjs.com/package/otplib)
-[![Build Status](https://img.shields.io/travis/yeojz/otplib.svg?style=flat-square)](https://travis-ci.org/yeojz/otplib)
+[![Build Status](https://img.shields.io/travis/yeojz/otplib/master.svg?style=flat-square)](https://travis-ci.org/yeojz/otplib)
 
 
 - [`Documentation`](https://yeojz.github.io/otplib/docs)
@@ -163,6 +163,3 @@ var secret = otp.generateSecret();
 // otp code
 var code = otp.generate(secret);
 ```
-
-
-
