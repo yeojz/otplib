@@ -1,0 +1,8 @@
+{
+  "exclude": [
+    "tests/**/*"
+  ],
+  "require": [
+    "babel-register"
+  ]
+}

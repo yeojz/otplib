@@ -6,7 +6,7 @@ describe('Legacy (2.x.x adapter)', function(){
     let otplib;
 
     beforeEach(() => {
-        otplib = require('../../src/v2');
+        otplib = require('../../src/v2').default;
     });
 
 
@@ -151,5 +151,3 @@ describe('Legacy (2.x.x adapter)', function(){
 
 
 });
-
-
