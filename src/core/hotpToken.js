@@ -3,6 +3,7 @@ import hexToInt from '../utils/hexToInt';
 import intToHex from '../utils/intToHex';
 import leftPad from '../utils/leftPad';
 import stringToHex from '../utils/stringToHex';
+import hotpOptions from './hotpOptions';
 
 /**
  * Generates the OTP code
@@ -15,10 +16,7 @@ import stringToHex from '../utils/stringToHex';
  * @return {number} OTP Code
  */
 function hotpToken(secret, counter, options = {}) {
-  const opt = {
-    digits: 6,
-    ...options
-  }
+  const opt = hotpOptions(options);
 
   // Convert secret to hex
   const hexSecret = stringToHex(secret);

@@ -71,6 +71,10 @@ class TOTP extends HOTP {
   check(token, secret){
     return totpCheck(token, secret, this.options);
   }
+
+  verify(opts = {}) {
+    return this.check(opts.token, opts.secret);
+  }
 }
 
 export default TOTP;

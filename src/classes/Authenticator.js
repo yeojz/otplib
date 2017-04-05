@@ -3,7 +3,6 @@ import encodeKey from '../impl/authenticator/encodeKey';
 import keyuri from '../impl/authenticator/keyuri';
 import secretKey from '../impl/authenticator/secretKey';
 import token from '../impl/authenticator/token';
-import totpCheck from '../core/totpCheck';
 import TOTP from './TOTP';
 
 /**
@@ -49,10 +48,6 @@ class Authenticator extends TOTP {
 
   generateSecret(len = 16) {
     return secretKey(len)
-  }
-
-  check(token, secret){
-    return totpCheck(token, secret, this.options);
   }
 }
 

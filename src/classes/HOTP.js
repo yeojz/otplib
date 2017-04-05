@@ -60,14 +60,7 @@ class HOTP {
   }
 
   verify(opts = {}) {
-    const {
-      token,
-      secret,
-      counter,
-      ...others
-    } = opts;
-
-    return this.check(token, secret, counter, others);
+    return this.check(opts.token, opts.secret, opts.counter);
   }
 }
 
