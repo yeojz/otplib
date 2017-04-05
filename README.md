@@ -111,7 +111,7 @@ const token = authenticator.generate(secret);
 [circle-badge]: https://img.shields.io/circleci/project/github/yeojz/otplib/master.svg?style=flat-square
 [circle-link]: https://circleci.com/gh/yeojz/otplib.svg
 
-[coveralls-badge]: https://img.shields.io/coveralls/yeojz/otplib.svg?style=flat-square
+[coveralls-badge]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [coveralls-link]: https://coveralls.io/github/yeojz/otplib
 
 [pr-welcome-badge]: https://img.shields.io/badge/PRs-Welcome-ff69b4.svg?style=flat-square
