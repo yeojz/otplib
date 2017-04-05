@@ -8,7 +8,7 @@
  * @return {boolean}
  */
 function isSameToken(token1, token2) {
-  return parseInt(token1, 10) === parseInt(token2, 10);
+  return parseFloat(token1) === parseFloat(token2);
 }
 
 export default isSameToken;

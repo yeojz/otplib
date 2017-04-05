@@ -7,6 +7,9 @@
  * @return {string}
  */
 function removeSpaces(value = '') {
+  if (value == null) {
+    return '';
+  }
   return value.replace(/\s+/g, '');
 }
 

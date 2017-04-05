@@ -1,12 +1,14 @@
 /**
- * Do a left padding of the value based on the total
+ * Do a left padding if value's length less than total
  *
  * @method leftPad
  *
- * @param {integer} value - the value to pad
+ * @param {integer} value - the original value
+ * @param {integer} length - the total length of the string
  * @return {string}
  */
-function leftPad(value, total = 0) {
+function leftPad(value, length) {
+  const total = (!length) ? 0 : length;
 
   let padded = value + '';
 

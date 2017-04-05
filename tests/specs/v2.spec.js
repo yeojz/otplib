@@ -1,17 +1,8 @@
 import {expect} from 'chai';
-import data from '../helpers/data';
+import data from 'tests/helpers/data';
+import otplib from 'src/v2';
 
 describe('Legacy (2.x.x adapter)', function () {
-
-  let otplib;
-
-  beforeEach(function () {
-    otplib = require('../../src/v2').default;
-  });
-
-  afterEach(function () {
-    otplib = '';
-  });
 
   it('[Core] ensure entry methods exist', function () {
     expect(otplib).to.be.an('object');
