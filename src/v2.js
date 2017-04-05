@@ -32,21 +32,32 @@ function checkTOTP(token, secret) {
   return OTPUtils.isSameToken(token, systemToken);
 }
 
+function withOptions(otp, method) {
+  return function (...args) {
+      otp.options({
+        digits: this.digits,
+        epoch: this.epoch,
+        step: this.step
+      });
+
+      return otp[method](...args);
+  }
+}
+
 /**
  * Core
  */
-let Core = function(){
+let Core = function () {
   this.test = false;
 
   this.digits = 6;
   this.step = 30;
 
   this.epoch = null;
-  this.utils = OTPUtils;
 };
 
-Core.prototype.hotp = hotp.generate;
-Core.prototype.totp = totp.generate;
+Core.prototype.hotp = withOptions(hotp, 'generate');
+Core.prototype.totp = withOptions(totp, 'generate');
 Core.prototype.checkTOTP = checkTOTP;
 Core.prototype.checkHOTP = checkHOTP;
 
@@ -67,7 +78,7 @@ Core.prototype.secret = {
 /**
  * Google Authenticator
  */
-let Goog = function() {
+let Goog = function () {
     this.digits = 6;
     this.step = 30;
 };
