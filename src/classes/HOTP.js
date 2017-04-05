@@ -1,5 +1,6 @@
 import hotpCheck from '../core/hotpCheck';
 import hotpToken from '../core/hotpToken';
+import OTPUtils from './classes/OTPUtils';
 
 /**
  * HMAC-based One-time Password Algorithm
@@ -41,6 +42,10 @@ class HOTP {
 
   get tokenLength() {
     return this.opt.tokenLength;
+  }
+
+  get utils() {
+    return OTPUtils;
   }
 
   options(opt = {}) {

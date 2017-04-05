@@ -1,4 +1,4 @@
-import totpToken from '../core/totpToken';
+import totpToken from '../../core/totpToken';
 import decodeKey from './decodeKey';
 
 /**

@@ -1,4 +1,4 @@
-import secretKeyUtils from '../utils/secretKey';
+import secretKeyUtils from '../../utils/secretKey';
 import encodeKey from './encodeKey';
 
 /**

@@ -34,13 +34,13 @@ function checkTOTP(token, secret) {
 
 function withOptions(otp, method) {
   return function (...args) {
-      otp.options({
-        digits: this.digits,
-        epoch: this.epoch,
-        step: this.step
-      });
+    otp.options({
+      digits: this.digits,
+      epoch: this.epoch,
+      step: this.step
+    });
 
-      return otp[method](...args);
+    return otp[method](...args);
   }
 }
 

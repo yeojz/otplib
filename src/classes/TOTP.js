@@ -1,5 +1,6 @@
 import totpCheck from '../core/totpCheck';
 import totpToken from '../core/totpToken';
+import OTPUtils from './OTPUtils';
 
 /**
  * Time-based One-time Password Algorithm
@@ -8,7 +9,6 @@ import totpToken from '../core/totpToken';
  * --------------------------
  * - http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
  * - http://tools.ietf.org/html/rfc6238
- *
  *
  * Algorithm
  * --------------------------
@@ -46,6 +46,10 @@ class TOTP {
 
   set tokenLength(value) {
     this.opt.tokenLength = value;
+  }
+
+  get utils() {
+    return OTPUtils;
   }
 
   get step() {
