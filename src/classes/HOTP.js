@@ -1,6 +1,5 @@
 import hotpCheck from '../core/hotpCheck';
 import hotpToken from '../core/hotpToken';
-import OTPUtils from './classes/OTPUtils';
 
 /**
  * HMAC-based One-time Password Algorithm
@@ -31,34 +30,44 @@ import OTPUtils from './classes/OTPUtils';
 class HOTP {
 
   constructor() {
-    this.opt = {
-      tokenLength: 6
+    this._digits = 6;
+  }
+
+  set digits(value) {
+    this._digits = value;
+  }
+
+  set options(opt = {}) {
+    this._digits = opt.digits || this._digits;
+  }
+
+  get digits() {
+    return this._digits;
+  }
+
+  get options() {
+    return {
+      digits: this._digits
     }
   }
 
-  set tokenLength(value) {
-    this.opt.tokenLength = value;
-  }
-
-  get tokenLength() {
-    return this.opt.tokenLength;
-  }
-
-  get utils() {
-    return OTPUtils;
-  }
-
-  options(opt = {}) {
-    this.opt.tokenLength = opt.digits || this.opt.tokenLength; // backward compatibility
-    this.opt.tokenLength = opt.tokenLength || this.opt.tokenLength;
-  }
-
   generate(secret, counter) {
-    return hotpToken(secret, counter, this.opt)
+    return hotpToken(secret, counter, this.options)
   }
 
   check(token, secret, counter = 0) {
-    return hotpCheck(token, secret, counter, this.opt);
+    return hotpCheck(token, secret, counter, this.options);
+  }
+
+  verify(opts = {}) {
+    const {
+      token,
+      secret,
+      counter,
+      ...others
+    } = opts;
+
+    return this.check(token, secret, counter, others);
   }
 }
 

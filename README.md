@@ -163,6 +163,3 @@ var secret = otp.generateSecret();
 // otp code
 var code = otp.generate(secret);
 ```
-
-
-

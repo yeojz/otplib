@@ -16,29 +16,13 @@ let hotp = new HOTP();
 let totp = new TOTP();
 let authenticator = new Authenticator();
 
-function checkHOTP(token, secret, counter = 0) {
-  let systemToken = hotp.generate(secret, counter);
-  return OTPUtils.isSameToken(token, systemToken);
-}
-
-function checkTOTP(token, secret) {
-  if (this.test){
-    totp.options({
-      epoch: arguments[2]
-    });
-  }
-
-  let systemToken = totp.generate(secret);
-  return OTPUtils.isSameToken(token, systemToken);
-}
-
 function withOptions(otp, method) {
   return function (...args) {
-    otp.options({
+    otp.options = {
       digits: this.digits,
       epoch: this.epoch,
       step: this.step
-    });
+    };
 
     return otp[method](...args);
   }
@@ -58,8 +42,8 @@ let Core = function () {
 
 Core.prototype.hotp = withOptions(hotp, 'generate');
 Core.prototype.totp = withOptions(totp, 'generate');
-Core.prototype.checkTOTP = checkTOTP;
-Core.prototype.checkHOTP = checkHOTP;
+Core.prototype.checkTOTP = withOptions(totp, 'check');
+Core.prototype.checkHOTP = withOptions(hotp, 'check');
 
 Core.prototype.helpers = {
   isSameToken: OTPUtils.isSameToken,
@@ -86,7 +70,7 @@ Goog.prototype.secret = authenticator.generateSecret;
 Goog.prototype.keyuri = authenticator.keyuri;
 Goog.prototype.qrcode = authenticator.qrcode;
 Goog.prototype.generate = authenticator.generate;
-Goog.prototype.check = checkTOTP;
+Goog.prototype.check = withOptions(totp, 'check');
 Goog.prototype.encode = authenticator.encode;
 Goog.prototype.decode = authenticator.decode;
 

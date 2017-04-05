@@ -1,6 +1,6 @@
 import totpCheck from '../core/totpCheck';
 import totpToken from '../core/totpToken';
-import OTPUtils from './OTPUtils';
+import HOTP from './HOTP';
 
 /**
  * Time-based One-time Password Algorithm
@@ -26,57 +26,50 @@ import OTPUtils from './OTPUtils';
  * @author Gerald Yeo
  * @license MIT
  */
-class TOTP {
+class TOTP extends HOTP {
 
   constructor() {
-    this.opt = {
-      epoch: null,
-      step: 30,
-      tokenLength: 6
-    };
+    super();
+    this._epoch = null;
+    this._step = 30;
   }
 
   set step(value) {
-    this.opt.step = value;
+    this._step = value;
   }
 
   set epoch(value) {
-    this.opt.epoch = value;
+    this._epoch = value;
   }
 
-  set tokenLength(value) {
-    this.opt.tokenLength = value;
-  }
-
-  get utils() {
-    return OTPUtils;
+  set options(opt = {}) {
+    super.options = opt;
+    this._step = opt.step || this._step;
+    this._epoch = opt.epoch || this._epoch;
   }
 
   get step() {
-    return this.opt.step;
+    return this._step;
   }
 
   get epoch() {
-    return this.opt.epoch;
+    return this._epoch;
   }
 
-  get tokenLength() {
-    return this.opt.tokenLength;
-  }
-
-  options(opt = {}) {
-    this.opt.tokenLength = opt.digits || this.opt.tokenLength; // backward compatibility
-    this.opt.tokenLength = opt.tokenLength || this.opt.tokenLength;
-    this.opt.step = opt.step || this.opt.step;
-    this.opt.epoch = opt.epoch || this.opt.epoch;
+  get options() {
+    return {
+      step: this._step,
+      epoch: this._epoch,
+      ...super.options
+    }
   }
 
   generate(secret) {
-    return totpToken(secret, this.opt);
+    return totpToken(secret, this.options);
   }
 
   check(token, secret){
-    return totpCheck(token, secret, this.opt);
+    return totpCheck(token, secret, this.options);
   }
 }
 

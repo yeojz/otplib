@@ -36,17 +36,13 @@ describe('Legacy (2.x.x adapter)', function () {
   it('[Core/HOTP] ensure correct code generation', function () {
 
     data.passes.forEach((entry) => {
-      expect(otplib.core.hotp(
-        entry[0],
-        entry[1])
-      ).to.be.eql(entry[2]);
+      const result = otplib.core.hotp(entry[0], entry[1]);
+      expect(result).to.be.eql(entry[2]);
     });
 
     data.fails.forEach((entry) => {
-      expect(otplib.core.hotp(
-        entry[0],
-        entry[1])
-      ).to.not.eql(entry[2]);
+      const result = otplib.core.hotp(entry[0], entry[1]);
+      expect(result).to.not.eql(entry[2]);
     });
   });
 
@@ -70,12 +66,13 @@ describe('Legacy (2.x.x adapter)', function () {
   it('[Core/TOTP] method `check`', function () {
     let key = 972213;
     let result;
-    otplib.core.test = true;
 
-    result = otplib.core.checkTOTP(key, '12341234123412341234', 59 * 1000);
+    otplib.core.epoch = 59 * 1000;
+    result = otplib.core.checkTOTP(key, '12341234123412341234');
     expect(result).to.be.eql(true);
 
-    result = otplib.core.checkTOTP(key + 1, '12341234123412341234', 59 * 1000);
+    otplib.core.epoch = 59 * 1000;
+    result = otplib.core.checkTOTP(key + 1, '12341234123412341234');
     expect(result).to.be.eql(false);
   });
 

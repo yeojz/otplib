@@ -14,11 +14,9 @@ describe('Authenticator', function() {
   it('check existence of methods', function () {
 
     let methods = [
-      'options',
       'generate',
       'check',
       'keyuri',
-      'qrcode',
       'encode',
       'decode',
       'generateSecret'
@@ -42,17 +40,6 @@ describe('Authenticator', function() {
   it('[method/keyuri] generate expect keyuri', function () {
     let url = otp.keyuri('me', 'test', '123');
     expect(url).to.be.equal(encodeURIComponent('otpauth://totp/test:me?secret=123&issuer=test'));
-  });
-
-  it('[method/qrcode] generate expect keyuri', function () {
-    otp.options({
-        chart: 'http://testing.local?type=%uri'
-    });
-
-    let url = otp.qrcode();
-
-    expect(url).to.be.equal('http://testing.local?type='
-        + encodeURIComponent('otpauth://totp/service:user?secret=&issuer=service'));
   });
 
   it('[method/encode] check for correct encoding', function () {

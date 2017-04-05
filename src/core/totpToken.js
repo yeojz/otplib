@@ -6,19 +6,19 @@ import hotpToken from './hotpToken';
  * @method totpToken
  *
  * @param {string} secret - your secret that is used to generate the token
- * @param {object} options - additional token settings. eg: epoch, steps, tokenLength
+ * @param {object} options - additional token settings. eg: epoch, steps, digits
  * @return {number} OTP Code
  */
 function totpToken(secret, options = {}) {
   const opt = {
-    epoch: new Date().getTime(),
+    epoch: null,
     step: 30,
-    tokenLength: 6,
-    ...options
+    digits: 6,
+    ...options,
   }
-
-  const timeCounter = Math.floor(opt.epoch / (opt.step * 1000.0));
-  return hotpToken(secret, timeCounter, opt.tokenLength);
+  const epoch = opt.epoch == null ? new Date().getTime() : opt.epoch;
+  const timeCounter = Math.floor(epoch / (opt.step * 1000.0));
+  return hotpToken(secret, timeCounter, opt.digits);
 }
 
 export default totpToken;

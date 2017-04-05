@@ -13,7 +13,6 @@ describe('HOTP', function () {
 
   it('check existence of methods', function () {
     let methods = [
-      'options',
       'generate',
       'check'
     ];

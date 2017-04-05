@@ -1,11 +1,10 @@
 import decodeKey from '../impl/authenticator/decodeKey';
 import encodeKey from '../impl/authenticator/encodeKey';
 import keyuri from '../impl/authenticator/keyuri';
-import qrcode from '../impl/authenticator/qrcode';
 import secretKey from '../impl/authenticator/secretKey';
 import token from '../impl/authenticator/token';
 import totpCheck from '../core/totpCheck';
-import OTPUtils from './OTPUtils';
+import TOTP from './TOTP';
 
 /**
  * Google Authenticator adapter
@@ -34,39 +33,18 @@ import OTPUtils from './OTPUtils';
  * @author Gerald Yeo
  * @license MIT
  */
-class Authenticator {
+class Authenticator extends TOTP {
 
   constructor() {
-    this.opt = {
-      chart: 'https://chart.googleapis.com/chart?cht=qr&chs=150x150&choe=UTF-8&chld=M|0&chl=%uri',
-      epoch: null,
-      step: 30,
-      tokenLength: 6
-    }
-  }
-
-  get utils() {
-    return OTPUtils;
-  }
-
-  options(opt = {}) {
-    // Note:
-    // only opt.chart
-    // all other options are not allowed to be overwritten
-    // since it should follow google authenticator formats.
-    this.opt.chart = opt.chart || this.opt.chart;
+    super();
   }
 
   encode = encodeKey
   decode = decodeKey
   keyuri = keyuri
 
-  qrcode(user, service, secret) {
-    return qrcode(user, service, secret, this.opt);
-  }
-
   generate(secret) {
-    return token(secret, this.opt);
+    return token(secret, this.options);
   }
 
   generateSecret(len = 16) {
@@ -74,7 +52,7 @@ class Authenticator {
   }
 
   check(token, secret){
-    return totpCheck(token, secret, this.opt);
+    return totpCheck(token, secret, this.options);
   }
 }
 

@@ -32,3 +32,13 @@ coverage
 .node_repl_history
 
 archive
+
+/classes
+/core
+/imp
+/utils
+/authenticator.js
+/hotp.js
+/index.js
+/totp.js
+/v2.js
