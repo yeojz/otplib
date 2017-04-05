@@ -4,8 +4,7 @@ import encodeKey from './encodeKey';
 /**
  * Generates a authenticator compatible secret key
  *
- * @method secretKey
- *
+ * @module impl/authenticator/secretKey
  * @param {number} length - length of secret (default: 16)
  * @return {string} secret key
  */

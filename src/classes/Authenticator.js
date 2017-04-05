@@ -8,26 +8,26 @@ import TOTP from './TOTP';
 /**
  * Google Authenticator adapter
  *
- * References
- * --------------------------
- * - http://en.wikipedia.org/wiki/Google_Authenticator
+ * ## References
+ * -   http://en.wikipedia.org/wiki/Google_Authenticator
  *
- * Algorithm
- * --------------------------
+ * ## Algorithm
+ *
  * ```
- *  secret := base32decode(secret)
- *  message := floor(current Unix time / 30)
- *  hash := HMAC-SHA1(secret, message)
- *  offset := last nibble of hash
- *  truncatedHash := hash[offset..offset+3]  //4 bytes starting at the offset
- *  set the first bit of truncatedHash to zero  //remove the most significant bit
- *  code := truncatedHash mod 1000000
- *  pad code with 0 until length of code is 6
+ * secret := base32decode(secret)
+ * message := floor(current Unix time / 30)
+ * hash := HMAC-SHA1(secret, message)
+ * offset := last nibble of hash
+ * truncatedHash := hash[offset..offset+3]  //4 bytes starting at the offset
+ * set the first bit of truncatedHash to zero  //remove the most significant bit
+ * code := truncatedHash mod 1000000
+ * pad code with 0 until length of code is 6
  *
- *  return code
+ * return code
  * ```
  *
  * @class Authenticator
+ * @extends {TOTP}
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT
@@ -38,14 +38,37 @@ class Authenticator extends TOTP {
     super();
   }
 
-  encode = encodeKey
-  decode = decodeKey
-  keyuri = keyuri
+  /**
+   * @see {@link module:impl/authenticator/encodeKey} for more information.
+   */
+  encode(...args) {
+    return encodeKey(...args);
+  }
 
+  /**
+   * @see {@link module:impl/authenticator/decodeKey} for more information.
+   */
+  decode(...args) {
+    return decodeKey(...args);
+  }
+
+  /**
+   * @see {@link module:impl/authenticator/keyuri} for more information.
+   */
+  keyuri(...args) {
+    return keyuri(...args);
+  }
+
+  /**
+   * @see {@link module:impl/authenticator/token} for more information.
+   */
   generate(secret) {
     return token(secret, this.options);
   }
 
+  /**
+   * @see {@link module:impl/authenticator/secretKey} for more information.
+   */
   generateSecret(len = 16) {
     return secretKey(len)
   }

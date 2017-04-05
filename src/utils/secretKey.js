@@ -3,7 +3,7 @@ import crypto from 'crypto';
 /**
  * Naive secret key generation tool
  *
- * @method secretKey
+ * @module utils/secretKey
  *
  * @param {integer} length - the key length
  * @param {string} format - any format supported by node's `crypto`

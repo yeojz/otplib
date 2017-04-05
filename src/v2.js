@@ -9,6 +9,7 @@ import OTPUtils from './classes/OTPUtils';
  * This file provides method mappings between
  * version 3 and version 2 of the library.
  *
+ * @module v2
  * @since 3.0.0
  */
 

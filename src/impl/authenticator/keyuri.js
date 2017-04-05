@@ -1,8 +1,8 @@
 /**
  * Generates an otpauth uri
  *
- * @method keyuri
- *
+ * @namespace otplib/impl/authenticator
+ * @module impl/authenticator/keyuri
  * @param {string} user - the name/id of your user
  * @param {string} service - the name of your service
  * @param {string} secret - your secret that is used to generate the token

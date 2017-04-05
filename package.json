@@ -7,6 +7,7 @@
     "build": "npm-run-all -p build:source build:dist",
     "build:source": "cross-env NODE_ENV=production babel src --out-dir .",
     "build:dist": "cross-env BUILD_FOLDER=./dist webpack",
+    "build:docs": "jsdoc --configure jsdoc.json --verbose",
     "clean": "rimraf lib coverage .nyc_output",
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=lcov",
     "coveralls": "cross-env NODE_ENV=test nyc report --reporter=text-lcov | coveralls",
@@ -58,6 +59,8 @@
   "dependencies": {
     "babel-core": "^6.24.0",
     "babel-loader": "^6.4.1",
+    "jsdoc": "^3.4.3",
+    "minami": "^1.1.1",
     "sinon": "^2.1.0",
     "thirty-two": "1.0.2"
   }

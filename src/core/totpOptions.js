@@ -1,3 +1,10 @@
+/**
+ * Generates options for TOTP
+ *
+ * @module core/totpOptions
+ * @param {object} options - key-values to override
+ * @return {object}
+ */
 function totpOptions(options = {}) {
   let opt = {
     epoch: null,

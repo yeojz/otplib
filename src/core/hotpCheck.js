@@ -4,8 +4,7 @@ import hotpToken from './hotpToken';
 /**
  * Checks the provided OTP token against system generated token
  *
- * @method hotpCheck
- *
+ * @module core/hotpCheck
  * @param {string} token - the OTP token to check
  * @param {string} secret - your secret that is used to generate the token
  * @param {number} counter - the OTP counter (usually it's an incremental count)

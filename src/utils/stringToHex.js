@@ -1,8 +1,7 @@
 /**
  * Converts a string to Hex value
  *
- * @method stringToHex
- *
+ * @module utils/stringToHex
  * @param {string} value - the string value to convert
  * @return {string}
  */

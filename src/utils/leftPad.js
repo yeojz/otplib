@@ -1,8 +1,7 @@
 /**
  * Do a left padding if value's length less than total
  *
- * @method leftPad
- *
+ * @module utils/leftPad
  * @param {integer} value - the original value
  * @param {integer} length - the total length of the string
  * @return {string}

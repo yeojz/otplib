@@ -1,8 +1,7 @@
 /**
  * Divides number/string into defined quantity per set
  *
- * @method setsOf
- *
+ * @module utils/setsOf
  * @param {string} value - string value to split
  * @param {integer} amount - number of digits per set
  * @param {string} divider - defines how sets are joined.

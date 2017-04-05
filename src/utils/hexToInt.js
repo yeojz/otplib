@@ -1,8 +1,7 @@
 /**
  * Converts Hex into an Integer
  *
- * @method hexToInt
- *
+ * @module utils/hexToInt
  * @param {string} value - the hex value to convert
  * @return {string}
  */

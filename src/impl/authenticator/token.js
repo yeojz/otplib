@@ -4,8 +4,7 @@ import decodeKey from './decodeKey';
 /**
  * Generates the Authenticator OTP code
  *
- * @method token
- *
+ * @module impl/authenticator/token
  * @param {string} secret - your secret that is used to generate the token
  * @param {object} options - additional options.
  * @return {number} OTP Code

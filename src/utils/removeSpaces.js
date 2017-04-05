@@ -1,8 +1,7 @@
 /**
  * Removes all spaces
  *
- * @method removeSpaces
- *
+ * @module utils/removeSpaces
  * @param {string} value - string to parse
  * @return {string}
  */

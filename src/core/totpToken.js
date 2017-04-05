@@ -4,8 +4,7 @@ import totpOptions from './totpOptions';
 /**
  * Generates the OTP code
  *
- * @method totpToken
- *
+ * @module core/totpToken
  * @param {string} secret - your secret that is used to generate the token
  * @param {object} options - additional token settings. eg: epoch, steps, digits
  * @return {number} OTP Code

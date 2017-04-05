@@ -5,6 +5,7 @@ import TOTP from './classes/TOTP';
  *
  * Time-based One-Time Password library
  *
+ * @module totp
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT

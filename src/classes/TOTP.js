@@ -5,23 +5,24 @@ import HOTP from './HOTP';
 /**
  * Time-based One-time Password Algorithm
  *
- * References
- * --------------------------
- * - http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
- * - http://tools.ietf.org/html/rfc6238
+ * ## References
  *
- * Algorithm
- * --------------------------
+ * -   http://tools.ietf.org/html/rfc6238
+ * -   http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
+ *
+ * ## Algorithm
+ *
  * ```
- *  T0 be an epoch
- *  TS be the time stemp
- *  TC be the current timestamp turned into an int, using defined T0, counting in TS units
- *  TC = (unixtime(now) - unixtime(T0)) / TS
- *  TOTP = HOTP(secretsecret, TC), where the HOTP algorithm is defined below.
- *  TOTP-Value = TOTP mod 10d, where d is the desired number of digits of the one-time password.
+ * T0 be an epoch
+ * TS be the time stemp
+ * TC be the current timestamp turned into an int, using defined T0, counting in TS units
+ * TC = (unixtime(now) - unixtime(T0)) / TS
+ * TOTP = HOTP(secretsecret, TC), where the HOTP algorithm is defined below.
+ * TOTP-Value = TOTP mod 10d, where d is the desired number of digits of the one-time password.
  * ```
  *
  * @class TOTP
+ * @extends {HOTP}
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT
