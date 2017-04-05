@@ -31,6 +31,7 @@ coverage
 .npm
 .node_repl_history
 
+/docs
 /site/public/otplib.*
 /site/public/docs/*
 /dist

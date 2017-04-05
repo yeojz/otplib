@@ -12,6 +12,7 @@
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=lcov",
     "coveralls": "cross-env NODE_ENV=test nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint --ext js src tests",
+    "move:docs": "node ./buildtools/moveDocs",
     "test": "cross-env NODE_ENV=test NODE_PATH=. npm run test:run",
     "test:run": "nyc --reporter=text-summary mocha 'tests/**/*.spec.js'",
     "test:watch": "npm run test -- -- --watch"
@@ -61,6 +62,7 @@
     "babel-loader": "^6.4.1",
     "jsdoc": "^3.4.3",
     "minami": "^1.1.1",
+    "ncp": "^2.0.0",
     "sinon": "^2.1.0",
     "thirty-two": "1.0.2"
   }
