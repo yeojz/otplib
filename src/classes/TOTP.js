@@ -1,5 +1,5 @@
-import totpCheck from '../utils/totpCheck';
-import totpToken from '../utils/totpToken';
+import totpCheck from '../core/totpCheck';
+import totpToken from '../core/totpToken';
 
 /**
  * Time-based One-time Password Algorithm

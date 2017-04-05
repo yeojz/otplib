@@ -1,5 +1,5 @@
-import hotpCheck from './hotpCheck';
-import hotpToken from './hotpToken';
+import hotpCheck from '../core/hotpCheck';
+import hotpToken from '../core/hotpToken';
 
 /**
  * HMAC-based One-time Password Algorithm
