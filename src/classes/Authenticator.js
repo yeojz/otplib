@@ -4,6 +4,7 @@ import keyuri from '../authenticator/keyuri';
 import qrcode from '../authenticator/qrcode';
 import secretKey from '../authenticator/secretKey';
 import token from '../authenticator/token';
+import totpCheck from '../core/totpCheck';
 
 /**
  * Google Authenticator adapter
@@ -66,6 +67,10 @@ class Authenticator {
 
     generateSecret(len = 16) {
       return secretKey(len)
+    }
+
+    check(token, secret){
+      return totpCheck(token, secret, this.opt);
     }
 }
 
