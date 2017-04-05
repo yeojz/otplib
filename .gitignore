@@ -31,11 +31,11 @@ coverage
 .npm
 .node_repl_history
 
-archive
+/site/public/otplib.*
 
 /classes
 /core
-/imp
+/impl
 /utils
 /authenticator.js
 /hotp.js

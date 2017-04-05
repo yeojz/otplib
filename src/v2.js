@@ -31,20 +31,16 @@ function withOptions(otp, method) {
 /**
  * Core
  */
-let Core = function () {
-  this.test = false;
-
+function Core() {
   this.digits = 6;
   this.step = 30;
-
   this.epoch = null;
-};
+}
 
 Core.prototype.hotp = withOptions(hotp, 'generate');
 Core.prototype.totp = withOptions(totp, 'generate');
 Core.prototype.checkTOTP = withOptions(totp, 'check');
 Core.prototype.checkHOTP = withOptions(hotp, 'check');
-
 Core.prototype.helpers = {
   isSameToken: OTPUtils.isSameToken,
   stringToHex: OTPUtils.stringToHex,
@@ -52,7 +48,6 @@ Core.prototype.helpers = {
   intToHex: OTPUtils.intToHex,
   pad: OTPUtils.pad
 };
-
 Core.prototype.secret = {
   generate: OTPUtils.generateSecret,
   removeSpaces: OTPUtils.removeSpaces,
@@ -62,10 +57,10 @@ Core.prototype.secret = {
 /**
  * Google Authenticator
  */
-let Goog = function () {
-    this.digits = 6;
-    this.step = 30;
-};
+function Goog() {
+  this.digits = 6;
+  this.step = 30;
+}
 Goog.prototype.secret = authenticator.generateSecret;
 Goog.prototype.keyuri = authenticator.keyuri;
 Goog.prototype.qrcode = authenticator.qrcode;
@@ -74,6 +69,9 @@ Goog.prototype.check = withOptions(totp, 'check');
 Goog.prototype.encode = authenticator.encode;
 Goog.prototype.decode = authenticator.decode;
 
+/**
+ * Default Exports
+ */
 export default {
   core: new Core(),
   google: new Goog()

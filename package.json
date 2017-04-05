@@ -4,7 +4,9 @@
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
   "main": "lib/index.js",
   "scripts": {
-    "build": "cross-env NODE_ENV=production babel src --out-dir lib",
+    "build": "npm-run-all -p build:source build:dist",
+    "build:source": "cross-env NODE_ENV=production babel src --out-dir .",
+    "build:dist": "webpack",
     "clean": "rimraf lib coverage .nyc_output",
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=lcov",
     "coveralls": "cross-env NODE_ENV=test nyc report --reporter=text-lcov | coveralls",
@@ -47,10 +49,13 @@
     "cross-env": "^4.0.0",
     "eslint": "^3.19.0",
     "mocha": "^3.2.0",
+    "npm-run-all": "^4.0.2",
     "nyc": "^10.2.0",
-    "rimraf": "^2.6.1"
+    "rimraf": "^2.6.1",
+    "webpack": "^2.3.3"
   },
   "dependencies": {
+    "babel-loader": "^6.4.1",
     "thirty-two": "1.0.2"
   }
 }
