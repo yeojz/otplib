@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm-run-all -p build:source build:dist",
     "build:source": "cross-env NODE_ENV=production babel src --out-dir .",
-    "build:dist": "webpack",
+    "build:dist": "cross-env BUILD_FOLDER=./dist webpack",
     "clean": "rimraf lib coverage .nyc_output",
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=lcov",
     "coveralls": "cross-env NODE_ENV=test nyc report --reporter=text-lcov | coveralls",

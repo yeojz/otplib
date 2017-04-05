@@ -32,7 +32,7 @@ coverage
 .node_repl_history
 
 /site/public/otplib.*
-
+/dist
 /classes
 /core
 /impl

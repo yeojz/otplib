@@ -55,7 +55,7 @@ import totp from 'otplib/totp'; // hotp
 import authenticator from 'otplib/authenticator'; // google authenticator
 ```
 
-Do not that if you're using `require`, you may need to do `var otplib = require('otplib').default`.
+Do note that if you're using `require`, you may need to do `var otplib = require('otplib').default`.
 
 ### In browser
 
@@ -73,11 +73,11 @@ You can just add to your head
 
 The following files are available:
 
--   [otplib.js]() - hotp / totp / google authenticator
--   [otplib.hotp.js]() - hotp
--   [otplib.totp.js]() - totp
--   [otplib.ga.js]() - google authenticator
--   [otplib.legacy.js]() - v2 interface
+-   [otplib.min.js]() - hotp / totp / google authenticator
+-   [otplib.hotp.min.js]() - hotp
+-   [otplib.totp.min.js]() - totp
+-   [otplib.ga.min.js]() - google authenticator
+-   [otplib.legacy.min.js]() - v2 interface
 
 
 ## CLI Usage
