@@ -1,10 +1,7 @@
-
-import crypto from 'crypto';
-import OTPUtils from './OTPUtils';
-
+import hotpCheck from './hotpCheck';
+import hotpToken from './hotpToken';
 
 /**
- *
  * HMAC-based One-time Password Algorithm
  *
  * References
@@ -29,99 +26,35 @@ import OTPUtils from './OTPUtils';
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT
- *
  */
-export default class HOTP {
+class HOTP {
 
-    /**
-     * Creates the instance
-     */
-    constructor() {
-
-        /**
-         * @type {class}
-         */
-        this.utils = OTPUtils;
-
-        /**
-         * @type {number}
-         */
-        this.digits = 6;
+  constructor() {
+    this.opt = {
+      tokenLength: 6
     }
+  }
 
+  set tokenLength(value) {
+    this.opt.tokenLength = value;
+  }
 
-    /**
-     * Option Setter
-     *
-     * @method options
-     *
-     * @param {Object} opt - custom options
-     */
-    options(opt = {}) {
-        this.digits = opt.digits || this.digits;
-    }
+  get tokenLength() {
+    return this.opt.tokenLength;
+  }
 
+  options(opt = {}) {
+    this.opt.tokenLength = opt.digits || this.opt.tokenLength; // backward compatibility
+    this.opt.tokenLength = opt.tokenLength || this.opt.tokenLength;
+  }
 
-    /**
-     * Generates the OTP code
-     *
-     * @method generate
-     *
-     * @param {string} secret - your secret that is used to generate the token
-     * @param {number} counter - the OTP counter (usually it's an incremental count)
-     * @return {number} OTP Code
-     */
-    generate(secret, counter) {
+  generate(secret, counter) {
+    return hotpToken(secret, counter, this.opt)
+  }
 
-        // Convert secret to hex
-        secret = OTPUtils.stringToHex(secret);
-
-        // Ensure counter is a buffer or string (for HMAC creation)
-        counter = OTPUtils.intToHex(counter);
-        counter = OTPUtils.pad(counter, 16);
-
-        // HMAC creation
-        let cryptoHmac = crypto.createHmac('sha1', new Buffer(secret, 'hex'));
-
-        // Update HMAC with the counter
-        let hmac = cryptoHmac.update(new Buffer(counter, 'hex')).digest('hex');
-
-        // offset := last nibble of hash
-        let offset = OTPUtils.hexToInt(hmac.substr(hmac.length - 1));
-
-        // truncatedHash := hash[offset..offset+3]
-        // (4 bytes starting at the offset)
-        let truncatedHash = hmac.substr(offset * 2, 8);
-
-        // Set the first bit of truncatedHash to zero
-        // (i.e. remove the most significant bit)
-        let sigbit0 = OTPUtils.hexToInt(truncatedHash) & OTPUtils.hexToInt('7fffffff');
-
-        // code := truncatedHash mod 1000000
-        let code = sigbit0 % Math.pow(10, this.digits);
-
-        // Pad code with 0 until length of code is 6
-        code = OTPUtils.pad(code, this.digits);
-
-        return code;
-    }
-
-
-    /**
-     * Checks the provided OTP token against system generated token
-     *
-     * @method check
-     *
-     * @param {string} token - the OTP token to check
-     * @param {string} secret - your secret that is used to generate the token
-     * @param {number} counter - the OTP counter (usually it's an incremental count)
-     * @return {boolean}
-     */
-    check(token, secret, counter = 0) {
-        let systemToken = this.generate(secret, counter);
-        return OTPUtils.isSameToken(token, systemToken);
-    }
+  check(token, secret, counter = 0) {
+    return hotpCheck(token, secret, counter, this.opt);
+  }
 }
 
-
-
+export default HOTP;

@@ -1,11 +1,11 @@
-
-import base32 from 'thirty-two';
-import OTPUtils from './OTPUtils';
-import TOTP from './TOTP';
-
+import decodeKey from '../authenticator/decodeKey';
+import encodeKey from '../authenticator/encodeKey';
+import keyuri from '../authenticator/keyuri';
+import qrcode from '../authenticator/qrcode';
+import secretKey from '../authenticator/secretKey';
+import token from '../authenticator/token';
 
 /**
- *
  * Google Authenticator adapter
  *
  * References
@@ -28,152 +28,45 @@ import TOTP from './TOTP';
  * ```
  *
  * @class Authenticator
- * @extends {TOTP}
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT
- *
  */
-export default class Authenticator extends TOTP {
+class Authenticator {
 
-    /**
-     * Creates the instance
-     */
     constructor() {
-        super();
-
-        /**
-         * @type {string}
-         */
-        this.chart = 'https://chart.googleapis.com/chart?cht=qr&chs=150x150&choe=UTF-8&chld=M|0&chl=%uri';
-
-        /**
-         * @type {number}
-         */
-        this.step = 30;
+      this.opt = {
+        chart: 'https://chart.googleapis.com/chart?cht=qr&chs=150x150&choe=UTF-8&chld=M|0&chl=%uri',
+        epoch: null,
+        step: 30,
+        tokenLength: 6
+      }
     }
 
-
-    /**
-     * Option Setter
-     *
-     * @method options
-     *
-     * @param {Object} opt - custom options
-     */
     options(opt = {}) {
-        super.options(opt);
-        this.chart = opt.chart || this.chart;
+
+      // Note:
+      // only opt.chart
+      // all other options are not allowed to be overwritten
+      // since it should follow google authenticator formats.
+      this.opt.chart = opt.chart || this.opt.chart;
     }
 
+    encode = encodeKey
+    decode = decodeKey
+    keyuri = keyuri
 
-    /**
-     * Generates an otpauth uri
-     *
-     * @method keyuri
-     *
-     * @param {string} user - the name/id of your user
-     * @param {string} service - the name of your service
-     * @param {string} secret - your secret that is used to generate the token
-     * @return {string} otpauth uri. Example: otpauth://totp/user:localhost?secet=NKEIBAOUFA
-     */
-    keyuri(user = 'user', service = 'service', secret = '') {
-
-        let data = '%service:%user?secret=%secret&issuer=%service';
-        let protocol = 'otpauth://totp/';
-
-        data = data.replace('%user', user);
-        data = data.replace('%secret', secret);
-        data = data.replace(/%service/g, service);
-
-        return encodeURIComponent(protocol + data);
-    }
-
-
-    /**
-     * Generates a QR Code image
-     *
-     * By default, it uses Google Charts as it's charting tool
-     *
-     * @method qrcode
-     *
-     * @param {string} user - the name/id of your user
-     * @param {string} service - yhe name of your service
-     * @param {string} secret - your secret that is used to generate the token
-     * @return {string} the QR code image url
-     */
     qrcode(user, service, secret) {
-        let uri = this.keyuri(user, service, secret);
-        let chart = this.chart;
-
-        chart = chart.replace('%uri', uri);
-
-        return chart;
+      return qrcode(user, service, secret, this.opt);
     }
 
-
-    /**
-     * Encodes secret into base32
-     *
-     * @method encode
-     *
-     * @param {string} secret - your secret that is used to generate the token
-     * @param {string} format - any format supported by node's `Buffer`
-     * @return {string} Base32 string
-     */
-    encode(secret, format = 'binary') {
-        return base32.encode(secret).toString(format);
-    }
-
-
-    /**
-     * Decodes base32 value to secret.
-     *
-     * @method decode
-     *
-     * @param {string} eSecret - your secret that is used to generate the token
-     * @param {string} format - any format supported by node's `Buffer`
-     * @return {string} Decoded string
-     */
-    decode(eSecret, format = 'binary') {
-        return base32.decode(eSecret).toString(format);
-    }
-
-
-    /**
-     * Generates the OTP code
-     *
-     * @method generate
-     *
-     * @param {string} secret - your secret that is used to generate the token
-     * @return {number} OTP Code
-     */
     generate(secret) {
-        secret = this.decode(secret);
-
-        let code = super.generate(secret);
-        return code;
+      return token(secret, this.opt);
     }
 
-
-    /**
-     * Generates a secret key
-     *
-     * @method generateSecret
-     *
-     * @param {number} len - length of secret (default: 16)
-     * @return {string} secret key
-     */
     generateSecret(len = 16) {
-        let secret = '';
-
-        while (secret.length < len){
-            secret += OTPUtils.generateSecret(40, 'base64');
-        }
-
-        return this.encode(secret).slice(0, len);
+      return secretKey(len)
     }
-
 }
 
-
+export default Authenticator;

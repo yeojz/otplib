@@ -3,72 +3,55 @@ import {expect} from 'chai';
 import HOTP from '../../src/classes/HOTP';
 import data from '../helpers/data';
 
-describe('HOTP', function(){
+describe('HOTP', function () {
 
-    let otp;
+  let otp;
 
-    beforeEach(() => {
-        otp = new HOTP();
+  beforeEach(() => {
+      otp = new HOTP();
+  });
+
+  it('check existence of methods', function () {
+    let methods = [
+      'options',
+      'generate',
+      'check'
+    ];
+
+    methods.forEach((key) => {
+      try {
+        expect(otp[key]).to.be.an('function');
+      } catch(err){
+        throw new Error(err + ' (method: ' + key + ')');
+      }
     });
+  });
 
-    it('check existence of methods', () => {
-
-        let methods = [
-            'options',
-            'generate',
-            'check'
-        ];
-
-
-        methods.forEach((key) => {
-            try {
-                expect(otp[key]).to.be.an('function');
-            } catch(err){
-                throw new Error(err + ' (method: ' + key + ')');
-            }
-        });
+  it('[method/generate] correct codes', function () {
+    data.passes.forEach((entry) => {
+      const result = otp.generate(entry[0], entry[1]);
+      expect(result).to.be.eql(entry[2]);
     });
+  });
 
-
-    it('[method/generate] correct codes', () => {
-        data.passes.forEach((entry) => {
-            expect(otp.generate(
-                entry[0],
-                entry[1])
-            ).to.be.eql(entry[2]);
-        });
+  it('[method/generate] incorrect codes', function () {
+    data.fails.forEach((entry) => {
+      const result = otp.generate(entry[0], entry[1]);
+      expect(result).to.not.eql(entry[2]);
     });
+  });
 
-
-    it('[method/generate] incorrect codes', () => {
-        data.fails.forEach((entry) => {
-            expect(otp.generate(
-                entry[0],
-                entry[1])
-            ).to.not.eql(entry[2]);
-        });
+  it('[method/check] pass', function () {
+    data.passes.forEach((entry) => {
+      const result = otp.check(entry[2], entry[0], entry[1])
+      expect(result).to.be.eql(true);
     });
+  });
 
-
-    it('[method/check] pass', () => {
-        data.passes.forEach((entry) => {
-            expect(otp.check(
-                entry[2],
-                entry[0],
-                entry[1])
-            ).to.be.eql(true);
-        });
+  it('[method/check] fails', function () {
+    data.fails.forEach((entry) => {
+      const result = otp.check(entry[2], entry[0], entry[1])
+      expect(result).to.be.eql(false);
     });
-
-
-    it('[method/check] fails', () => {
-        data.fails.forEach((entry) => {
-            expect(otp.check(
-                entry[2],
-                entry[0],
-                entry[1])
-            ).to.be.eql(false);
-        });
-    });
-
+  });
 });

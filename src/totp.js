@@ -1,9 +1,6 @@
-
 import TOTP from './classes/TOTP';
 
-
 /**
- *
  * Instance of TOTP
  *
  * Time-based One-Time Password library

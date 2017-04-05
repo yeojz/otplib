@@ -1,6 +1,4 @@
-
 import HOTP from './classes/HOTP';
-
 
 /**
  *

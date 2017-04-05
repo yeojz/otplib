@@ -1,10 +1,7 @@
-
-import OTPUtils from './OTPUtils';
-import HOTP from './HOTP';
-
+import totpCheck from '../utils/totpCheck';
+import totpToken from '../utils/totpToken';
 
 /**
- *
  * Time-based One-time Password Algorithm
  *
  * References
@@ -25,79 +22,58 @@ import HOTP from './HOTP';
  * ```
  *
  * @class TOTP
- * @extends {HOTP}
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT
- *
  */
-export default class TOTP extends HOTP {
+class TOTP {
 
-    /**
-     * Creates the instance
-     */
-    constructor() {
-        super();
+  constructor() {
+    this.opt = {
+      epoch: null,
+      step: 30,
+      tokenLength: 6
+    };
+  }
 
-        /**
-         * @type {number}
-         */
-        this.step = 30;
+  set step(value) {
+    this.opt.step = value;
+  }
 
-        /**
-         * @type {number}
-         */
-        this.epoch = null;
-    }
+  set epoch(value) {
+    this.opt.epoch = value;
+  }
 
+  set tokenLength(value) {
+    this.opt.tokenLength = value;
+  }
 
-    /**
-     * Option Setter
-     *
-     * @method options
-     *
-     * @param {Object} opt - custom options
-     */
-    options(opt = {}) {
-        super.options(opt);
-        this.step = opt.step || this.step;
-        this.epoch = opt.epoch || this.epoch;
-    }
+  get step() {
+    return this.opt.step;
+  }
 
+  get epoch() {
+    return this.opt.epoch;
+  }
 
-    /**
-     * Generates the OTP code
-     *
-     * @method generate
-     *
-     * @param {string} secret - your secret that is used to generate the token
-     * @return {number} OTP Code
-     */
-    generate(secret) {
-        let epoch = this.epoch || new Date().getTime();
-        let timeStep = this.step;
-        let timeCounter = Math.floor(epoch / (timeStep * 1000.0));
+  get tokenLength() {
+    return this.opt.tokenLength;
+  }
 
-        let code = super.generate(secret, timeCounter);
+  options(opt = {}) {
+    this.opt.tokenLength = opt.digits || this.opt.tokenLength; // backward compatibility
+    this.opt.tokenLength = opt.tokenLength || this.opt.tokenLength;
+    this.opt.step = opt.step || this.opt.step;
+    this.opt.epoch = opt.epoch || this.opt.epoch;
+  }
 
-        return code;
-    }
+  generate(secret) {
+    return totpToken(secret, this.opt);
+  }
 
-
-    /**
-     * Checks the provided OTP token against system generated token
-     *
-     * @method check
-     *
-     * @param {string} token - the OTP token to check
-     * @param {string} secret - your secret that is used to generate the token
-     * @return {boolean}
-     */
-    check(token, secret){
-        let systemToken = this.generate(secret);
-        return OTPUtils.isSameToken(token, systemToken);
-    }
+  check(token, secret){
+    return totpCheck(token, secret, this.opt);
+  }
 }
 
-
-
+export default TOTP;

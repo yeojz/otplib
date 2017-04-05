@@ -1,9 +1,6 @@
-
 import Authenticator from './classes/Authenticator';
 
-
 /**
- *
  * Instance of Authenticator
  *
  * Google Authenticator compatible One-Time Password library
