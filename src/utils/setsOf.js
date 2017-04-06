@@ -8,10 +8,15 @@
  * @return {string}
  */
 function setsOf(value, amount = 4, divider = ' ') {
-  let regex = new RegExp('.{1,' + amount + '}', 'g');
-  const str = value + '';
+  const num = parseInt(amount, 10);
 
-  return (str) ? str.match(regex).join(divider) : '';
+  if (Number.isNaN(num) || typeof value !== 'string') {
+    return '';
+  }
+
+  const regex = new RegExp('.{1,' + amount + '}', 'g');
+  return value.match(regex)
+    .join(divider);
 }
 
 export default setsOf;
