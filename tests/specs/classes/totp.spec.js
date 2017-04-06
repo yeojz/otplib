@@ -9,35 +9,36 @@ describe('classes/TOTP', function () {
     otp = new TOTP();
   });
 
-  it('check existence of methods', function () {
-    let methods = [
+  it('should contain expected method interfaces', function () {
+    [
       'generate',
       'check'
-    ];
-
-    methods.forEach((key) => {
-      try {
-        expect(otp[key]).to.be.an('function');
-      } catch(err){
-        throw new Error(err + ' (method: ' + key + ')');
-      }
+    ].forEach((key) => {
+      const fn = () => otp[key];
+      expect(fn).to.not.throw(Error)
+      expect(fn).to.be.a('function');
     });
   });
 
   it('[method/generate] correct codes', function () {
-    otp.options = {
-      epoch: data.totp[1]
-    };
+    data.totp.forEach((entry) => {
+      otp.options = {
+        epoch: entry[1]
+      };
 
-    expect(otp.generate(data.totp[0])).to.be.equal(data.totp[2]);
+      expect(otp.generate(entry[0])).to.be.equal(entry[2]);
+    });
   });
 
   it('[method/check] pass/fail', function () {
-    otp.options = {
-      epoch: data.totp[1]
-    };
 
-    expect(otp.check(data.totp[2], data.totp[0])).to.be.equal(true);
-    expect(otp.check(data.totp[2], data.totp[0] + 1)).to.be.equal(false);
+    data.totp.forEach((entry) => {
+      otp.options = {
+        epoch: entry[1]
+      };
+
+      expect(otp.check(entry[2], entry[0])).to.be.equal(true);
+      expect(otp.check(entry[2], entry[0] + 1)).to.be.equal(false);
+    })
   });
 });

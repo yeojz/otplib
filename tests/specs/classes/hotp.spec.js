@@ -11,18 +11,14 @@ describe('classes/HOTP', function () {
       otp = new HOTP();
   });
 
-  it('check existence of methods', function () {
-    let methods = [
+  it('should contain expected method interfaces', function () {
+    [
       'generate',
       'check'
-    ];
-
-    methods.forEach((key) => {
-      try {
-        expect(otp[key]).to.be.an('function');
-      } catch(err){
-        throw new Error(err + ' (method: ' + key + ')');
-      }
+    ].forEach((key) => {
+      const fn = () => otp[key];
+      expect(fn).to.not.throw(Error)
+      expect(fn).to.be.a('function');
     });
   });
 

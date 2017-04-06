@@ -11,45 +11,40 @@ describe('classes/Authenticator', function() {
     otp = new Authenticator();
   });
 
-  it('check existence of methods', function () {
-
-    let methods = [
+  it('should contain expected method interfaces', function () {
+    [
       'generate',
       'check',
       'keyuri',
       'encode',
       'decode',
       'generateSecret'
-    ];
-
-    methods.forEach((key) => {
-      try {
-        expect(otp[key]).to.be.an('function');
-      } catch(err){
-        throw new Error(err + ' (method: ' + key + ')');
-      }
+    ].forEach((key) => {
+      const fn = () => otp[key];
+      expect(fn).to.not.throw(Error)
+      expect(fn).to.be.a('function');
     });
   });
 
 
-  it('[method/generateSecret] length of key', function () {
+  it('[generateSecret] length of key', function () {
     expect(otp.generateSecret().length).to.be.equal(16);
     expect(otp.generateSecret(20).length).to.be.equal(20);
   });
 
-  it('[method/keyuri] generate expect keyuri', function () {
+  it('[keyuri] generate expect keyuri', function () {
     let url = otp.keyuri('me', 'test', '123');
     expect(url).to.be.equal(encodeURIComponent('otpauth://totp/test:me?secret=123&issuer=test'));
   });
 
-  it('[method/encode] check for correct encoding', function () {
-    data.endec.forEach((entry) => {
+  it('[encode] check for correct encoding', function () {
+    data.codec.forEach((entry) => {
         expect(otp.encode(entry[0])).to.be.equal(entry[1]);
     });
   });
 
-  it('[method/decode] check for correct decoding', function () {
-    data.endec.forEach((entry) => {
+  it('[decode] check for correct decoding', function () {
+    data.codec.forEach((entry) => {
         expect(otp.decode(entry[1])).to.be.equal(entry[0]);
     });
   });
