@@ -8,9 +8,10 @@ import base32 from 'thirty-two';
  * @param {string} format - any format supported by node's `Buffer`
  * @return {string} Decoded string
  */
-function decodeKey(encodedKey, format = 'binary') {
+function decodeKey(encodedKey, format) {
+  const fmt = format || 'binary';
   return base32.decode(encodedKey)
-    .toString(format);
+    .toString(fmt);
 }
 
 export default decodeKey;
