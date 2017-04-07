@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm-run-all -p build:source build:dist",
     "build:source": "cross-env NODE_ENV=production babel src --out-dir .",
-    "build:dist": "cross-env BUILD_FOLDER=./dist webpack",
+    "build:dist": "cross-env BUILD_FOLDER=./dist NODE_ENV=production webpack",
     "build:docs": "jsdoc --configure jsdoc.json --verbose",
     "clean": "rimraf lib coverage .nyc_output",
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=lcov",
@@ -42,7 +42,9 @@
   "homepage": "https://github.com/yeojz/otplib",
   "devDependencies": {
     "babel-cli": "^6.24.0",
+    "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.1",
+    "babel-loader": "^6.4.1",
     "babel-plugin-rewire": "^1.0.0",
     "babel-plugin-transform-class-properties": "^6.23.0",
     "babel-plugin-transform-export-extensions": "^6.22.0",
@@ -52,19 +54,18 @@
     "coveralls": "^2.13.0",
     "cross-env": "^4.0.0",
     "eslint": "^3.19.0",
+    "jsdoc": "^3.4.3",
+    "minami": "^1.1.1",
     "mocha": "^3.2.0",
+    "ncp": "^2.0.0",
     "npm-run-all": "^4.0.2",
     "nyc": "^10.2.0",
     "rimraf": "^2.6.1",
+    "sinon": "^2.1.0",
     "webpack": "^2.3.3"
   },
   "dependencies": {
-    "babel-core": "^6.24.0",
-    "babel-loader": "^6.4.1",
-    "jsdoc": "^3.4.3",
-    "minami": "^1.1.1",
-    "ncp": "^2.0.0",
-    "sinon": "^2.1.0",
+    "create-hmac": "^1.1.4",
     "thirty-two": "1.0.2"
   }
 }

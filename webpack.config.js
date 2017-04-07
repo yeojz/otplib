@@ -18,7 +18,7 @@ module.exports = {
     library: 'otplib',
     libraryTarget: 'umd',
     path: BUILD_FOLDER,
-    filename: '[name].min.js'
+    filename: '[name].js'
   },
   module: {
     rules: [{
@@ -29,14 +29,25 @@ module.exports = {
       ]
     }]
   },
+  resolve: {
+    alias: {
+      'crypto': path.resolve(ROOT_FOLDER, 'src', 'utils', 'crypto')
+    }
+  },
   plugins: [
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(ENV)
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'commons',
+      filename: 'otplib.commons.js',
     }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
       }
     })
-  ]
+  ],
+  devtool: 'cheap-module-source-map',
+  target: 'web'
 };
