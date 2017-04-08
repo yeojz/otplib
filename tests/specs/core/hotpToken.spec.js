@@ -3,6 +3,12 @@ import hotpToken from 'src/core/hotpToken';
 
 describe('core/hotpToken', function () {
 
+  it('should return empty string when counter is null or undefined', function () {
+    expect(hotpToken('i6im0gc96j0mn00c')).to.equal('');
+    expect(hotpToken('i6im0gc96j0mn00c', void 0)).to.equal('');
+    expect(hotpToken('i6im0gc96j0mn00c', null)).to.equal('');
+  });
+
   it('should return correct tokens', function () {
     [
       ['i6im0gc96j0mn00c', 3, '229021'],

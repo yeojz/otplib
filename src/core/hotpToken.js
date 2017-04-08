@@ -11,9 +11,13 @@ import hotpOptions from './hotpOptions';
  * @param {string} secret - your secret that is used to generate the token
  * @param {number} counter - the OTP counter (usually it's an incremental count)
  * @param {object} options - allowed options as specified in hotpOptions()
- * @return {number} OTP Code
+ * @return {string} OTP Code
  */
 function hotpToken(secret, counter, options = {}) {
+  if (counter == null) {
+    return '';
+  }
+
   const opt = hotpOptions(options);
 
   // Convert secret to encoding for hmacSecret

@@ -12,6 +12,9 @@ import totpToken from './totpToken';
  */
 function totpCheck(token, secret, options = {}){
     const systemToken = totpToken(secret, options);
+    if (systemToken.length < 1) {
+      return false;
+    }
     return isSameToken(token, systemToken);
 }
 
