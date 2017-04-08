@@ -1,6 +1,18 @@
 import {expect} from 'chai';
-import data from 'tests/helpers/data';
 import otplib from 'src/v2';
+
+const hotpPass = [
+  ['i6im0gc96j0mn00c', 47412420, '196182'],
+  ['65jh84eo38k32edm', 47412423, '963234'],
+  ['f4515l6ob3gkganp', 47412433, '415572'],
+  ['2o9989k76ij7eh9c', 47412435, '343659']
+];
+
+const hotpFail = [
+  ['9821741871231', 1078968, 'Should fail'],
+  ['18748612', 982671, '18748612'],
+  ['18748612', 982671, '125832']
+];
 
 describe('Legacy (2.x.x adapter)', function () {
 
@@ -26,24 +38,24 @@ describe('Legacy (2.x.x adapter)', function () {
 
   it('[Core/HOTP] ensure correct code generation', function () {
 
-    data.passes.forEach((entry) => {
+    hotpPass.forEach((entry) => {
       const result = otplib.core.hotp(entry[0], entry[1]);
       expect(result).to.be.eql(entry[2]);
     });
 
-    data.fails.forEach((entry) => {
+    hotpFail.forEach((entry) => {
       const result = otplib.core.hotp(entry[0], entry[1]);
       expect(result).to.not.eql(entry[2]);
     });
   });
 
   it('[Core/HOTP] method `check`', function () {
-    data.passes.forEach((entry) => {
+    hotpPass.forEach((entry) => {
       const result = otplib.core.checkHOTP(entry[2], entry[0], entry[1]);
       expect(result).to.be.eql(true);
     });
 
-    data.fails.forEach((entry) => {
+    hotpFail.forEach((entry) => {
       const result = otplib.core.checkHOTP(entry[2], entry[0], entry[1])
       expect(result).to.be.eql(false);
     });

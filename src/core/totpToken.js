@@ -6,7 +6,7 @@ import totpOptions from './totpOptions';
  *
  * @module core/totpToken
  * @param {string} secret - your secret that is used to generate the token
- * @param {object} options - additional token settings. eg: epoch, steps, digits
+ * @param {object} options - allowed options as specified in totpOptions()
  * @return {number} OTP Code
  */
 function totpToken(secret, options = {}) {

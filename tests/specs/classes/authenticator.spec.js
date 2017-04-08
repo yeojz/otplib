@@ -1,7 +1,6 @@
 import {expect} from 'chai';
 
 import Authenticator from 'src/classes/Authenticator';
-import data from 'tests/helpers/data';
 
 describe('classes/Authenticator', function() {
 

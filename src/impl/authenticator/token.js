@@ -10,7 +10,7 @@ import decodeKey from './decodeKey';
  * @return {number} OTP Code
  */
 function token(secret, options = {}) {
-  return totpToken(decodeKey(secret), options);
+  return totpToken(decodeKey(secret, 'binary'), options);
 }
 
 export default token;

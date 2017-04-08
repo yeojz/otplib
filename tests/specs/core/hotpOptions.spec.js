@@ -3,7 +3,9 @@ import hotpOptions from 'src/core/hotpOptions';
 
 describe('core/hotpOptions', function () {
   const defaults = {
-    digits: 6
+    algorithm: 'sha1',
+    digits: 6,
+    encoding: 'ascii'
   }
 
   it('should return default options', function () {
@@ -14,7 +16,7 @@ describe('core/hotpOptions', function () {
 
   it('should return options with new values added', function () {
     const opt = {
-      digits: 7,
+      ...defaults,
       extra: true
     }
     expect(hotpOptions(opt)).to.deep.equal(opt);

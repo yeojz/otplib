@@ -4,9 +4,11 @@ import totpOptions from 'src/core/totpOptions';
 
 describe('core/totpOptions', function () {
   const defaults = {
+    algorithm: 'sha1',
+    digits: 6,
+    encoding: 'ascii',
     epoch: '12345678',
-    step: 30,
-    digits: 6
+    step: 30
   }
 
   beforeEach(function() {
@@ -25,7 +27,7 @@ describe('core/totpOptions', function () {
 
   it('should return options with new values added', function () {
     const opt = {
-      digits: 7,
+      ...defaults,
       extra: true
     }
     expect(totpOptions(opt)).to.deep.equal({

@@ -2,12 +2,15 @@
  * Generates options for HOTP
  *
  * @module core/hotpOptions
- * @param {object} options - key-values to override
+ * @param {number} options.digits - the output token length
+ * @param {string} options.encoding - the encoding of secret
  * @return {object}
  */
 function hotpOptions(options = {}) {
   return {
+    algorithm: 'sha1',
     digits: 6,
+    encoding: 'ascii',
     ...options
   }
 }

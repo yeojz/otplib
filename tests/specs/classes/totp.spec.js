@@ -1,6 +1,5 @@
 import {expect} from 'chai';
 import TOTP from 'src/classes/TOTP';
-import data from 'tests/helpers/data';
 
 describe('classes/TOTP', function () {
   let otp;

@@ -1,15 +1,19 @@
+import hotpOptions from './hotpOptions';
+
 /**
  * Generates options for TOTP
  *
  * @module core/totpOptions
- * @param {object} options - key-values to override
+ * @param {number} options.digits - the output token length
+ * @param {string} options.epoch - starting time since the UNIX epoch. Used to calculate the counter
+ * @param {number} options.step - time step in seconds
  * @return {object}
  */
 function totpOptions(options = {}) {
   let opt = {
     epoch: null,
     step: 30,
-    digits: 6,
+    ...hotpOptions(),
     ...options
   }
 

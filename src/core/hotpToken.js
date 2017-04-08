@@ -2,7 +2,6 @@ import crypto from 'crypto';
 import hexToInt from '../utils/hexToInt';
 import intToHex from '../utils/intToHex';
 import leftPad from '../utils/leftPad';
-import stringToHex from '../utils/stringToHex';
 import hotpOptions from './hotpOptions';
 
 /**
@@ -11,24 +10,25 @@ import hotpOptions from './hotpOptions';
  * @module core/hotpToken
  * @param {string} secret - your secret that is used to generate the token
  * @param {number} counter - the OTP counter (usually it's an incremental count)
- * @param {object} options - additional options. eg: digits
+ * @param {object} options - allowed options as specified in hotpOptions()
  * @return {number} OTP Code
  */
 function hotpToken(secret, counter, options = {}) {
   const opt = hotpOptions(options);
 
-  // Convert secret to hex
-  const hexSecret = stringToHex(secret);
+  // Convert secret to encoding for hmacSecret
+  const hmacSecret = new Buffer(secret, opt.encoding);
 
   // Ensure counter is a buffer or string (for HMAC creation)
   let hexCounter = intToHex(counter);
   hexCounter = leftPad(hexCounter, 16);
 
   // HMAC creation
-  const cryptoHmac = crypto.createHmac('sha1', new Buffer(hexSecret, 'hex'));
+  const cryptoHmac = crypto.createHmac(opt.algorithm, hmacSecret);
 
   // Update HMAC with the counter
-  const hmac = cryptoHmac.update(new Buffer(hexCounter, 'hex')).digest('hex');
+  const hmac = cryptoHmac.update(new Buffer(hexCounter, 'hex'))
+    .digest('hex');
 
   // offset := last nibble of hash
   const offset = hexToInt(hmac.substr(hmac.length - 1));

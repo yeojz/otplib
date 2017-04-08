@@ -1,7 +1,5 @@
 import {expect} from 'chai';
-
 import HOTP from 'src/classes/HOTP';
-import data from 'tests/helpers/data';
 
 describe('classes/HOTP', function () {
 
