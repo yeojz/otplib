@@ -13,7 +13,7 @@ import totpOptions from './totpOptions';
 function totpToken(secret, options = {}) {
   const opt = totpOptions(options);
   const counter = totpCounter(opt.epoch, opt.step);
-  return hotpToken(secret, counter, opt.digits);
+  return hotpToken(secret, counter, opt);
 }
 
 export default totpToken;

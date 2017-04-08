@@ -18,6 +18,7 @@ function hotpToken(secret, counter, options = {}) {
   }
 
   const opt = hotpOptions(options);
+
   const hmac = hotpDigest(secret, counter, opt.encoding, opt.algorithm);
 
   // offset := last nibble of hash

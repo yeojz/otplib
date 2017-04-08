@@ -1,4 +1,7 @@
 /*
+RFC 4226                     HOTP Algorithm                December 2005
+
+
 Appendix D - HOTP Algorithm: Test Values
 
    The following test data uses the ASCII string
@@ -35,6 +38,8 @@ Appendix D - HOTP Algorithm: Test Values
    7         4e5b397         82162583     162583
    8        2823443f        673399871     399871
    9        2679dc69        645520489     520489
+
+M'Raihi, et al.              Informational                     [Page 32]
 */
 
 const digests = [
