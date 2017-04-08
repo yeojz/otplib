@@ -14,7 +14,7 @@ describe('core/hotpCheck', function () {
     });
   });
 
-  it('shoudl default counter to 0 when undefined', function () {
+  it('should default counter to 0 when undefined', function () {
     expect(hotpCheck('847856', 'i6im0gc96j0mn00c')).to.be.true;
   });
 

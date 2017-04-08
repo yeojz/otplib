@@ -13,9 +13,11 @@ import hotpToken from './hotpToken';
  */
 function hotpCheck(token, secret, counter = 0, options = {}) {
   const systemToken = hotpToken(secret, counter, options);
+
   if (systemToken.length < 1) {
     return false;
   }
+
   return isSameToken(token, systemToken);
 }
 
