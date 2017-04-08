@@ -34,7 +34,6 @@ class TOTP extends HOTP {
     super();
 
     this._options = totpOptions({
-      ...super.options,
       epoch: null,
       step: 30
     });
@@ -48,7 +47,10 @@ class TOTP extends HOTP {
     return totpCheck(token, secret, this.options);
   }
 
-  verify(opts = {}) {
+  verify(opts) {
+    if (typeof opts !== 'object' || opts == null) {
+      return false;
+    }
     return this.check(opts.token, opts.secret);
   }
 }

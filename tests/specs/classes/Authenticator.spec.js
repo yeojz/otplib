@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-
+import {spy} from 'sinon';
 import Authenticator from 'src/classes/Authenticator';
 
 describe('classes/Authenticator', function() {
@@ -24,27 +24,34 @@ describe('classes/Authenticator', function() {
       expect(fn).to.be.a('function');
     });
   });
-  //
-  //
-  // it('[generateSecret] length of key', function () {
-  //   expect(otp.generateSecret().length).to.be.equal(16);
-  //   expect(otp.generateSecret(20).length).to.be.equal(20);
-  // });
-  //
-  // it('[keyuri] generate expect keyuri', function () {
-  //   let url = otp.keyuri('me', 'test', '123');
-  //   expect(url).to.be.equal(encodeURIComponent('otpauth://totp/test:me?secret=123&issuer=test'));
-  // });
-  //
-  // it('[encode] check for correct encoding', function () {
-  //   data.codec.forEach((entry) => {
-  //       expect(otp.encode(entry[0])).to.be.equal(entry[1]);
-  //   });
-  // });
-  //
-  // it('[decode] check for correct decoding', function () {
-  //   data.codec.forEach((entry) => {
-  //       expect(otp.decode(entry[1])).to.be.equal(entry[0]);
-  //   });
-  // });
+
+  it('should passthrough arguments to it the corresponding fn', function () {
+    [
+      ['encode', 'encodeKey'],
+      ['decode', 'decodeKey'],
+      ['keyuri', 'keyuri'],
+      ['generateSecret', 'secretKey'],
+    ].forEach(([methodName, moduleName]) => {
+      const passthrough = spy();
+      Authenticator.__Rewire__(moduleName, passthrough);
+      otp[methodName]('a1', 'a2', 'a3');
+      Authenticator.__ResetDependency__(moduleName);
+
+      expect(passthrough.calledWith('a1', 'a2', 'a3'));
+    });
+  });
+
+  it('should call token with options', function () {
+    const token = spy();
+    const opts = otp.options;
+
+    Authenticator.__Rewire__('token', token);
+    otp.generate('test');
+    Authenticator.__ResetDependency__('token');
+
+    const args = token.getCall(0).args;
+    expect(args[0]).to.equal('test');
+    expect(args[1]).to.be.an.object;
+    expect(args[1]).to.deep.equal(opts);
+  });
 });

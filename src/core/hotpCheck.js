@@ -11,7 +11,7 @@ import hotpToken from './hotpToken';
  * @param {object} options - options which was used to generate it originally
  * @return {boolean}
  */
-function hotpCheck(token, secret, counter = 0, options = {}) {
+function hotpCheck(token, secret, counter, options = {}) {
   const systemToken = hotpToken(secret, counter, options);
 
   if (systemToken.length < 1) {

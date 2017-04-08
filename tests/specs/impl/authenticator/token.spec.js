@@ -1,10 +1,10 @@
 import {expect} from 'chai';
-import {stub} from 'sinon';
+import {spy, stub} from 'sinon';
 import token from 'src/impl/authenticator/token';
 
 describe('impl/authenticator/token', function () {
   it('should return expected result', function () {
-    const totpToken = stub();
+    const totpToken = spy();
     const decodeKey = stub().returns(10);
     const options = {
       test: 1

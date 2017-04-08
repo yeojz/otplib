@@ -27,14 +27,12 @@ describe('Legacy (2.x.x adapter)', function () {
     expect(otplib.core.checkHOTP).to.be.an('function');
   });
 
-
   it('[GA] ensure entry methods exist', function () {
     expect(otplib.google).to.be.an('object');
     expect(otplib.google.generate).to.be.an('function');
     expect(otplib.google.secret).to.be.an('function');
     expect(otplib.google.check).to.be.an('function');
   });
-
 
   it('[Core/HOTP] ensure correct code generation', function () {
 
@@ -79,7 +77,6 @@ describe('Legacy (2.x.x adapter)', function () {
     expect(result).to.be.eql(false);
   });
 
-
   it('[Core/Secret] should generate secret of specified length', function () {
     expect(otplib.core.secret.generate(-1).length).to.be.eql(0);
 
@@ -113,7 +110,8 @@ describe('Legacy (2.x.x adapter)', function () {
 
     // Secret length between 10 and 50
     function rlen() {
-      return (Math.random() * 39 + 10).toString(10).slice(0, 2);
+      return (Math.random() * 39 + 10).toString(10)
+        .slice(0, 2);
     }
 
     for (let i = 0; i < 6; i++) {

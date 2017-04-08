@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {stub} from 'sinon';
+import {spy, stub} from 'sinon';
 import encodeKey from 'src/impl/authenticator/encodeKey';
 
 const codec = [
@@ -11,7 +11,7 @@ const codec = [
 
 describe('impl/authenticator/encodeKey', function () {
   it('should execute with correct arguments', function () {
-    const toString = stub();
+    const toString = spy();
     const encode = stub().returns(toString);
 
     encodeKey.__Rewire__('base32', {encode});

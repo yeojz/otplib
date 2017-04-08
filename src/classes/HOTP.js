@@ -37,9 +37,11 @@ class HOTP {
   }
 
   set options(opt = {}) {
-    this._options = {
-      ...this._options,
-      ...opt
+    if (opt) {
+      this._options = {
+        ...this._options,
+        ...opt
+      }
     }
   }
 
@@ -53,11 +55,14 @@ class HOTP {
     return hotpToken(secret, counter, this.options)
   }
 
-  check(token, secret, counter = 0) {
+  check(token, secret, counter) {
     return hotpCheck(token, secret, counter, this.options);
   }
 
-  verify(opts = {}) {
+  verify(opts) {
+    if (typeof opts !== 'object' || opts == null) {
+      return false;
+    }
     return this.check(opts.token, opts.secret, opts.counter);
   }
 }

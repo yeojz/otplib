@@ -14,11 +14,9 @@ describe('core/hotpCheck', function () {
     });
   });
 
-  it('should default counter to 0 when undefined', function () {
-    expect(hotpCheck('847856', 'i6im0gc96j0mn00c')).to.be.true;
-  });
-
   it('should return false when invalid counter', function () {
     expect(hotpCheck('229021', 'i6im0gc96j0mn00c', null)).to.be.false;
+    expect(hotpCheck('847856', 'i6im0gc96j0mn00c', void 0)).to.be.false;
+    expect(hotpCheck('847856', 'i6im0gc96j0mn00c')).to.be.false;
   });
 });
