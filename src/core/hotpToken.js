@@ -1,7 +1,6 @@
-import crypto from 'crypto';
 import hexToInt from '../utils/hexToInt';
-import intToHex from '../utils/intToHex';
 import leftPad from '../utils/leftPad';
+import hotpDigest from './hotpDigest';
 import hotpOptions from './hotpOptions';
 
 /**
@@ -19,20 +18,7 @@ function hotpToken(secret, counter, options = {}) {
   }
 
   const opt = hotpOptions(options);
-
-  // Convert secret to encoding for hmacSecret
-  const hmacSecret = new Buffer(secret, opt.encoding);
-
-  // Ensure counter is a buffer or string (for HMAC creation)
-  let hexCounter = intToHex(counter);
-  hexCounter = leftPad(hexCounter, 16);
-
-  // HMAC creation
-  const cryptoHmac = crypto.createHmac(opt.algorithm, hmacSecret);
-
-  // Update HMAC with the counter
-  const hmac = cryptoHmac.update(new Buffer(hexCounter, 'hex'))
-    .digest('hex');
+  const hmac = hotpDigest(secret, counter, opt.encoding, opt.algorithm);
 
   // offset := last nibble of hash
   const offset = hexToInt(hmac.substr(hmac.length - 1));
