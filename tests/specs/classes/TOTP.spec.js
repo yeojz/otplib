@@ -21,6 +21,10 @@ describe('classes/TOTP', function () {
     });
   });
 
+  it('[options] should init with values', function () {
+    expect(Object.keys(otp.options)).to.have.length.gt(0);
+  });
+
   it('[options] sets and gets correctly', function () {
     expect(Object.keys(otp.options)).to.have.length(5);
 

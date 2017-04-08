@@ -34,6 +34,7 @@ class TOTP extends HOTP {
     super();
 
     this._options = totpOptions({
+      ...super.options,
       epoch: null,
       step: 30
     });

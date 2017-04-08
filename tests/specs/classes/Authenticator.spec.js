@@ -41,7 +41,11 @@ describe('classes/Authenticator', function() {
     });
   });
 
-  it('should call token with options', function () {
+  it('[options] should init with values', function () {
+    expect(Object.keys(otp.options)).to.have.length.gt(0);
+  });
+
+  it('[generate] should call token function with options', function () {
     const token = spy();
     const opts = otp.options;
 
