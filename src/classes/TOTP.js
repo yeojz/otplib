@@ -1,4 +1,5 @@
 import totpCheck from '../core/totpCheck';
+import totpOptions from '../core/totpOptions';
 import totpToken from '../core/totpToken';
 import HOTP from './HOTP';
 
@@ -31,38 +32,12 @@ class TOTP extends HOTP {
 
   constructor() {
     super();
-    this._epoch = null;
-    this._step = 30;
-  }
 
-  set step(value) {
-    this._step = value;
-  }
-
-  set epoch(value) {
-    this._epoch = value;
-  }
-
-  set options(opt = {}) {
-    super.options = opt;
-    this._step = opt.step || this._step;
-    this._epoch = opt.epoch || this._epoch;
-  }
-
-  get step() {
-    return this._step;
-  }
-
-  get epoch() {
-    return this._epoch;
-  }
-
-  get options() {
-    return {
-      step: this._step,
-      epoch: this._epoch,
-      ...super.options
-    }
+    this._options = totpOptions({
+      ...super.options,
+      epoch: null,
+      step: 30
+    });
   }
 
   generate(secret) {

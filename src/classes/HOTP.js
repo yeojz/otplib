@@ -1,4 +1,5 @@
 import hotpCheck from '../core/hotpCheck';
+import hotpOptions from '../core/hotpOptions';
 import hotpToken from '../core/hotpToken';
 
 /**
@@ -30,25 +31,22 @@ import hotpToken from '../core/hotpToken';
 class HOTP {
 
   constructor() {
-    this._digits = 6;
-  }
-
-  set digits(value) {
-    this._digits = value;
+    this._options = hotpOptions({
+      digits: 6
+    });
   }
 
   set options(opt = {}) {
-    this._digits = opt.digits || this._digits;
-  }
-
-  get digits() {
-    return this._digits;
+    this._options = {
+      ...this._options,
+      ...opt
+    }
   }
 
   get options() {
     return {
-      digits: this._digits
-    }
+      ...this._options
+    };
   }
 
   generate(secret, counter) {
