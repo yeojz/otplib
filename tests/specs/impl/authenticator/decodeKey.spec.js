@@ -8,11 +8,13 @@ describe('impl/authenticator/decodeKey', function () {
     const decode = stub().returns(toString);
 
     decodeKey.__Rewire__('base32', {decode});
+
     decodeKey('test', 'hex');
+
+    decodeKey.__ResetDependency__('base32');
 
     expect(decode.calledWith('test'));
     expect(toString.calledWith('hex'));
 
-    decodeKey.__ResetDependency__('base32');
   });
 });

@@ -9,6 +9,11 @@ import encodeKey from './encodeKey';
  * @return {string} secret key
  */
 function secretKey(length = 16) {
+
+  if (!Number.isInteger(length)) {
+    return '';
+  }
+
   let secret = '';
 
   while (secret.length < length){
