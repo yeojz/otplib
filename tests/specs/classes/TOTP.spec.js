@@ -42,7 +42,7 @@ describe('classes/TOTP', function () {
 
   it('[generate] returns correct token', function () {
     otp.options = {
-      epoch: 90000
+      epoch: 90
     }
     const result = otp.generate('i6im0gc96j0mn00c');
     expect(result).to.be.eql('229021');

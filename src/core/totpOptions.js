@@ -18,7 +18,7 @@ function totpOptions(options = {}) {
   }
 
   opt.epoch = typeof opt.epoch === 'number'
-    ? opt.epoch
+    ? opt.epoch * 1000
     : new Date().getTime();
 
   return opt;

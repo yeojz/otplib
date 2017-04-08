@@ -7,7 +7,7 @@ describe('core/totpToken', function () {
   it('should return correct tokens', function () {
     const stubbed = rewire();
     const token = totpToken('i6im0gc96j0mn00c', {
-      epoch: 60000
+      epoch: 60
     });
 
     reset();

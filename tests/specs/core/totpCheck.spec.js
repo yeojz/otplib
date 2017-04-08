@@ -5,7 +5,7 @@ import totpCheck from 'src/core/totpCheck';
 describe('core/totpCheck', function () {
   it('should return true', function () {
     const result = totpCheck('229021', 'i6im0gc96j0mn00c', {
-      epoch: 90000
+      epoch: 90
     });
 
     expect(result).to.be.true;
@@ -15,7 +15,7 @@ describe('core/totpCheck', function () {
     totpCheck.__Rewire__('totpToken', () => '');
 
     const result = totpCheck('229021', 'i6im0gc96j0mn00c', {
-      epoch: 90000
+      epoch: 90
     });
 
     totpCheck.__ResetDependency__('totpToken');
@@ -24,7 +24,7 @@ describe('core/totpCheck', function () {
 
   it('should return false', function () {
     const result = totpCheck('196182', 'i6im0gc96j0mn00c', {
-      epoch: 47412420
+      epoch: 47412
     });
 
     expect(result).to.be.false;

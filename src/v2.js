@@ -21,7 +21,7 @@ function withOptions(otp, method) {
   return function (...args) {
     otp.options = {
       digits: this.digits,
-      epoch: this.epoch,
+      epoch: this.epoch == null ? null : this.epoch / 1000,
       step: this.step
     };
 
