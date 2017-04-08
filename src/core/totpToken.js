@@ -1,9 +1,6 @@
 import hotpToken from './hotpToken';
+import totpCounter from './totpCounter';
 import totpOptions from './totpOptions';
-
-function floor(value) {
-  return Math.floor(value);
-}
 
 /**
  * Generates the OTP code
@@ -15,8 +12,8 @@ function floor(value) {
  */
 function totpToken(secret, options = {}) {
   const opt = totpOptions(options);
-  const timeCounter = floor(opt.epoch / (opt.step * 1000.0));
-  return hotpToken(secret, timeCounter, opt.digits);
+  const counter = totpCounter(opt.epoch, opt.step);
+  return hotpToken(secret, counter, opt.digits);
 }
 
 export default totpToken;

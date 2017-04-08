@@ -1,6 +1,5 @@
 import crypto from 'crypto';
-import intToHex from '../utils/intToHex';
-import leftPad from '../utils/leftPad';
+import hotpCounter from './hotpCounter';
 
 /**
  * Intermediate HOTP Digests
@@ -17,8 +16,7 @@ function hotpDigest(secret, counter, encoding, algorithm) {
   const hmacSecret = new Buffer(secret, encoding);
 
   // Ensure counter is a buffer or string (for HMAC creation)
-  let hexCounter = intToHex(counter);
-  hexCounter = leftPad(hexCounter, 16);
+  const hexCounter = hotpCounter(counter);
 
   // HMAC creation
   const cryptoHmac = crypto.createHmac(algorithm, hmacSecret);

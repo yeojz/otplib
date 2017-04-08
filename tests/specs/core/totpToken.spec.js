@@ -3,10 +3,6 @@ import {stub} from 'sinon';
 import totpToken from 'src/core/totpToken';
 
 describe('core/totpToken', function () {
-  it('should return floored number', function () {
-    const floor = totpToken.__get__('floor');
-    expect(floor(1.9)).to.equal(1);
-  });
 
   it('should return correct tokens', function () {
     const stubbed = rewire();
@@ -16,7 +12,7 @@ describe('core/totpToken', function () {
 
     reset();
 
-    expect(stubbed.floor.calledWith(2)).to.be.true;
+    expect(stubbed.counter.calledWith(60000, 30)).to.be.true;
     expect(token).to.equal('229021');
   });
 
@@ -37,15 +33,15 @@ describe('core/totpToken', function () {
   });
 
   function rewire() {
-    const floor = stub().returns(3);
-    totpToken.__Rewire__('floor', floor);
+    const counter = stub().returns(3);
+    totpToken.__Rewire__('totpCounter', counter);
 
     return {
-      floor
+      counter
     }
   }
 
   function reset() {
-    totpToken.__ResetDependency__('floor');
+    totpToken.__ResetDependency__('totpCounter');
   }
 });
