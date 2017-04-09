@@ -18,6 +18,7 @@
 -   [Google Authenticator](#google-authenticator)
 -   [Documentation](https://yeojz.github.io/otplib/docs)
 -   [Demo](https://yeojz.github.io/otplib)
+-   [Related](#related)
 
 ## About
 
@@ -122,14 +123,13 @@ const secret = authenticator.generateSecret(); // base 32 encoded user secret ke
 const token = authenticator.generate(secret);
 ```
 
+## Related
+
+-   [otplib-cli](https://www.github.com/yeojz/otplib-cli) - Command-line OTP
+
 ## License
 
 `otplib` is [MIT licensed](./LICENSE)
-
-
-## See also
-
--   [otplib-cli](https://www.github.com/yeojz/otplib-cli) - Command Line OTP generation.
 
 [npm-badge]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [npm-link]: https://www.npmjs.com/package/otplib
