@@ -9,12 +9,12 @@ import hotpSecret from './hotpSecret';
  * @param {string} secret - your secret that is used to generate the token
  * @param {number} counter - the OTP counter (usually it's an incremental count)
  * @param {string} options.algorithm - hmac algorithm
- * @param {string} options.encoding - the encoding of secret
  * @param {function} options.createHmacSecret - the encoding function for secret
+ * @param {string} options.encoding - the encoding of secret
  * @return {object}
  */
-function hotpDigest(secret, counter, options = {}) {
-  if (options == null || typeof options !== 'object') {
+function hotpDigest(secret, counter, options) {
+  if (typeof options !== 'object' || options == null) {
     throw new Error('[hotpDigest] argument 3 must be an object');
   }
 

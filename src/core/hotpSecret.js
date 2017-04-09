@@ -9,4 +9,5 @@
 function hotpSecret(secret, options) {
   return new Buffer(secret, options.encoding);
 }
+
 export default hotpSecret;
