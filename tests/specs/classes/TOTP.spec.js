@@ -4,6 +4,7 @@ import TOTP from 'src/classes/TOTP';
 
 describe('classes/TOTP', function () {
   let otp;
+  const defaultOptionLength = 6;
 
   beforeEach(() => {
     otp = new TOTP();
@@ -26,7 +27,7 @@ describe('classes/TOTP', function () {
   });
 
   it('[options] sets and gets correctly', function () {
-    expect(Object.keys(otp.options)).to.have.length(5);
+    expect(Object.keys(otp.options)).to.have.length(defaultOptionLength);
 
     otp.options = {
       digits: 8,
@@ -34,7 +35,7 @@ describe('classes/TOTP', function () {
       extra: 'test',
     }
 
-    expect(Object.keys(otp.options)).to.have.length(6);
+    expect(Object.keys(otp.options)).to.have.length(defaultOptionLength + 1);
     expect(otp.options.digits).to.equal(8);
     expect(otp.options.epoch).to.equal(10);
     expect(otp.options.extra).to.not.be.undefined;

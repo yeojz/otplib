@@ -1,4 +1,11 @@
 import hotpOptions from './hotpOptions';
+import totpSecretParser from './totpSecretParser';
+
+const defaultOptions = {
+  createHmacSecret: totpSecretParser,
+  epoch: null,
+  step: 30,
+};
 
 /**
  * Generates options for TOTP
@@ -11,11 +18,10 @@ import hotpOptions from './hotpOptions';
  */
 function totpOptions(options = {}) {
   let opt = {
-    epoch: null,
-    step: 30,
     ...hotpOptions(),
+    ...defaultOptions,
     ...options
-  }
+  };
 
   opt.epoch = typeof opt.epoch === 'number'
     ? opt.epoch * 1000

@@ -1,9 +1,11 @@
 import {expect} from 'chai';
+import hotpSecretParser from 'src/core/hotpSecretParser';
 import hotpOptions from 'src/core/hotpOptions';
 
 describe('core/hotpOptions', function () {
   const defaults = {
     algorithm: 'sha1',
+    createHmacSecret: hotpSecretParser,
     digits: 6,
     encoding: 'ascii'
   }

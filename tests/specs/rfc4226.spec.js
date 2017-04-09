@@ -6,7 +6,10 @@ import hotpToken from 'src/core/hotpToken';
 describe('RFC 4226', function () {
   it('should generate expected intermediate HMAC value', function () {
     rfc4226.digests.forEach((digest, counter) => {
-      const result = hotpDigest(rfc4226.secret, counter, 'ascii', 'sha1');
+      const result = hotpDigest(rfc4226.secret, counter, {
+        encoding: 'ascii',
+        algorithm: 'sha1'
+      });
       expect(result).to.equal(digest);
     });
   });

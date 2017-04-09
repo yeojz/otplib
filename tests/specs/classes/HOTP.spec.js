@@ -5,6 +5,7 @@ import HOTP from 'src/classes/HOTP';
 describe('classes/HOTP', function () {
 
   let otp;
+  const defaultOptionLength = 4;
 
   beforeEach(() => {
     otp = new HOTP();
@@ -23,14 +24,14 @@ describe('classes/HOTP', function () {
   });
 
   it('[options] sets and gets correctly', function () {
-    expect(Object.keys(otp.options)).to.have.length(3);
+    expect(Object.keys(otp.options)).to.have.length(defaultOptionLength);
 
     otp.options = {
       digits: 8,
       extra: 'test',
     }
 
-    expect(Object.keys(otp.options)).to.have.length(4);
+    expect(Object.keys(otp.options)).to.have.length(defaultOptionLength + 1);
     expect(otp.options.digits).to.equal(8);
     expect(otp.options.extra).to.not.be.undefined;
   });

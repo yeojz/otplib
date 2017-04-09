@@ -13,7 +13,7 @@ describe('core/totpToken', function () {
     reset();
 
     expect(stubbed.counter.calledWith(60000, 30)).to.be.true;
-    expect(token).to.equal('229021');
+    expect(token).to.equal('923066');
   });
 
   it('should return result even if options is null', function () {
@@ -21,7 +21,7 @@ describe('core/totpToken', function () {
     const token = totpToken('i6im0gc96j0mn00c', null);
     reset();
 
-    expect(token).to.equal('229021');
+    expect(token).to.equal('923066');
   });
 
   it('should return result even if options is void 0', function () {
@@ -29,7 +29,7 @@ describe('core/totpToken', function () {
     const token = totpToken('i6im0gc96j0mn00c', void 0);
     reset();
 
-    expect(token).to.equal('229021');
+    expect(token).to.equal('923066');
   });
 
   function rewire() {

@@ -4,7 +4,7 @@ import totpCheck from 'src/core/totpCheck';
 
 describe('core/totpCheck', function () {
   it('should return true', function () {
-    const result = totpCheck('229021', 'i6im0gc96j0mn00c', {
+    const result = totpCheck('923066', 'i6im0gc96j0mn00c', {
       epoch: 90
     });
 
@@ -14,7 +14,7 @@ describe('core/totpCheck', function () {
   it('should return false if systemToken is empty', function () {
     totpCheck.__Rewire__('totpToken', () => '');
 
-    const result = totpCheck('229021', 'i6im0gc96j0mn00c', {
+    const result = totpCheck('923066', 'i6im0gc96j0mn00c', {
       epoch: 90
     });
 

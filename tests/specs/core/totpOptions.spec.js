@@ -1,10 +1,12 @@
 import {expect} from 'chai';
 import {stub} from 'sinon';
+import totpSecretParser from 'src/core/totpSecretParser';
 import totpOptions from 'src/core/totpOptions';
 
 describe('core/totpOptions', function () {
   const defaults = {
     algorithm: 'sha1',
+    createHmacSecret: totpSecretParser,
     digits: 6,
     encoding: 'ascii',
     epoch: '12345678',
