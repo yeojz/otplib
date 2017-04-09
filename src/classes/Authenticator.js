@@ -1,7 +1,7 @@
+import secretKey from '../utils/secretKey';
 import decodeKey from '../impl/authenticator/decodeKey';
 import encodeKey from '../impl/authenticator/encodeKey';
 import keyuri from '../impl/authenticator/keyuri';
-import secretKey from '../impl/authenticator/secretKey';
 import token from '../impl/authenticator/token';
 import TOTP from './TOTP';
 
@@ -66,8 +66,12 @@ class Authenticator extends TOTP {
   /**
    * @see {@link module:impl/authenticator/secretKey} for more information.
    */
-  generateSecret(len = 16) {
-    return secretKey(len)
+  generateSecret(len = 20) {
+    if (len == null) {
+      return '';
+    }
+    const secret = secretKey(len);
+    return encodeKey(secret);
   }
 
   /**

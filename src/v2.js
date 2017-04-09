@@ -62,7 +62,13 @@ function Goog() {
   this.digits = 6;
   this.step = 30;
 }
-Goog.prototype.secret = authenticator.generateSecret;
+Goog.prototype.secret = function (len = 16) {
+  let secret = '';
+   while (secret.length < len){
+     secret += OTPUtils.generateSecret(40, 'base64');
+   }
+   return authenticator.encode(secret).slice(0, len);
+};
 Goog.prototype.keyuri = authenticator.keyuri;
 Goog.prototype.qrcode = authenticator.qrcode;
 Goog.prototype.generate = authenticator.generate;
