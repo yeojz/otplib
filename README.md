@@ -1,5 +1,6 @@
 # otplib
-Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
+
+> Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
 [![npm][npm-badge]][npm-link]
 [![Build Status][circle-badge]][circle-link]
@@ -46,13 +47,13 @@ This library is also compatible with [Google Authenticator](https://github.com/g
 Install the library via:
 
 ```
-npm install otplib --save
+$ npm install otplib --save
 ```
 
 or
 
 ```
-yarn add otplib
+$ yarn add otplib
 ```
 
 ## Getting Started
