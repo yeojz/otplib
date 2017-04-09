@@ -9,12 +9,12 @@ describe('RFC 6238', function () {
 
     const id = `${row.algorithm} / ${row.epoch}`;
 
-    it(`[${id}] should generate expected counter value`, function () {
+    it(`[${id}] expected counter value`, function () {
       const counter = hotpCounter(totpCounter(row.epoch * 1000, rfc6238.step));
       expect(counter.toUpperCase()).to.equal(row.counter);
     });
 
-    it(`[${id}] should generate expected TOTP token`, function () {
+    it(`[${id}] ${row.token} token`, function () {
         const result = totpToken(rfc6238.secret, {
           algorithm: row.algorithm,
           digits: 8,
