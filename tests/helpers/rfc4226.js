@@ -1,4 +1,6 @@
 /*
+Source: https://www.ietf.org/rfc/rfc4226.txt
+
 RFC 4226                     HOTP Algorithm                December 2005
 
 

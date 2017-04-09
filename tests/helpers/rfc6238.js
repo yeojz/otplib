@@ -1,4 +1,6 @@
 /*
+Source: https://tools.ietf.org/html/rfc6238
+
 RFC 6238                      HOTPepochBased                     May 2011
 
 

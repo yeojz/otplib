@@ -4,7 +4,7 @@ import TOTP from 'src/classes/TOTP';
 
 describe('classes/TOTP', function () {
   let otp;
-  const defaultOptionLength = 6;
+  const defaultOptionLength = 2;
 
   beforeEach(() => {
     otp = new TOTP();
@@ -30,23 +30,13 @@ describe('classes/TOTP', function () {
     expect(Object.keys(otp.options)).to.have.length(defaultOptionLength);
 
     otp.options = {
-      digits: 8,
       epoch: 10,
       extra: 'test',
     }
 
     expect(Object.keys(otp.options)).to.have.length(defaultOptionLength + 1);
-    expect(otp.options.digits).to.equal(8);
     expect(otp.options.epoch).to.equal(10);
     expect(otp.options.extra).to.not.be.undefined;
-  });
-
-  it('[generate] returns correct token', function () {
-    otp.options = {
-      epoch: 90
-    }
-    const result = otp.generate('i6im0gc96j0mn00c');
-    expect(result).to.be.eql('229021');
   });
 
   it('[check] passes arguments to totpCheck with defined options', function () {

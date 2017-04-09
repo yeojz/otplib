@@ -1,5 +1,4 @@
 import hotpCheck from '../core/hotpCheck';
-import hotpOptions from '../core/hotpOptions';
 import hotpToken from '../core/hotpToken';
 
 /**
@@ -31,9 +30,7 @@ import hotpToken from '../core/hotpToken';
 class HOTP {
 
   constructor() {
-    this._options = hotpOptions({
-      digits: 6
-    });
+    this._options = {};
   }
 
   set options(opt = {}) {

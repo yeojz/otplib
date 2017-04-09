@@ -25,7 +25,7 @@ describe('classes/Authenticator', function () {
     });
   });
 
-  it('should passthrough arguments to it the corresponding fn', function () {
+  it('should passthrough arguments to child fn in static methods', function () {
     [
       ['encode', 'encodeKey'],
       ['decode', 'decodeKey'],

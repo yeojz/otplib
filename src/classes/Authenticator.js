@@ -36,6 +36,10 @@ class Authenticator extends TOTP {
 
   constructor() {
     super();
+
+    this.options = {
+      epoch: null
+    }
   }
 
   /**
@@ -60,17 +64,17 @@ class Authenticator extends TOTP {
   }
 
   /**
-   * @see {@link module:impl/authenticator/token} for more information.
-   */
-  generate(secret) {
-    return token(secret, this.options);
-  }
-
-  /**
    * @see {@link module:impl/authenticator/secretKey} for more information.
    */
   generateSecret(len = 16) {
     return secretKey(len)
+  }
+
+  /**
+   * @see {@link module:impl/authenticator/token} for more information.
+   */
+  generate(secret) {
+    return token(secret, this.options);
   }
 }
 
