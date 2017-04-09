@@ -14,13 +14,13 @@ describe('impl/authenticator/secretKey', function () {
     expect(key).to.have.length(len);
   });
 
-  it('should return default length of 16', function() {
+  it('should return default length of 16', function () {
     rewire();
     const key = secretKey();
     reset();
 
     expect(key).to.have.length(16);
-  })
+  });
 
   it('should return empty string when argument not integer', function () {
     expect(secretKey(null)).to.equal('');
@@ -37,7 +37,7 @@ describe('impl/authenticator/secretKey', function () {
     return {
       encodeKey,
       secretKeyUtils
-    }
+    };
   }
 
   function reset() {

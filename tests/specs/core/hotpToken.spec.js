@@ -19,7 +19,7 @@ describe('core/hotpToken', function () {
     ].forEach(([secret, counter, expected]) => {
       const token = hotpToken(secret, counter);
       expect(token).to.equal(expected);
-    })
+    });
   });
 
   it('should return tokens with 8 digits', function () {

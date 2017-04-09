@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import hotpCounter from './hotpCounter';
-import hotpSecretParser from './hotpSecretParser';
+import hotpSecret from './hotpSecret';
 
 /**
  * Intermediate HOTP Digests
@@ -14,9 +14,12 @@ import hotpSecretParser from './hotpSecretParser';
  * @return {object}
  */
 function hotpDigest(secret, counter, options = {}) {
+  if (options == null || typeof options !== 'object') {
+    throw new Error('[hotpDigest] argument 3 must be an object');
+  }
 
   // Allow for direct digest use without going through hotpOptions
-  const createHmacSecret = options.createHmacSecret || hotpSecretParser;
+  const createHmacSecret = options.createHmacSecret || hotpSecret;
 
   // Convert secret to encoding for hmacSecret
   const hmacSecret = createHmacSecret(secret, options);

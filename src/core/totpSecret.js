@@ -14,13 +14,13 @@ function padSecret(secret, size) {
  * Seed for HMAC-SHA256 - 32 bytes
  * Seed for HMAC-SHA512 - 64 bytes
  *
- * @module core/hotpSecretParser
+ * @module core/hotpSecret
  * @param {string} secret - your secret that is used to generate the token
  * @param {string} options.algorithm - hmac algorithm
  * @param {string} options.encoding - the encoding of secret
  * @return {object}
  */
-function hotpSecretParser(secret, options) {
+function hotpSecret(secret, options) {
   const encoded = new Buffer(secret, options.encoding);
 
   switch (options.algorithm.toLowerCase()) {
@@ -35,4 +35,4 @@ function hotpSecretParser(secret, options) {
   }
 }
 
-export default hotpSecretParser;
+export default hotpSecret;

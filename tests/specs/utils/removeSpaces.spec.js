@@ -6,7 +6,7 @@ describe('utils/removeSpaces', function () {
 
   it('should strip spaces', function () {
     expect(val).to.not.equal('a');
-    expect(removeSpaces(val)).to.equal('a')
+    expect(removeSpaces(val)).to.equal('a');
   });
 
   it('should return empty string', function () {

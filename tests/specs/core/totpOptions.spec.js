@@ -1,23 +1,23 @@
 import {expect} from 'chai';
 import {stub} from 'sinon';
-import totpSecretParser from 'src/core/totpSecretParser';
+import totpSecret from 'src/core/totpSecret';
 import totpOptions from 'src/core/totpOptions';
 
 describe('core/totpOptions', function () {
   const defaults = {
     algorithm: 'sha1',
-    createHmacSecret: totpSecretParser,
+    createHmacSecret: totpSecret,
     digits: 6,
     encoding: 'ascii',
     epoch: '12345678',
     step: 30
-  }
+  };
 
-  beforeEach(function() {
+  beforeEach(function () {
     stub(Date.prototype, 'getTime').returns('12345678')
   });
 
-  afterEach(function() {
+  afterEach(function () {
     Date.prototype.getTime.restore();
   })
 
@@ -31,7 +31,8 @@ describe('core/totpOptions', function () {
     const opt = {
       ...defaults,
       extra: true
-    }
+    };
+
     expect(totpOptions(opt)).to.deep.equal({
       ...defaults,
       ...opt

@@ -1,4 +1,4 @@
-import hotpSecretParser from './hotpSecretParser';
+import hotpSecret from './hotpSecret';
 
 /**
  * Generates options for HOTP
@@ -11,7 +11,7 @@ import hotpSecretParser from './hotpSecretParser';
 function hotpOptions(options = {}) {
   return {
     algorithm: 'sha1',
-    createHmacSecret: hotpSecretParser,
+    createHmacSecret: hotpSecret,
     digits: 6,
     encoding: 'ascii',
     ...options

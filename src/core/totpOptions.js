@@ -1,8 +1,8 @@
 import hotpOptions from './hotpOptions';
-import totpSecretParser from './totpSecretParser';
+import totpSecret from './totpSecret';
 
 const defaultOptions = {
-  createHmacSecret: totpSecretParser,
+  createHmacSecret: totpSecret,
   epoch: null,
   step: 30,
 };

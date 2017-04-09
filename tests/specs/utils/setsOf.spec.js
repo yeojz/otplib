@@ -18,10 +18,10 @@ describe('utils/setsOf', function () {
     expect(setsOf(null)).to.equal('');
     expect(setsOf(void 0)).to.equal('');
     expect(setsOf(1234)).to.equal('');
-  })
+  });
 
   it('should handle non-integer divisor by returning empty string', function () {
     expect(setsOf('123a223b333c', null)).to.equal('');
     expect(setsOf('123a223b333c', 'abcd')).to.equal('');
-  })
+  });
 });

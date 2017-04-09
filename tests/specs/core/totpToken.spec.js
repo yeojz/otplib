@@ -38,7 +38,7 @@ describe('core/totpToken', function () {
 
     return {
       counter
-    }
+    };
   }
 
   function reset() {

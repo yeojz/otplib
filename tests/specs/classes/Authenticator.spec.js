@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {spy} from 'sinon';
 import Authenticator from 'src/classes/Authenticator';
 
-describe('classes/Authenticator', function() {
+describe('classes/Authenticator', function () {
 
   let otp;
 
