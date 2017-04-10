@@ -22,8 +22,8 @@
 
 ## About
 
-`otplib` is a JavaScript One Time Password (OTP) Library. It provides both `functions` and `classes`
-for dealing of OTP generation and manipulations.
+`otplib` is a JavaScript One Time Password (OTP) library. It provides both `functions` and `classes`
+for dealing with OTP generation and verification.
 
 It was initially created for me to understand how One Time Passwords work in implementation.
 
@@ -32,13 +32,10 @@ It implements:
 -   [RFC 4226](http://tools.ietf.org/html/rfc4226) - [HOTP](http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm)
 -   [RFC 6238](http://tools.ietf.org/html/rfc6238) - [TOTP](http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm)
 
-The implementations here are tested against test values as stated in the RFC specifications.
-
-The datasets used for the tests:
+The implementations provided here are tested against test vectors provided in their respective RFC specifications. These datasets can be found in the `tests/helpers` folder.
 
 -   [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/4.0.0/tests/helpers/rfc4226.js)
 -   [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/tests/helpers/rfc6238.js)
-
 
 This library is also compatible with [Google Authenticator](https://github.com/google/google-authenticator), and includes additional methods to allow you to easily work with Google Authenticator.
 
@@ -65,7 +62,7 @@ $ yarn add otplib
 import otplib from 'otplib'; // exposes an object with all supported OTP classes
 ```
 
-If you want to just include specific OTP specifications, you can import it directly via:
+If you want to include a specific OTP specification, you can import it directly:
 
 ```js
 import hotp from 'otplib/hotp';
@@ -73,7 +70,8 @@ import totp from 'otplib/totp';
 import authenticator from 'otplib/authenticator';
 ```
 
-For ease of use, the default exports are all instantiated instances of their respective classes. You may access the original classes via:
+For ease of use, the default exports are all instantiated instances of their respective classes.
+You may access the original classes via:
 
 ```js
 import {HOTP} from 'otplib/hotp';
@@ -81,13 +79,12 @@ import {TOTP} from 'otplib/totp';
 import {Authenticator} from 'otplib/authenticator';
 ```
 
-Do note that if you're using `require`, you may need to do `var otplib = require('otplib').default`.
+Do note that if you're using `require`, you will need to do `var otplib = require('otplib').default` as the sources are compiled with [babel](https://github.com/babel/babel)
 
 ### In browser
 
-Compiled versions of the library will be available site.
-
-You can just add to your head
+Compiled versions of the library are also available .
+You'll need to add the following scripts to your code:
 
 ```html
 
