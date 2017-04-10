@@ -10,4 +10,5 @@ import Authenticator from './classes/Authenticator';
  * @author Gerald Yeo
  * @license MIT
  */
+export {Authenticator as Authenticator};
 export default new Authenticator();

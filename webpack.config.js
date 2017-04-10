@@ -12,6 +12,7 @@ module.exports = {
     'otplib.hotp': SOURCE_FOLDER + '/hotp.js',
     'otplib.totp': SOURCE_FOLDER + '/totp.js',
     'otplib.ga': SOURCE_FOLDER + '/authenticator.js',
+    'otplib.otputils': SOURCE_FOLDER + '/classes/OTPUtils.js',
     'otplib.legacy': SOURCE_FOLDER + '/v2.js'
   },
   output: {

@@ -62,10 +62,23 @@ $ yarn add otplib
 ### In node
 
 ```js
-import otplib from 'otplib'; // otplib = {authenticator, hotp, totp}
-import hotp from 'otplib/hotp'; // hotp
-import totp from 'otplib/totp'; // hotp
-import authenticator from 'otplib/authenticator'; // google authenticator
+import otplib from 'otplib'; // exposes an object with all supported OTP classes
+```
+
+If you want to just include specific OTP specifications, you can import it directly via:
+
+```js
+import hotp from 'otplib/hotp';
+import totp from 'otplib/totp';
+import authenticator from 'otplib/authenticator';
+```
+
+For ease of use, the default exports are all instantiated instances of their respective classes. You may access the original classes via:
+
+```js
+import {HOTP} from 'otplib/hotp';
+import {TOTP} from 'otplib/totp';
+import {Authenticator} from 'otplib/authenticator';
 ```
 
 Do note that if you're using `require`, you may need to do `var otplib = require('otplib').default`.
@@ -78,28 +91,32 @@ You can just add to your head
 
 ```html
 
-<!-- include common lib -->
+<!-- required: common lib -->
 <script src="otplib.common.js"></script>
 
 <!--
 Available files:
--   otplib.js         (hotp / totp / google authenticator)
--   otplib.hotp.js    (hotp)
--   otplib.totp.js    (totp)
--   otplib.ga.js      (google authenticator)
--   otplib.legacy.js  (v2 interface)
+-   otplib.js           (hotp / totp / google authenticator)
+-   otplib.hotp.js      (hotp)
+-   otplib.totp.js      (totp)
+-   otplib.ga.js        (google authenticator)
+-   otplib.otputils.js  (utilites)
+-   otplib.legacy.js    (v2 interface)
 -->
-<script src="otplib.js"></script> // can replace with available files below
+<script src="otplib.js"></script> // can replace with available files above
 
 <script type="text/javascript">
-   // window.otplib.hotp;
+   // window.otplib etc.
 </script>
 ```
 
 ## Advanced Usage
 
-For ease of use, the default exports are all instantiated instances of their respective classes.
-However, you may want to extend functionality or directly inherit methods.
+By default, classes are provided to wrap functionalities and methods into logical groups.
+However, they are ultimately just syntax-sugar to the underlying functional steps in OTP generation.
+
+If you prefer a more functional approach compared to classes, you may import them
+from their respective folders.
 
 -   `functions` can be found in `otplib/core/<FILENAME>`
 -   `classes` can be found in `otplib/classes/<FILENAME>`

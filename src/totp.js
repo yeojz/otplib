@@ -10,4 +10,5 @@ import TOTP from './classes/TOTP';
  * @author Gerald Yeo
  * @license MIT
  */
+export {TOTP as TOTP};
 export default new TOTP();

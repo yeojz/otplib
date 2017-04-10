@@ -11,4 +11,5 @@ import HOTP from './classes/HOTP';
  * @author Gerald Yeo
  * @license MIT
  */
+export {HOTP as HOTP};
 export default new HOTP();

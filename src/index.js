@@ -12,6 +12,9 @@ import Authenticator from './classes/Authenticator';
  * @license MIT
  */
 export default {
+  Authenticator,
+  HOTP,
+  TOTP,
   authenticator: new Authenticator(),
   hotp: new HOTP(),
   totp: new TOTP()
