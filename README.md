@@ -54,12 +54,32 @@ or
 $ yarn add otplib
 ```
 
+## Upgrading
+
+This library follows `semver`. As such, major version bumps usually mean API changes or behavior changes. Please check [upgrade notes](https://github.com/yeojz/otplib/wiki/upgrade-notes) for more information, especially before making any major upgrades.
+
+You might also want to check out the release notes associated with each tagged versions in the [releases](https://github.com/yeojz/otplib/releases) page.
+
 ## Getting Started
 
 ### In node
 
 ```js
-import otplib from 'otplib'; // exposes an object with all supported OTP classes
+import otplib from 'otplib';
+
+const secret = otplib.authenticator.generateSecret();
+
+const token = otplib.authenticator.generate(secret);
+
+const isValid = otplib.authenticator.check(123456, secret);
+
+// or
+
+const isValid = otplib.authenticator.verify({
+  secret,
+  token: 123456
+});
+
 ```
 
 If you want to include a specific OTP specification, you can import it directly:
@@ -106,6 +126,10 @@ Available files:
    // window.otplib etc.
 </script>
 ```
+
+You can find these files in `node_modules/otplib/dist` after you install.
+
+Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tree/gh-pages/browser).
 
 ## Advanced Usage
 
