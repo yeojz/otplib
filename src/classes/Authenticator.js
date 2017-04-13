@@ -1,4 +1,5 @@
 import secretKey from '../utils/secretKey';
+import check from '../impl/authenticator/check';
 import decodeKey from '../impl/authenticator/decodeKey';
 import encodeKey from '../impl/authenticator/encodeKey';
 import keyuri from '../impl/authenticator/keyuri';
@@ -79,6 +80,13 @@ class Authenticator extends TOTP {
    */
   generate(secret) {
     return token(secret, this.options);
+  }
+
+  /**
+   * @see {@link module:impl/authenticator/check} for more information.
+   */
+  check(token, secret){
+    return check(token, secret, this.options);
   }
 }
 

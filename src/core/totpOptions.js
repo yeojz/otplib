@@ -4,7 +4,7 @@ import totpSecret from './totpSecret';
 const defaultOptions = {
   createHmacSecret: totpSecret,
   epoch: null,
-  step: 30,
+  step: 30
 };
 
 /**

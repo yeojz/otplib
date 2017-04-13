@@ -7,7 +7,7 @@
  * @return {float}
  */
 function totpCounter(epoch, step) {
-  return Math.floor(epoch / (step * 1000.0));
+  return Math.floor(epoch / step / 1000);
 }
 
 export default totpCounter;
