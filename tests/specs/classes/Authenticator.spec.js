@@ -17,7 +17,8 @@ describe('classes/Authenticator', function () {
       'keyuri',
       'encode',
       'decode',
-      'generateSecret'
+      'generateSecret',
+      'check'
     ].forEach((key) => {
       const fn = () => otp[key];
       expect(fn).to.not.throw(Error)
@@ -25,7 +26,7 @@ describe('classes/Authenticator', function () {
     });
   });
 
-  it('should passthrough arguments to child fn in static methods', function () {
+  it('should passthrough arguments to imported function in static methods', function () {
     [
       ['encode', 'encodeKey'],
       ['decode', 'decodeKey'],
@@ -70,7 +71,7 @@ describe('classes/Authenticator', function () {
     expect(Object.keys(otp.options)).to.have.length.gt(0);
   });
 
-  it('[generate] should call token function with options', function () {
+  it('[generate] should call imported token function with options', function () {
     const token = spy();
     const opts = otp.options;
 
@@ -82,5 +83,20 @@ describe('classes/Authenticator', function () {
     expect(args[0]).to.equal('test');
     expect(args[1]).to.be.an.object;
     expect(args[1]).to.deep.equal(opts);
+  });
+
+  it('[check] should call imported check function with options', function () {
+    const check = spy();
+    const opts = otp.options;
+
+    Authenticator.__Rewire__('check', check);
+    otp.check('token', 'secret');
+    Authenticator.__ResetDependency__('check');
+
+    const args = check.getCall(0).args;
+    expect(args[0]).to.equal('token');
+    expect(args[1]).to.equal('secret');
+    expect(args[2]).to.be.an.object;
+    expect(args[2]).to.deep.equal(opts);
   });
 });

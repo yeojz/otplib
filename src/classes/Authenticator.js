@@ -85,7 +85,7 @@ class Authenticator extends TOTP {
   /**
    * @see {@link module:impl/authenticator/check} for more information.
    */
-  check(token, secret){
+  check(token, secret) {
     return check(token, secret, this.options);
   }
 }
