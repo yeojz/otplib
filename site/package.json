@@ -5,7 +5,7 @@
   "homepage": "https://yeojz.github.io/otplib",
   "main": "build.js",
   "scripts": {
-    "build": "npm run build:public",
+    "build": "npm run build:all",
     "build:all": "cross-env BUILD_PKG=index,copy,docs node ./build.js",
     "build:index": "cross-env BUILD_PKG=index node ./build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,6 +19,8 @@
     "bulma": "^0.4.0",
     "copy": "^0.3.0",
     "cross-env": "^4.0.0",
-    "ncp": "^2.0.0"
+    "highlight.js": "^9.10.0",
+    "ncp": "^2.0.0",
+    "qrcode": "^0.8.1"
   }
 }

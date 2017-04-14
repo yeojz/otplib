@@ -10,12 +10,68 @@
     <meta name="keywords" content="%KEYWORDS%" />
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="stylesheet" href="https://use.fontawesome.com/874fd18bb5.css">
+    <link rel="stylesheet" href="%PUBLIC_URL%/css/bulma.css">
+    <link rel="stylesheet" href="%PUBLIC_URL%/css/style.css">
     <title>otplib</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root columns">
+      <div class='column is-6 is-offset-3 site-constraint'>
+        <header class="site-header">
+          <h1>
+            <a class="%PUBLIC_URL%">
+              <img src="%PUBLIC_URL%/otplib.png" alt='otplib'/>
+            </a>
+          </h1>
+        </header>
 
-    <script src='%PUBLIC_URL%/lib/otplib_commons.js'></script>
-    <script src='%PUBLIC_URL%/lib/otplib.js'></script>
+        <nav class='site-nav'>
+          <a class="site-nav-item" href="//npmjs.com/package/otplib">
+            <i class="fa fa-download fa-lg"></i> npm
+          </a>
+          <a class="site-nav-item" href="//github.com/yeojz/otplib">
+            <i class="fa fa-github fa-lg"></i> GitHub
+          </a>
+          <a class="site-nav-item" href="//github.com/yeojz/otplib/stargazers">
+            <i class="fa fa-star-o fa-lg"></i> Star
+          </a>
+        </nav>
+
+        <section class="npm-command column is-8 is-offset-2">
+          <pre><code class="bash">npm i otplib</code></pre>
+          or
+          <pre><code class="bash">yarn add otplib</code></pre>
+        </section>
+
+        <section class="tabs is-centered">
+          <ul>
+            <li class="tab-toggle is-active">
+              <a>
+                <span class="icon is-small"><i class="fa fa-user-secret"></i></span>
+                Get Secret
+              </a>
+            </li>
+            <li class="tab-toggle">
+              <a>
+                <span class="icon is-small"><i class="fa fa-key"></i></span>
+                Get Token
+              </a>
+            </li>
+            <li class="tab-toggle">
+              <a>
+                <span class="icon is-small"><i class="fa fa-eye"></i></span>
+                Verify
+              </a>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <script src="%PUBLIC_URL%/js/qrcode.min.js"></script>
+    <script src="%PUBLIC_URL%/js/highlight.js"></script>
+    <script src="%PUBLIC_URL%/lib/otplib_commons.js"></script>
+    <script src="%PUBLIC_URL%/lib/otplib.js"></script>
+    <script src="%PUBLIC_URL%/js/app.js"></script>
   </body>
 </html>

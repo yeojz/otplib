@@ -1,0 +1,38 @@
+body {
+  background: #f9f9f9;
+  padding-top: 2em;
+  min-height: 100vh;
+}
+.site-constraint {
+  background: #fff;
+  border: 1px #ddd solid;
+  padding: 2em 0;
+}
+.site-header {
+  text-align: center;
+}
+.site-header img {
+  height: 80px;
+}
+.site-nav {
+  margin-top: 2em;
+  text-align: center;
+}
+.site-nav .site-nav-item {
+  color: #333;
+  display: inline-block;
+  margin: 0 0.5em;
+  transition: 0.2s color ease-in-out;
+}
+.site-nav .site-nav-item:hover {
+  color: #00d1b2;
+}
+.site-nav .fa {
+  line-height: 1.4em;
+}
+.npm-command {
+  text-align: center;
+}
+.tab-toggle a {
+  transition: 0.2s color ease-in-out;
+}
