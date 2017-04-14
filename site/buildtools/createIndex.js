@@ -16,7 +16,8 @@ function createIndex(PUBLIC_URL) {
 
     const parsed = content.toString()
       .replace(/\%PUBLIC_URL\%/g, PUBLIC_URL)
-      .replace(/\%KEYWORDS\%/g, pkg.keywords.join(', '));
+      .replace(/\%KEYWORDS\%/g, pkg.keywords.join(', '))
+      .replace(/\%PACKAGE_VERSION\%/g, pkg.version);
 
     fs.writeFile(path.join(ROOT_DIR, 'dist', 'index.html'), parsed, (err) => {
       if (err) {

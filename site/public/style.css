@@ -13,6 +13,10 @@ body {
   padding-top: 2em;
 }
 
+h3 {
+  margin: 0;
+}
+
 a {
   color: #00d1b2;
   cursor: pointer;
@@ -56,6 +60,30 @@ pre code {
   overflow-x: auto;
   padding: 1.25rem 1.5rem;
 }
+
+.button {
+  background-color: #0a56e1;
+  border-radius: 3px;
+  border: 0;
+  box-shadow: none;
+  color: #fff;
+  display: block;
+  font-size: 1rem;
+  height: 2.25em;
+  line-height: 1.25;
+  padding: 0.5em 0.75em;
+  position: relative;
+  text-align: center;
+  user-select: none;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.button:focus,
+input:focus {
+  outline: none;
+}
+
 .icon {
   -webkit-box-align: center;
       -ms-flex-align: center;
@@ -88,7 +116,7 @@ pre code {
   border-bottom: 1px #ddd solid;
   font-size: 1rem;
   text-align: center;
-  margin-top: 2em;
+  margin-top: 4em;
   padding-bottom: 10px;
 }
 
@@ -123,8 +151,15 @@ pre code {
 .site-constraint {
   background: #fff;
   border: 1px #ddd solid;
+  margin-bottom: 2em;
   padding: 2em 1em;
-  margin-bottom: 1em;
+  position: relative;
+}
+
+.lib-version {
+  position: absolute;
+  right: 1em;
+  top: 1em;
 }
 
 .site-header {
@@ -136,7 +171,7 @@ pre code {
 }
 
 .site-nav {
-  margin-top: 2em;
+  margin: 2em 0;
   text-align: center;
 }
 
@@ -167,15 +202,57 @@ pre code {
 .tab-contents .tab-item {
   display: none;
   min-height: 5em;
+  text-align: center;
 }
 
 .tab-contents .tab-item.is-active {
   display: block;
 }
 
+.otp-qrcode {
+  margin-top: 2em;
+}
+
+.otp-countdown {
+  text-align: right;
+}
+
+.otp-verify {
+  text-align: center;
+}
+
+.otp-verify-input,
+.otp-verify-send,
+.otp-verify-result {
+  box-sizing: border-box;
+  margin-bottom: 0.5em;
+  width: 100%;
+}
+
+.otp-verify-input {
+  font-size: 1.2em;
+  padding: 0.5em 0.75em;
+}
+
+.fa-times {
+  color: #ff0047;
+}
+
+.fa-check {
+  color: #00d1b2;
+}
+
 @media screen and (min-width: 768px) {
   .site-constraint {
-    margin: 0 auto;
+    margin: 0 auto 2em;
     width: 60%
+  }
+
+  .tab-contents .tab-item {
+    padding: 3em 10% 1em;
+  }
+
+  .otp-verify {
+    padding: 0 30%;
   }
 }

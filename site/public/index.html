@@ -9,14 +9,14 @@
     <meta property="og:url" content="%PUBLIC_URL%">
     <meta name="keywords" content="%KEYWORDS%" />
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/874fd18bb5.css">
-    <!-- <link rel="stylesheet" href="%PUBLIC_URL%/css/bulma.css"> -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="%PUBLIC_URL%/css/style.css">
     <title>otplib</title>
   </head>
   <body>
     <div id="root columns">
       <div class='site-constraint'>
+        <span class='lib-version'>v%PACKAGE_VERSION%</span>
         <header class="site-header">
           <h1>
             <a class="%PUBLIC_URL%">
@@ -38,7 +38,7 @@
         </nav>
 
         <section class="npm-command">
-          <pre><code class="bash">npm i otplib</code></pre>
+          <pre><code class="bash">npm i otplib --save</code></pre>
           or
           <pre><code class="bash">yarn add otplib</code></pre>
         </section>
@@ -68,20 +68,41 @@
 
         <section class='tab-contents'>
           <article class='tab-item secret is-active'>
-            Secret
+            <h3>Secret</h3>
+            <pre><code class="otp-secret bash"></code></pre>
+
+            <div class="otp-qrcode">
+              <h3>QR Code</h3>
+              <div class="qrcode"></div>
+              <p>
+                Scan this image with Google Authenticator or another two-factor authentication app.
+              </p>
+            </div>
           </article>
           <article class='tab-item token'>
-            Token
+            <div>Next token in: <span class="otp-countdown"></span></div>
+            <pre><code class="otp-token"></code></pre>
+
           </article>
           <article class='tab-item verify'>
-            Verify
+            <div class="otp-verify">
+              <input
+                class="otp-verify-input"
+                placeholder="000000"
+                maxlength="6"
+                value="" />
+              <button class="button otp-verify-send">Verify</button>
+              <div class="otp-verify-result">
+                <i class='fa'></i>
+                <span class='text'></span>
+              </div>
+            </div>
           </article>
         </section>
       </div>
     </div>
 
     <script src="%PUBLIC_URL%/js/qrcode.min.js"></script>
-    <script src="%PUBLIC_URL%/js/highlight.js"></script>
     <script src="%PUBLIC_URL%/lib/otplib_commons.js"></script>
     <script src="%PUBLIC_URL%/lib/otplib.js"></script>
     <script src="%PUBLIC_URL%/js/app.js"></script>
