@@ -12,8 +12,8 @@ const defaultOptions = {
  *
  * @module core/totpOptions
  * @param {number} options.digits - the output token length
- * @param {string} options.epoch - starting time since the UNIX epoch. Used to calculate the counter
- * @param {number} options.step - time step in seconds
+ * @param {string} options.epoch - starting time since the UNIX epoch (seconds)
+ * @param {number} options.step - time step (seconds)
  * @return {object}
  */
 function totpOptions(options = {}) {

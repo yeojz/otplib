@@ -2,8 +2,8 @@
  * Generates a counter for TOTP
  *
  * @module core/totpCounter
- * @param {string} epoch - starting time since the UNIX epoch. Used to calculate the counter
- * @param {number} step - time step in seconds
+ * @param {string} epoch - starting time since the UNIX epoch (seconds)
+ * @param {number} step - time step (seconds)
  * @return {float}
  */
 function totpCounter(epoch, step) {
