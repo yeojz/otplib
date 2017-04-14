@@ -10,13 +10,13 @@
     <meta name="keywords" content="%KEYWORDS%" />
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="stylesheet" href="https://use.fontawesome.com/874fd18bb5.css">
-    <link rel="stylesheet" href="%PUBLIC_URL%/css/bulma.css">
+    <!-- <link rel="stylesheet" href="%PUBLIC_URL%/css/bulma.css"> -->
     <link rel="stylesheet" href="%PUBLIC_URL%/css/style.css">
     <title>otplib</title>
   </head>
   <body>
     <div id="root columns">
-      <div class='column is-6 is-offset-3 site-constraint'>
+      <div class='site-constraint'>
         <header class="site-header">
           <h1>
             <a class="%PUBLIC_URL%">
@@ -37,33 +37,45 @@
           </a>
         </nav>
 
-        <section class="npm-command column is-8 is-offset-2">
+        <section class="npm-command">
           <pre><code class="bash">npm i otplib</code></pre>
           or
           <pre><code class="bash">yarn add otplib</code></pre>
         </section>
 
-        <section class="tabs is-centered">
+        <section class="tabs">
           <ul>
-            <li class="tab-toggle is-active">
+            <li class="tab-item is-active" data-tab-id='secret'>
               <a>
                 <span class="icon is-small"><i class="fa fa-user-secret"></i></span>
                 Get Secret
               </a>
             </li>
-            <li class="tab-toggle">
+            <li class="tab-item" data-tab-id='token'>
               <a>
                 <span class="icon is-small"><i class="fa fa-key"></i></span>
                 Get Token
               </a>
             </li>
-            <li class="tab-toggle">
+            <li class="tab-item" data-tab-id='verify'>
               <a>
                 <span class="icon is-small"><i class="fa fa-eye"></i></span>
                 Verify
               </a>
             </li>
           </ul>
+        </section>
+
+        <section class='tab-contents'>
+          <article class='tab-item secret is-active'>
+            Secret
+          </article>
+          <article class='tab-item token'>
+            Token
+          </article>
+          <article class='tab-item verify'>
+            Verify
+          </article>
         </section>
       </div>
     </div>

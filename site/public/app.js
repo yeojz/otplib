@@ -3,16 +3,24 @@
   hljs.initHighlightingOnLoad();
 
   function toggleTabs(evt) {
-    document.querySelectorAll('.tab-toggle')
+    document.querySelectorAll('.tab-item')
       .forEach(function(tab) {
         tab.classList.remove('is-active');
       });
+
     var clicked = evt.target || evt.srcElement;
-    clicked.parentElement.classList.add('is-active');
+    var parent = clicked.parentElement;
+    parent.classList.add('is-active');
+
+    var tabClass = parent.getAttribute('data-tab-id');
+    document.querySelectorAll('.tab-item.' + tabClass)
+      .forEach(function(tab) {
+        tab.classList.add('is-active');
+      });
   }
 
   window.addEventListener('load', function() {
-    document.querySelectorAll('.tab-toggle')
+    document.querySelectorAll('.tabs .tab-item')
       .forEach(function(tab) {
         tab.addEventListener('click', toggleTabs);
       });
