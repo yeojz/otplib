@@ -4,31 +4,22 @@ const webpack = require('webpack');
 const ENV = process.env.NODE_ENV;
 const BUILD_FOLDER = path.resolve(process.env.BUILD_FOLDER || 'dist');
 const ROOT_FOLDER = path.resolve(__dirname);
-const SOURCE_FOLDER = path.join(ROOT_FOLDER, 'src');
+const SOURCE_FOLDER = path.join(ROOT_FOLDER, 'interop');
 
 module.exports = {
   entry: {
     'otplib': SOURCE_FOLDER + '/index.js',
-    'otplib.hotp': SOURCE_FOLDER + '/hotp.js',
-    'otplib.totp': SOURCE_FOLDER + '/totp.js',
-    'otplib.ga': SOURCE_FOLDER + '/authenticator.js',
-    'otplib.otputils': SOURCE_FOLDER + '/classes/OTPUtils.js',
-    'otplib.legacy': SOURCE_FOLDER + '/v2.js'
+    'otplib_ga': SOURCE_FOLDER + '/authenticator.js',
+    'otplib_hotp': SOURCE_FOLDER + '/hotp.js',
+    'otplib_legacy': SOURCE_FOLDER + '/v2.js',
+    'otplib_totp': SOURCE_FOLDER + '/totp.js',
+    'otplib_utils': SOURCE_FOLDER + '/classes/OTPUtils.js'
   },
   output: {
-    library: 'otplib',
+    library: '[name]',
     libraryTarget: 'umd',
     path: BUILD_FOLDER,
     filename: '[name].js'
-  },
-  module: {
-    rules: [{
-      test: /\.js?$/,
-      exclude: /node_modules/,
-      use: [
-        'babel-loader',
-      ]
-    }]
   },
   resolve: {
     alias: {
@@ -40,8 +31,7 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify(ENV)
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons',
-      filename: 'otplib.commons.js',
+      name: 'otplib_commons'
     }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {

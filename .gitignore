@@ -32,8 +32,10 @@ coverage
 .node_repl_history
 
 /docs
-/site/public/otplib.*
+/site/public/**/otplib.*
+!/site/public/otplib.png
 /site/public/docs/*
+/site/dist
 /dist
 /classes
 /core
