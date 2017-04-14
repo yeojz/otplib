@@ -99,7 +99,7 @@ import {TOTP} from 'otplib/totp';
 import {Authenticator} from 'otplib/authenticator';
 ```
 
-Do note that if you're using `require`, you will need to do `var otplib = require('otplib').default` as the sources are compiled with [babel](https://github.com/babel/babel). Alternatively, the library provides ES5 compat files for main entry points. i.e.
+Do note that if you're using `require`, you will need to do `const otplib = require('otplib').default` as the sources are compiled with [babel](https://github.com/babel/babel). Alternatively, the library provides ES5 compat files for main entry points. i.e.
 
 ```js
 const otplib = require('otplib').default;
