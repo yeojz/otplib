@@ -4,7 +4,7 @@ const webpack = require('webpack');
 const ENV = process.env.NODE_ENV;
 const BUILD_FOLDER = path.resolve(process.env.BUILD_FOLDER || 'dist');
 const ROOT_FOLDER = path.resolve(__dirname);
-const SOURCE_FOLDER = path.join(ROOT_FOLDER, 'interop');
+const SOURCE_FOLDER = path.join(ROOT_FOLDER, 'compat');
 
 module.exports = {
   entry: {
