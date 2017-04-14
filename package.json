@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm-run-all build:src build:dist",
     "build:src": "cross-env NODE_ENV=production babel src --out-dir .",
-    "build:dist": "cross-env NODE_ENV=production webpack",
+    "build:dist": "cross-env NODE_ENV=production OTPLIB_WEBPACK=true webpack",
     "build:docs": "jsdoc --configure jsdoc.json --verbose",
     "build:site": "cross-env BUILD_FOLDER=./site/dist/lib npm run build:site:run",
     "build:site:run": "npm run build:dist",

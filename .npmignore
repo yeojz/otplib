@@ -6,6 +6,7 @@ site
 
 /docs
 /buildtools
+.nyc_output
 .babelrc
 .eslintignore
 .eslintrc

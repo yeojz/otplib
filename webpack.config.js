@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const ENV = process.env.NODE_ENV;
+const OTPLIB_WEBPACK = process.env.OTPLIB_WEBPACK || 'false';
 const BUILD_FOLDER = path.resolve(process.env.BUILD_FOLDER || 'dist');
 const ROOT_FOLDER = path.resolve(__dirname);
 const SOURCE_FOLDER = path.join(ROOT_FOLDER, 'compat');
@@ -21,6 +22,15 @@ module.exports = {
     path: BUILD_FOLDER,
     filename: '[name].js'
   },
+  module: {
+    rules: [{
+      test: /\.js?$/,
+      exclude: /node_modules/,
+      use: [
+        'babel-loader',
+      ]
+    }]
+  },
   resolve: {
     alias: {
       'crypto': path.resolve(ROOT_FOLDER, 'src', 'utils', 'crypto')
@@ -28,7 +38,8 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(ENV)
+      'process.env.NODE_ENV': JSON.stringify(ENV),
+      'process.env.OTPLIB_WEBPACK': JSON.stringify(OTPLIB_WEBPACK)
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'otplib_commons'
