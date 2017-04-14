@@ -8,12 +8,15 @@ describe('core/hotpOptions', function () {
     createHmacSecret: hotpSecret,
     digits: 6,
     encoding: 'ascii'
-  }
+  };
 
-  it('should return default options', function () {
-    expect(hotpOptions()).to.deep.equal(defaults);
-    expect(hotpOptions(null)).to.deep.equal(defaults);
-    expect(hotpOptions(void 0)).to.deep.equal(defaults);
+  [
+    ['null', null],
+    ['undefined', void 0]
+  ].forEach((entry) => {
+    it(`should return default when option is ${entry[0]}`, function () {
+      expect(hotpOptions(entry[1])).to.deep.equal(defaults);
+    });
   });
 
   it('should return options with new values added', function () {

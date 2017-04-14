@@ -11,12 +11,12 @@ describe('classes/HOTP', function () {
     otp = new HOTP();
   });
 
-  it('should contain expected method interfaces', function () {
-    [
-      'generate',
-      'check',
-      'verify'
-    ].forEach((key) => {
+  [
+    'generate',
+    'check',
+    'verify'
+  ].forEach((key) => {
+    it(`[${key}] should contain expected method interface`, function () {
       const fn = () => otp[key];
       expect(fn).to.not.throw(Error)
       expect(fn).to.be.a('function');
@@ -66,10 +66,13 @@ describe('classes/HOTP', function () {
     expect(args[3].extra).to.equal(options.extra);
   });
 
-  it('[check] returns empty string when counter is null or void 0', function () {
-    expect(otp.check('token', 'secret', null)).to.be.false;
-    expect(otp.check('token', 'secret', void 0)).to.be.false;
-    expect(otp.check('token', 'secret')).to.be.false;
+  [
+    ['null', null],
+    ['undefined', void 0]
+  ].forEach((entry) => {
+    it(`[check] returns empty string when counter is ${entry[0]}`, function () {
+      expect(otp.check('token', 'secret', entry[1])).to.be.false;
+    });
   });
 
   it('[verify] should be an alias of check with object as parameter', function () {
@@ -90,9 +93,13 @@ describe('classes/HOTP', function () {
     expect(args[2]).to.equal(1);
   });
 
-  it('[verify] returns false when non-object or null is passed in', function () {
-    expect(otp.verify(null)).to.be.false;
-    expect(otp.verify(() => 1)).to.be.false;
-    expect(otp.verify(void 0)).to.be.false;
+  [
+    ['null', null],
+    ['undefined', void 0],
+    ['a non-object', () => 1]
+  ].forEach((entry) => {
+    it(`[verify] returns false when argument is ${entry[0]}`, function () {
+      expect(otp.verify(entry[1])).to.be.false;
+    });
   });
 });

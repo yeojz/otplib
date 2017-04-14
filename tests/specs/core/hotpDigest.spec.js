@@ -2,9 +2,13 @@ import {expect} from 'chai';
 import hotpDigest from 'src/core/hotpDigest';
 
 describe('core/hotpDigest', function () {
-  it('should throw an error if options is null or not an object', function () {
-    expect(() => hotpDigest('test', 0)).to.throw(Error);
-    expect(() => hotpDigest('test', 0, void 0)).to.throw(Error);
-    expect(() => hotpDigest('test', 0, null)).to.throw(Error);
+  [
+    ['null', null],
+    ['undefined', void 0],
+    ['not an object', () => 1]
+  ].forEach((entry) => {
+    it(`should throw an error if options is ${entry[0]}`, function () {
+      expect(() => hotpDigest('test', 0, entry[1])).to.throw(Error);
+    });
   });
 });

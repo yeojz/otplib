@@ -30,27 +30,22 @@ describe('core/totpCheck', function () {
     expect(result).to.be.false;
   });
 
-  it('should return true even if option is void 0', function () {
-    const isSameToken = stub().returns(true);
-    totpCheck.__Rewire__('isSameToken', isSameToken);
+  [
+    ['null', null],
+    ['undefined', void 0],
+  ].forEach((entry) => {
 
-    const result = totpCheck('196182', 'i6im0gc96j0mn00c', void 0);
+    it(`should return true even if option is ${entry[0]}`, function () {
+      const isSameToken = stub().returns(true);
+      totpCheck.__Rewire__('isSameToken', isSameToken);
 
-    totpCheck.__ResetDependency__('isSameToken');
+      const result = totpCheck('196182', 'i6im0gc96j0mn00c', entry[1]);
 
-    expect(isSameToken.calledOnce).to.be.true;
-    expect(result).to.be.true;
-  });
+      totpCheck.__ResetDependency__('isSameToken');
 
-  it('should return true even if option is null', function () {
-    const isSameToken = stub().returns(true);
-    totpCheck.__Rewire__('isSameToken', isSameToken);
+      expect(isSameToken.calledOnce).to.be.true;
+      expect(result).to.be.true;
+    });
 
-    const result = totpCheck('196182', 'i6im0gc96j0mn00c', null);
-
-    totpCheck.__ResetDependency__('isSameToken');
-
-    expect(isSameToken.calledOnce).to.be.true;
-    expect(result).to.be.true;
   });
 });

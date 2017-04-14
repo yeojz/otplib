@@ -10,28 +10,28 @@ describe('classes/Authenticator', function () {
     otp = new Authenticator();
   });
 
-  it('should contain expected method interfaces', function () {
-    [
-      'generate',
-      'check',
-      'keyuri',
-      'encode',
-      'decode',
-      'generateSecret',
-      'check'
-    ].forEach((key) => {
+  [
+    'generate',
+    'check',
+    'keyuri',
+    'encode',
+    'decode',
+    'generateSecret',
+    'check'
+  ].forEach((key) => {
+    it(`[${key}] should contain expected method interface`, function () {
       const fn = () => otp[key];
       expect(fn).to.not.throw(Error)
       expect(fn).to.be.a('function');
     });
   });
 
-  it('should passthrough arguments to imported function in static methods', function () {
-    [
-      ['encode', 'encodeKey'],
-      ['decode', 'decodeKey'],
-      ['keyuri', 'keyuri']
-    ].forEach(([methodName, moduleName]) => {
+  [
+    ['encode', 'encodeKey'],
+    ['decode', 'decodeKey'],
+    ['keyuri', 'keyuri']
+  ].forEach(([methodName, moduleName]) => {
+    it(`[${methodName}] should passthrough arguments to imported function in static methods`, function () {
       const passthrough = spy();
       Authenticator.__Rewire__(moduleName, passthrough);
       otp[methodName]('a1', 'a2', 'a3');

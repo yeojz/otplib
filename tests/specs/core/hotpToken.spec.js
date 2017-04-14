@@ -3,20 +3,25 @@ import hotpToken from 'src/core/hotpToken';
 
 describe('core/hotpToken', function () {
 
-  it('should return empty string when counter is null or undefined', function () {
-    expect(hotpToken('i6im0gc96j0mn00c')).to.equal('');
-    expect(hotpToken('i6im0gc96j0mn00c', void 0)).to.equal('');
-    expect(hotpToken('i6im0gc96j0mn00c', null)).to.equal('');
+  [
+    ['null', null],
+    ['undefined', void 0]
+  ].forEach((entry) => {
+    it(`should return empty string when counter is ${entry[0]}`, function () {
+      expect(hotpToken('i6im0gc96j0mn00c', entry[1])).to.equal('');
+    });
   });
 
-  it('should return correct tokens', function () {
-    [
-      ['i6im0gc96j0mn00c', 3, '229021'],
-      ['i6im0gc96j0mn00c', 47412420, '196182'],
-      ['65jh84eo38k32edm', 47412423, '963234'],
-      ['f4515l6ob3gkganp', 47412433, '415572'],
-      ['2o9989k76ij7eh9c', 47412435, '343659']
-    ].forEach(([secret, counter, expected]) => {
+  [
+    ['i6im0gc96j0mn00c', 3, '229021'],
+    ['i6im0gc96j0mn00c', 47412420, '196182'],
+    ['65jh84eo38k32edm', 47412423, '963234'],
+    ['f4515l6ob3gkganp', 47412433, '415572'],
+    ['2o9989k76ij7eh9c', 47412435, '343659']
+  ].forEach((entry, idx) => {
+    const [secret, counter, expected] = entry;
+
+    it(`[${idx}] should return correct tokens`, function () {
       const token = hotpToken(secret, counter);
       expect(token).to.equal(expected);
     });

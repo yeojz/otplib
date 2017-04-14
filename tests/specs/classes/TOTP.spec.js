@@ -10,12 +10,12 @@ describe('classes/TOTP', function () {
     otp = new TOTP();
   });
 
-  it('should contain expected method interfaces', function () {
-    [
-      'generate',
-      'check',
-      'verify'
-    ].forEach((key) => {
+  [
+    'generate',
+    'check',
+    'verify'
+  ].forEach((key) => {
+    it(`[${key}] should contain expected method interface`, function () {
       const fn = () => otp[key];
       expect(fn).to.not.throw(Error)
       expect(fn).to.be.a('function');

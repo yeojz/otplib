@@ -24,8 +24,8 @@ describe('impl/authenticator/encodeKey', function () {
     expect(toString.calledWith('hex'));
   });
 
-  it('should return expected values', function () {
-    codec.forEach((entry) => {
+  codec.forEach((entry, idx) => {
+    it(`[${idx}] should return expected values`, function () {
       expect(encodeKey(entry[0])).to.be.equal(entry[1]);
     });
   });
