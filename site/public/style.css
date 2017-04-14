@@ -1,5 +1,5 @@
 html {
-  background: #f9f9f9;
+  background: #333;
   font-size: 16px;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -79,6 +79,10 @@ pre code {
   white-space: nowrap;
 }
 
+input {
+  border: 1px #ddd solid;
+}
+
 .button:focus,
 input:focus {
   outline: none;
@@ -152,7 +156,8 @@ input:focus {
   background: #fff;
   border: 1px #ddd solid;
   margin-bottom: 2em;
-  padding: 2em 1em;
+  max-width: 720px;
+  padding: 2em 0;
   position: relative;
 }
 
@@ -171,7 +176,10 @@ input:focus {
 }
 
 .site-nav {
+  border-bottom: 1px #eee solid;
+  border-top: 1px #eee solid;
   margin: 2em 0;
+  padding: 1em;
   text-align: center;
 }
 
@@ -199,9 +207,14 @@ input:focus {
   transition: color 0.2s ease-in-out;
 }
 
+.tab-contents {
+  background: #fcfcfc;
+}
+
 .tab-contents .tab-item {
   display: none;
   min-height: 5em;
+  padding: 3em 0.2em 1em;
   text-align: center;
 }
 
@@ -249,7 +262,8 @@ input:focus {
   }
 
   .tab-contents .tab-item {
-    padding: 3em 10% 1em;
+    padding-left: 10%;
+    padding-right: 10%;
   }
 
   .otp-verify {

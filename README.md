@@ -14,10 +14,11 @@
 -   [Getting Started](#getting-started)
     -   [Using in node](#in-node)
     -   [Using in browser](#in-browser)
--   [Advanced Usage](#advanced-usage)
 -   [Google Authenticator](#google-authenticator)
--   [Documentation](https://yeojz.github.io/otplib/docs)
--   [Demo](https://yeojz.github.io/otplib)
+-   [Browser Compatibility](#browser-compatibility)
+-   [Advanced Usage](#advanced-usage)
+-   [Documentation][project-docs]
+-   [Project Site / Demo][project-web]
 -   [Related](#related)
 
 ## About
@@ -113,7 +114,8 @@ const totp = require('otplib/compat/totp');
 
 ### In browser
 
-Compiled versions of the library are also available .
+Compiled versions of the library are also available, which can be useful for quick proof-of-concepts or even login implementations like  WhatsApp / Line etc.
+
 You'll need to add the following scripts to your code:
 
 ```html
@@ -138,22 +140,9 @@ Available files:
 ```
 
 You can find these files in `node_modules/otplib/dist` after you install.
+Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tree/gh-pages/lib).
 
-Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tree/gh-pages/browser).
-
-## Advanced Usage
-
-By default, classes are provided to wrap functionalities and methods into logical groups.
-However, they are ultimately just syntax-sugar to the underlying functional steps in OTP generation.
-
-If you prefer a more functional approach compared to classes, you may import them
-from their respective folders.
-
--   `functions` can be found in `otplib/core/<FILENAME>`
--   `classes` can be found in `otplib/classes/<FILENAME>`
--   `utils` can be found in `otplib/utils/<FILENAME>`
-
-For more information about the methods and available files, check out the [documentation](https://yeojz.github.io/otplib/docs).
+For a live example, the [project site][project-web] has been built using `otplib.js`. The source code can be found [here](https://github.com/yeojz/otplib/tree/master/site).
 
 ## Google Authenticator
 
@@ -170,6 +159,31 @@ import authenticator from 'otplib/authenticator';
 const secret = authenticator.generateSecret(); // base 32 encoded user secret key
 const token = authenticator.generate(secret);
 ```
+
+## Browser Compatibility
+
+In order to reduce the size of the browser package, the `crypto` package has been replaced with a alternative implementation. However, it depends on [Uint8Array][mdn-uint8array] and the native browser [crypto][mdn-crypto] module which are may only available in recent browser versions.
+
+__Output sizes:__
+
+-   with node crypto - 311Kb 
+-   with alternative crypto - 94.2Kb
+
+To find out more about the replacements, you can take a look at `src/utils/crypto.js`
+
+## Advanced Usage
+
+By default, classes are provided to wrap functionalities and methods into logical groups.
+However, they are ultimately just syntax-sugar to the underlying functional steps in OTP generation.
+
+If you prefer a more functional approach compared to classes, you may import them
+from their respective folders.
+
+-   `functions` can be found in `otplib/core/<FILENAME>`
+-   `classes` can be found in `otplib/classes/<FILENAME>`
+-   `utils` can be found in `otplib/utils/<FILENAME>`
+
+For more information about the methods and available files, check out the [documentation][project-docs].
 
 ## Related
 
@@ -190,3 +204,9 @@ const token = authenticator.generate(secret);
 
 [pr-welcome-badge]: https://img.shields.io/badge/PRs-Welcome-ff69b4.svg?style=flat-square
 [pr-welcome-link]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
+
+[mdn-uint8array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
+[mdn-crypto]: https://developer.mozilla.org/en-US/docs/Web/API/Window/crypto
+
+[project-web]: https://yeojz.github.io/otplib
+[project-docs]: https://yeojz.github.io/otplib/docs
