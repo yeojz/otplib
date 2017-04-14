@@ -34,7 +34,6 @@ describe('core/totpCheck', function () {
     ['null', null],
     ['undefined', void 0],
   ].forEach((entry) => {
-
     it(`should return true even if option is ${entry[0]}`, function () {
       const isSameToken = stub().returns(true);
       totpCheck.__Rewire__('isSameToken', isSameToken);
@@ -46,6 +45,5 @@ describe('core/totpCheck', function () {
       expect(isSameToken.calledOnce).to.be.true;
       expect(result).to.be.true;
     });
-
   });
 });

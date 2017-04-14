@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import {spy, stub} from 'sinon';
 import check from 'src/impl/authenticator/check';
+import token from 'src/impl/authenticator/token';
 
 describe('impl/authenticator/check', function () {
   it('should return expected result', function () {
@@ -25,6 +26,12 @@ describe('impl/authenticator/check', function () {
       expect(values.decodeKey.calledWith('test2', 'binary'));
       expect(values.totpCheck.calledWith('test1', 10, values.options));
     });
+  });
+
+  it('should return true (integration)', function () {
+    const secret = 'randomTestSecret';
+    const value = token(secret);
+    expect(check(value, secret)).to.be.true;
   });
 
   function rewire() {
