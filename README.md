@@ -5,11 +5,12 @@
 [![npm][npm-badge]][npm-link]
 [![Build Status][circle-badge]][circle-link]
 [![Coverage Status][coveralls-badge]][coveralls-link]
+[![npm downloads][npm-downloads-badge]][npm-link]
 [![PRs Welcome][pr-welcome-badge]][pr-welcome-link]
 
-## Table of Contents
+<img width="150" src="https://yeojz.github.io/otplib/otplib.png" />
 
-<img style="float:right;width:150px;" src="https://yeojz.github.io/otplib/otplib.png" />
+## Table of Contents
 
 -   [About](#about)
 -   [Installation](#installation)
@@ -234,9 +235,10 @@ For more information about the methods and available files, check out the [docum
 
 [npm-badge]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [npm-link]: https://www.npmjs.com/package/otplib
+[npm-downloads-badge]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
 
 [circle-badge]: https://img.shields.io/circleci/project/github/yeojz/otplib/master.svg?style=flat-square
-[circle-link]: https://circleci.com/gh/yeojz/otplib.svg
+[circle-link]: https://circleci.com/gh/yeojz/otplib
 
 [coveralls-badge]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [coveralls-link]: https://coveralls.io/github/yeojz/otplib
