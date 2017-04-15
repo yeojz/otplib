@@ -119,25 +119,25 @@ Compiled versions of the library are also available, which can be useful for qui
 You'll need to add the following scripts to your code:
 
 ```html
-
 <!-- required: common lib -->
 <script src="otplib.common.js"></script>
 
-<!--
-Available files:
--   otplib.js           (hotp / totp / google authenticator)
--   otplib.hotp.js      (hotp)
--   otplib.totp.js      (totp)
--   otplib.ga.js        (google authenticator)
--   otplib.otputils.js  (utilites)
--   otplib.legacy.js    (v2 interface)
--->
-<script src="otplib.js"></script> // can replace with available files above
+<!-- replace with any of the available files below -->
+<script src="otplib.js"></script>
 
 <script type="text/javascript">
    // window.otplib etc.
 </script>
 ```
+
+__Available files:__
+
+-   `otplib.js`           - (hotp / totp / google authenticator)
+-   `otplib.hotp.js`      - (hotp)
+-   `otplib.totp.js`      - (totp)
+-   `otplib.ga.js`        - (google authenticator)
+-   `otplib.otputils.js`  - (utilites)
+-   `otplib.legacy.js`    - (v2 interface)
 
 You can find these files in `node_modules/otplib/dist` after you install.
 Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tree/gh-pages/lib).

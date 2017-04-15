@@ -10,6 +10,10 @@
   * @return {string}
   */
 function randomBytes(size) {
+  if (typeof window !== 'object' || window == null) {
+    throw new Error('Expecting randomBytes to be used in a browser environment.');
+  }
+
   const crypto = window.crypto || window.msCrypto
 
   if (!crypto || typeof crypto.getRandomValues !== 'function') {
@@ -21,7 +25,7 @@ function randomBytes(size) {
   }
 
   if (size < 1) {
-    throw new Error('Requested size must be more than 0');
+    throw new Error('Requested size must be more than 0.');
   }
 
   const rawBytes = new Uint8Array(size);
