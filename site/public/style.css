@@ -18,7 +18,7 @@ h3 {
 }
 
 a {
-  color: #00d1b2;
+  color: #0a56e1;
   cursor: pointer;
   text-decoration: none;
   -webkit-transition: none 86ms ease-out;
@@ -142,8 +142,8 @@ input:focus {
 }
 
 .tabs li.is-active a {
-  border-bottom-color: #00d1b2;
-  color: #00d1b2;
+  border-bottom-color: #0a56e1;
+  color: #0a56e1;
 }
 
 .tabs ul {
@@ -191,7 +191,7 @@ input:focus {
 }
 
 .site-nav .site-nav-item:hover {
-  color: #00d1b2;
+  color: #0a56e1;
 }
 
 .site-nav .fa {
@@ -220,6 +220,10 @@ input:focus {
 
 .tab-contents .tab-item.is-active {
   display: block;
+}
+
+.otp-token {
+  font-size: 2.5em;
 }
 
 .otp-qrcode {
@@ -252,7 +256,7 @@ input:focus {
 }
 
 .fa-check {
-  color: #00d1b2;
+  color: #0a56e1;
 }
 
 @media screen and (min-width: 768px) {
