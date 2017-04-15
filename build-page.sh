@@ -3,4 +3,4 @@ yarn build:docs;
 cd site;
 yarn install;
 yarn build;
-# yarn deploy
+yarn deploy

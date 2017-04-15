@@ -8,7 +8,7 @@
     "build": "npm run build:all",
     "build:all": "cross-env BUILD_PKG=index,copy,docs node ./build.js",
     "build:index": "cross-env BUILD_PKG=index node ./build.js",
-    "deploy": "npm run build && gh-pages -d dist",
+    "deploy": "gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

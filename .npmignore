@@ -3,15 +3,19 @@ src
 coverage
 tests
 site
+node_modules
+node_modules-*
 
 /docs
-/buildtools
 .nyc_output
 .babelrc
+.editorconfig
 .eslintignore
-.eslintrc
+.eslintrc.json
 .nycrc
 .travis.yml
+/build-page.sh
 circle.yml
 jsdoc.json
 webpack.config.js
+/webpack.config.js

@@ -19,6 +19,7 @@
 -   [Advanced Usage](#advanced-usage)
 -   [Documentation][project-docs]
 -   [Project Site / Demo][project-web]
+-   [Contributing][pr-welcome-link]
 -   [Related](#related)
 
 ## About
@@ -30,16 +31,15 @@ It was initially created for me to understand how One Time Passwords work in imp
 
 It implements:
 
--   [RFC 4226](http://tools.ietf.org/html/rfc4226) - [HOTP](http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm)
--   [RFC 6238](http://tools.ietf.org/html/rfc6238) - [TOTP](http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm)
+-   [RFC 4226][rfc-4226] - [HOTP](http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm)
+-   [RFC 6238][rfc-6238] - [TOTP](http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm)
 
 The implementations provided here are tested against test vectors provided in their respective RFC specifications. These datasets can be found in the `tests/helpers` folder.
 
 -   [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/4.0.0/tests/helpers/rfc4226.js)
 -   [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/tests/helpers/rfc6238.js)
 
-This library is also compatible with [Google Authenticator](https://github.com/google/google-authenticator), and includes additional methods to allow you to easily work with Google Authenticator.
-
+This library is also compatible with [Google Authenticator](https://github.com/google/google-authenticator), and includes additional methods to allow you to work with Google Authenticator.
 
 ## Installation
 
@@ -100,7 +100,7 @@ import {TOTP} from 'otplib/totp';
 import {Authenticator} from 'otplib/authenticator';
 ```
 
-Do note that if you're using `require`, you will need to do `const otplib = require('otplib').default` as the sources are compiled with [babel](https://github.com/babel/babel). Alternatively, the library provides ES5 compat files for main entry points. i.e.
+Do note that if you're using `require`, you will need to do `const otplib = require('otplib').default` as the sources are compiled with [babel](https://github.com/babel/babel). Alternatively, the library provides ES5 compat files for some of the main entry points to the library. i.e.
 
 ```js
 const otplib = require('otplib').default;
@@ -112,6 +112,8 @@ const otplib = require('otplib/compat');
 const totp = require('otplib/compat/totp');
 ```
 
+All these can be found in the `compat` folder.
+
 ### In browser
 
 Compiled versions of the library are also available, which can be useful for quick proof-of-concepts or even login implementations like  WhatsApp / Line etc.
@@ -120,7 +122,7 @@ You'll need to add the following scripts to your code:
 
 ```html
 <!-- required: common lib -->
-<script src="otplib.common.js"></script>
+<script src="otplib_common.js"></script>
 
 <!-- replace with any of the available files below -->
 <script src="otplib.js"></script>
@@ -149,7 +151,7 @@ For a live example, the [project site][project-web] has been built using `otplib
 __Base32 Keys and RFC3548__
 
 Google Authenticator requires keys to be base32 encoded.
-It also requires the base32 encoder to be [RFC 3548](http://tools.ietf.org/html/rfc3548) compliant.
+It also requires the base32 encoder to be [RFC 3548][rfc-3548] compliant.
 
 OTP calculation will still work should you want to use other base32 encoding methods (like Crockford's Base 32) but it will NOT be compatible with Google Authenticator.
 
@@ -162,14 +164,14 @@ const token = authenticator.generate(secret);
 
 ## Browser Compatibility
 
-In order to reduce the size of the browser package, the `crypto` package has been replaced with a alternative implementation. However, it depends on [Uint8Array][mdn-uint8array] and the native browser [crypto][mdn-crypto] module which are may only available in recent browser versions.
+In order to reduce the size of the browser package, the `crypto` package has been replaced with a alternative implementation. The current implementation depends on [Uint8Array][mdn-uint8array] and the browser's native [crypto][mdn-crypto] methods, which may only be available in recent browser versions.
+
+To find out more about the replacements, you can take a look at `src/utils/crypto.js`
 
 __Output sizes:__
 
--   with node crypto - 311Kb
--   with alternative crypto - 94.2Kb
-
-To find out more about the replacements, you can take a look at `src/utils/crypto.js`
+-   with node crypto - ~311Kb
+-   with alternative crypto - ~94.2Kb
 
 ## Advanced Usage
 
@@ -210,3 +212,7 @@ For more information about the methods and available files, check out the [docum
 
 [project-web]: https://yeojz.github.io/otplib
 [project-docs]: https://yeojz.github.io/otplib/docs
+
+[rfc-4226]: http://tools.ietf.org/html/rfc4226
+[rfc-6238]: http://tools.ietf.org/html/rfc6238
+[rfc-3548]: http://tools.ietf.org/html/rfc3548
