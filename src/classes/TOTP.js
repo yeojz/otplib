@@ -38,14 +38,38 @@ class TOTP extends HOTP {
     };
   }
 
+  /**
+   * Generates token.
+   * Passes instance options to underlying core function
+   *
+   * @param {string} secret
+   * @return {string}
+   * @see {@link module:core/totpToken}
+   */
   generate(secret) {
     return totpToken(secret, this.options);
   }
 
+  /**
+   * Checks validity of token.
+   * Passes instance options to underlying core function
+   *
+   * @param {string} token
+   * @param {string} secret
+   * @return {boolean}
+   * @see {@link module:core/totpCheck}
+   */
   check(token, secret){
     return totpCheck(token, secret, this.options);
   }
 
+  /**
+   * Alias method for `check` that accepts an object as argument instead
+   *
+   * @param {string} options.token
+   * @param {string} options.secret
+   * @return {boolean}
+   */
   verify(opts) {
     if (typeof opts !== 'object' || opts == null) {
       return false;

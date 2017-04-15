@@ -7,6 +7,12 @@ const BUILD_FOLDER = path.resolve(process.env.BUILD_FOLDER || 'dist');
 const ROOT_FOLDER = path.resolve(__dirname);
 const SOURCE_FOLDER = path.join(ROOT_FOLDER, 'compat');
 
+let alias = {};
+
+if (process.env.OTPLIB_WEBPACK_USE_NODE_CRYPTO !== 'true') {
+  alias.crypto = path.resolve(ROOT_FOLDER, 'src', 'utils', 'crypto');
+}
+
 module.exports = {
   entry: {
     'otplib': SOURCE_FOLDER + '/index.js',
@@ -32,9 +38,7 @@ module.exports = {
     }]
   },
   resolve: {
-    alias: {
-      'crypto': path.resolve(ROOT_FOLDER, 'src', 'utils', 'crypto')
-    }
+    alias: alias
   },
   plugins: [
     new webpack.DefinePlugin({

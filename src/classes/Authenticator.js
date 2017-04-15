@@ -44,28 +44,33 @@ class Authenticator extends TOTP {
   }
 
   /**
-   * @see {@link module:impl/authenticator/encodeKey} for more information.
+   * @see {@link module:impl/authenticator/encodeKey}
    */
   encode(...args) {
     return encodeKey(...args);
   }
 
   /**
-   * @see {@link module:impl/authenticator/decodeKey} for more information.
+   * @see {@link module:impl/authenticator/decodeKey}
    */
   decode(...args) {
     return decodeKey(...args);
   }
 
   /**
-   * @see {@link module:impl/authenticator/keyuri} for more information.
+   * @see {@link module:impl/authenticator/keyuri}
    */
   keyuri(...args) {
     return keyuri(...args);
   }
 
   /**
-   * @see {@link module:impl/authenticator/secretKey} for more information.
+   * Generates and encodes a secret key
+   *
+   * @param {string} length - secret key length (not encoded key length)
+   * @return {string}
+   * @see {@link module:impl/authenticator/secretKey}
+   * @see {@link module:impl/authenticator/encodeKey}
    */
   generateSecret(len = 20) {
     if (len == null) {
@@ -76,14 +81,22 @@ class Authenticator extends TOTP {
   }
 
   /**
-   * @see {@link module:impl/authenticator/token} for more information.
+   * @param {string} secret
+   * @return {string}
+   * @see {@link module:impl/authenticator/token}
    */
   generate(secret) {
     return token(secret, this.options);
   }
 
   /**
-   * @see {@link module:impl/authenticator/check} for more information.
+   * Checks validity of token.
+   * Passes instance options to underlying core function
+   *
+   * @param {string} token
+   * @param {string} secret
+   * @return {boolean}
+   * @see {@link module:impl/authenticator/check}
    */
   check(token, secret) {
     return check(token, secret, this.options);

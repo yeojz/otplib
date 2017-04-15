@@ -9,16 +9,20 @@
 
 ## Table of Contents
 
+<img style="float:right;width:150px;" src="https://yeojz.github.io/otplib/otplib.png" />
+
 -   [About](#about)
 -   [Installation](#installation)
 -   [Getting Started](#getting-started)
     -   [Using in node](#in-node)
     -   [Using in browser](#in-browser)
--   [Google Authenticator](#google-authenticator)
--   [Browser Compatibility](#browser-compatibility)
+-   [Notes](#notes)
+    -   [Setting custom options](#setting-custom-options)
+    -   [Google Authenticator](#google-authenticator)
+    -   [Browser Compatibility](#browser-compatibility)
 -   [Advanced Usage](#advanced-usage)
 -   [Documentation][project-docs]
--   [Project Site / Demo][project-web]
+-   [Demo][project-web]
 -   [Contributing][pr-welcome-link]
 -   [Related](#related)
 
@@ -146,7 +150,36 @@ Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tre
 
 For a live example, the [project site][project-web] has been built using `otplib.js`. The source code can be found [here](https://github.com/yeojz/otplib/tree/master/site).
 
-## Google Authenticator
+## Notes
+
+### Setting custom options
+
+#### Class
+
+All instantiated classes will have their options inherited from their respective options generator. i.e. HOTP from `hotpOptions` and TOTP/Authenticator from `totpOptions`.
+
+All OTP classes have an object setter and getter method to override these default options.
+
+For example,
+
+```js
+import otplib from 'otplib';
+
+// setting
+otplib.authenticator.options = {
+   step: 30
+}
+
+// getting
+const opts = otplib.authenticator.options;
+```
+
+#### Methods
+
+Most of the core methods take in an object `options` as their last argument.
+
+
+### Google Authenticator
 
 __Base32 Keys and RFC3548__
 
@@ -162,7 +195,7 @@ const secret = authenticator.generateSecret(); // base 32 encoded user secret ke
 const token = authenticator.generate(secret);
 ```
 
-## Browser Compatibility
+### Browser Compatibility
 
 In order to reduce the size of the browser package, the `crypto` package has been replaced with a alternative implementation. The current implementation depends on [Uint8Array][mdn-uint8array] and the browser's native [crypto][mdn-crypto] methods, which may only be available in recent browser versions.
 
@@ -170,8 +203,12 @@ To find out more about the replacements, you can take a look at `src/utils/crypt
 
 __Output sizes:__
 
--   with node crypto - ~311Kb
--   with alternative crypto - ~94.2Kb
+-   with node crypto: ~311Kb
+-   with alternative crypto: ~94.2Kb
+
+If you prefer to use node's `crypto` module instead, you can set the environment variable `OTPLIB_WEBPACK_USE_NODE_CRYPTO=true` and rebuild the browser distribution.
+
+i.e. `OTPLIB_WEBPACK_USE_NODE_CRYPTO=true npm run build:dist`
 
 ## Advanced Usage
 

@@ -18,56 +18,56 @@ import stringToHex from '../utils/stringToHex';
 class OTPUtils {
 
   /**
-   * @see {@link module:utils/hexToInt} for more information.
+   * @see {@link module:utils/hexToInt}
    */
   static hexToInt(...args) {
     return hexToInt(...args)
   }
 
   /**
-   * @see {@link module:utils/intToHex} for more information.
+   * @see {@link module:utils/intToHex}
    */
   static intToHex(...args) {
     return intToHex(...args)
   }
 
   /**
-   * @see {@link module:utils/isSameToken} for more information.
+   * @see {@link module:utils/isSameToken}
    */
   static isSameToken(...args) {
     return isSameToken(...args)
   }
 
   /**
-   * @see {@link module:utils/leftPad} for more information.
+   * @see {@link module:utils/leftPad}
    */
   static pad(...args) {
     return leftPad(...args)
   }
 
   /**
-   * @see {@link module:utils/removeSpaces} for more information.
+   * @see {@link module:utils/removeSpaces}
    */
   static removeSpaces(...args) {
     return removeSpaces(...args)
   }
 
   /**
-   * @see {@link module:utils/secretKey} for more information.
+   * @see {@link module:utils/secretKey}
    */
   static generateSecret(...args) {
     return secretKey(...args)
   }
 
   /**
-   * @see {@link module:utils/setsOf} for more information.
+   * @see {@link module:utils/setsOf}
    */
   static setsOf(...args) {
     return setsOf(...args)
   }
 
   /**
-   * @see {@link module:utils/stringToHex} for more information.
+   * @see {@link module:utils/stringToHex}
    */
   static stringToHex(...args) {
     return stringToHex(...args)

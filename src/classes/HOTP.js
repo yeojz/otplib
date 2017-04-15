@@ -33,6 +33,26 @@ class HOTP {
     this._options = {};
   }
 
+  /**
+   * Getter and Setter methods for instance options
+   * that will be used to override the defaults.
+   *
+   * ```
+   * // Setter
+   * const hotp = new HOTP();
+   * hotp.options = {
+   *   digits: 8
+   * }
+   * ```
+   *
+   * ```
+   * // Getter
+   * const hotp = new HOTP();
+   * const opt = hotp.options;
+   * ```
+   *
+   * @type {object}
+   */
   set options(opt = {}) {
     if (opt) {
       this._options = {
@@ -48,14 +68,41 @@ class HOTP {
     };
   }
 
+  /**
+   * Generates token.
+   * Passes instance options to underlying core function
+   *
+   * @param {string} secret
+   * @param {number} counter
+   * @return {string}
+   * @see {@link module:core/hotpToken} for more information.
+   */
   generate(secret, counter) {
     return hotpToken(secret, counter, this.options)
   }
 
+  /**
+   * Checks validity of token.
+   * Passes instance options to underlying core function
+   *
+   * @param {string} token
+   * @param {string} secret
+   * @param {number} counter
+   * @return {boolean}
+   * @see {@link module:core/hotpCheck} for more information.
+   */
   check(token, secret, counter) {
     return hotpCheck(token, secret, counter, this.options);
   }
 
+  /**
+   * Alias method for `check` that accepts an object as argument instead
+   *
+   * @param {string} options.token
+   * @param {string} options.secret
+   * @param {number} options.counter
+   * @return {boolean}
+   */
   verify(opts) {
     if (typeof opts !== 'object' || opts == null) {
       return false;
