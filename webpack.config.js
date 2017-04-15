@@ -1,96 +1,55 @@
+const path = require('path');
+const webpack = require('webpack');
 
-/* Library
- * -------------------------------------------------------- */
-var path = require('path');
-var webpack = require('webpack');
+const ENV = process.env.NODE_ENV;
+const OTPLIB_WEBPACK = process.env.OTPLIB_WEBPACK || 'false';
+const BUILD_FOLDER = path.resolve(process.env.BUILD_FOLDER || 'dist');
+const ROOT_FOLDER = path.resolve(__dirname);
+const SOURCE_FOLDER = path.join(ROOT_FOLDER, 'compat');
 
-
-
-
-/* Variables
- * -------------------------------------------------------- */
-var ENV = process.env.NODE_ENV;
-
-
-
-
-/* Folders
- * -------------------------------------------------------- */
-var ROOT_FOLDER = path.resolve(__dirname);
-var SOURCE_FOLDER = path.join(ROOT_FOLDER, 'src');
-var BUILD_FOLDER = path.join(ROOT_FOLDER, 'dist/browser');
-
-
-
-
-
-/* Options List
- * -------------------------------------------------------- */
-
-/* Entries
- * ------------------ */
-var entries = {
-  'otplib': SOURCE_FOLDER + '/index.js',
-  'otplib.ga': SOURCE_FOLDER + '/authenticator.js',
-  'otplib.hotp': SOURCE_FOLDER + '/hotp.js',
-  'otplib.totp': SOURCE_FOLDER + '/totp.js',
-  'otplib.legacy': SOURCE_FOLDER + '/v2.js'
-};
-
-
-/* Output
- * ------------------ */
-var outputs = {
-  library: 'otplib',
-  libraryTarget: 'umd',
-  path: BUILD_FOLDER,
-  filename: '[name].js'
-};
-
-
-/* Loaders
- * ------------------ */
-var loaders = [];
-loaders.push({
-  test: /\.js?$/,
-  loaders: ['babel'],
-  exclude: /node_modules/
-});
-
-
-/* Plugins
- * ------------------ */
-var plugins = [];
-plugins.push(new webpack.DefinePlugin({'process.env': {'NODE_ENV': JSON.stringify(ENV)}}));
-// plugins.push(new webpack.NoErrorsPlugin());
-
-
-/* Modifications
- * ------------------ */
-if (ENV === 'production'){
-  plugins.push(new webpack.optimize.UglifyJsPlugin({
-    compress: {warnings: false}
-  }));
-}
-
-
-
-
-
-
-/* Configuration Options
- * -------------------------------------------------------- */
-var config = {
-
-  entry: entries,
-  output: outputs,
-
-  module: {
-    loaders: loaders
+module.exports = {
+  entry: {
+    'otplib': SOURCE_FOLDER + '/index.js',
+    'otplib_ga': SOURCE_FOLDER + '/authenticator.js',
+    'otplib_hotp': SOURCE_FOLDER + '/hotp.js',
+    'otplib_legacy': SOURCE_FOLDER + '/v2.js',
+    'otplib_totp': SOURCE_FOLDER + '/totp.js',
+    'otplib_utils': SOURCE_FOLDER + '/classes/OTPUtils.js'
   },
-
-  plugins: plugins
+  output: {
+    library: '[name]',
+    libraryTarget: 'umd',
+    path: BUILD_FOLDER,
+    filename: '[name].js'
+  },
+  module: {
+    rules: [{
+      test: /\.js?$/,
+      exclude: /node_modules/,
+      use: [
+        'babel-loader',
+      ]
+    }]
+  },
+  resolve: {
+    alias: {
+      'crypto': path.resolve(ROOT_FOLDER, 'src', 'utils', 'crypto')
+    }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(ENV),
+      'process.env.OTPLIB_WEBPACK': JSON.stringify(OTPLIB_WEBPACK)
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'otplib_commons'
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        warnings: false
+      }
+    })
+  ],
+  devtool: 'cheap-module-source-map',
+  target: 'web'
 };
-
-module.exports = config;
-

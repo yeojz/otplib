@@ -1,0 +1,37 @@
+machine:
+  node:
+    version: "6"
+  environment:
+    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
+general:
+  branches:
+    ignore:
+      - gh-pages
+dependencies:
+  override:
+    - yarn
+  cache_directories:
+    - ~/.cache/yarn
+test:
+  pre:
+    - yarn run clean
+  override:
+    - yarn test
+    - yarn run lint
+deployment:
+  coverage:
+    branch: [master, /^hotfix\/.*$/, /^feature\/.*$/]
+    commands:
+      - yarn run coveralls
+  release:
+    tag: /^v[0-9]+(\.[0-9]+)*$/
+    owner: yeojz
+    commands:
+      - yarn run clean
+      - yarn run build
+      - echo -e "$NPM_USER\n$NPM_PASS\n$NPM_EMAIL" | yarn login
+      - yarn publish
+      - yarn logout
+      - git config --global user.email $CI_DEPLOY_EMAIL
+      - git config --global user.name $CI_DEPLOY_NAME
+      - yarn deploy-gh-pages

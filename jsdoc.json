@@ -1,28 +1,26 @@
 {
-  "opts": {
-    "destination": "./dist/docs",
-    "recurse": true,
-    "template": "./node_modules/minami"
-  },
-  "plugins": ["plugins/markdown"],
   "source": {
-    "include": ["src/classes", "README.md"],
+    "include": ["src", "README.md", "package.json"],
     "includePattern": ".+\\.js(doc|x)?$",
-    "excludePattern": "(^|\\/|\\\\)_"
+    "excludePattern": "(node_modules/|docs)"
   },
+  "plugins": [
+    "plugins/markdown"
+  ],
   "tags": {
-    "allowUnknownTags": true
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc"]
   },
   "templates": {
     "cleverLinks": false,
-    "monospaceLinks": false,
-    "default": {
-      "outputSourceFiles": true
-    },
-    "systemName": "otplib",
-    "navType": "vertical",
-    "theme": "journal",
-    "highlightTutorialCode": false,
-    "syntaxTheme": "dark"
+    "monospaceLinks": true,
+    "useLongnameInNav": false
+  },
+  "opts": {
+    "destination": "./docs/",
+    "encoding": "utf8",
+    "private": true,
+    "recurse": true,
+    "template": "./node_modules/minami"
   }
 }

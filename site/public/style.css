@@ -1,0 +1,280 @@
+html {
+  background: #333;
+  font-size: 16px;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  min-width: 300px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  padding-top: 2em;
+}
+
+h3 {
+  margin: 0;
+}
+
+a {
+  color: #0a56e1;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-transition: none 86ms ease-out;
+  transition: none 86ms ease-out;
+}
+
+a:hover {
+  color: #363636;
+}
+
+code,
+pre {
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
+  font-family: monospace;
+}
+
+code {
+  background-color: whitesmoke;
+  color: #ff3860;
+  font-size: 0.8em;
+  font-weight: normal;
+  padding: 0.25em 0.5em 0.25em;
+}
+
+pre {
+  background-color: whitesmoke;
+  color: #4a4a4a;
+  font-size: 0.8em;
+  white-space: pre;
+  word-wrap: normal;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  display: block;
+  font-size: 1em;
+  overflow-x: auto;
+  padding: 1.25rem 1.5rem;
+}
+
+.button {
+  background-color: #0a56e1;
+  border-radius: 3px;
+  border: 0;
+  box-shadow: none;
+  color: #fff;
+  display: block;
+  font-size: 1rem;
+  height: 2.25em;
+  line-height: 1.25;
+  padding: 0.5em 0.75em;
+  position: relative;
+  text-align: center;
+  user-select: none;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+input {
+  border: 1px #ddd solid;
+}
+
+.button:focus,
+input:focus {
+  outline: none;
+}
+
+.icon {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  height: 1.5rem;
+  vertical-align: top;
+  width: 1.5rem;
+}
+
+.icon .fa {
+  font-size: 21px;
+}
+
+.icon.is-small {
+  height: 1rem;
+  width: 1rem;
+}
+
+.icon.is-small .fa {
+  font-size: 14px;
+}
+
+.tabs {
+  border-bottom: 1px #ddd solid;
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 4em;
+  padding-bottom: 10px;
+}
+
+.tabs a {
+  border-bottom: 1px solid #dbdbdb;
+  color: #4a4a4a;
+  margin-bottom: -1px;
+  padding: 10px;
+  vertical-align: top;
+}
+
+.tabs a:hover {
+  border-bottom-color: #363636;
+  color: #363636;
+}
+
+.tabs li {
+  display: inline-block;
+}
+
+.tabs li.is-active a {
+  border-bottom-color: #0a56e1;
+  color: #0a56e1;
+}
+
+.tabs ul {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.site-constraint {
+  background: #fff;
+  border: 1px #ddd solid;
+  margin-bottom: 2em;
+  max-width: 720px;
+  padding: 2em 0;
+  position: relative;
+}
+
+.lib-version {
+  position: absolute;
+  right: 1em;
+  top: 1em;
+}
+
+.site-header {
+  text-align: center;
+}
+
+.site-header img {
+  height: 80px;
+}
+
+.site-nav {
+  border-bottom: 1px #eee solid;
+  border-top: 1px #eee solid;
+  margin: 2em 0;
+  padding: 1em;
+  text-align: center;
+}
+
+.site-nav .site-nav-item {
+  color: #333;
+  display: inline-block;
+  margin: 0 0.5em;
+  transition: color 0.2s ease-in-out;
+}
+
+.site-nav .site-nav-item:hover {
+  color: #0a56e1;
+}
+
+.site-nav .fa {
+  line-height: 1.4em;
+}
+
+.npm-command {
+  text-align: center;
+  padding: 0 20%;
+}
+
+.tabs .tab-item a {
+  transition: color 0.2s ease-in-out;
+}
+
+.tab-contents {
+  background: #fcfcfc;
+}
+
+.tab-contents .tab-item {
+  display: none;
+  min-height: 5em;
+  padding: 3em 0.2em 1em;
+  text-align: center;
+}
+
+.tab-contents .tab-item.is-active {
+  display: block;
+}
+
+.otp-secret {
+  font-size: 1.4em;
+}
+
+.otp-token {
+  font-size: 2.5em;
+}
+
+.otp-qrcode {
+  margin-top: 2em;
+}
+
+.otp-countdown {
+  text-align: right;
+}
+
+.otp-verify {
+  text-align: center;
+}
+
+.otp-verify-input,
+.otp-verify-send,
+.otp-verify-result {
+  box-sizing: border-box;
+  margin-bottom: 0.5em;
+  width: 100%;
+}
+
+.otp-verify-input {
+  font-size: 1.2em;
+  padding: 0.5em 0.75em;
+}
+
+.fa-times {
+  color: #ff0047;
+}
+
+.fa-check {
+  color: #00d1b2;
+}
+
+@media screen and (min-width: 768px) {
+  .site-constraint {
+    margin: 0 auto 2em;
+    width: 60%
+  }
+
+  .tab-contents .tab-item {
+    padding-left: 10%;
+    padding-right: 10%;
+  }
+
+  .otp-verify {
+    padding: 0 30%;
+  }
+}
