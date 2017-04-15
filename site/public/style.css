@@ -222,6 +222,10 @@ input:focus {
   display: block;
 }
 
+.otp-secret {
+  font-size: 1.4em;
+}
+
 .otp-token {
   font-size: 2.5em;
 }
@@ -256,7 +260,7 @@ input:focus {
 }
 
 .fa-check {
-  color: #0a56e1;
+  color: #00d1b2;
 }
 
 @media screen and (min-width: 768px) {

@@ -10,8 +10,7 @@ describe('impl/authenticator/keyuri', function () {
     it(`[${idx}] should generate expected values`, function () {
       const [url, ...args] = entry;
       const result = keyuri(...args);
-      const expected = encodeURIComponent(url);
-      expect(result).to.be.equal(expected);
+      expect(result).to.be.equal(url);
     });
   });
 });

@@ -126,18 +126,18 @@ You'll need to add the following scripts to your code:
 <script src="otplib.js"></script>
 
 <script type="text/javascript">
-   // window.otplib etc.
+   // window.otplib or window.otplib_hotp etc
 </script>
 ```
 
 __Available files:__
 
 -   `otplib.js`           - (hotp / totp / google authenticator)
--   `otplib.hotp.js`      - (hotp)
--   `otplib.totp.js`      - (totp)
--   `otplib.ga.js`        - (google authenticator)
--   `otplib.otputils.js`  - (utilites)
--   `otplib.legacy.js`    - (v2 interface)
+-   `otplib_hotp.js`      - (hotp)
+-   `otplib_totp.js`      - (totp)
+-   `otplib_ga.js`        - (google authenticator)
+-   `otplib_otputils.js`  - (utilites)
+-   `otplib_legacy.js`    - (v2 interface)
 
 You can find these files in `node_modules/otplib/dist` after you install.
 Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tree/gh-pages/lib).
@@ -166,7 +166,7 @@ In order to reduce the size of the browser package, the `crypto` package has bee
 
 __Output sizes:__
 
--   with node crypto - 311Kb 
+-   with node crypto - 311Kb
 -   with alternative crypto - 94.2Kb
 
 To find out more about the replacements, you can take a look at `src/utils/crypto.js`

@@ -30,8 +30,6 @@
     var otpauth = otplib.authenticator
       .keyuri('demo', 'otplib', secret);
 
-    otpauth = window.decodeURIComponent(otpauth);
-
     document.querySelector('.otp-secret')
       .innerHTML = secret;
 

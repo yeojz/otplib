@@ -120,4 +120,11 @@ describe('Legacy (2.x.x adapter)', function () {
       expect(t.length).to.be.eql(6);
     }
   });
+
+  it('[GA/keyuri] should ensure correct uri', function () {
+    const url = 'otpauth://totp/test:me?secret=123&issuer=test';
+    const result = otplib.google.keyuri('me', 'test', '123');
+    const expected = encodeURIComponent(url);
+    expect(result).to.be.equal(expected);
+  });
 });

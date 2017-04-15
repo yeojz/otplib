@@ -10,14 +10,13 @@ const data = '{service}:{user}?secret={secret}&issuer={service}';
  * @param {string} secret - your secret that is used to generate the token
  * @return {string} otpauth uri. Example: otpauth://totp/user:localhost?secet=NKEIBAOUFA
  */
-
 function keyuri(user = 'user', service = 'service', secret = '') {
   const protocol = 'otpauth://totp/';
   const value = data.replace('{user}', user)
     .replace('{secret}', secret)
     .replace(/{service}/g, service);
 
-  return encodeURIComponent(protocol + value);
+  return protocol + value;
 }
 
 export default keyuri;

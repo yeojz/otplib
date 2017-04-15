@@ -69,7 +69,9 @@ Goog.prototype.secret = function (len = 16) {
    }
    return authenticator.encode(secret).slice(0, len);
 };
-Goog.prototype.keyuri = authenticator.keyuri;
+Goog.prototype.keyuri = function(...args) {
+  return encodeURIComponent(authenticator.keyuri(...args));
+};
 Goog.prototype.qrcode = authenticator.qrcode;
 Goog.prototype.generate = authenticator.generate;
 Goog.prototype.check = withOptions(totp, 'check');
