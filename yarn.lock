@@ -2371,6 +2371,10 @@ mime-types@^2.1.12, mime-types@~2.1.7:
   dependencies:
     mime-db "~1.27.0"
 
+minami@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/minami/-/minami-1.1.1.tgz#11e33c46f5fff6d391085e17df9a5e4a761f9dfc"
+
 minimalistic-assert@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/minimalistic-assert/-/minimalistic-assert-1.0.0.tgz#702be2dda6b37f4836bcb3f5db56641b64a1d3d3"
