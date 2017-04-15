@@ -11,7 +11,8 @@ const FILES_TO_COPY = [
   ['public/favicon.ico', 'dist', 'public'],
   ['public/style.css', 'dist/css', 'public'],
   ['public/app.js', 'dist/js', 'public'],
-  ['node_modules/qrcode/build/qrcode.min.js', 'dist/js', 'node_modules/qrcode/build']
+  ['node_modules/qrcode/build/qrcode.min.js', 'dist/js', 'node_modules/qrcode/build'],
+  ['circle.yml', 'dist', '']
 ];
 
 const targets = (process.env.BUILD_PKG || '').split(',');
