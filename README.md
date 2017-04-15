@@ -36,7 +36,7 @@ It implements:
 
 The implementations provided here are tested against test vectors provided in their respective RFC specifications. These datasets can be found in the `tests/helpers` folder.
 
--   [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/4.0.0/tests/helpers/rfc4226.js)
+-   [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/tests/helpers/rfc4226.js)
 -   [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/tests/helpers/rfc6238.js)
 
 This library is also compatible with [Google Authenticator](https://github.com/google/google-authenticator), and includes additional methods to allow you to work with Google Authenticator.
