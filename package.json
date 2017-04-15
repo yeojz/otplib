@@ -40,7 +40,7 @@
   "bugs": {
     "url": "https://github.com/yeojz/otplib/issues"
   },
-  "homepage": "https://github.com/yeojz/otplib",
+  "homepage": "https://yeojz.github.io/otplib",
   "devDependencies": {
     "babel-cli": "^6.24.0",
     "babel-core": "^6.24.1",
@@ -57,9 +57,7 @@
     "cross-env": "^4.0.0",
     "eslint": "^3.19.0",
     "jsdoc": "^3.4.3",
-    "minami": "^1.1.1",
     "mocha": "^3.2.0",
-    "ncp": "^2.0.0",
     "npm-run-all": "^4.0.2",
     "nyc": "^10.2.0",
     "rimraf": "^2.6.1",
@@ -67,7 +65,6 @@
     "webpack": "^2.3.3"
   },
   "dependencies": {
-    "randombytes": "^2.0.3",
     "thirty-two": "1.0.2"
   }
 }
