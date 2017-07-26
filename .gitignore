@@ -46,3 +46,4 @@ coverage
 /index.js
 /totp.js
 /v2.js
+/lib-test.js

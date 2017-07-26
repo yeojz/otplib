@@ -9,7 +9,7 @@ import base32 from 'thirty-two';
  * @return {string} Decoded string
  */
 function decodeKey(encodedKey, format) {
-  const fmt = format || 'binary';
+  const fmt = format || 'ascii';
   return base32.decode(encodedKey)
     .toString(fmt);
 }

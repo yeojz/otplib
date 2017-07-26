@@ -1,4 +1,5 @@
 import totpToken from '../../core/totpToken';
+import hotpSecret from '../../core/hotpSecret';
 import decodeKey from './decodeKey';
 
 /**
@@ -9,8 +10,12 @@ import decodeKey from './decodeKey';
  * @param {object} options - additional options.
  * @return {number} OTP Code
  */
-function token(secret, options = {}) {
-  return totpToken(decodeKey(secret, 'binary'), options);
+function token(secret, options) {
+  const opt = {
+    ...options,
+    createHmacSecret: hotpSecret
+  }
+  return totpToken(decodeKey(secret, opt.encoding), opt);
 }
 
 export default token;
