@@ -134,7 +134,7 @@ You'll need to add the following scripts to your code:
 
 ```html
 <!-- required: common lib -->
-<script src="otplib_common.js"></script>
+<script src="otplib-commons.js"></script>
 
 <!-- replace with any of the available files below -->
 <script src="otplib.js"></script>
@@ -147,11 +147,11 @@ You'll need to add the following scripts to your code:
 __Available files:__
 
 -   `otplib.js`           - (hotp / totp / google authenticator)
--   `otplib_hotp.js`      - (hotp)
--   `otplib_totp.js`      - (totp)
--   `otplib_ga.js`        - (google authenticator)
--   `otplib_otputils.js`  - (utilites)
--   `otplib_legacy.js`    - (v2 interface)
+-   `otplib-hotp.js`      - (hotp)
+-   `otplib-totp.js`      - (totp)
+-   `otplib-ga.js`        - (google authenticator)
+-   `otplib-otputils.js`  - (utilites)
+-   `otplib-legacy.js`    - (v2 interface)
 
 You can find these files in `node_modules/otplib/dist` after you install.
 Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tree/gh-pages/lib).
