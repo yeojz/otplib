@@ -13,10 +13,10 @@ import decodeKey from './decodeKey';
  */
 function check(token, secret, options) {
   const opt = {
-    ...options,
-    createHmacSecret: hotpSecret
+    createHmacSecret: hotpSecret,
+    ...options
   };
-  return totpCheck(token, decodeKey(secret, opt.encoding), opt);
+  return totpCheck(token, decodeKey(secret, opt.keyEncoding), opt);
 }
 
 export default check;

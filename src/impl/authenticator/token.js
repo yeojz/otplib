@@ -12,10 +12,10 @@ import decodeKey from './decodeKey';
  */
 function token(secret, options) {
   const opt = {
-    ...options,
-    createHmacSecret: hotpSecret
+    createHmacSecret: hotpSecret,
+    ...options
   }
-  return totpToken(decodeKey(secret, opt.encoding), opt);
+  return totpToken(decodeKey(secret, opt.keyEncoding), opt);
 }
 
 export default token;

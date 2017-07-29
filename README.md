@@ -10,22 +10,24 @@
 
 <img width="150" src="https://yeojz.github.io/otplib/otplib.png" />
 
-## Table of Contents
-
--   [About](#about)
--   [Installation](#installation)
--   [Getting Started](#getting-started)
-    -   [Using in node](#in-node)
-    -   [Using in browser](#in-browser)
--   [Notes](#notes)
-    -   [Setting custom options](#setting-custom-options)
-    -   [Google Authenticator](#google-authenticator)
-    -   [Browser Compatibility](#browser-compatibility)
--   [Advanced Usage](#advanced-usage)
--   [Documentation][project-docs]
--   [Demo][project-web]
--   [Contributing][pr-welcome-link]
--   [Related](#related)
+- [About](#about)
+- [Demo and Documentation](#demo-and-documentation)
+- [Installation](#installation)
+- [Upgrading](#upgrading)
+- [Getting Started](#getting-started)
+  - [In node](#in-node)
+  - [In browser](#in-browser)
+- [Notes](#notes)
+  - [Setting Custom Options](#setting-custom-options)
+    - [Available Options](#available-options)
+  - [Google Authenticator](#google-authenticator)
+    - [Base32 Keys and RFC3548](#base32-keys-and-rfc3548)
+    - [Seed / secret length](#seed-secret-length)
+  - [Browser Compatibility](#browser-compatibility)
+- [Advanced Usage](#advanced-usage)
+- [Related](#related)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## About
 
@@ -45,6 +47,11 @@ The implementations provided here are tested against test vectors provided in th
 -   [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/tests/helpers/rfc6238.js)
 
 This library is also compatible with [Google Authenticator](https://github.com/google/google-authenticator), and includes additional methods to allow you to work with Google Authenticator.
+
+## Demo and Documentation
+
+-   [Documentation][project-docs]
+-   [Demo][project-web]
 
 ## Installation
 
@@ -121,7 +128,7 @@ All these can be found in the `compat` folder.
 
 ### In browser
 
-Compiled versions of the library are also available, which can be useful for quick proof-of-concepts or even login implementations like  WhatsApp / Line etc.
+Compiled versions of the library are also available, which can be useful for quick proof-of-concepts or even login implementations.
 
 You'll need to add the following scripts to your code:
 
@@ -153,9 +160,7 @@ For a live example, the [project site][project-web] has been built using `otplib
 
 ## Notes
 
-### Setting custom options
-
-#### Class
+### Setting Custom Options
 
 All instantiated classes will have their options inherited from their respective options generator. i.e. HOTP from `hotpOptions` and TOTP/Authenticator from `totpOptions`.
 
@@ -175,14 +180,20 @@ otplib.authenticator.options = {
 const opts = otplib.authenticator.options;
 ```
 
-#### Methods
+#### Available Options
 
-Most of the core methods take in an object `options` as their last argument.
+| Option           | Type     | Defaults                                                         | Description                                                                                                   |
+| ---------------- | -------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| algorithm        | string   | 'sha1'                                                           | Algorithm used for HMAC                                                                                       |
+| createHmacSecret | function | (hotp) hotpSecret, (totp) totpSecret, (authenticator) hotpSecret | Transforms the secret and applies any modifications like padding to it.                                       |
+| digits           | integer  | 6                                                                | The length of the token                                                                                       |
+| epoch (totp)     | integer  | null                                                             | starting time since the UNIX epoch (seconds). *Note* non-javascript epoch. i.e. `new Date().getTime() / 1000` |
+| step (totp)      | integer  | 30                                                               | Time step (seconds)                                                                                           |
 
 
 ### Google Authenticator
 
-__Base32 Keys and RFC3548__
+#### Base32 Keys and RFC3548
 
 Google Authenticator requires keys to be base32 encoded.
 It also requires the base32 encoder to be [RFC 3548][rfc-3548] compliant.
@@ -195,6 +206,20 @@ import authenticator from 'otplib/authenticator';
 const secret = authenticator.generateSecret(); // base 32 encoded user secret key
 const token = authenticator.generate(secret);
 ```
+
+#### Seed / secret length
+
+In [RFC 6238][rfc-6238], the secret / seed length for different algorithms is predefined:
+
+```
+HMAC-SHA1 - 20 bytes
+HMAC-SHA256 - 32 bytes
+HMAC-SHA512 - 64 bytes
+```
+
+As such, the length of the secret is padded and sliced according to the expected length for respective algrorithms.
+However, Google Authenticator does not seem to pad the secret, resulting in [issue #7](https://github.com/yeojz/otplib/issues/7)
+As such, for Google Authenticator, the `createHmacSecret` has been defaulted to the `hotpSecret` function as of `v5.0.0`
 
 ### Browser Compatibility
 
@@ -223,11 +248,17 @@ from their respective folders.
 -   `classes` can be found in `otplib/classes/<FILENAME>`
 -   `utils` can be found in `otplib/utils/<FILENAME>`
 
-For more information about the methods and available files, check out the [documentation][project-docs].
+Most of the core functions will take in an object `options` as their last argument.
+
+For more information about the functions and available files, check out the [documentation][project-docs].
 
 ## Related
 
 -   [otplib-cli](https://www.github.com/yeojz/otplib-cli) - Command-line OTP
+
+## Contributing
+
+-   Check out: [CONTRIBUTING.md][pr-welcome-link]
 
 ## License
 
