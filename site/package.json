@@ -14,7 +14,7 @@
   "keywords": [
     "otplib"
   ],
-  "author": "Gerald Yeo",
+  "author": "Gerald Yeo <contact@fusedthought.com>",
   "license": "MIT",
   "dependencies": {
     "copy": "^0.3.0",

@@ -16,11 +16,11 @@ if (process.env.OTPLIB_WEBPACK_USE_NODE_CRYPTO !== 'true') {
 module.exports = {
   entry: {
     'otplib': SOURCE_FOLDER + '/index.js',
-    'otplib_ga': SOURCE_FOLDER + '/authenticator.js',
-    'otplib_hotp': SOURCE_FOLDER + '/hotp.js',
-    'otplib_legacy': SOURCE_FOLDER + '/v2.js',
-    'otplib_totp': SOURCE_FOLDER + '/totp.js',
-    'otplib_utils': SOURCE_FOLDER + '/classes/OTPUtils.js'
+    'otplib-ga': SOURCE_FOLDER + '/authenticator.js',
+    'otplib-hotp': SOURCE_FOLDER + '/hotp.js',
+    'otplib-legacy': SOURCE_FOLDER + '/v2.js',
+    'otplib-totp': SOURCE_FOLDER + '/totp.js',
+    'otplib-utils': SOURCE_FOLDER + '/classes/OTPUtils.js'
   },
   output: {
     library: '[name]',
@@ -46,7 +46,7 @@ module.exports = {
       'process.env.OTPLIB_WEBPACK': JSON.stringify(OTPLIB_WEBPACK)
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'otplib_commons'
+      name: 'otplib-commons'
     }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
