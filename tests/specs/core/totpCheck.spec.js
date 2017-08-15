@@ -1,8 +1,8 @@
-import {expect} from 'chai';
+
 import {stub} from 'sinon';
 import totpCheck from 'src/core/totpCheck';
 
-describe('core/totpCheck', function () {
+describe('totpCheck', function () {
   it('should return true', function () {
     const result = totpCheck('923066', 'i6im0gc96j0mn00c', {
       epoch: 90

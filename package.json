@@ -9,14 +9,12 @@
     "build:dist": "cross-env NODE_ENV=production OTPLIB_WEBPACK=true webpack",
     "build:docs": "jsdoc --configure jsdoc.json --verbose",
     "build:site": "cross-env BUILD_FOLDER=./site/dist/lib npm run build:dist",
-    "deploy-gh-pages": "./build-page.sh",
     "clean": "rimraf core classes impl utils coverage .nyc_output docs",
-    "coverage": "cross-env NODE_ENV=test nyc report --reporter=lcov",
-    "coveralls": "cross-env NODE_ENV=test nyc report --reporter=text-lcov | coveralls",
-    "lint": "eslint --ext js src tests",
-    "test": "cross-env NODE_ENV=test NODE_PATH=. npm run test:run",
-    "test:run": "nyc --reporter=text-summary mocha 'tests/**/*.spec.js'",
-    "test:watch": "npm run test -- -- --watch"
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "deploy-gh-pages": "./build-page.sh",
+    "lint": "eslint --ext js src",
+    "test": "jest --coverage",
+    "test:watch": "jest --coverage --watch"
   },
   "repository": {
     "type": "git",
@@ -46,9 +44,11 @@
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.1",
     "babel-loader": "^6.4.1",
+    "babel-plugin-module-resolver": "^2.7.1",
     "babel-plugin-rewire": "^1.0.0",
     "babel-plugin-transform-class-properties": "^6.23.0",
     "babel-plugin-transform-export-extensions": "^6.22.0",
+    "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-es2015": "^6.24.0",
     "chai": "^3.5.0",
@@ -56,16 +56,37 @@
     "create-hmac": "^1.1.4",
     "cross-env": "^4.0.0",
     "eslint": "^3.19.0",
+    "jest": "^20.0.4",
     "jsdoc": "^3.4.3",
     "minami": "^1.1.1",
     "mocha": "^3.2.0",
     "npm-run-all": "^4.0.2",
     "nyc": "^10.2.0",
     "rimraf": "^2.6.1",
+    "rollup": "^0.47.4",
+    "rollup-plugin-alias": "^1.3.1",
+    "rollup-plugin-node-resolve": "^3.0.0",
     "sinon": "^2.1.0",
     "webpack": "^2.3.3"
   },
   "dependencies": {
     "thirty-two": "1.0.2"
+  },
+  "jest": {
+    "coverageDirectory": "./coverage/",
+    "modulePaths": [
+      "<rootDir>/packages/**"
+    ],
+    "moduleNameMapper": {
+      "otplib-(.*)": "<rootDir>/packages/otplib-$1"
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/scripts/*",
+      "/tests/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/scripts/*"
+    ]
   }
 }
