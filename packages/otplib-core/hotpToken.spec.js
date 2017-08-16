@@ -4,6 +4,15 @@ import hotpToken from './hotpToken';
 describe('hotpToken', function () {
 
   [
+    null,
+    void 0,
+  ].forEach((entry) => {
+    it(`should throw an error when option is ${entry}`, function () {
+      expect(() => hotpToken('i6im0gc96j0mn00c', 3, entry)).toThrow(Error);
+    });
+  });
+
+  [
     ['null', null],
     ['undefined', void 0]
   ].forEach((entry) => {

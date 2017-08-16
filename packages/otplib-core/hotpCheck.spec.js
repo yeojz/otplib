@@ -2,6 +2,16 @@ import crypto from 'crypto';
 import hotpCheck from './hotpCheck';
 
 describe('hotpCheck', function () {
+
+  [
+    null,
+    void 0,
+  ].forEach((entry) => {
+    it(`should throw an error when option is null or undefined`, function () {
+      expect(() => hotpCheck('229021', 'i6im0gc96j0mn00c', 0, entry)).toThrow(Error);
+    });
+  });
+
   [
     ['i6im0gc96j0mn00c', 3, '229021'],
     ['i6im0gc96j0mn00c', 47412420, '196182'],
