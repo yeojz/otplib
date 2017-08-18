@@ -16,15 +16,18 @@
 - [Upgrading](#upgrading)
 - [Getting Started](#getting-started)
   - [In node](#in-node)
+    - [Using specific OTP type](#using-specific-otp-type)
+    - [Defining crypto](#defining-crypto)
+    - [Using classes](#using-classes)
   - [In browser](#in-browser)
+    - [Browser Compatibility](#browser-compatibility)
+- [Advanced Usage](#advanced-usage)
 - [Notes](#notes)
   - [Setting Custom Options](#setting-custom-options)
     - [Available Options](#available-options)
   - [Google Authenticator](#google-authenticator)
     - [Base32 Keys and RFC3548](#base32-keys-and-rfc3548)
     - [Seed / secret length](#seed-secret-length)
-  - [Browser Compatibility](#browser-compatibility)
-- [Advanced Usage](#advanced-usage)
 - [Related](#related)
 - [Contributing](#contributing)
 - [License](#license)
@@ -43,8 +46,8 @@ It implements:
 
 The implementations provided here are tested against test vectors provided in their respective RFC specifications. These datasets can be found in the `tests/helpers` folder.
 
--   [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/tests/helpers/rfc4226.js)
--   [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/tests/helpers/rfc6238.js)
+-   [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/packages/rfc/rfc4226.js)
+-   [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/packages/rfc/rfc6238.js)
 
 This library is also compatible with [Google Authenticator](https://github.com/google/google-authenticator), and includes additional methods to allow you to work with Google Authenticator.
 
@@ -81,9 +84,7 @@ You might also want to check out the release notes associated with each tagged v
 import otplib from 'otplib';
 
 const secret = otplib.authenticator.generateSecret();
-
 const token = otplib.authenticator.generate(secret);
-
 const isValid = otplib.authenticator.check(123456, secret);
 
 // or
@@ -95,6 +96,8 @@ const isValid = otplib.authenticator.verify({
 
 ```
 
+#### Using specific OTP type
+
 If you want to include a specific OTP specification, you can import it directly:
 
 ```js
@@ -103,28 +106,40 @@ import totp from 'otplib/totp';
 import authenticator from 'otplib/authenticator';
 ```
 
+#### Defining crypto
+
+Do note that you'll have to provide a crypto solution (this is to allow custom crypto solutions),
+as long as they implement `createHmac` and `randomBytes`. Take a look at the
+[browser implementation](https://github.com/yeojz/otplib/blob/master/packages/otplib-browser) for an example
+
+i.e.
+
+```js
+import crypto from 'crypto';
+authenticator.options = {crypto}
+hotp.options = {crypto}
+totp.options = {crypto}
+```
+
+#### Using classes
+
 For ease of use, the default exports are all instantiated instances of their respective classes.
-You may access the original classes via:
+You can access the original classes via it's same name property of an instantiated class.
+
+i.e
 
 ```js
-import {HOTP} from 'otplib/hotp';
-import {TOTP} from 'otplib/totp';
-import {Authenticator} from 'otplib/authenticator';
+
+import hotp from 'otplib/hotp';
+const HOTP = hotp.HOTP;
+
+import totp from 'otplib/totp';
+const TOTP = totp.TOTP;
+
+import authenticator from 'otplib/authenticator';
+const Authenticator = authenticator.Authenticator;
 ```
 
-Do note that if you're using `require`, you will need to do `const otplib = require('otplib').default` as the sources are compiled with [babel](https://github.com/babel/babel). Alternatively, the library provides ES5 compat files for some of the main entry points to the library. i.e.
-
-```js
-const otplib = require('otplib').default;
-const totp = require('otplib/totp').default;
-
-// same as
-
-const otplib = require('otplib/compat');
-const totp = require('otplib/compat/totp');
-```
-
-All these can be found in the `compat` folder.
 
 ### In browser
 
@@ -144,6 +159,34 @@ You can find it in `node_modules/otplib/dist` after you install.
 Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tree/gh-pages/lib).
 
 For a live example, the [project site][project-web] has been built using `otplib.js`. The source code can be found [here](https://github.com/yeojz/otplib/tree/master/site).
+
+#### Browser Compatibility
+
+In order to reduce the size of the browser package, the `crypto` package has been replaced with a alternative implementation. The current implementation depends on [Uint8Array][mdn-uint8array] and the browser's native [crypto][mdn-crypto] methods, which may only be available in recent browser versions.
+
+To find out more about the replacements, you can take a look at `src/utils/crypto.js`
+
+__Output sizes:__
+
+-   with node crypto: ~311Kb
+-   with alternative crypto: ~94.2Kb
+
+## Advanced Usage
+
+This library is primarily a node module (cjs), with a umd browser package provided.
+
+| file             | description                                              |
+| ---------------- | -------------------------------------------------------- |
+| authenticator.js | Google Authenticator bindings                            |
+| browser.js       | browser compatible package via webpack                   |
+| core.js          | Provides all functional parts of the library             |
+| hotp.js          | Wraps the functional core into a instantiated HOTP class |
+| otplib.js        | entry file for this library                              |
+| totp.js          | Wraps the functional core into a instantiated TOTP class |
+| utils.js         | Helper utilities                                         |
+| v2.js            | v2 compatibility layer                                   |
+
+For more information about the functions and available files, check out the [documentation][project-docs].
 
 ## Notes
 
@@ -169,7 +212,7 @@ const opts = otplib.authenticator.options;
 
 #### Available Options
 
-| Option           | Type     | Defaults                                                         | Description                                                                                                   |
+|                  | Option   | Type                                                             | Defaults                                                                                                      | Description |
 | ---------------- | -------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | algorithm        | string   | 'sha1'                                                           | Algorithm used for HMAC                                                                                       |
 | createHmacSecret | function | (hotp) hotpSecret, (totp) totpSecret, (authenticator) hotpSecret | Transforms the secret and applies any modifications like padding to it.                                       |
@@ -209,32 +252,6 @@ As such, the length of the secret is padded and sliced according to the expected
 However, Google Authenticator does not seem to pad the secret, resulting in [issue #7](https://github.com/yeojz/otplib/issues/7)
 As such, for Google Authenticator, the `createHmacSecret` has been defaulted to the `hotpSecret` function as of `v5.0.0`
 
-### Browser Compatibility
-
-In order to reduce the size of the browser package, the `crypto` package has been replaced with a alternative implementation. The current implementation depends on [Uint8Array][mdn-uint8array] and the browser's native [crypto][mdn-crypto] methods, which may only be available in recent browser versions.
-
-To find out more about the replacements, you can take a look at `src/utils/crypto.js`
-
-__Output sizes:__
-
--   with node crypto: ~311Kb
--   with alternative crypto: ~94.2Kb
-
-## Advanced Usage
-
-By default, classes are provided to wrap functionalities and methods into logical groups.
-However, they are ultimately just syntax-sugar to the underlying functional steps in OTP generation.
-
-If you prefer a more functional approach compared to classes, you may import them
-from their respective folders.
-
--   `functions` can be found in `otplib/core/<FILENAME>`
--   `classes` can be found in `otplib/classes/<FILENAME>`
--   `utils` can be found in `otplib/utils/<FILENAME>`
-
-Most of the core functions will take in an object `options` as their last argument.
-
-For more information about the functions and available files, check out the [documentation][project-docs].
 
 ## Related
 
