@@ -41,9 +41,13 @@ coverage
 /core
 /impl
 /utils
+
 /authenticator.js
+/core.js
 /hotp.js
 /index.js
+/otplib.js
 /totp.js
+/utils.js
 /v2.js
 /lib-test.js

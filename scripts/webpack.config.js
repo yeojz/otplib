@@ -16,7 +16,7 @@ module.exports = {
     library: '[name]',
     libraryTarget: 'umd',
     path: BUILD_DIR,
-    filename: 'otplib-browser.js'
+    filename: 'browser.js'
   },
   module: {
     rules: [{

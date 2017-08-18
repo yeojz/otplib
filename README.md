@@ -220,10 +220,6 @@ __Output sizes:__
 -   with node crypto: ~311Kb
 -   with alternative crypto: ~94.2Kb
 
-If you prefer to use node's `crypto` module instead, you can set the environment variable `OTPLIB_WEBPACK_USE_NODE_CRYPTO=true` and rebuild the browser distribution.
-
-i.e. `OTPLIB_WEBPACK_USE_NODE_CRYPTO=true npm run build:dist`
-
 ## Advanced Usage
 
 By default, classes are provided to wrap functionalities and methods into logical groups.
