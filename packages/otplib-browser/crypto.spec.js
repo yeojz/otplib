@@ -1,6 +1,6 @@
 import crypto from './crypto';
 
-describe('utils/crypto', function () {
+describe('crypto', function () {
   test('should expose an object with a used method', function () {
     expect(typeof crypto).toEqual('object')
     expect(typeof crypto.createHmac).toEqual('function');

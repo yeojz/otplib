@@ -1,5 +1,6 @@
 import otplib from 'otplib';
-import * as utils from 'otplib-utils';
+import * as otpUtils from 'otplib-utils';
+import crypto from 'crypto';
 
 const hotp = otplib.hotp;
 const totp = otplib.totp;
@@ -41,16 +42,16 @@ Core.prototype.totp = withOptions(totp, 'generate');
 Core.prototype.checkTOTP = withOptions(totp, 'check');
 Core.prototype.checkHOTP = withOptions(hotp, 'check');
 Core.prototype.helpers = {
-  isSameToken: utils.isSameToken,
-  stringToHex: utils.stringToHex,
-  hexToInt: utils.hexToInt,
-  intToHex: utils.intToHex,
-  pad: utils.pad
+  isSameToken: otpUtils.isSameToken,
+  stringToHex: otpUtils.stringToHex,
+  hexToInt: otpUtils.hexToInt,
+  intToHex: otpUtils.intToHex,
+  pad: otpUtils.leftPad
 };
 Core.prototype.secret = {
-  generate: utils.generateSecret,
-  removeSpaces: utils.removeSpaces,
-  divideIntoSetsOf: utils.setsOf
+  generate: (len) => otpUtils.secretKey(len, {crypto}),
+  removeSpaces: otpUtils.removeSpaces,
+  divideIntoSetsOf: otpUtils.setsOf
 };
 
 /**
@@ -63,7 +64,7 @@ function Goog() {
 Goog.prototype.secret = function (len = 16) {
   let secret = '';
    while (secret.length < len){
-     secret += utils.generateSecret(40, 'base64');
+     secret += otpUtils.secretKey(40, {crypto});
    }
    return authenticator.encode(secret).slice(0, len);
 };

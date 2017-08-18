@@ -1,5 +1,7 @@
 import {totpCheck, totpToken} from 'otplib-core';
-import {HOTP} from 'otplib-hotp';
+import hotp from 'otplib-hotp';
+
+const HOTP = hotp.HOTP;
 
 /**
  * Time-based One-time Password Algorithm
@@ -77,4 +79,5 @@ class TOTP extends HOTP {
   }
 }
 
+TOTP.prototype.TOTP = TOTP;
 export default TOTP;

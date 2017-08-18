@@ -20,3 +20,6 @@ jsdoc.json
 webpack.config.js
 /webpack.config.js
 /lib-test.js
+/packages
+/rollup.config.js
+/scripts

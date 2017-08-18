@@ -133,27 +133,14 @@ Compiled versions of the library are also available, which can be useful for qui
 You'll need to add the following scripts to your code:
 
 ```html
-<!-- required: common lib -->
-<script src="otplib-commons.js"></script>
-
-<!-- replace with any of the available files below -->
-<script src="otplib.js"></script>
+<script src="otplib-browser.js"></script>
 
 <script type="text/javascript">
-   // window.otplib or window.otplib_hotp etc
+   // window.otplib
 </script>
 ```
 
-__Available files:__
-
--   `otplib.js`           - (hotp / totp / google authenticator)
--   `otplib-hotp.js`      - (hotp)
--   `otplib-totp.js`      - (totp)
--   `otplib-ga.js`        - (google authenticator)
--   `otplib-otputils.js`  - (utilites)
--   `otplib-legacy.js`    - (v2 interface)
-
-You can find these files in `node_modules/otplib/dist` after you install.
+You can find it in `node_modules/otplib/dist` after you install.
 Alternatively, you can get the latest [here](https://github.com/yeojz/otplib/tree/gh-pages/lib).
 
 For a live example, the [project site][project-web] has been built using `otplib.js`. The source code can be found [here](https://github.com/yeojz/otplib/tree/master/site).
@@ -186,6 +173,7 @@ const opts = otplib.authenticator.options;
 | ---------------- | -------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | algorithm        | string   | 'sha1'                                                           | Algorithm used for HMAC                                                                                       |
 | createHmacSecret | function | (hotp) hotpSecret, (totp) totpSecret, (authenticator) hotpSecret | Transforms the secret and applies any modifications like padding to it.                                       |
+| crypto           | object   | node crypto                                                      | Crypto module to use.                                                                                         |
 | digits           | integer  | 6                                                                | The length of the token                                                                                       |
 | epoch (totp)     | integer  | null                                                             | starting time since the UNIX epoch (seconds). *Note* non-javascript epoch. i.e. `new Date().getTime() / 1000` |
 | step (totp)      | integer  | 30                                                               | Time step (seconds)                                                                                           |

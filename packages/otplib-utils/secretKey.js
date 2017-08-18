@@ -1,5 +1,3 @@
-import crypto from 'crypto';
-
 /**
  * Naive secret key generation tool
  *
@@ -9,13 +7,13 @@ import crypto from 'crypto';
  * @param {string} format - any format supported by node's `crypto`
  * @return {string}
  */
-function secretKey(length = 16, format = 'base64') {
+function secretKey(length = 16, options = {}) {
   if (length < 1){
     return '';
   }
 
-  return crypto.randomBytes(length)
-    .toString(format) // convert format
+  return options.crypto.randomBytes(length)
+    .toString('base64') // convert format
     .slice(0, length); // return required number of characters
 }
 

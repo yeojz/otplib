@@ -1,10 +1,9 @@
-import * as lib from './index';
 import authenticator from './index';
 import Authenticator from './Authenticator';
 
 describe('index', function () {
   it('should expose authenticator class', function () {
-    expect(typeof lib.Authenticator).toEqual('function');
+    expect(authenticator.Authenticator).toEqual(Authenticator);
   });
 
   it('should expose an instance of Authenticator', function () {

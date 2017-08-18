@@ -11,4 +11,3 @@ import TOTP from './TOTP';
  * @license MIT
  */
 export default new TOTP();
-export {TOTP}

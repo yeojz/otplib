@@ -1,10 +1,12 @@
-import {TOTP} from 'otplib-totp';
+import totp from 'otplib-totp';
 import {secretKey} from 'otplib-utils';
 import check from './check';
 import decodeKey from './decodeKey';
 import encodeKey from './encodeKey';
 import keyuri from './keyuri';
 import token from './token';
+
+const TOTP = totp.TOTP;
 
 /**
  * Google Authenticator adapter
@@ -77,7 +79,7 @@ class Authenticator extends TOTP {
     if (len == null) {
       return '';
     }
-    const secret = secretKey(len);
+    const secret = secretKey(len, this.options);
     return encodeKey(secret);
   }
 
@@ -104,4 +106,12 @@ class Authenticator extends TOTP {
   }
 }
 
+Authenticator.prototype.Authenticator = Authenticator;
+Authenticator.prototype.utils = {
+  check,
+  decodeKey,
+  encodeKey,
+  keyuri,
+  token,
+}
 export default Authenticator;

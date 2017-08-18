@@ -1,12 +1,12 @@
-import hotp, {HOTP} from 'otplib-hotp';
-import totp, {TOTP} from 'otplib-totp';
-import authenticator, {Authenticator} from 'otplib-authenticator';
+import hotp from 'otplib-hotp';
+import totp from 'otplib-totp';
+import authenticator from 'otplib-authenticator';
 import crypto from './crypto';
 
 /**
- * Instance of otplib (Entry File)
+ * otplib-browser
  *
- * One-Time Password Library
+ * One-Time Password Library for browser
  *
  * @since 3.0.0
  * @author Gerald Yeo
@@ -17,9 +17,9 @@ hotp.options = {crypto}
 totp.options = {crypto}
 
 export default {
-  Authenticator,
-  HOTP,
-  TOTP,
+  Authenticator: authenticator.Authenticator,
+  HOTP: hotp.HOTP,
+  TOTP: totp.TOTP,
   authenticator,
   hotp,
   totp,

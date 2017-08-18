@@ -5,7 +5,7 @@
   * -   https://github.com/crypto-browserify/randombytes
   * -   https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
   *
-  * @module utils/randomBytes
+  * @module randomBytes
   * @param {string} size - the size
   * @return {string}
   */

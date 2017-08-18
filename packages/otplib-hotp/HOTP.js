@@ -105,4 +105,5 @@ class HOTP {
   }
 }
 
+HOTP.prototype.HOTP = HOTP;
 export default HOTP;
