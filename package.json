@@ -1,6 +1,6 @@
 {
   "name": "otplib",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
   "main": "index.js",
   "scripts": {
