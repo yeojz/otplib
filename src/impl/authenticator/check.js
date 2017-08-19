@@ -16,7 +16,7 @@ function check(token, secret, options) {
     createHmacSecret: hotpSecret,
     ...options
   };
-  return totpCheck(token, decodeKey(secret, opt.keyEncoding), opt);
+  return totpCheck(token, decodeKey(secret), opt);
 }
 
 export default check;

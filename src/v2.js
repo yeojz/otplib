@@ -76,7 +76,9 @@ Goog.prototype.qrcode = authenticator.qrcode;
 Goog.prototype.generate = authenticator.generate;
 Goog.prototype.check = withOptions(totp, 'check');
 Goog.prototype.encode = authenticator.encode;
-Goog.prototype.decode = authenticator.decode;
+Goog.prototype.decode = function(...args) {
+  return authenticator.decode(...args).toString();
+}
 
 /**
  * Default Exports
