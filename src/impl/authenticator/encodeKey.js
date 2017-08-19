@@ -5,14 +5,12 @@ import base32 from 'thirty-two';
  *
  * @module impl/authenticator/encodeKey
  * @param {string} secret - your secret that is used to generate the token
- * @param {string} format - any format supported by node's `Buffer`
  * @return {string} Base32 string
  */
-function encodeKey(secret, format) {
-  const fmt = format || 'ascii';
-
+function encodeKey(secret) {
   return base32.encode(secret)
-    .toString(fmt);
+    .toString()
+    .replace(/=/g, '');
 }
 
 export default encodeKey;
