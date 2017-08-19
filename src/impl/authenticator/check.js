@@ -1,5 +1,4 @@
 import totpCheck from '../../core/totpCheck';
-import hotpSecret from '../../core/hotpSecret';
 import decodeKey from './decodeKey';
 
 /**
@@ -12,11 +11,7 @@ import decodeKey from './decodeKey';
  * @return {boolean}
  */
 function check(token, secret, options) {
-  const opt = {
-    createHmacSecret: hotpSecret,
-    ...options
-  };
-  return totpCheck(token, decodeKey(secret), opt);
+  return totpCheck(token, decodeKey(secret), options);
 }
 
 export default check;
