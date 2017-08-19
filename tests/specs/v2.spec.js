@@ -103,7 +103,7 @@ describe('Legacy (2.x.x adapter)', function () {
     let e = otplib.google.encode(s);
     let d = otplib.google.decode(e);
 
-    expect(s).to.be.eql(d);
+    expect(new Buffer(s).toString('hex')).to.be.eql(d);
   });
 
   it('[GA/OTP] ensure correct token length', function () {

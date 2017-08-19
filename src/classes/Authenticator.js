@@ -39,6 +39,7 @@ class Authenticator extends TOTP {
     super();
 
     this.options = {
+      encoding: 'hex',
       epoch: null
     }
   }

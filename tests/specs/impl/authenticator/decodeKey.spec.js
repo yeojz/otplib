@@ -25,7 +25,7 @@ describe('impl/authenticator/decodeKey', function () {
 
   it('should return expected values', function () {
     codec.forEach((entry) => {
-      expect(decodeKey(entry[1]).toString()).to.be.equal(entry[0]);
+      expect(decodeKey(entry[1])).to.be.equal(new Buffer(entry[0]).toString('hex'));
     });
   });
 });

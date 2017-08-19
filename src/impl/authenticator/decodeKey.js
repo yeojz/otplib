@@ -5,10 +5,11 @@ import base32 from 'thirty-two';
  *
  * @module impl/authenticator/decodeKey
  * @param {string} encodedKey - your encoded secret that is used to generate the token
- * @return {Object} A Buffer object containing the decoded string.
+ * @return {string} A hex decoded string.
  */
 function decodeKey(encodedKey) {
-  return base32.decode(encodedKey);
+  return base32.decode(encodedKey)
+    .toString('hex');
 }
 
 export default decodeKey;
