@@ -1,65 +1,40 @@
 import * as core from 'otplib-core';
-import HOTP from './HOTP';
+import TOTP from './TOTP';
 
-describe('HOTP', function () {
+describe('TOTP', function () {
   let lib;
 
   beforeEach(() => {
-    lib = new HOTP();
+    lib = new TOTP();
   });
 
   it('exposes the class as a prototype', function () {
-    expect(lib.HOTP).toEqual(HOTP);
-  });
-
-  it('options setter / getter should work', function () {
-    const prev = lib.options;
-    const newOptions = {
-      test: 'value'
-    }
-    lib.options = newOptions;
-
-    expect(prev).not.toEqual(lib.options);
-    expect(lib.options).toEqual(Object.assign({}, prev, newOptions));
-  });
-
-  it('options setter should take in null ', function () {
-    const prev = lib.options;
-    lib.options = null;
-    expect(prev).toEqual(lib.options);
-  });
-
-  it('options setter should take in void 0 ', function () {
-    const prev = lib.options;
-    lib.options = void 0;
-    expect(prev).toEqual(lib.options);
+    expect(lib.TOTP).toEqual(TOTP);
   });
 
   it('method: generate', function () {
-    methodExpectation('generate', 'hotpToken');
+    methodExpectation('generate', 'totpToken');
   });
 
-  it('method: generate => hotpToken ', function () {
-    methodPassthrough('generate', 'hotpToken', [
-      'secret',
-      'counter'
+  it('method: generate => totpToken ', function () {
+    methodPassthrough('generate', 'totpToken', [
+      'secret'
     ]);
   });
 
   it('method: check', function () {
-    methodExpectation('check', 'hotpCheck');
+    methodExpectation('check', 'totpCheck');
   });
 
-  it('method: check => hotpCheck ', function () {
-    methodPassthrough('check', 'hotpCheck', [
+  it('method: check => totpCheck ', function () {
+    methodPassthrough('check', 'totpCheck', [
       'token',
-      'secret',
-      'counter'
+      'secret'
     ]);
   });
 
   it('method: verify', function () {
-    methodExpectation('verify', 'hotpCheck');
+    methodExpectation('verify', 'totpCheck');
   });
 
   it('method: verify return false when not an object', function () {
@@ -82,15 +57,13 @@ describe('HOTP', function () {
 
     lib.verify({
       token: 'token',
-      secret: 'secret',
-      counter: 'counter',
+      secret: 'secret'
     });
 
     expect(spy).toHaveBeenCalled();
-    expect(spy.mock.calls[0]).toEqual(['token', 'secret', 'counter'])
+    expect(spy.mock.calls[0]).toEqual(['token', 'secret'])
     spy.mockReset();
   });
-
   function methodExpectation(methodName, coreName) {
     const spy = jest.spyOn(core, coreName)
       .mockImplementation(() => 'result');

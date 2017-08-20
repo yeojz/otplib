@@ -11,13 +11,12 @@ describe('hotpOptions', function () {
     crypto: null
   };
 
-  [
-    ['null', null],
-    ['undefined', void 0]
-  ].forEach((entry) => {
-    it(`should return default when option is ${entry[0]}`, function () {
-      expect(hotpOptions(entry[1])).toEqual(defaults);
-    });
+  it(`should return default when option is null`, function () {
+    expect(hotpOptions(null)).toEqual(defaults);
+  });
+
+  it(`should return default when option is undefined`, function () {
+    expect(hotpOptions(void 0)).toEqual(defaults);
   });
 
   it('should return options with new values added', function () {
