@@ -2,33 +2,37 @@ import * as core from 'otplib-core';
 import HOTP from './HOTP';
 
 describe('HOTP', function () {
-  let otplib;
+  let lib;
 
   beforeEach(() => {
-    otplib = new HOTP();
+    lib = new HOTP();
+  });
+
+  it('exposes the class as a prototype', function () {
+    expect(lib.HOTP).toEqual(HOTP);
   });
 
   it('options setter / getter should work', function () {
-    const prev = otplib.options;
+    const prev = lib.options;
     const newOptions = {
       test: 'value'
     }
-    otplib.options = newOptions;
+    lib.options = newOptions;
 
-    expect(prev).not.toEqual(otplib.options);
-    expect(otplib.options).toEqual(Object.assign({}, prev, newOptions));
+    expect(prev).not.toEqual(lib.options);
+    expect(lib.options).toEqual(Object.assign({}, prev, newOptions));
   });
 
   it('options setter should take in null ', function () {
-    const prev = otplib.options;
-    otplib.options = null;
-    expect(prev).toEqual(otplib.options);
+    const prev = lib.options;
+    lib.options = null;
+    expect(prev).toEqual(lib.options);
   });
 
   it('options setter should take in void 0 ', function () {
-    const prev = otplib.options;
-    otplib.options = void 0;
-    expect(prev).toEqual(otplib.options);
+    const prev = lib.options;
+    lib.options = void 0;
+    expect(prev).toEqual(lib.options);
   });
 
   it('method: generate', function () {
@@ -59,24 +63,24 @@ describe('HOTP', function () {
   });
 
   it('method: verify return false when not an object', function () {
-    const result = otplib.verify('string');
+    const result = lib.verify('string');
     expect(result).toBe(false);
   });
 
   it('method: verify return false when null', function () {
-    const result = otplib.verify(null);
+    const result = lib.verify(null);
     expect(result).toBe(false);
   });
 
   it('method: verify return false when undefined', function () {
-    const result = otplib.verify();
+    const result = lib.verify();
     expect(result).toBe(false);
   });
 
   it('method: verify calls check', function () {
-    const spy = jest.spyOn(otplib, 'check');
+    const spy = jest.spyOn(lib, 'check');
 
-    otplib.verify({
+    lib.verify({
       token: 'token',
       secret: 'secret',
       counter: 'counter',
@@ -88,15 +92,15 @@ describe('HOTP', function () {
   });
 
   function methodExpectation(methodName) {
-    expect(typeof otplib[methodName] === 'function').toBe(true);
-    expect(() => otplib[methodName]()).not.toThrow(Error);
+    expect(typeof lib[methodName] === 'function').toBe(true);
+    expect(() => lib[methodName]()).not.toThrow(Error);
   }
 
   function methodPassthrough(methodName, coreName, args) {
     const spy = jest.spyOn(core, coreName)
       .mockImplementation(() => 'result');
 
-    otplib[methodName](...args);
+    lib[methodName](...args);
     expect(spy).toHaveBeenCalled();
     expect(spy.mock.calls[0]).toEqual([...args, {}])
     spy.mockReset();

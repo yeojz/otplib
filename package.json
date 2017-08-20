@@ -68,7 +68,9 @@
     "coveragePathIgnorePatterns": [
       "<rootDir>/scripts/*"
     ],
-    "moduleNameMapper": {},
+    "moduleNameMapper": {
+      "otplib-(.*)": "<rootDir>/packages/otplib-$1"
+    },
     "modulePaths": [
       "<rootDir>/packages/**"
     ],
