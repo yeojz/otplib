@@ -17,8 +17,8 @@ function hotpDigest(secret, counter, options) {
     throw new Error('[hotpDigest] argument 3 must be an object');
   }
 
-  if (!options.crypto || !options.crypto.createHmac) {
-    throw new Error('[hotpDigest] A valid crypto module is needed');
+  if (!options.crypto || typeof options.crypto.createHmac !== 'function') {
+    throw new Error('[hotpDigest] A valid crypto module with a createHmac function is needed');
   }
 
   // Allow for direct digest use without going through hotpOptions

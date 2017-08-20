@@ -11,7 +11,7 @@ import totpToken from './totpToken';
  * @return {boolean}
  */
 function totpCheck(token, secret, options = {}){
-  const systemToken = totpToken(secret, options);
+  const systemToken = totpToken(secret, options || {});
 
   if (systemToken.length < 1) {
     return false;

@@ -18,11 +18,5 @@ module.exports = {
   'otplib-totp': {
   },
   'otplib-utils': {
-  },
-  'otplib-v2': {
-    globals: {
-      'crypto': 'crypto',
-      'thirty-two': 'thirty-two'
-    }
   }
 };

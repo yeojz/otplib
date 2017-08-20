@@ -11,7 +11,7 @@
     "build:site": "cross-env BUILD_FOLDER=./site/dist/lib npm run build:dist",
     "clean": "rimraf core classes impl utils coverage .nyc_output docs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "deploy-gh-pages": "./build-page.sh",
+    "deploy-gh-pages": "./scripts/build-page.sh",
     "lint": "eslint --ext js src",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch"
@@ -72,19 +72,18 @@
   },
   "jest": {
     "coverageDirectory": "./coverage/",
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/scripts/*"
+    ],
+    "moduleNameMapper": {},
     "modulePaths": [
       "<rootDir>/packages/**"
     ],
-    "moduleNameMapper": {
-      "otplib-(.*)": "<rootDir>/packages/otplib-$1"
-    },
+    "setupFiles": [],
     "testPathIgnorePatterns": [
       "/node_modules/",
       "<rootDir>/scripts/*",
-      "/tests/"
-    ],
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/scripts/*"
+      "<rootDir>/tests/"
     ]
   }
 }
