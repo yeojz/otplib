@@ -3,7 +3,7 @@ import {intToHex, leftPad} from 'otplib-utils';
 /**
  * Ensure HOTP counter is in correct format
  *
- * @module core/hotpCounter
+ * @module otplib-core/hotpCounter
  * @param {number} counter - the OTP counter (usually it's an incremental count)
  * @return {string}
  */

@@ -1,7 +1,7 @@
 /**
  * Generates a counter for TOTP
  *
- * @module core/totpCounter
+ * @module otplib-core/totpCounter
  * @param {string} epoch - starting time since the UNIX epoch (seconds)
  * @param {number} step - time step (seconds)
  * @return {float}

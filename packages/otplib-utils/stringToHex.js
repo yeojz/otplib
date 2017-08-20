@@ -1,7 +1,7 @@
 /**
  * Converts a string to Hex value
  *
- * @module utils/stringToHex
+ * @module otplib-utils/stringToHex
  * @param {string} value - the string value to convert
  * @return {string}
  */

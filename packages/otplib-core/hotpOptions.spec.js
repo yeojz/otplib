@@ -11,11 +11,11 @@ describe('hotpOptions', function () {
     crypto: null
   };
 
-  it(`should return default when option is null`, function () {
+  it('should return default when option is null', function () {
     expect(hotpOptions(null)).toEqual(defaults);
   });
 
-  it(`should return default when option is undefined`, function () {
+  it('should return default when option is undefined', function () {
     expect(hotpOptions(void 0)).toEqual(defaults);
   });
 

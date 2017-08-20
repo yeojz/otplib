@@ -1,7 +1,7 @@
 /**
  * Converts Hex into an Integer
  *
- * @module utils/hexToInt
+ * @module otplib-utils/hexToInt
  * @param {string} value - the hex value to convert
  * @return {string}
  */

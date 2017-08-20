@@ -5,7 +5,7 @@ import hotpOptions from './hotpOptions';
 /**
  * Generates the OTP code
  *
- * @module core/hotpToken
+ * @module otplib-core/hotpToken
  * @param {string} secret - your secret that is used to generate the token
  * @param {number} counter - the OTP counter (usually it's an incremental count)
  * @param {object} options - allowed options as specified in hotpOptions()

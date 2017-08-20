@@ -30,6 +30,7 @@ const TOTP = totp.TOTP;
  * ```
  *
  * @class Authenticator
+ * @module otplib-authenticator/Authenticator
  * @extends {TOTP}
  * @since 3.0.0
  * @author Gerald Yeo

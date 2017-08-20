@@ -6,8 +6,9 @@ describe('keyuri', function () {
     ['otpauth://totp/null:null?secret=null&issuer=null', null, null, null],
     ['otpauth://totp/service:user?secret=&issuer=service', void 0, void 0, void 0]
   ].forEach((entry, idx) => {
+    const [url, ...args] = entry;
+
     it(`[${idx}] should generate expected values`, function () {
-      const [url, ...args] = entry;
       const result = keyuri(...args);
       expect(result).toEqual(url);
     });

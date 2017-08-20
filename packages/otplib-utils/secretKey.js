@@ -1,7 +1,7 @@
 /**
  * Naive secret key generation tool
  *
- * @module utils/secretKey
+ * @module otplib-utils/secretKey
  *
  * @param {integer} length - the key length
  * @param {string} format - any format supported by node's `crypto`

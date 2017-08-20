@@ -6,7 +6,7 @@ import HOTP from './HOTP';
  *
  * Time-based One-Time Password library
  *
- * @module hotp
+ * @module otplib-hotp
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT

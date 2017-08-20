@@ -1,7 +1,7 @@
 /**
  * Conversion of secret to buffer for HOTP
  *
- * @module core/hotpSecret
+ * @module otplib-core/hotpSecret
  * @param {string} secret - your secret that is used to generate the token
  * @param {string} options.encoding - the encoding of secret
  * @return {object}

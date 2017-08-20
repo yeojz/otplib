@@ -3,7 +3,7 @@ import hotpSecret from './hotpSecret';
 /**
  * Generates options for HOTP
  *
- * @module core/hotpOptions
+ * @module otplib-core/hotpOptions
  * @param {number} options.digits - the output token length
  * @param {string} options.encoding - the encoding of secret
  * @return {object}

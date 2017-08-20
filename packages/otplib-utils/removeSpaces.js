@@ -1,7 +1,7 @@
 /**
  * Removes all spaces
  *
- * @module utils/removeSpaces
+ * @module otplib-utils/removeSpaces
  * @param {string} value - string to parse
  * @return {string}
  */

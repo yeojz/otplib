@@ -10,7 +10,7 @@ const defaultOptions = {
 /**
  * Generates options for TOTP
  *
- * @module core/totpOptions
+ * @module otplib-core/totpOptions
  * @param {number} options.digits - the output token length
  * @param {string} options.epoch - starting time since the UNIX epoch (seconds)
  * @param {number} options.step - time step (seconds)

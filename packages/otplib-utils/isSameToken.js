@@ -1,7 +1,7 @@
 /**
  * Simple comparison of 2 tokens
  *
- * @module utils/isSameToken
+ * @module otplib-utils/isSameToken
  * @param {string} token1 - base value
  * @param {string} token2 - value to compare
  * @return {boolean}

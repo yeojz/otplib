@@ -7,7 +7,7 @@ import {padSecret} from 'otplib-utils';
  * Seed for HMAC-SHA256 - 32 bytes
  * Seed for HMAC-SHA512 - 64 bytes
  *
- * @module core/totpSecret
+ * @module otplib-core/totpSecret
  * @param {string} secret - your secret that is used to generate the token
  * @param {string} options.algorithm - hmac algorithm
  * @param {string} options.encoding - the encoding of secret

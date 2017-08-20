@@ -4,7 +4,7 @@ import hotpSecret from './hotpSecret';
 /**
  * Intermediate HOTP Digests
  *
- * @module core/hotpDigest
+ * @module otplib-core/hotpDigest
  * @param {string} secret - your secret that is used to generate the token
  * @param {number} counter - the OTP counter (usually it's an incremental count)
  * @param {string} options.algorithm - hmac algorithm

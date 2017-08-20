@@ -23,6 +23,7 @@ const HOTP = hotp.HOTP;
  * ```
  *
  * @class TOTP
+ * @module otplib-totp/TOTP
  * @extends {HOTP}
  * @since 3.0.0
  * @author Gerald Yeo

@@ -1,7 +1,7 @@
 /**
  * Parses a number into an Integer and converts to it to Hex value
  *
- * @module utils/intToHex
+ * @module otplib-utils/intToHex
  * @param {number|string} value - the number to convert to hex
  * @return {string}
  */

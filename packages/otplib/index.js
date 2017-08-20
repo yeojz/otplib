@@ -8,6 +8,7 @@ import crypto from 'crypto';
  *
  * One-Time Password Library
  *
+ * @module otplib
  * @since 3.0.0
  * @author Gerald Yeo
  * @license MIT

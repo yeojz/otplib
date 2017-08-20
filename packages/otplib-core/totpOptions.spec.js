@@ -21,7 +21,7 @@ describe('totpOptions', function () {
 
   afterEach(function () {
     global.Date = SystemDate;
-  })
+  });
 
   it('should return default options', function () {
     expect(totpOptions()).toEqual(defaults);

@@ -1,7 +1,7 @@
 /**
  * Divides number/string into defined quantity per set
  *
- * @module utils/setsOf
+ * @module otplib-utils/setsOf
  * @param {string} value - string value to split
  * @param {integer} amount - number of digits per set
  * @param {string} divider - defines how sets are joined.

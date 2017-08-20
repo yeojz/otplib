@@ -2,14 +2,23 @@ import crypto from 'crypto';
 import hotpCheck from './hotpCheck';
 
 describe('hotpCheck', function () {
+  const secret = 'i6im0gc96j0mn00c';
+  const token = '229021';
 
-  [
-    null,
-    void 0,
-  ].forEach((entry) => {
-    it(`should throw an error when option is null or undefined`, function () {
-      expect(() => hotpCheck('229021', 'i6im0gc96j0mn00c', 0, entry)).toThrow(Error);
-    });
+  it('should throw an error when option is null', function () {
+    expect(() => hotpCheck(token, secret, 0, null)).toThrow(Error);
+  });
+
+  it('should throw an error when option is undefined', function () {
+    expect(() => hotpCheck(token, secret, 0, void 0)).toThrow(Error);
+  });
+
+  it('should return false when counter is null', function () {
+    expect(hotpCheck(token, secret, null, {crypto})).toBe(false);
+  });
+
+  it('should return false when counter is undefined', function () {
+    expect(hotpCheck(token, secret, void 0, {crypto})).toBe(false);
   });
 
   [
@@ -18,18 +27,11 @@ describe('hotpCheck', function () {
     ['65jh84eo38k32edm', 47412423, '963234'],
     ['f4515l6ob3gkganp', 47412433, '415572'],
     ['2o9989k76ij7eh9c', 47412435, '343659']
-  ].forEach(([secret, counter, expected]) => {
-    it(`should return true `, function () {
-      expect(hotpCheck(expected, secret, counter, {crypto})).toBe(true);
-    });
-  });
+  ].forEach((entry, idx) => {
+    const [setSecret, setCounter, setToken] = entry;
 
-  [
-    ['null', null],
-    ['undefined', void 0]
-  ].forEach((entry) => {
-    it(`should return false when counter is ${entry[0]}`, function () {
-      expect(hotpCheck('229021', 'i6im0gc96j0mn00c', entry[1], {crypto})).toBe(false);
+    it(`${idx} should return true `, function () {
+      expect(hotpCheck(setToken, setSecret, setCounter, {crypto})).toBe(true);
     });
   });
 });
