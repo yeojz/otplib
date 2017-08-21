@@ -1,51 +1,49 @@
+/* eslint-disable no-global-assign */
 import randomBytes from './randomBytes';
 
 describe('randomBytes', function () {
-  let prevWindow = global.window;
+  const noCrypto = 'Unable to load crypto module. You may be on an older browser';
+  const tooLarge = 'Requested size of random bytes is too large';
+  const wrongSize = 'Requested size must be more than 0';
 
-  beforeEach(function () {
-    global.window = {}
-  });
-
-  afterEach(function () {
-    global.window = prevWindow;
-  });
-
-  it('should throw when window is not available', function () {
-    global.window = void 0;
-    expect(() => randomBytes(10)).toThrow(Error);
+  it('throws error when crypto is not available', function () {
+    expect(() => randomBytes(10)).toThrowError(noCrypto);
   });
 
   [
-    'crytpo',
-    'msCrypto'
-  ].forEach((crypt) => {
+    'msCrypto',
+    'crypto'
+  ].forEach((name) => {
+    const prev = global.window[name];
 
-    it(`[${crypt}] should throw when size is too big`, function () {
-      stubCrypto(crypt, () => {});
-      expect(() => randomBytes(65537)).toThrow(Error);
+    it(`[${name}] should return a buffer`, function () {
+      const stub = getCrypto();
+
+      global.window[name] = stub;
+      const result = randomBytes(10);
+
+      expect(stub.getRandomValues.mock.calls[0][0]).toBeInstanceOf(Uint8Array);
+      expect(result).toBeInstanceOf(Buffer);
+      expect(result).toHaveLength(10);
     });
 
-    it(`[${crypt}] should throw when size is < 1`, function () {
-      stubCrypto(crypt, () => {});
-      expect(() => randomBytes(0)).toThrow(Error);
+    it(`[${name}] should throw when size is too big`, function () {
+      global.window[name] = getCrypto();
+      expect(() => randomBytes(65537)).toThrowError(tooLarge);
     });
+
+    it(`[${name}] should throw when size is < 1`, function () {
+      global.window[name] = getCrypto();
+      expect(() => randomBytes(0)).toThrowError(wrongSize);
+    });
+
+    global.window[name] = prev;
   });
 
-  it('should return a buffer', function () {
-    const crypto = jest.fn();
-    stubCrypto('crypto', crypto);
 
-    const result = randomBytes(4);
-
-    expect(crypto.mock.calls[0][0]).toBeInstanceOf(Uint8Array);
-    expect(result).toBeInstanceOf(Buffer);
-    expect(result).toHaveLength(4);
-  });
-
-  function stubCrypto(key, obj) {
-    global.window[key] = {
-      getRandomValues: obj
-    }
+  function getCrypto() {
+    return {
+      getRandomValues: jest.fn()
+    };
   }
 });

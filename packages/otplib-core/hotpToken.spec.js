@@ -9,7 +9,7 @@ describe('hotpToken', function () {
   });
 
   it('should throw an error when option is undefined', function () {
-    expect(() => hotpToken(secret, 3, null)).toThrow(Error);
+    expect(() => hotpToken(secret, 3, void 0)).toThrow(Error);
   });
 
   it(`should return empty string when counter is null`, function () {

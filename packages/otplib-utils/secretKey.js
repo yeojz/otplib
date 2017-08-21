@@ -7,9 +7,13 @@
  * @param {string} format - any format supported by node's `crypto`
  * @return {string}
  */
-function secretKey(length = 16, options = {}) {
-  if (length < 1){
+function secretKey(length, options = {}) {
+  if (!length || length < 1){
     return '';
+  }
+
+  if (!options.crypto || typeof options.crypto.randomBytes !== 'function') {
+    throw new Error('Expecting options.crypto to have a randomBytes function');
   }
 
   return options.crypto.randomBytes(length)

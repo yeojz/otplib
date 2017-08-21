@@ -14,11 +14,11 @@ import hotpSecret from './hotpSecret';
  */
 function hotpDigest(secret, counter, options) {
   if (typeof options !== 'object' || options == null) {
-    throw new Error('[hotpDigest] argument 3 must be an object');
+    throw new Error('Expecting options to be an object');
   }
 
   if (!options.crypto || typeof options.crypto.createHmac !== 'function') {
-    throw new Error('[hotpDigest] A valid crypto module with a createHmac function is needed');
+    throw new Error('Expecting options.crypto to have a createHmac function');
   }
 
   // Allow for direct digest use without going through hotpOptions
