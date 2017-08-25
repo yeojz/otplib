@@ -72,8 +72,9 @@
       "otplib-(.*)": "<rootDir>/packages/otplib-$1"
     },
     "modulePaths": [
-      "<rootDir>/packages/**"
+      "<rootDir>/packages/"
     ],
+    "resetMocks": true,
     "setupFiles": [],
     "testPathIgnorePatterns": [
       "/node_modules/",

@@ -17,7 +17,7 @@ describe('TOTP', function () {
   });
 
   it('method: generate => totpToken ', function () {
-    methodPassthrough('generate', 'totpToken', [
+    methodPassthroughWithOptions('generate', 'totpToken', [
       'secret'
     ]);
   });
@@ -27,7 +27,7 @@ describe('TOTP', function () {
   });
 
   it('method: check => totpCheck ', function () {
-    methodPassthrough('check', 'totpCheck', [
+    methodPassthroughWithOptions('check', 'totpCheck', [
       'token',
       'secret'
     ]);
@@ -62,23 +62,21 @@ describe('TOTP', function () {
 
     expect(spy).toHaveBeenCalled();
     expect(spy.mock.calls[0]).toEqual(['token', 'secret'])
-    spy.mockReset();
   });
   function methodExpectation(methodName, coreName) {
-    const spy = jest.spyOn(core, coreName)
+    jest.spyOn(core, coreName)
       .mockImplementation(() => 'result');
+
     expect(typeof lib[methodName] === 'function').toBe(true);
     expect(() => lib[methodName]()).not.toThrow(Error);
-    spy.mockReset();
   }
 
-  function methodPassthrough(methodName, coreName, args) {
+  function methodPassthroughWithOptions(methodName, coreName, args) {
     const spy = jest.spyOn(core, coreName)
       .mockImplementation(() => 'result');
 
     lib[methodName](...args);
     expect(spy).toHaveBeenCalled();
     expect(spy.mock.calls[0]).toEqual([...args, lib.options])
-    spy.mockReset();
   }
 });

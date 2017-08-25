@@ -8,10 +8,6 @@ describe('totpCheck', function () {
   const secret = 'i6im0gc96j0mn00c';
   const token = '923066';
 
-  beforeEach(function () {
-    totpToken.mockReset();
-  })
-
   it('should return true', function () {
     totpToken.mockImplementation(() => token);
     const result = totpCheck(token, secret, {});

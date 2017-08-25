@@ -17,11 +17,6 @@ describe('totpToken', function () {
     totpOptions.mockImplementation((opt) => Object.assign({}, defaultOptions, opt));
   });
 
-  afterEach(function () {
-    totpCounter.mockReset();
-    hotpToken.mockReset();
-  });
-
   it('throws an error when option is undefined', function () {
     totpToken(secret, void 0);
     expect(hotpToken.mock.calls[0]).toEqual([secret, counter, defaultOptions]);

@@ -17,7 +17,5 @@ describe('token', function () {
 
     expect(decodeKey.mock.calls[0]).toEqual(['test']);
     expect(totpToken.mock.calls[0]).toEqual([10, options]);
-
-    totpToken.mockReset();
   });
 });
