@@ -77,7 +77,7 @@ class Authenticator extends TOTP {
    * @see {@link module:impl/authenticator/encodeKey}
    */
   generateSecret(len = 20) {
-    if (len == null) {
+    if (!len) {
       return '';
     }
     const secret = secretKey(len, this.options);

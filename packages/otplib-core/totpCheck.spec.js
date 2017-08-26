@@ -26,13 +26,15 @@ describe('totpCheck', function () {
     totpToken.mockImplementation(() => '');
     totpCheck(token, secret, null);
 
-    expect(totpToken.mock.calls[0]).toEqual([secret, {}]);
+    expect(totpToken).toHaveBeenCalledTimes(1);
+    expect(totpToken).toHaveBeenCalledWith(secret, {});
   });
 
   it('should passthrough object options to totpToken when undefined', function () {
     totpToken.mockImplementation(() => '');
     totpCheck(token, secret);
 
-    expect(totpToken.mock.calls[0]).toEqual([secret, {}]);
+    expect(totpToken).toHaveBeenCalledTimes(1);
+    expect(totpToken).toHaveBeenCalledWith(secret, {});
   });
 });

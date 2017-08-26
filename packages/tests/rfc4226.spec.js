@@ -12,7 +12,7 @@ describe('RFC 4226', function () {
         algorithm: 'sha1'
       });
 
-      expect(result).toEqual(digest);
+      expect(result).toBe(digest);
     });
   });
 
@@ -22,7 +22,7 @@ describe('RFC 4226', function () {
         crypto
       });
 
-      expect(result).toEqual(token);
+      expect(result).toBe(token);
     });
   });
 });

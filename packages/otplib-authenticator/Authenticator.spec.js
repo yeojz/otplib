@@ -1,4 +1,4 @@
-import * as core from 'otplib-core';
+import * as utils from 'otplib-utils';
 import Authenticator from './Authenticator';
 import check from './check';
 import decodeKey from './decodeKey';
@@ -35,51 +35,98 @@ describe('Authenticator', function () {
   });
 
   it('method: encode => encodeKey', function () {
-    methodPassthrough('encode', encodeKey, [
+    methodExpectation('encode', encodeKey, [
       '123'
     ]);
   });
 
   it('method: decode => decodeKey', function () {
-    methodPassthrough('decode', decodeKey, [
+    methodExpectation('decode', decodeKey, [
       '123'
     ]);
   });
 
   it('method: keyuri => keyuri', function () {
-    methodPassthrough('keyuri', keyuri, [
+    methodExpectation('keyuri', keyuri, [
       '123'
     ]);
   });
 
+  it('method: generateSecret returns empty string on falsy len params', function () {
+    expect(lib.generateSecret(0)).toBe('');
+  });
+
+  it('method: generateSecret should return an encoded secret', function () {
+    const mocks = mockGenerateSecret();
+    const result = lib.generateSecret(10);
+
+    expect(mocks.secretKey).toHaveBeenCalledTimes(1);
+    expect(mocks.secretKey).toHaveBeenCalledWith(10, lib.options);
+
+    expect(encodeKey).toHaveBeenCalledTimes(1);
+    expect(encodeKey).toHaveBeenCalledWith(mocks.secret);
+
+    expect(result).toBe(testValue);
+  });
+
+  it('method: generateSecret should return empty string on null parms', function () {
+    const mocks = mockGenerateSecret();
+    const result = lib.generateSecret(null);
+    expect(result).toBe('');
+    expect(mocks.secretKey).toHaveBeenCalledTimes(0);
+  });
+
+  it('method: generateSecret should use default params on undefined params', function () {
+    const mocks = mockGenerateSecret();
+    const result = lib.generateSecret();
+    expect(mocks.secretKey).toHaveBeenCalledTimes(1);
+    expect(encodeKey).toHaveBeenCalledTimes(1);
+    expect(result).toBe(testValue);
+  });
+
   it('method: generate => token', function () {
-    methodPassthroughWithOptions('generate', token, [
+    methodExpectationWithOptions('generate', token, [
       'secret'
     ]);
   });
 
   it('method: check => check', function () {
-    methodPassthroughWithOptions('check', check, [
+    methodExpectationWithOptions('check', check, [
       'token',
       'secret'
     ]);
   });
 
-  function methodPassthrough(methodName, mockFn, args) {
+  function methodExpectation(methodName, mockFn, args) {
     mockFn.mockImplementation(() => testValue);
 
     const result = lib[methodName](...args);
 
-    expect(result).toEqual(testValue);
-    expect(mockFn.mock.calls[0]).toEqual([...args])
+    expect(result).toBe(testValue);
+    expect(mockFn).toHaveBeenCalledTimes(1);
+    expect(mockFn).toHaveBeenCalledWith(...args);
   }
 
-  function methodPassthroughWithOptions(methodName, mockFn, args) {
+  function methodExpectationWithOptions(methodName, mockFn, args) {
     mockFn.mockImplementation(() => testValue);
 
     const result = lib[methodName](...args);
 
-    expect(result).toEqual(testValue);
-    expect(mockFn.mock.calls[0]).toEqual([...args, lib.options])
+    expect(result).toBe(testValue);
+    expect(mockFn).toHaveBeenCalledTimes(1);
+    expect(mockFn).toHaveBeenCalledWith(...args, lib.options)
+  }
+
+  function mockGenerateSecret() {
+    const secret = '1234567890';
+    const secretKey = jest.spyOn(utils, 'secretKey')
+      .mockImplementation(() => secret);
+
+    encodeKey.mockImplementation(() => testValue);
+
+    return {
+      secret,
+      secretKey
+    }
   }
 });

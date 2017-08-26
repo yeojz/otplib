@@ -19,11 +19,13 @@ describe('totpToken', function () {
 
   it('throws an error when option is undefined', function () {
     totpToken(secret, void 0);
-    expect(hotpToken.mock.calls[0]).toEqual([secret, counter, defaultOptions]);
+    expect(hotpToken).toHaveBeenCalledTimes(1);
+    expect(hotpToken).toHaveBeenCalledWith(secret, counter, defaultOptions);
   });
 
   it('throws an error when option is null', function () {
     totpToken(secret, null);
-    expect(hotpToken.mock.calls[0]).toEqual([secret, counter, defaultOptions]);
+    expect(hotpToken).toHaveBeenCalledTimes(1);
+    expect(hotpToken).toHaveBeenCalledWith(secret, counter, defaultOptions);
   });
 });

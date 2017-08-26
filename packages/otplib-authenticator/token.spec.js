@@ -15,7 +15,10 @@ describe('token', function () {
 
     token('test', options);
 
-    expect(decodeKey.mock.calls[0]).toEqual(['test']);
-    expect(totpToken.mock.calls[0]).toEqual([10, options]);
+    expect(decodeKey).toHaveBeenCalledTimes(1);
+    expect(decodeKey).toHaveBeenCalledWith('test');
+
+    expect(totpToken).toHaveBeenCalledTimes(1);
+    expect(totpToken).toHaveBeenCalledWith(10, options);
   });
 });

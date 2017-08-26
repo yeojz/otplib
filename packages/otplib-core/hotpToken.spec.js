@@ -13,11 +13,11 @@ describe('hotpToken', function () {
   });
 
   it(`should return empty string when counter is null`, function () {
-    expect(hotpToken(secret, null, {crypto})).toEqual('');
+    expect(hotpToken(secret, null, {crypto})).toBe('');
   });
 
   it(`should return empty string when counter is void 0`, function () {
-    expect(hotpToken(secret, void 0, {crypto})).toEqual('');
+    expect(hotpToken(secret, void 0, {crypto})).toBe('');
   });
 
   it('should return tokens with 8 digits', function () {
@@ -25,7 +25,7 @@ describe('hotpToken', function () {
       crypto,
       digits: 8
     });
-    expect(token).toEqual('12229021');
+    expect(token).toBe('12229021');
   });
 
   it('should return correct tokens with hex secret', function () {
@@ -33,7 +33,7 @@ describe('hotpToken', function () {
       crypto,
       encoding: 'hex'
     });
-    expect(token).toEqual('229021');
+    expect(token).toBe('229021');
   });
 
   it('should return correct tokens with base64 secret', function () {
@@ -41,7 +41,7 @@ describe('hotpToken', function () {
       crypto,
       encoding: 'base64'
     });
-    expect(token).toEqual('229021');
+    expect(token).toBe('229021');
   });
 
   [
@@ -55,7 +55,7 @@ describe('hotpToken', function () {
 
     it(`[${idx}] should return correct tokens`, function () {
       const token = hotpToken(setSecret, setCounter, {crypto});
-      expect(token).toEqual(setToken);
+      expect(token).toBe(setToken);
     });
   });
 });

@@ -8,7 +8,7 @@ describe('totpSecret', function () {
       algorithm: 'sha1'
     });
 
-    expect(result.length).toEqual(20);
+    expect(result.length).toBe(20);
   });
 
   it('should have length 32 with sha256', function () {
@@ -17,7 +17,7 @@ describe('totpSecret', function () {
       algorithm: 'sha256'
     });
 
-    expect(result.length).toEqual(32);
+    expect(result.length).toBe(32);
   });
 
   it('should have length 64 with sha512', function () {
@@ -26,7 +26,7 @@ describe('totpSecret', function () {
       algorithm: 'sha512'
     });
 
-    expect(result.length).toEqual(64);
+    expect(result.length).toBe(64);
   });
 
   it('should encode secret AS-IS when non recognized algorithm found', function () {
@@ -35,6 +35,6 @@ describe('totpSecret', function () {
       algorithm: 'sha-custom'
     });
 
-    expect(result.length).toEqual(5);
+    expect(result.length).toBe(5);
   });
 });

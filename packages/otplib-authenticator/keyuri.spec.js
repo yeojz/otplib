@@ -10,7 +10,7 @@ describe('keyuri', function () {
 
     it(`[${idx}] should generate expected values`, function () {
       const result = keyuri(...args);
-      expect(result).toEqual(url);
+      expect(result).toBe(url);
     });
   });
 });

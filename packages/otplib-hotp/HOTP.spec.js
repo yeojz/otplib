@@ -40,7 +40,7 @@ describe('HOTP', function () {
   });
 
   it('method: generate => hotpToken ', function () {
-    methodPassthroughWithOptions('generate', 'hotpToken', [
+    methodExpectationWithOptions('generate', 'hotpToken', [
       'secret',
       'counter'
     ]);
@@ -51,7 +51,7 @@ describe('HOTP', function () {
   });
 
   it('method: check => hotpCheck ', function () {
-    methodPassthroughWithOptions('check', 'hotpCheck', [
+    methodExpectationWithOptions('check', 'hotpCheck', [
       'token',
       'secret',
       'counter'
@@ -86,8 +86,8 @@ describe('HOTP', function () {
       counter: 'counter',
     });
 
-    expect(spy).toHaveBeenCalled();
-    expect(spy.mock.calls[0]).toEqual(['token', 'secret', 'counter'])
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith('token', 'secret', 'counter');
   });
 
   function methodExpectation(methodName, coreName) {
@@ -97,12 +97,12 @@ describe('HOTP', function () {
     expect(() => lib[methodName]()).not.toThrow(Error);
   }
 
-  function methodPassthroughWithOptions(methodName, coreName, args) {
+  function methodExpectationWithOptions(methodName, coreName, args) {
     const spy = jest.spyOn(core, coreName)
       .mockImplementation(() => 'result');
 
     lib[methodName](...args);
-    expect(spy).toHaveBeenCalled();
-    expect(spy.mock.calls[0]).toEqual([...args, lib.options])
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(...args, lib.options)
   }
 });

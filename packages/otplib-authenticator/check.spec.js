@@ -17,9 +17,10 @@ describe('check', function () {
 
     check(token, secret, options)
 
-    expect(decodeKey.mock.calls[0]).toEqual(['GEZDGNBVGY3TQOJQGEZDG']);
-    expect(spy).toHaveBeenCalled();
-    expect(spy.mock.calls).toHaveLength(1);
-    expect(spy.mock.calls[0]).toEqual([token, 'decode', options]);
+    expect(decodeKey).toHaveBeenCalledTimes(1);
+    expect(decodeKey).toHaveBeenCalledWith('GEZDGNBVGY3TQOJQGEZDG');
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(token, 'decode', options);
   });
 });
