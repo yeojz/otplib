@@ -1,12 +1,16 @@
 const path = require('path');
 const webpack = require('webpack');
-const aliases = require('./aliases');
+const packages = require('./packages');
 
 const ENV = process.env.NODE_ENV;
 const BUILD_DIR = path.resolve(process.env.BUILD_DIR || 'dist');
 const ROOT_DIR = path.resolve(__dirname, '..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'packages');
 
+const aliases = Object.keys(packages).reduce((accum, name) => {
+  accum[name] = path.join(SOURCE_DIR, name, 'index.js');
+  return accum;
+}, {});
 
 module.exports = {
   entry: {

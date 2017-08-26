@@ -55,7 +55,6 @@
     "minami": "^1.1.1",
     "rimraf": "^2.6.1",
     "rollup": "^0.47.4",
-    "rollup-plugin-alias": "^1.3.1",
     "rollup-plugin-cleanup": "^1.0.1",
     "rollup-plugin-node-resolve": "^3.0.0",
     "webpack": "^2.3.3"
