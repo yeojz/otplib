@@ -2,11 +2,10 @@ const cleanup = require('rollup-plugin-cleanup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const path = require('path');
 
+const directory = require('./directory');
 const packages = require('./packages');
 
 const PACKAGE_NAMES = Object.keys(packages);
-const ROOT_DIR = path.resolve(__dirname, '..');
-const SOURCE_DIR = path.join(ROOT_DIR, 'packages');
 
 // Transforms package like import to the compiled entry file
 // i.e. otplib-core to ./core
@@ -27,8 +26,8 @@ function createModuleConfiguration(name, pkg, filename, version) {
        * @license: MIT
        **/
     `,
-    dest: path.join(ROOT_DIR, 'dist', filename),
-    entry: path.join(SOURCE_DIR, name, 'index.js'),
+    dest: path.join(directory.TARGET, filename),
+    entry: path.join(directory.SOURCE, name, 'index.js'),
     format: pkg.format || 'cjs',
     globals: pkg.globals,
 
