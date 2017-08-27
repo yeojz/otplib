@@ -8,15 +8,14 @@ import crypto from './crypto';
  *
  * One-Time Password Library for browser
  *
+ * @module otplib-browser
  * @since 3.0.0
- * @author Gerald Yeo
- * @license MIT
  */
 authenticator.options = {crypto}
 hotp.options = {crypto}
 totp.options = {crypto}
 
-export default {
+module.exports = {
   Authenticator: authenticator.Authenticator,
   HOTP: hotp.HOTP,
   TOTP: totp.TOTP,

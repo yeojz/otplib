@@ -10,6 +10,14 @@ import totpOptions from './totpOptions';
 import totpSecret from './totpSecret';
 import totpToken from './totpToken';
 
+/**
+ * otplib-core
+ *
+ * One-Time Password Library Core Methods
+ *
+ * @module otplib-core
+ * @since 6.0.0
+ */
 export {
   hotpCheck,
   hotpCounter,

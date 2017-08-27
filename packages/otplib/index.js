@@ -10,8 +10,6 @@ import crypto from 'crypto';
  *
  * @module otplib
  * @since 3.0.0
- * @author Gerald Yeo
- * @license MIT
  */
 authenticator.options = {crypto}
 hotp.options = {crypto}

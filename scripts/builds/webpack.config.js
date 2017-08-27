@@ -1,14 +1,10 @@
-const path = require('path');
 const webpack = require('webpack');
-const directory = require('./directory');
-const packages = require('./packages');
+
+const aliases = require('../aliases');
+const createBanner = require('../createBanner');
+const directory = require('../directory');
 
 const ENV = process.env.NODE_ENV;
-
-const aliases = Object.keys(packages).reduce((accum, name) => {
-  accum[name] = path.join(directory.SOURCE, name, 'index.js');
-  return accum;
-}, {});
 
 module.exports = {
   entry: {
@@ -17,8 +13,8 @@ module.exports = {
   output: {
     library: '[name]',
     libraryTarget: 'umd',
-    path: directory.TARGET,
-    filename: 'browser.js'
+    path: directory.BUILD,
+    filename: 'otplib-browser.js'
   },
   module: {
     rules: [{
@@ -40,6 +36,10 @@ module.exports = {
       compress: {
         warnings: false
       }
+    }),
+    new webpack.BannerPlugin({
+      banner: createBanner('otplib-browser'),
+      raw: true
     })
   ],
   devtool: 'cheap-module-source-map',

@@ -33,8 +33,6 @@ const TOTP = totp.TOTP;
  * @module otplib-authenticator/Authenticator
  * @extends {TOTP}
  * @since 3.0.0
- * @author Gerald Yeo
- * @license MIT
  */
 class Authenticator extends TOTP {
 

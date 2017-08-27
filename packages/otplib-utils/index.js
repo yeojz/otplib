@@ -8,6 +8,14 @@ import secretKey from './secretKey';
 import setsOf from './setsOf';
 import stringToHex from './stringToHex';
 
+/**
+ * otplib-utils
+ *
+ * One-Time Password Library Utilities
+ *
+ * @module otplib-utils
+ * @since 6.0.0
+ */
 export {
   hexToInt,
   intToHex,

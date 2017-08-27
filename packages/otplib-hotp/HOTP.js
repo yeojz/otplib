@@ -24,8 +24,6 @@ import {hotpCheck, hotpToken} from 'otplib-core';
  * @class HOTP
  * @module otplib-hotp/HOTP
  * @since 3.0.0
- * @author Gerald Yeo
- * @license MIT
  */
 class HOTP {
 

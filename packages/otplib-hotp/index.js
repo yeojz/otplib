@@ -8,8 +8,6 @@ import HOTP from './HOTP';
  *
  * @module otplib-hotp
  * @since 3.0.0
- * @author Gerald Yeo
- * @license MIT
  */
 export default new HOTP();
 

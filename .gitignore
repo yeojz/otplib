@@ -31,16 +31,10 @@ coverage
 .npm
 .node_repl_history
 
-/docs
-/site/public/**/otplib.*
-!/site/public/otplib.png
-/site/public/docs/*
-/site/dist
 /dist
-/classes
-/core
-/impl
-/utils
+/docs
+/site/dist
+/site/public/docs/*
 
 /authenticator.js
 /core.js
@@ -49,5 +43,4 @@ coverage
 /otplib.js
 /totp.js
 /utils.js
-/v2.js
 /lib-test.js

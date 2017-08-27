@@ -2,6 +2,7 @@ const cleanup = require('rollup-plugin-cleanup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const path = require('path');
 
+const createBanner = require('./createBanner');
 const directory = require('./directory');
 const packages = require('./packages');
 
@@ -15,32 +16,28 @@ const transformImport = Object.keys(packages)
     return accum;
   }, {});
 
-function createModuleConfiguration(name, pkg, filename, version) {
+function createModule(name, pkgConfig, filename) {
+  const plugins = pkgConfig.plugins || [];
+  const defaultExternal = Object.keys(pkgConfig.globals || {}).concat(PACKAGE_NAMES);
+
   return {
-    banner: `
-      /**
-       * ${name}
-       *
-       * @author Gerald Yeo
-       * @version: ${version}
-       * @license: MIT
-       **/
-    `,
-    dest: path.join(directory.TARGET, filename),
+    banner: createBanner(name),
+    dest: path.join(directory.BUILD, filename),
     entry: path.join(directory.SOURCE, name, 'index.js'),
-    format: pkg.format || 'cjs',
-    globals: pkg.globals,
+    format: pkgConfig.format || 'cjs',
+    globals: pkgConfig.globals,
 
     // Derive and set the module names from package folders
     moduleName: name.replace('-', '.'),
 
     // Set all packages as an external reference
-    external: Object.keys(pkg.globals || {}).concat(PACKAGE_NAMES),
+    external: pkgConfig.external || defaultExternal,
 
     paths: transformImport,
 
     plugins: [
-      nodeResolve(),
+      ...plugins,
+      nodeResolve(pkgConfig.nodeResolve || {}),
       cleanup({
         comments: 'none'
       })
@@ -48,4 +45,4 @@ function createModuleConfiguration(name, pkg, filename, version) {
   }
 }
 
-module.exports = createModuleConfiguration;
+module.exports = createModule;
