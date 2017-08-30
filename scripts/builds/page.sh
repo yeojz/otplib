@@ -7,6 +7,6 @@ cd site;
 yarn install;
 yarn run clean
 yarn run build;
-# yarn run deploy
+yarn run deploy
 
 cd ..

@@ -15,6 +15,23 @@ import totpToken from './totpToken';
  *
  * One-Time Password Library Core Methods
  *
+ * ```js
+ *  {
+ *    hotpCheck
+ *    hotpCounter
+ *    hotpDigest
+ *    hotpOptions
+ *    hotpSecret
+ *    hotpToken
+ *
+ *    totpCheck
+ *    totpCounter
+ *    totpOptions
+ *    totpSecret
+ *    totpToken
+ *  }
+ * ```
+ *
  * @module otplib-core
  * @since 6.0.0
  */

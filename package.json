@@ -8,7 +8,7 @@
     "build:browser": "webpack --config ./scripts/builds/webpack.config.js",
     "build:docs": "jsdoc --configure jsdoc.json --verbose",
     "build:module": "node ./scripts/builds/node.js",
-    "build:pkg": "cp ./{README.md,package.json,yarn.lock,.npmignore} ./dist",
+    "build:pkg": "cp ./{README.md,LICENSE,package.json,yarn.lock,.npmignore} ./dist",
     "clean": "npm run clean:folders && npm run clean:builds",
     "clean:builds": "rimraf otplib.js otplib-browser.js browser.js core.js totp.js hotp.js utils.js authenticator.js",
     "clean:folders": "rimraf coverage .nyc_output docs",

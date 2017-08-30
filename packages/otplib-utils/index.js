@@ -13,6 +13,20 @@ import stringToHex from './stringToHex';
  *
  * One-Time Password Library Utilities
  *
+ * ```js
+ *  {
+ *    hexToInt
+ *    intToHex
+ *    isSameToken
+ *    leftPad
+ *    padSecret
+ *    removeSpaces
+ *    secretKey
+ *    setsOf
+ *    stringToHex
+ *  }
+ * ```
+ *
  * @module otplib-utils
  * @since 6.0.0
  */

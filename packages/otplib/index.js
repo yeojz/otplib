@@ -8,6 +8,18 @@ import crypto from 'crypto';
  *
  * One-Time Password Library
  *
+ * ```js
+ * {
+ *    Authenticator // class
+ *    HOTP // class
+ *    TOTP // class
+ *
+ *    authenticator // instance
+ *    hotp // instance
+ *    totp // instance
+ * }
+ * ```
+ *
  * @module otplib
  * @since 3.0.0
  */
