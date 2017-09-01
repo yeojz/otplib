@@ -28,7 +28,16 @@ import {hotpCheck, hotpToken} from 'otplib-core';
 class HOTP {
 
   constructor() {
-    this._options = {};
+    this._options = this.defaultOptions;
+  }
+
+  /**
+   * getter for defaultOptions
+   *
+   * @return {object}
+   */
+  get defaultOptions() {
+    return {};
   }
 
   /**
@@ -59,6 +68,17 @@ class HOTP {
 
   get options() {
     return Object.assign({}, this._options);
+  }
+
+  /**
+   * Resets options to presets
+   *
+   * @param {object} option object
+   * @return {instance}
+   */
+  resetOptions() {
+    this._options = this.defaultOptions;
+    return this;
   }
 
   /**

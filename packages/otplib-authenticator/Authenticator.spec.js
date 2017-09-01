@@ -34,6 +34,15 @@ describe('Authenticator', function () {
     ]);
   });
 
+  it('should have expected default options', function () {
+    const options = lib.options;
+    expect(options).toEqual({
+      encoding: 'hex',
+      epoch: null,
+      step: 30,
+    });
+  });
+
   it('method: encode => encodeKey', function () {
     methodExpectation('encode', encodeKey, [
       '123'

@@ -31,8 +31,15 @@ class TOTP extends HOTP {
 
   constructor() {
     super();
+  }
 
-    this.options = {
+  /**
+   * getter for defaultOptions
+   *
+   * @return {object}
+   */
+  get defaultOptions() {
+    return {
       epoch: null,
       step: 30
     };

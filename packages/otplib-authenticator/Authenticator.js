@@ -38,10 +38,18 @@ class Authenticator extends TOTP {
 
   constructor() {
     super();
+  }
 
-    this.options = {
+  /**
+   * getter for defaultOptions
+   *
+   * @return {object}
+   */
+  get defaultOptions() {
+    return {
       encoding: 'hex',
-      epoch: null
+      epoch: null,
+      step: 30,
     }
   }
 

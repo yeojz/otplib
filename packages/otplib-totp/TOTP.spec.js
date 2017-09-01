@@ -12,6 +12,14 @@ describe('TOTP', function () {
     expect(lib.TOTP).toEqual(TOTP);
   });
 
+  it('should have expected default options', function () {
+    const options = lib.options;
+    expect(options).toEqual({
+      epoch: null,
+      step: 30
+    });
+  });
+
   it('method: generate', function () {
     methodExpectation('generate', 'totpToken');
   });

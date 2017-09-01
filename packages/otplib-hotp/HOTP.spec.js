@@ -12,6 +12,16 @@ describe('HOTP', function () {
     expect(lib.HOTP).toEqual(HOTP);
   });
 
+  it('should have expected default options', function () {
+    const options = lib.options;
+    expect(options).toEqual({});
+  });
+
+  it('defaultOptions getter returns expected result', function () {
+    const options = lib.defaultOptions;
+    expect(options).toEqual({});
+  });
+
   it('options setter / getter should work', function () {
     const prev = lib.options;
     const newOptions = {
@@ -33,6 +43,16 @@ describe('HOTP', function () {
     const prev = lib.options;
     lib.options = void 0;
     expect(prev).toEqual(lib.options);
+  });
+
+  it('method: resetOptions - should return options to defaults', function () {
+    lib.options = {
+      test: 'value'
+    }
+    expect(lib.options).toEqual({ test: 'value'});
+
+    lib.resetOptions();
+    expect(lib.options).toEqual({});
   });
 
   it('method: generate', function () {
