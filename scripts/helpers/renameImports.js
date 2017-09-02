@@ -8,4 +8,4 @@ function renameImports() {
   }, {});
 }
 
-module.exports = renameImports;
+module.exports = renameImports();

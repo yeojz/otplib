@@ -10,31 +10,31 @@ const renameImports = require('./helpers/renameImports');
 
 const PACKAGE_LIST = Object.keys(packageConfig);
 const PACKAGE_NAME = process.env.OTPLIB_NAME;
-const FILENAME = PACKAGE_NAME.replace('otplib-', '') + '.js';
+const FILENAME = PACKAGE_NAME.replace('otplib-', '');
 
 if (!PACKAGE_NAME) {
   throw new Error('process.env.OTPLIB_NAME is not defined.')
 }
 
-if (PACKAGE_LIST.indexOf(PACKAGE_NAME) < 0) {
-  throw new Error('process.env.OTPLIB_NAME has an invalid value');
+const config = packageConfig[PACKAGE_NAME];
+
+if (!config) {
+  throw new Error('Unable to find configuration for ', PACKAGE_NAME);
 }
 
 console.log('build - ', PACKAGE_NAME);
 console.log('ouput - ', FILENAME);
 
-const config = packageConfig[PACKAGE_NAME];
-
 module.exports = {
   banner: createBanner(PACKAGE_NAME),
   input: path.join(directory.SOURCE, PACKAGE_NAME, 'index.js'),
   output: [{
-    file: path.join(directory.BUILD, FILENAME),
+    file: path.join(directory.BUILD, FILENAME + '.js'),
     format: 'cjs',
   }],
   globals: config.globals,
   external: Object.keys(config.globals || {}).concat(PACKAGE_LIST),
-  paths: renameImports(),
+  paths: renameImports,
   plugins: [
     nodeResolve(),
     cleanup({
