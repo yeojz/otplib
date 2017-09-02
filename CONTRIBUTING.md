@@ -19,15 +19,11 @@ This repository currently uses `yarn` as a development tool, but you may use `np
 
 To only run linting:
 
-`yarn lint`
+`yarn run lint`
 
-To only run tests:
+To run tests and coverage:
 
 `yarn test`
-
-To get coverage report:
-
-`yarn test && yarn coverage`
 
 To continuously watch and run tests, run the following:
 
