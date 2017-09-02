@@ -1,8 +1,8 @@
 const webpack = require('webpack');
 
-const aliases = require('../aliases');
-const createBanner = require('../createBanner');
-const directory = require('../directory');
+const aliases = require('./helpers/aliases');
+const createBanner = require('./helpers/createBanner');
+const directory = require('./helpers/directory');
 
 const ENV = process.env.NODE_ENV;
 

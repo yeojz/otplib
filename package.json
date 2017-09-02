@@ -4,11 +4,12 @@
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
   "main": "otplib.js",
   "scripts": {
-    "build": "npm run build:module && npm run build:browser && npm run build:pkg",
+    "build": "yarn run build:module && yarn run build:browser && yarn run build:copy",
     "build:browser": "webpack --config ./scripts/builds/webpack.config.js",
     "build:docs": "jsdoc --configure jsdoc.json --verbose",
-    "build:module": "node ./scripts/builds/node.js",
-    "build:pkg": "cp ./{README.md,LICENSE,package.json,yarn.lock,.npmignore} ./dist",
+    "build:module": "./scripts/build-module.sh",
+    "build:copy": "cp ./{README.md,LICENSE,package.json,yarn.lock,.npmignore} ./dist",
+    "build:transpile": "babel dist --out-dir dist",
     "clean": "npm run clean:folders && npm run clean:builds",
     "clean:builds": "rimraf otplib.js otplib-browser.js browser.js core.js totp.js hotp.js utils.js authenticator.js",
     "clean:folders": "rimraf coverage .nyc_output docs",
@@ -42,6 +43,7 @@
   },
   "homepage": "https://yeojz.github.io/otplib",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.1",
     "babel-loader": "^6.4.1",
@@ -56,7 +58,7 @@
     "jsdoc": "^3.4.3",
     "minami": "^1.1.1",
     "rimraf": "^2.6.1",
-    "rollup": "^0.47.4",
+    "rollup": "^0.49.2",
     "rollup-plugin-cleanup": "^1.0.1",
     "rollup-plugin-node-resolve": "^3.0.0",
     "webpack": "^2.3.3"

@@ -1,9 +1,9 @@
 const path = require('path');
 const directory = require('./directory');
-const packages = require('./packages');
+const PACKAGE_LIST = require('../package.config');
 
 function aliases() {
-  return Object.keys(packages).reduce((accum, name) => {
+  return Object.keys(PACKAGE_LIST).reduce((accum, name) => {
     accum[name] = path.join(directory.SOURCE, name, 'index.js');
     return accum;
   }, {});
