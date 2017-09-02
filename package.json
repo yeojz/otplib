@@ -5,14 +5,14 @@
   "main": "otplib.js",
   "scripts": {
     "build": "./scripts/build.sh",
-    "build:browser": "webpack --config ./scripts/builds/webpack.config.js",
+    "build:browser": "webpack --config ./scripts/webpack.config.js",
     "build:docs": "jsdoc --configure jsdoc.json --verbose",
     "build:module": "./scripts/build-module.sh",
     "build:copy": "cp ./{README.md,LICENSE,package.json,yarn.lock,.npmignore} ./dist",
     "build:transpile": "babel dist --out-dir dist",
     "clean": "rimraf dist coverage docs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "deploy-gh-pages": "./scripts/builds/page.sh",
+    "deploy-gh-pages": "./scripts/build-site.sh",
     "lint": "eslint --ext js src",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch"
