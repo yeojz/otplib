@@ -3,15 +3,12 @@
     "es2015"
   ],
   "plugins": [
-    "transform-export-extensions",
-    "transform-object-rest-spread",
-    "transform-class-properties"
+    "transform-object-assign",
+    "transform-class-properties",
+    ["module-resolver", {
+      "root": ["./packages"]
+    }]
   ],
   "env": {
-    "test": {
-      "plugins": [
-        "rewire"
-      ]
-    }
   }
 }
