@@ -6,7 +6,7 @@
     "transform-object-assign",
     "transform-class-properties",
     ["module-resolver", {
-      "root": ["./package"]
+      "root": ["./packages"]
     }]
   ],
   "env": {
