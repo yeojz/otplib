@@ -41,7 +41,6 @@ Before submitting a pull request, please make sure the following is done:
 -   If you've added code that should be tested, add tests!
 -   Ensure the test suite passes (`yarn test`).
 -   Make sure your code lints (`yarn lint`).
--   Make sure coverage is decent (run `yarn coverage` after running `yarn test`)
 
 Thank you for contributing!
 

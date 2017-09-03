@@ -16,17 +16,21 @@
 - [Upgrading](#upgrading)
 - [Getting Started](#getting-started)
   - [In node](#in-node)
-    - [Using specific OTP implementation](#using-specific-otp-implementation)
+    - [Using specific OTP implementations](#using-specific-otp-implementations)
     - [Using classes](#using-classes)
   - [In browser](#in-browser)
     - [Browser Compatibility](#browser-compatibility)
 - [Advanced Usage](#advanced-usage)
+  - [Core](#core)
+  - [Other Bundles](#other-bundles)
 - [Notes](#notes)
   - [Setting Custom Options](#setting-custom-options)
     - [Available Options](#available-options)
   - [Google Authenticator](#google-authenticator)
+    - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
     - [Base32 Keys and RFC3548](#base32-keys-and-rfc3548)
     - [Seed / secret length](#seed-secret-length)
+    - [Displaying a QR code](#displaying-a-qr-code)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -82,7 +86,7 @@ const isValid = otplib.authenticator.verify({
 
 ```
 
-#### Using specific OTP implementation
+#### Using specific OTP implementations
 
 If you want to include a specific OTP specification, you can import it directly:
 
@@ -119,12 +123,15 @@ i.e
 
 import hotp from 'otplib/hotp';
 const HOTP = hotp.HOTP;
+// const inst = new HOTP();
 
 import totp from 'otplib/totp';
 const TOTP = totp.TOTP;
+// const inst = new TOTP();
 
 import authenticator from 'otplib/authenticator';
 const Authenticator = authenticator.Authenticator;
+// const inst = new Authenticator();
 ```
 
 ### In browser
@@ -166,19 +173,26 @@ __Output sizes:__
 
 ## Advanced Usage
 
-This library is primarily a node module (cjs), with a umd browser package provided.
+Ihis library been split and classified into 6 core files with other specific environment based bundles provided.
 
-| file                                                                                     | description                                              |
-| ---------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| [authenticator.js](https://yeojz.github.io/otplib/docs/module-otplib-authenticator.html) | Google Authenticator bindings                            |
-| [browser.js](https://yeojz.github.io/otplib/docs/module-otplib-browser.html.html)        | Browser compatible package built with webpack            |
-| [core.js](https://yeojz.github.io/otplib/docs/module-otplib-core.html)                   | Provides all functional parts of the library             |
-| [hotp.js](https://yeojz.github.io/otplib/docs/module-otplib-hotp.html)                   | Wraps the functional core into a instantiated HOTP class |
-| [otplib.js](https://yeojz.github.io/otplib/docs/module-otplib.html)                      | Entry file for this library                              |
-| [totp.js](https://yeojz.github.io/otplib/docs/module-otplib-totp.html)                   | Wraps the functional core into a instantiated TOTP class |
-| [utils.js](https://yeojz.github.io/otplib/docs/module-otplib-utils.html)                 | Helper utilities                                         |
+### Core
 
-For more information about the functions and available files, check out the [documentation][project-docs].
+| file                                                                                     | description                                         |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [authenticator.js](https://yeojz.github.io/otplib/docs/module-otplib-authenticator.html) | Google Authenticator bindings                       |
+| [core.js](https://yeojz.github.io/otplib/docs/module-otplib-core.html)                   | All functions for various steps in OTP generation   |
+| [hotp.js](https://yeojz.github.io/otplib/docs/module-otplib-hotp.html)                   | Wraps core functions into a instantiated HOTP class |
+| [otplib.js](https://yeojz.github.io/otplib/docs/module-otplib.html)                      | Entry file for this library                         |
+| [totp.js](https://yeojz.github.io/otplib/docs/module-otplib-totp.html)                   | Wraps core functions into a instantiated TOTP class |
+| [utils.js](https://yeojz.github.io/otplib/docs/module-otplib-utils.html)                 | Helper utilities                                    |
+
+### Other Bundles
+
+| file                                                                                     | description                                   |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------- |
+| [otplib-browser.js](https://yeojz.github.io/otplib/docs/module-otplib-browser.html.html) | Browser compatible package built with webpack |
+
+For more information about the functions, check out the [documentation][project-docs].
 
 ## Notes
 
@@ -200,20 +214,28 @@ otplib.authenticator.options = {
 
 // getting
 const opts = otplib.authenticator.options;
+
+// reset to default
+otplib.authenticator.resetOptions();
 ```
 
 #### Available Options
 
-| Option           | Type     | Defaults                             | Description                                                                                                   |
-| ---------------- | -------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| algorithm        | string   | 'sha1'                               | Algorithm used for HMAC                                                                                       |
-| createHmacSecret | function | (hotp) hotpSecret, (totp) totpSecret | Transforms the secret and applies any modifications like padding to it.                                       |
-| crypto           | object   | node crypto                          | Crypto module to use.                                                                                         |
-| digits           | integer  | 6                                    | The length of the token                                                                                       |
-| epoch (totp)     | integer  | null                                 | starting time since the UNIX epoch (seconds). *Note* non-javascript epoch. i.e. `new Date().getTime() / 1000` |
-| step (totp)      | integer  | 30                                   | Time step (seconds)                                                                                           |
+| Option           | Type     | Defaults                          | Description                                                                                                   |
+| ---------------- | -------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| algorithm        | string   | 'sha1'                            | Algorithm used for HMAC                                                                                       |
+| createHmacSecret | function | hotpSecret, totpSecret            | Transforms the secret and applies any modifications like padding to it.                                       |
+| crypto           | object   | node crypto                       | Crypto module to use.                                                                                         |
+| digits           | integer  | 6                                 | The length of the token                                                                                       |
+| encoding         | string   | 'ascii' ('hex' for Authenticator) |
+| epoch (totp)     | integer  | null                              | starting time since the UNIX epoch (seconds). *Note* non-javascript epoch. i.e. `new Date().getTime() / 1000` |
+| step (totp)      | integer  | 30                                | Time step (seconds)                                                                                           |
 
 ### Google Authenticator
+
+#### Difference between Authenticator and TOTP
+
+The default encoding option has been set to `hex` (Authenticator) instead of `ascii` (TOTP).
 
 #### Base32 Keys and RFC3548
 
@@ -240,6 +262,32 @@ HMAC-SHA512 - 64 bytes
 ```
 
 As such, the length of the secret is padded and sliced according to the expected length for respective algrorithms.
+
+#### Displaying a QR code
+
+You may want to generate and display a QR Code so that users can scan instead of manually entering the secret.
+Google Authenticator and similar apps take in a QR code that holds a URL with the protocol `otpauth://`,
+which you get from `otplib.authenticator.keyuri`.
+
+While this library provides the "otpauth" uri, you'll need a library to generate the QR Code image.
+
+An example is shown below:
+
+```js
+// npm install node-qrcode
+import qrcode from 'qrcode';
+import otplib from 'otplib';
+
+const otpauth = otplib.authenticator.keyuri('user', 'service', secret);
+
+qrcode.toDataURL(otpauth, function (err, imageUrl) {
+  if (err) {
+    console.log('Error with QR');
+    return;
+  }
+  console.log(imageUrl);
+});
+```
 
 ## Contributing
 
