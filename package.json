@@ -1,6 +1,6 @@
 {
   "name": "otplib",
-  "version": "6.0.2",
+  "version": "6.0.3",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
   "main": "otplib.js",
   "scripts": {
@@ -8,11 +8,11 @@
     "build:browser": "webpack --config ./scripts/webpack.config.js",
     "build:docs": "jsdoc --configure jsdoc.json --verbose",
     "build:module": "./scripts/build-module.sh",
-    "build:copy": "cp ./{README.md,LICENSE,package.json,yarn.lock,.npmignore} ./dist",
     "build:transpile": "babel dist --out-dir dist",
     "clean": "rimraf dist coverage docs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "deploy-gh-pages": "./scripts/build-site.sh",
+    "deploy-package": "./scripts/build-publish.sh",
     "lint": "eslint --ext js src",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch"

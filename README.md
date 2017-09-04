@@ -155,7 +155,7 @@ Alternatively you can
 -   Use unpkg.com
 
 ```html
-<script src="https://unpkg.com/otplib@6.0.0/otplib-browser.js"></script>
+<script src="https://unpkg.com/otplib@^6.0.0/otplib-browser.js"></script>
 ```
 
 For a live example, the [project site][project-web] has been built using `otplib-browser.js`. The source code can be found [here](https://github.com/yeojz/otplib/tree/master/site).

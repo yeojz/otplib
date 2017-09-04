@@ -30,7 +30,7 @@ deployment:
       - yarn run clean
       - yarn run build
       - echo -e "$NPM_USER\n$NPM_PASS\n$NPM_EMAIL" | npm login
-      - cd ./dist && npm publish
+      - cd dist && npm publish
       - npm logout
       - git config --global user.email $CI_DEPLOY_EMAIL
       - git config --global user.name $CI_DEPLOY_NAME
