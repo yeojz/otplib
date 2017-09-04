@@ -29,10 +29,12 @@ deployment:
     commands:
       - yarn run clean
       - yarn run build
-      - cd dist
       - echo -e "$NPM_USER\n$NPM_PASS\n$NPM_EMAIL" | npm login
-      - cd ./dist && npm publish
+      - cd ./dist
+      - pwd
+      - npm publish
       - npm logout
+      - cd ..
       - git config --global user.email $CI_DEPLOY_EMAIL
       - git config --global user.name $CI_DEPLOY_NAME
       - yarn deploy-gh-pages
