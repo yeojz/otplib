@@ -29,12 +29,12 @@ describe('totpSecret', function () {
     expect(result.length).toBe(64);
   });
 
-  it('should encode secret AS-IS when non recognized algorithm found', function () {
-    const result = totpSecret('hello', {
+  it('should throw error when unrecognized algorithm found', function () {
+    const result = () => totpSecret('hello', {
       encoding: 'ascii',
       algorithm: 'sha-custom'
     });
 
-    expect(result.length).toBe(5);
+    expect(result).toThrow(Error);
   });
 });

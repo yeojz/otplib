@@ -15,16 +15,17 @@ import {padSecret} from 'otplib-utils';
  */
 function totpSecret(secret, options) {
   const encoded = new Buffer(secret, options.encoding);
+  const algorithm = options.algorithm.toLowerCase();
 
-  switch (options.algorithm.toLowerCase()) {
+  switch (algorithm) {
     case 'sha1':
-      return padSecret(encoded, 20);
+      return padSecret(encoded, 20, options.encoding);
     case 'sha256':
-      return padSecret(encoded, 32);
+      return padSecret(encoded, 32, options.encoding);
     case 'sha512':
-      return padSecret(encoded, 64);
+      return padSecret(encoded, 64, options.encoding);
     default:
-      return encoded;
+      throw new Error(`Unsupported algorithm ${algorithm}. Accepts: sha1, sha256, sha512`)
   }
 }
 
