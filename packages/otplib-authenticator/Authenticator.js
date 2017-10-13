@@ -77,7 +77,7 @@ class Authenticator extends TOTP {
   /**
    * Generates and encodes a secret key
    *
-   * @param {string} length - secret key length (not encoded key length)
+   * @param {number} length - secret key length (not encoded key length)
    * @return {string}
    * @see {@link module:impl/authenticator/secretKey}
    * @see {@link module:impl/authenticator/encodeKey}
@@ -91,7 +91,7 @@ class Authenticator extends TOTP {
   }
 
   /**
-   * @param {string} secret
+   * @param {string} secret - base32 encoded string
    * @return {string}
    * @see {@link module:impl/authenticator/token}
    */

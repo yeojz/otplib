@@ -12,7 +12,7 @@ describe('RFC 4226', function () {
         algorithm: 'sha1'
       });
 
-      expect(result).toBe(digest);
+      expect(result.toString('hex')).toBe(digest);
     });
   });
 
