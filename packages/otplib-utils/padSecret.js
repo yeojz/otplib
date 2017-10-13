@@ -7,10 +7,11 @@
  * @return {object} Buffer
  */
 function padSecret(secretBuffer, size) {
-  const len = secretBuffer.length;
+  const secret = secretBuffer.toString('hex');
+  const len = secret.length;
 
   if (size && len < size) {
-    const newSecret = new Array((size - len) + 1).join(secretBuffer.toString('hex'));
+    const newSecret = new Array((size - len) + 1).join(secret);
     return new Buffer(newSecret, 'hex').slice(0, size);
   }
 

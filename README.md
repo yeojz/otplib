@@ -26,10 +26,10 @@
 - [Notes](#notes)
   - [Setting Custom Options](#setting-custom-options)
     - [Available Options](#available-options)
+  - [Seed / secret length](#seed-secret-length)
   - [Google Authenticator](#google-authenticator)
     - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
     - [Base32 Keys and RFC3548](#base32-keys-and-rfc3548)
-    - [Seed / secret length](#seed-secret-length)
     - [Displaying a QR code](#displaying-a-qr-code)
 - [Contributing](#contributing)
 - [License](#license)
@@ -231,6 +231,19 @@ otplib.authenticator.resetOptions();
 | epoch (totp)     | integer  | null                              | starting time since the UNIX epoch (seconds). *Note* non-javascript epoch. i.e. `new Date().getTime() / 1000` |
 | step (totp)      | integer  | 30                                | Time step (seconds)                                                                                           |
 
+
+### Seed / secret length
+
+In [RFC 6238][rfc-6238], the secret / seed length for different algorithms is predefined:
+
+```
+HMAC-SHA1 - 20 bytes
+HMAC-SHA256 - 32 bytes
+HMAC-SHA512 - 64 bytes
+```
+
+As such, the length of the secret is padded and sliced according to the expected length for respective algrorithms.
+
 ### Google Authenticator
 
 #### Difference between Authenticator and TOTP
@@ -250,18 +263,6 @@ import authenticator from 'otplib/authenticator';
 const secret = authenticator.generateSecret(); // base 32 encoded hex secret key
 const token = authenticator.generate(secret);
 ```
-
-#### Seed / secret length
-
-In [RFC 6238][rfc-6238], the secret / seed length for different algorithms is predefined:
-
-```
-HMAC-SHA1 - 20 bytes
-HMAC-SHA256 - 32 bytes
-HMAC-SHA512 - 64 bytes
-```
-
-As such, the length of the secret is padded and sliced according to the expected length for respective algrorithms.
 
 #### Displaying a QR code
 
