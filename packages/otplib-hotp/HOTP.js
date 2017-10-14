@@ -91,7 +91,11 @@ class HOTP {
    * @see {@link module:core/hotpToken} for more information.
    */
   generate(secret, counter) {
-    return hotpToken(secret, counter, this.options)
+    return hotpToken(
+      secret || this.options.secret,
+      counter,
+      this.options
+    )
   }
 
   /**
@@ -105,7 +109,12 @@ class HOTP {
    * @see {@link module:core/hotpCheck} for more information.
    */
   check(token, secret, counter) {
-    return hotpCheck(token, secret, counter, this.options);
+    return hotpCheck(
+      token,
+      secret || this.options.secret,
+      counter,
+      this.options
+    );
   }
 
   /**
