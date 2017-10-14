@@ -8,6 +8,7 @@
     "build:browser": "webpack --config ./scripts/webpack.config.js",
     "build:docs": "jsdoc --configure jsdoc.json --verbose",
     "build:module": "./scripts/build-module.sh",
+    "build:rollup": "rollup -c scripts/rollup.config.js",
     "build:transpile": "babel dist --out-dir dist",
     "clean": "rimraf dist coverage docs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
@@ -75,6 +76,7 @@
     "resetMocks": true,
     "setupFiles": [],
     "testPathIgnorePatterns": [
+      "/dist/",
       "/node_modules/",
       "<rootDir>/scripts/*",
       "<rootDir>/tests/"
