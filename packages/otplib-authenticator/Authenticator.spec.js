@@ -99,10 +99,30 @@ describe('Authenticator', function () {
     ]);
   });
 
+  it('method: generate => token (fallback to secret in options)', function () {
+    lib.options = { secret: 'option-secret' }
+    methodExpectationWithOptions('generate', token, [
+      null
+    ], [
+      'option-secret'
+    ]);
+  });
+
   it('method: check => check', function () {
     methodExpectationWithOptions('check', check, [
       'token',
       'secret'
+    ]);
+  });
+
+  it('method: check => check (fallback to secret in options)', function () {
+    lib.options = { secret: 'option-secret' }
+    methodExpectationWithOptions('check', check, [
+      'token',
+      null
+    ], [
+      'token',
+      'option-secret'
     ]);
   });
 
@@ -116,14 +136,15 @@ describe('Authenticator', function () {
     expect(mockFn).toHaveBeenCalledWith(...args);
   }
 
-  function methodExpectationWithOptions(methodName, mockFn, args) {
+  function methodExpectationWithOptions(methodName, mockFn, args, modifiedArgs) {
     mockFn.mockImplementation(() => testValue);
 
     const result = lib[methodName](...args);
+    const calledArgs = modifiedArgs || args;
 
     expect(result).toBe(testValue);
     expect(mockFn).toHaveBeenCalledTimes(1);
-    expect(mockFn).toHaveBeenCalledWith(...args, lib.options)
+    expect(mockFn).toHaveBeenCalledWith(...calledArgs, lib.options)
   }
 
   function mockGenerateSecret() {

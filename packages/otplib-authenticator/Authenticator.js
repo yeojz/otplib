@@ -96,7 +96,10 @@ class Authenticator extends TOTP {
    * @see {@link module:impl/authenticator/token}
    */
   generate(secret) {
-    return token(secret, this.options);
+    return token(
+      secret || this.options.secret,
+      this.options
+    );
   }
 
   /**
@@ -109,7 +112,11 @@ class Authenticator extends TOTP {
    * @see {@link module:impl/authenticator/check}
    */
   check(token, secret) {
-    return check(token, secret, this.options);
+    return check(
+      token,
+      secret || this.options.secret,
+      this.options
+    );
   }
 }
 

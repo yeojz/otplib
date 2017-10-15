@@ -54,7 +54,10 @@ class TOTP extends HOTP {
    * @see {@link module:core/totpToken}
    */
   generate(secret) {
-    return totpToken(secret, this.options);
+    return totpToken(
+      secret || this.options.secret,
+      this.options
+    );
   }
 
   /**
@@ -67,7 +70,11 @@ class TOTP extends HOTP {
    * @see {@link module:core/totpCheck}
    */
   check(token, secret){
-    return totpCheck(token, secret, this.options);
+    return totpCheck(
+      token,
+      secret || this.options.secret,
+      this.options
+    );
   }
 
   /**
