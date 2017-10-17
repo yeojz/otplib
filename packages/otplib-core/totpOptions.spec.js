@@ -3,7 +3,7 @@ import totpOptions from './totpOptions';
 
 describe('totpOptions', function () {
   const SystemDate = global.Date;
-  const value = new SystemDate('2017-01-01T00:00:00');
+  const value = new SystemDate('2017-01-01T00:00:00.000Z');
 
   const defaults = {
     algorithm: 'sha1',
