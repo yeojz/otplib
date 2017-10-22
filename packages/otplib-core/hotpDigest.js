@@ -10,7 +10,7 @@ import hotpSecret from './hotpSecret';
  * @param {string} options.algorithm - hmac algorithm
  * @param {function} options.createHmacSecret - the encoding function for secret
  * @param {string} options.encoding - the encoding of secret
- * @return {object}
+ * @return {string} - hex string
  */
 function hotpDigest(secret, counter, options) {
   if (typeof options !== 'object' || options == null) {
@@ -35,7 +35,7 @@ function hotpDigest(secret, counter, options) {
 
   // Update HMAC with the counter
   return cryptoHmac.update(new Buffer(hexCounter, 'hex'))
-    .digest('hex');
+    .digest();
 }
 
 export default hotpDigest;

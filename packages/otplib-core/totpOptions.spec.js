@@ -2,8 +2,7 @@ import totpSecret from './totpSecret';
 import totpOptions from './totpOptions';
 
 describe('totpOptions', function () {
-  const SystemDate = global.Date;
-  const value = new SystemDate('2017-01-01T00:00:00');
+  const DateNow = global.Date.now;
 
   const defaults = {
     algorithm: 'sha1',
@@ -16,11 +15,11 @@ describe('totpOptions', function () {
   };
 
   beforeEach(function () {
-    global.Date = jest.fn(() => value);
+    global.Date.now = jest.fn(() => 1483228800000);
   });
 
   afterEach(function () {
-    global.Date = SystemDate;
+    global.Date.now = DateNow;
   });
 
   it('should return default options', function () {

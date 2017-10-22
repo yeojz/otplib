@@ -1,4 +1,4 @@
-import {hexToInt, leftPad} from 'otplib-utils';
+import {leftPad} from 'otplib-utils';
 import hotpDigest from './hotpDigest';
 import hotpOptions from './hotpOptions';
 
@@ -17,21 +17,16 @@ function hotpToken(secret, counter, options = {}) {
   }
 
   const opt = hotpOptions(options);
-  const hmac = hotpDigest(secret, counter, opt);
+  const digest = hotpDigest(secret, counter, opt);
 
-  // offset := last nibble of hash
-  const offset = hexToInt(hmac.substr(hmac.length - 1));
-
-  // truncatedHash := hash[offset..offset+3]
-  // (4 bytes starting at the offset)
-  const truncatedHash = hmac.substr(offset * 2, 8);
-
-  // Set the first bit of truncatedHash to zero
-  // (i.e. remove the most significant bit)
-  const sigbit0 = hexToInt(truncatedHash) & hexToInt('7fffffff');
+  const offset = digest[digest.length - 1] & 0xf;
+  const binary = ((digest[offset] & 0x7f) << 24) |
+    ((digest[offset + 1] & 0xff) << 16) |
+    ((digest[offset + 2] & 0xff) << 8) |
+    (digest[offset + 3] & 0xff);
 
   // code := truncatedHash mod 1000000
-  let token = sigbit0 % Math.pow(10, opt.digits);
+  let token = binary % Math.pow(10, opt.digits);
 
   // left pad code with 0 until length of code is as defined.
   token = leftPad(token, opt.digits);
