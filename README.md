@@ -134,6 +134,28 @@ const Authenticator = authenticator.Authenticator;
 // const inst = new Authenticator();
 ```
 
+#### Detailed example
+```js
+import { Authenticator } from 'otplib/authenticator';
+import crypto from 'crypto';
+
+const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
+const algorithm = 'sha512';
+const step = 20;
+const digits = 8;
+
+const authenticator = new Authenticator();
+authenticator.options = {
+  secret,
+  algorithm,
+  step,
+  digits,
+  crypto
+};
+
+const token = authenticator.generate(); // 55644304
+```
+
 ### In browser
 
 A browser-targeted version has been compiled.
