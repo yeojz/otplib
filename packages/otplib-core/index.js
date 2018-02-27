@@ -5,6 +5,7 @@ import hotpOptions from './hotpOptions';
 import hotpSecret from './hotpSecret';
 import hotpToken from './hotpToken';
 import totpCheck from './totpCheck';
+import totpCheckWithWindow from './totpCheckWithWindow';
 import totpCounter from './totpCounter';
 import totpOptions from './totpOptions';
 import totpSecret from './totpSecret';
@@ -25,6 +26,7 @@ import totpToken from './totpToken';
  *    hotpToken
  *
  *    totpCheck
+ *    totpCheckWithWindow
  *    totpCounter
  *    totpOptions
  *    totpSecret
@@ -43,6 +45,7 @@ export {
   hotpSecret,
   hotpToken,
   totpCheck,
+  totpCheckWithWindow,
   totpCounter,
   totpOptions,
   totpSecret,
