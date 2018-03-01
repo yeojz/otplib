@@ -1,9 +1,17 @@
 import crypto from 'crypto';
 import hotpCheck from './hotpCheck';
+import hotpSecret from './hotpSecret';
 
 describe('hotpCheck', function () {
   const secret = 'i6im0gc96j0mn00c';
   const token = '229021';
+  const options = {
+    algorithm: 'sha1',
+    createHmacSecret: hotpSecret,
+    crypto,
+    digits: 6,
+    encoding: 'ascii',
+  }
 
   it('should throw an error when option is null', function () {
     expect(() => hotpCheck(token, secret, 0, null)).toThrow(Error);
@@ -14,11 +22,11 @@ describe('hotpCheck', function () {
   });
 
   it('should return false when counter is null', function () {
-    expect(hotpCheck(token, secret, null, {crypto})).toBe(false);
+    expect(hotpCheck(token, secret, null, options)).toBe(false);
   });
 
   it('should return false when counter is undefined', function () {
-    expect(hotpCheck(token, secret, void 0, {crypto})).toBe(false);
+    expect(hotpCheck(token, secret, void 0, options)).toBe(false);
   });
 
   [
@@ -29,9 +37,8 @@ describe('hotpCheck', function () {
     ['2o9989k76ij7eh9c', 47412435, '343659']
   ].forEach((entry, idx) => {
     const [setSecret, setCounter, setToken] = entry;
-
     it(`${idx} should return true `, function () {
-      expect(hotpCheck(setToken, setSecret, setCounter, {crypto})).toBe(true);
+      expect(hotpCheck(setToken, setSecret, setCounter, options)).toBe(true);
     });
   });
 });

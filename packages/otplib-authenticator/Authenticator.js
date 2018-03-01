@@ -86,7 +86,7 @@ class Authenticator extends TOTP {
     if (!len) {
       return '';
     }
-    const secret = secretKey(len, this.options);
+    const secret = secretKey(len, this.optionsAll);
     return encodeKey(secret);
   }
 
@@ -96,10 +96,8 @@ class Authenticator extends TOTP {
    * @see {@link module:impl/authenticator/token}
    */
   generate(secret) {
-    return token(
-      secret || this.options.secret,
-      this.options
-    );
+    const opt = this.optionsAll;
+    return token(secret || opt.secret, opt);
   }
 
   /**
@@ -112,11 +110,8 @@ class Authenticator extends TOTP {
    * @see {@link module:impl/authenticator/check}
    */
   check(token, secret) {
-    return check(
-      token,
-      secret || this.options.secret,
-      this.options
-    );
+    const opt = this.optionsAll;
+    return check(token, secret || opt.secret, opt);
   }
 }
 
@@ -126,6 +121,6 @@ Authenticator.prototype.utils = {
   decodeKey,
   encodeKey,
   keyuri,
-  token,
+  token
 }
 export default Authenticator;

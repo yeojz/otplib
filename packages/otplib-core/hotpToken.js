@@ -1,6 +1,5 @@
 import {leftPad} from 'otplib-utils';
 import hotpDigest from './hotpDigest';
-import hotpOptions from './hotpOptions';
 
 /**
  * Generates the OTP code
@@ -11,13 +10,16 @@ import hotpOptions from './hotpOptions';
  * @param {object} options - allowed options as specified in hotpOptions()
  * @return {string} OTP Code
  */
-function hotpToken(secret, counter, options = {}) {
+function hotpToken(secret, counter, options) {
   if (counter == null) {
-    return '';
+    return ''
   }
 
-  const opt = hotpOptions(options);
-  const digest = hotpDigest(secret, counter, opt);
+  if (typeof options.digits !== 'number') {
+    throw new Error('Expecting options.digits to be a number');
+  }
+
+  const digest = hotpDigest(secret, counter, options);
 
   const offset = digest[digest.length - 1] & 0xf;
   const binary = ((digest[offset] & 0x7f) << 24) |
@@ -26,10 +28,10 @@ function hotpToken(secret, counter, options = {}) {
     (digest[offset + 3] & 0xff);
 
   // code := truncatedHash mod 1000000
-  let token = binary % Math.pow(10, opt.digits);
+  let token = binary % Math.pow(10, options.digits);
 
   // left pad code with 0 until length of code is as defined.
-  token = leftPad(token, opt.digits);
+  token = leftPad(token, options.digits);
 
   return token;
 }

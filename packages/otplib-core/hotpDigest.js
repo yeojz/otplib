@@ -1,5 +1,4 @@
 import hotpCounter from './hotpCounter';
-import hotpSecret from './hotpSecret';
 
 /**
  * Intermediate HOTP Digests
@@ -13,19 +12,20 @@ import hotpSecret from './hotpSecret';
  * @return {string} - hex string
  */
 function hotpDigest(secret, counter, options) {
-  if (typeof options !== 'object' || options == null) {
-    throw new Error('Expecting options to be an object');
-  }
-
   if (!options.crypto || typeof options.crypto.createHmac !== 'function') {
     throw new Error('Expecting options.crypto to have a createHmac function');
   }
 
-  // Allow for direct digest use without going through hotpOptions
-  const createHmacSecret = options.createHmacSecret || hotpSecret;
+  if (typeof options.createHmacSecret !== 'function') {
+    throw new Error('Expecting options.createHmacSecret to be a function')
+  }
+
+  if (typeof options.algorithm !== 'string') {
+    throw new Error('Expecting options.algorithm to be a string')
+  }
 
   // Convert secret to encoding for hmacSecret
-  const hmacSecret = createHmacSecret(secret, options);
+  const hmacSecret = options.createHmacSecret(secret, options);
 
   // Ensure counter is a buffer or string (for HMAC creation)
   const hexCounter = hotpCounter(counter);

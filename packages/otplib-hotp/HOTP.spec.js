@@ -123,6 +123,6 @@ describe('HOTP', function () {
 
     lib[methodName](...args);
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(...args, lib.options)
+    expect(spy).toHaveBeenCalledWith(...args, lib.optionsAll)
   }
 });
