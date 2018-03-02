@@ -1,11 +1,5 @@
 import totpCheck from './totpCheck';
 
-function getPrevWindowOption(options, windowCount) {
-  return Object.assign(options, {
-    epoch: options.epoch - (options.step * windowCount * 1000)
-  });
-}
-
 /**
  * Checks the provided OTP token against system generated token
  * with support for checking previous x time-step windows
@@ -18,10 +12,15 @@ function getPrevWindowOption(options, windowCount) {
  */
 function totpCheckWithWindow(token, secret, options) {
   let opt = Object.assign({}, options);
-  const rounds = Math.floor(opt.window || 0) + 1;
 
-  for (let i = 0; i < rounds; i++) {
-    opt = getPrevWindowOption(opt, i);
+  if (typeof opt.window !== 'number') {
+    throw new Error('Expecting options.window to be a number');
+  }
+
+  const decrement = opt.step * 1000;
+
+  for (let i = 0; i <= opt.window; i++) {
+    opt.epoch = opt.epoch - (i * decrement);
 
     if (totpCheck(token, secret, opt)) {
       return true;

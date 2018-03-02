@@ -1,4 +1,5 @@
 import * as core from 'otplib-core';
+import crypto from 'crypto';
 import TOTP from './TOTP';
 
 describe('TOTP', function () {
@@ -16,7 +17,8 @@ describe('TOTP', function () {
     const options = lib.options;
     expect(options).toEqual({
       epoch: null,
-      step: 30
+      step: 30,
+      window: 0
     });
   });
 
@@ -31,18 +33,18 @@ describe('TOTP', function () {
   });
 
   it('method: check', function () {
-    methodExpectation('check', 'totpCheck');
+    methodExpectation('check', 'totpCheckWithWindow');
   });
 
-  it('method: check => totpCheck ', function () {
-    methodExpectationWithOptions('check', 'totpCheck', [
+  it('method: check => totpCheckWithWindow ', function () {
+    methodExpectationWithOptions('check', 'totpCheckWithWindow', [
       'token',
       'secret'
     ]);
   });
 
   it('method: verify', function () {
-    methodExpectation('verify', 'totpCheck');
+    methodExpectation('verify', 'totpCheckWithWindow');
   });
 
   it('method: verify return false when not an object', function () {

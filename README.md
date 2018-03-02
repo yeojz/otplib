@@ -42,15 +42,15 @@ dealing with OTP generation and verification.
 
 It implements both [HOTP][rfc-4226-wiki] - [RFC 4226][rfc-4226] and [TOTP][rfc-6238-wiki] - [RFC 6238][rfc-6238], and are tested against the test vectors provided in their respective RFC specifications. These datasets can be found in the `packages/tests` folder.
 
--   [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/packages/tests/rfc4226.js)
--   [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/packages/tests/rfc6238.js)
+* [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/packages/tests/rfc4226.js)
+* [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/packages/tests/rfc6238.js)
 
 This library is also compatible with [Google Authenticator](https://github.com/google/google-authenticator), and includes additional methods to allow you to work with Google Authenticator.
 
 ## Demo and Documentation
 
--   [Documentation][project-docs]
--   [Demo][project-web]
+* [Documentation][project-docs]
+* [Demo][project-web]
 
 ## Installation
 
@@ -82,7 +82,6 @@ const isValid = otplib.authenticator.verify({
   secret,
   token: 123456
 });
-
 ```
 
 #### Using specific OTP implementations
@@ -95,7 +94,7 @@ import totp from 'otplib/totp';
 import authenticator from 'otplib/authenticator';
 ```
 
-__Note__: If you import the libraries directly, you'll have to provide a crypto
+**Note**: If you import the libraries directly, you'll have to provide a crypto
 solution (this is to allow custom crypto solutions), as long as they implement `createHmac` and `randomBytes`.
 Take a look at the [browser implementation](https://github.com/yeojz/otplib/blob/master/packages/otplib-browser)
 of this package as an example.
@@ -105,7 +104,7 @@ i.e.
 ```js
 import authenticator from 'otplib/authenticator';
 import crypto from 'crypto';
-authenticator.options = { crypto }
+authenticator.options = { crypto };
 
 // Or if you're using the other options
 // hotp.options = { crypto }
@@ -120,7 +119,6 @@ You can access the original classes via it's same name property of the instantia
 i.e
 
 ```js
-
 import hotp from 'otplib/hotp';
 const HOTP = hotp.HOTP;
 // const inst = new HOTP();
@@ -134,22 +132,19 @@ const Authenticator = authenticator.Authenticator;
 // const inst = new Authenticator();
 ```
 
-#### Detailed example
+__Example Usage__
+
 ```js
 import { Authenticator } from 'otplib/authenticator';
 import crypto from 'crypto';
 
-const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
-const algorithm = 'sha512';
-const step = 20;
-const digits = 8;
-
 const authenticator = new Authenticator();
+
 authenticator.options = {
-  secret,
-  algorithm,
-  step,
-  digits,
+  secret: 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD',
+  algorithm: 'sha512',
+  step: 20,
+  digits: 8,
   crypto
 };
 
@@ -173,8 +168,8 @@ You can find it in `node_modules/otplib` after you install.
 
 Alternatively you can
 
--   Download from [gh-pages][project-lib].
--   Use unpkg.com
+* Download from [gh-pages][project-lib].
+* Use unpkg.com
 
 ```html
 <script src="https://unpkg.com/otplib@^6.0.0/otplib-browser.js"></script>
@@ -191,10 +186,10 @@ and the browser's native [crypto][mdn-crypto] methods, which may only be availab
 
 To find out more about the replacements, you can take a look at `packages/otplib-browser/crypto.js`
 
-__Output sizes:__
+**Output sizes:**
 
--   with node crypto: ~311Kb
--   with alternative crypto: ~96Kb
+* with node crypto: ~311Kb
+* with alternative crypto: ~96Kb
 
 ## Advanced Usage
 
@@ -236,7 +231,7 @@ import otplib from 'otplib';
 // setting
 otplib.authenticator.options = {
   step: 30
-}
+};
 
 // getting
 const opts = otplib.authenticator.options;
@@ -254,9 +249,9 @@ otplib.authenticator.resetOptions();
 | crypto           | object   | node crypto                       | Crypto module to use.                                                                               |
 | digits           | integer  | 6                                 | The length of the token                                                                             |
 | encoding         | string   | 'ascii' ('hex' for Authenticator) | The encoding of secret which is given to digest                                                     |
-| epoch (totp)     | integer  | null                              | starting time since the UNIX epoch (seconds). *Note* non-javascript epoch. i.e. `Date.now() / 1000` |
+| epoch (totp)     | integer  | null                              | starting time since the UNIX epoch (seconds). _Note_ non-javascript epoch. i.e. `Date.now() / 1000` |
 | step (totp)      | integer  | 30                                | Time step (seconds)                                                                                 |
-
+| window (totp)    | integer  | 0                                 | Tokens in the previous x-windows that should be considered valid                                    |
 
 ### Seed / secret length
 
@@ -318,7 +313,7 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 
 ## Contributing
 
--   Check out: [CONTRIBUTING.md][pr-welcome-link]
+* Check out: [CONTRIBUTING.md][pr-welcome-link]
 
 ## License
 
@@ -327,26 +322,19 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 [npm-badge]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [npm-link]: https://www.npmjs.com/package/otplib
 [npm-downloads-badge]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
-
 [circle-badge]: https://img.shields.io/circleci/project/github/yeojz/otplib/master.svg?style=flat-square
 [circle-link]: https://circleci.com/gh/yeojz/otplib
-
 [coveralls-badge]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [coveralls-link]: https://coveralls.io/github/yeojz/otplib
-
 [pr-welcome-badge]: https://img.shields.io/badge/PRs-Welcome-ff69b4.svg?style=flat-square
 [pr-welcome-link]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
-
 [mdn-uint8array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
 [mdn-crypto]: https://developer.mozilla.org/en-US/docs/Web/API/Window/crypto
-
 [project-web]: https://yeojz.github.io/otplib
 [project-docs]: https://yeojz.github.io/otplib/docs
 [project-lib]: https://github.com/yeojz/otplib/tree/gh-pages/lib
-
 [rfc-4226]: http://tools.ietf.org/html/rfc4226
 [rfc-6238]: http://tools.ietf.org/html/rfc6238
 [rfc-3548]: http://tools.ietf.org/html/rfc3548
-
 [rfc-4226-wiki]: http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
 [rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
