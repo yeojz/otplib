@@ -2,6 +2,14 @@ import totpSecret from './totpSecret';
 
 describe('totpSecret', function () {
 
+  it('should throw an error when options.algorithm is not defined', function () {
+    expect(() => totpSecret('hello', {})).toThrow(Error);
+  });
+
+  it('should throw an error when options.encoding is not defined', function () {
+    expect(() => totpSecret('hello', { algorithm: 'sha1' })).toThrow(Error);
+  });
+
   it('should have length 20 with sha1', function () {
     const result = totpSecret('hello', {
       encoding: 'ascii',

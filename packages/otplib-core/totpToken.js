@@ -1,6 +1,5 @@
 import hotpToken from './hotpToken';
 import totpCounter from './totpCounter';
-import totpOptions from './totpOptions';
 
 /**
  * Generates the OTP code
@@ -10,10 +9,17 @@ import totpOptions from './totpOptions';
  * @param {object} options - allowed options as specified in totpOptions()
  * @return {string} OTP Code
  */
-function totpToken(secret, options = {}) {
-  const opt = totpOptions(options);
-  const counter = totpCounter(opt.epoch, opt.step);
-  return hotpToken(secret, counter, opt);
+function totpToken(secret, options) {
+  if (typeof options.epoch !== 'number') {
+    throw new Error('Expecting options.epoch to be a number');
+  }
+
+  if (typeof options.step !== 'number') {
+    throw new Error('Expecting options.step to be a number');
+  }
+
+  const counter = totpCounter(options.epoch, options.step);
+  return hotpToken(secret, counter, options);
 }
 
 export default totpToken;

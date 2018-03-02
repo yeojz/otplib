@@ -1,31 +1,23 @@
-import hotpToken from './hotpToken';
-import totpCounter from './totpCounter';
-import totpOptions from './totpOptions';
 import totpToken from './totpToken';
 
-jest.mock('./hotpToken', () => jest.fn());
-jest.mock('./totpCounter', () => jest.fn());
-jest.mock('./totpOptions', () => jest.fn());
-
 describe('totpToken', function () {
-  const counter = 3;
-  const defaultOptions = { epoch: 60000 };
   const secret = 'i6im0gc96j0mn00c';
+  const noEpoch = 'Expecting options.epoch to be a number'
+  const noStep = 'Expecting options.step to be a number'
 
-  beforeEach(function () {
-    totpCounter.mockImplementation(() => counter);
-    totpOptions.mockImplementation((opt) => Object.assign({}, defaultOptions, opt));
+  it('should throw an error when option is undefined', function () {
+    expect(() => totpToken(secret, void 0)).toThrow(Error);
   });
 
-  it('throws an error when option is undefined', function () {
-    totpToken(secret, void 0);
-    expect(hotpToken).toHaveBeenCalledTimes(1);
-    expect(hotpToken).toHaveBeenCalledWith(secret, counter, defaultOptions);
+  it('should throw an error when option is null', function () {
+    expect(() => totpToken(secret, null)).toThrow(Error);
   });
 
-  it('throws an error when option is null', function () {
-    totpToken(secret, null);
-    expect(hotpToken).toHaveBeenCalledTimes(1);
-    expect(hotpToken).toHaveBeenCalledWith(secret, counter, defaultOptions);
-  });
+  it('should throw an error when options.epoch is undefined', function () {
+    expect(() => totpToken(secret, {})).toThrow(noEpoch)
+  })
+
+  it('should throw an error when options.step is undefined', function () {
+    expect(() => totpToken(secret, { epoch: 0 })).toThrow(noStep)
+  })
 });

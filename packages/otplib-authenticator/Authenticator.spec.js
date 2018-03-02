@@ -30,7 +30,7 @@ describe('Authenticator', function () {
       'decodeKey',
       'encodeKey',
       'keyuri',
-      'token',
+      'token'
     ]);
   });
 
@@ -67,10 +67,11 @@ describe('Authenticator', function () {
 
   it('method: generateSecret should return an encoded secret', function () {
     const mocks = mockGenerateSecret();
+    lib.options = { epoch: 1519995424045 }
     const result = lib.generateSecret(10);
 
     expect(mocks.secretKey).toHaveBeenCalledTimes(1);
-    expect(mocks.secretKey).toHaveBeenCalledWith(10, lib.options);
+    expect(mocks.secretKey).toHaveBeenCalledWith(10, lib.optionsAll);
 
     expect(encodeKey).toHaveBeenCalledTimes(1);
     expect(encodeKey).toHaveBeenCalledWith(mocks.secret);
@@ -138,13 +139,14 @@ describe('Authenticator', function () {
 
   function methodExpectationWithOptions(methodName, mockFn, args, modifiedArgs) {
     mockFn.mockImplementation(() => testValue);
+    lib.options = { epoch: 1519995424045 }
 
     const result = lib[methodName](...args);
     const calledArgs = modifiedArgs || args;
 
     expect(result).toBe(testValue);
     expect(mockFn).toHaveBeenCalledTimes(1);
-    expect(mockFn).toHaveBeenCalledWith(...calledArgs, lib.options)
+    expect(mockFn).toHaveBeenCalledWith(...calledArgs, lib.optionsAll)
   }
 
   function mockGenerateSecret() {

@@ -1,5 +1,5 @@
 
-import {hotpCounter, totpCounter, totpToken} from 'otplib-core';
+import {hotpCounter, totpCounter, totpToken, totpOptions} from 'otplib-core';
 import crypto from 'crypto';
 import rfc6238 from './rfc6238';
 
@@ -13,13 +13,13 @@ describe('RFC 6238', function () {
     });
 
     test(`[${id}] ${row.token} token`, function () {
-        const result = totpToken(rfc6238.secret, {
+        const result = totpToken(rfc6238.secret, totpOptions({
           crypto,
           algorithm: row.algorithm,
           digits: 8,
           epoch: row.epoch,
           step: 30
-        });
+        }));
 
         expect(result).toBe(row.token);
     });

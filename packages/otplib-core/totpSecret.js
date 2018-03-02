@@ -14,6 +14,14 @@ import {padSecret} from 'otplib-utils';
  * @return {object}
  */
 function totpSecret(secret, options) {
+  if (typeof options.algorithm !== 'string') {
+    throw new Error('Expecting options.algorithm to be a string')
+  }
+
+  if (typeof options.encoding !== 'string') {
+    throw new Error('Expecting options.encoding to be a string')
+  }
+
   const encoded = new Buffer(secret, options.encoding);
   const algorithm = options.algorithm.toLowerCase();
 

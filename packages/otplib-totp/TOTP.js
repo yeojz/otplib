@@ -1,4 +1,4 @@
-import {totpCheck, totpToken} from 'otplib-core';
+import {totpCheck, totpToken, totpOptions} from 'otplib-core';
 import hotp from 'otplib-hotp';
 
 const HOTP = hotp.HOTP;
@@ -46,6 +46,16 @@ class TOTP extends HOTP {
   }
 
   /**
+   * Returns instance options, polyfilled with
+   * all missing library defaults
+   *
+   * @return {object}
+   */
+  get optionsAll() {
+    return totpOptions(this._options)
+  }
+
+  /**
    * Generates token.
    * Passes instance options to underlying core function
    *
@@ -54,10 +64,8 @@ class TOTP extends HOTP {
    * @see {@link module:core/totpToken}
    */
   generate(secret) {
-    return totpToken(
-      secret || this.options.secret,
-      this.options
-    );
+    const opt = this.optionsAll;
+    return totpToken(secret || opt.secret, opt);
   }
 
   /**
@@ -70,11 +78,8 @@ class TOTP extends HOTP {
    * @see {@link module:core/totpCheck}
    */
   check(token, secret){
-    return totpCheck(
-      token,
-      secret || this.options.secret,
-      this.options
-    );
+    const opt = this.optionsAll;
+    return totpCheck(token, secret || opt.secret, opt);
   }
 
   /**

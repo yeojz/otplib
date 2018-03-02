@@ -80,11 +80,13 @@ describe('TOTP', function () {
   }
 
   function methodExpectationWithOptions(methodName, coreName, args) {
+    lib.options = { epoch: 1519995424045 }
+
     const spy = jest.spyOn(core, coreName)
       .mockImplementation(() => 'result');
 
     lib[methodName](...args);
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(...args, lib.options);
+    expect(spy).toHaveBeenCalledWith(...args, lib.optionsAll);
   }
 });

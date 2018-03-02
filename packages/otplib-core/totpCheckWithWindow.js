@@ -2,7 +2,7 @@ import totpCheck from './totpCheck';
 
 function getPrevWindowOption(options, windowCount) {
   return Object.assign(options, {
-    epoch: options.epoch - (options.step * windowCount)
+    epoch: options.epoch - (options.step * windowCount * 1000)
   });
 }
 
