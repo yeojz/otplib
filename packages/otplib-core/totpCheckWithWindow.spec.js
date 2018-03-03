@@ -37,6 +37,10 @@ describe('totpCheck', function() {
     return timeToken[n].token;
   }
 
+  it('should throw an error when opt.window is undefined', function () {
+    expect(() => totpCheckWithWindow('a', 'b', {})).toThrowError('Expecting options.window to be a number')
+  })
+
   it('should call totpCheck 1 time when window is 0', function() {
     totpCheck.mockImplementation(() => false);
 
