@@ -4,13 +4,13 @@ const path = require('path');
 const directory = require('./directory');
 
 function copyFile(fileSrc, fileDest, fileBase) {
-  const callback = (err) => {
+  const callback = err => {
     if (err) {
       console.error(err);
       return;
     }
     console.log('[build:site] copied', fileSrc);
-  }
+  };
 
   copy.one(
     path.join(directory.WEBSITE_ROOT, fileSrc),

@@ -4,9 +4,10 @@ const aliases = require('./helpers/aliases');
 const createBanner = require('./helpers/createBanner');
 const directory = require('./helpers/directory');
 
-const ENV = process.env.NODE_ENV;
+const ENV = (process.env.NODE_ENV || 'development').toLowerCase();
 
 module.exports = {
+  mode: ENV === 'production' ? ENV : 'development',
   entry: {
     otplib: directory.SOURCE + '/otplib-browser/index.js'
   },
@@ -31,11 +32,6 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(ENV)
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
     }),
     new webpack.BannerPlugin({
       banner: createBanner('otplib-browser'),

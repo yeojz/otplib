@@ -18,7 +18,11 @@ if (targets.indexOf('site') > -1) {
   copyFile('public/favicon.ico', 'dist', 'public');
   copyFile('public/style.css', 'dist/css', 'public');
   copyFile('public/app.js', 'dist/js', 'public');
-  copyFile('node_modules/qrcode/build/qrcode.min.js', 'dist/js', 'node_modules/qrcode/build');
+  copyFile(
+    'node_modules/qrcode/build/qrcode.min.js',
+    'dist/js',
+    'node_modules/qrcode/build'
+  );
 
   // CI/CD
   copyFile('circle.yml', 'dist', '');

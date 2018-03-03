@@ -26,17 +26,15 @@ console.log('build - ', PACKAGE_NAME);
 console.log('ouput - ', FILENAME);
 
 module.exports = {
-  banner: createBanner(PACKAGE_NAME),
   input: path.join(directory.SOURCE, PACKAGE_NAME, 'index.js'),
-  output: [
-    {
-      file: path.join(directory.BUILD, FILENAME + '.js'),
-      format: 'cjs'
-    }
-  ],
-  globals: config.globals,
+  output: {
+    banner: createBanner(PACKAGE_NAME),
+    file: path.join(directory.BUILD, FILENAME + '.js'),
+    format: 'cjs',
+    globals: config.globals,
+    paths: renameImports
+  },
   external: Object.keys(config.globals || {}).concat(PACKAGE_LIST),
-  paths: renameImports,
   plugins: [
     nodeResolve(),
     cleanup({
