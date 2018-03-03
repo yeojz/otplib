@@ -1,4 +1,4 @@
-import {intToHex, leftPad} from 'otplib-utils';
+import { intToHex, leftPad } from 'otplib-utils';
 
 /**
  * Ensure HOTP counter is in correct format

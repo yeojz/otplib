@@ -12,7 +12,8 @@ const data = '{service}:{user}?secret={secret}&issuer={service}';
  */
 function keyuri(user = 'user', service = 'service', secret = '') {
   const protocol = 'otpauth://totp/';
-  const value = data.replace('{user}', user)
+  const value = data
+    .replace('{user}', user)
     .replace('{secret}', secret)
     .replace(/{service}/g, service);
 

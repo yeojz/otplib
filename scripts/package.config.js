@@ -1,22 +1,18 @@
 module.exports = {
-  'otplib': {
+  otplib: {
     globals: {
-      'crypto': 'crypto',
+      crypto: 'crypto',
       'thirty-two': 'thirty-two'
     }
   },
   'otplib-authenticator': {
     globals: {
-      'crypto': 'crypto',
+      crypto: 'crypto',
       'thirty-two': 'thirty-two'
     }
   },
-  'otplib-core': {
-  },
-  'otplib-hotp': {
-  },
-  'otplib-totp': {
-  },
-  'otplib-utils': {
-  }
+  'otplib-core': {},
+  'otplib-hotp': {},
+  'otplib-totp': {},
+  'otplib-utils': {}
 };

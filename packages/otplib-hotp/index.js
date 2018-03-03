@@ -1,6 +1,5 @@
 import HOTP from './HOTP';
 
-
 /**
  * Instance of HOTP
  *
@@ -23,4 +22,3 @@ import HOTP from './HOTP';
  * @since 3.0.0
  */
 export default new HOTP();
-

@@ -1,19 +1,18 @@
 import * as core from 'otplib-core';
-import crypto from 'crypto';
 import TOTP from './TOTP';
 
-describe('TOTP', function () {
+describe('TOTP', () => {
   let lib;
 
   beforeEach(() => {
     lib = new TOTP();
   });
 
-  it('exposes the class as a prototype', function () {
+  it('exposes the class as a prototype', () => {
     expect(lib.TOTP).toEqual(TOTP);
   });
 
-  it('should have expected default options', function () {
+  it('should have expected default options', () => {
     const options = lib.options;
     expect(options).toEqual({
       epoch: null,
@@ -22,47 +21,45 @@ describe('TOTP', function () {
     });
   });
 
-  it('method: generate', function () {
+  it('method: generate', () => {
     methodExpectation('generate', 'totpToken');
   });
 
-  it('method: generate => totpToken ', function () {
-    methodExpectationWithOptions('generate', 'totpToken', [
-      'secret'
-    ]);
+  it('method: generate => totpToken ', () => {
+    methodExpectationWithOptions('generate', 'totpToken', ['secret']);
   });
 
-  it('method: check', function () {
+  it('method: check', () => {
     methodExpectation('check', 'totpCheckWithWindow');
   });
 
-  it('method: check => totpCheckWithWindow ', function () {
+  it('method: check => totpCheckWithWindow ', () => {
     methodExpectationWithOptions('check', 'totpCheckWithWindow', [
       'token',
       'secret'
     ]);
   });
 
-  it('method: verify', function () {
+  it('method: verify', () => {
     methodExpectation('verify', 'totpCheckWithWindow');
   });
 
-  it('method: verify return false when not an object', function () {
+  it('method: verify return false when not an object', () => {
     const result = lib.verify('string');
     expect(result).toBe(false);
   });
 
-  it('method: verify return false when null', function () {
+  it('method: verify return false when null', () => {
     const result = lib.verify(null);
     expect(result).toBe(false);
   });
 
-  it('method: verify return false when undefined', function () {
+  it('method: verify return false when undefined', () => {
     const result = lib.verify();
     expect(result).toBe(false);
   });
 
-  it('method: verify calls check', function () {
+  it('method: verify calls check', () => {
     const spy = jest.spyOn(lib, 'check');
 
     lib.verify({
@@ -74,18 +71,16 @@ describe('TOTP', function () {
     expect(spy).toHaveBeenCalledWith('token', 'secret');
   });
   function methodExpectation(methodName, coreName) {
-    jest.spyOn(core, coreName)
-      .mockImplementation(() => 'result');
+    jest.spyOn(core, coreName).mockImplementation(() => 'result');
 
     expect(typeof lib[methodName] === 'function').toBe(true);
     expect(() => lib[methodName]()).not.toThrow(Error);
   }
 
   function methodExpectationWithOptions(methodName, coreName, args) {
-    lib.options = { epoch: 1519995424045 }
+    lib.options = { epoch: 1519995424045 };
 
-    const spy = jest.spyOn(core, coreName)
-      .mockImplementation(() => 'result');
+    const spy = jest.spyOn(core, coreName).mockImplementation(() => 'result');
 
     lib[methodName](...args);
     expect(spy).toHaveBeenCalledTimes(1);

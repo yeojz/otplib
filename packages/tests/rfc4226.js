@@ -67,11 +67,11 @@ const tokens = [
   '287922',
   '162583',
   '399871',
-  '520489',
+  '520489'
 ];
 
 export default {
   digests,
   tokens,
   secret: '12345678901234567890'
-}
+};

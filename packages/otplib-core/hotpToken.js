@@ -1,4 +1,4 @@
-import {leftPad} from 'otplib-utils';
+import { leftPad } from 'otplib-utils';
 import hotpDigest from './hotpDigest';
 
 /**
@@ -12,7 +12,7 @@ import hotpDigest from './hotpDigest';
  */
 function hotpToken(secret, counter, options) {
   if (counter == null) {
-    return ''
+    return '';
   }
 
   if (typeof options.digits !== 'number') {
@@ -22,7 +22,8 @@ function hotpToken(secret, counter, options) {
   const digest = hotpDigest(secret, counter, options);
 
   const offset = digest[digest.length - 1] & 0xf;
-  const binary = ((digest[offset] & 0x7f) << 24) |
+  const binary =
+    ((digest[offset] & 0x7f) << 24) |
     ((digest[offset + 1] & 0xff) << 16) |
     ((digest[offset + 2] & 0xff) << 8) |
     (digest[offset + 3] & 0xff);

@@ -7,11 +7,11 @@
  * @return {string}
  */
 function leftPad(value, length) {
-  const total = (!length) ? 0 : length;
+  const total = !length ? 0 : length;
 
   let padded = value + '';
 
-  while (padded.length < total){
+  while (padded.length < total) {
     padded = '0' + padded;
   }
 

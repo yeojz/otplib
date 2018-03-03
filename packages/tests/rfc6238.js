@@ -173,4 +173,4 @@ export default {
   table,
   secret: '12345678901234567890',
   step: 30
-}
+};

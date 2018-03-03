@@ -8,8 +8,7 @@ import base32 from 'thirty-two';
  * @return {string} A hex decoded string.
  */
 function decodeKey(encodedKey) {
-  return base32.decode(encodedKey)
-    .toString('hex');
+  return base32.decode(encodedKey).toString('hex');
 }
 
 export default decodeKey;

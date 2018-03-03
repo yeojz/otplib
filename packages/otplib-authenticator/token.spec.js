@@ -4,11 +4,12 @@ import token from './token';
 
 jest.mock('./decodeKey', () => jest.fn());
 
-describe('token', function () {
-  it('should return expected result', function () {
+describe('token', () => {
+  it('should return expected result', () => {
     decodeKey.mockImplementation(() => 10);
 
-    const totpToken = jest.spyOn(core, 'totpToken')
+    const totpToken = jest
+      .spyOn(core, 'totpToken')
       .mockImplementation(() => 'result');
 
     const options = { test: 1 };

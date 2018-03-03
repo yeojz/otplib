@@ -13,7 +13,7 @@ const PACKAGE_NAME = process.env.OTPLIB_NAME;
 const FILENAME = PACKAGE_NAME.replace('otplib-', '');
 
 if (!PACKAGE_NAME) {
-  throw new Error('process.env.OTPLIB_NAME is not defined.')
+  throw new Error('process.env.OTPLIB_NAME is not defined.');
 }
 
 const config = packageConfig[PACKAGE_NAME];
@@ -28,10 +28,12 @@ console.log('ouput - ', FILENAME);
 module.exports = {
   banner: createBanner(PACKAGE_NAME),
   input: path.join(directory.SOURCE, PACKAGE_NAME, 'index.js'),
-  output: [{
-    file: path.join(directory.BUILD, FILENAME + '.js'),
-    format: 'cjs',
-  }],
+  output: [
+    {
+      file: path.join(directory.BUILD, FILENAME + '.js'),
+      format: 'cjs'
+    }
+  ],
   globals: config.globals,
   external: Object.keys(config.globals || {}).concat(PACKAGE_LIST),
   paths: renameImports,
@@ -41,4 +43,4 @@ module.exports = {
       comments: 'none'
     })
   ]
-}
+};

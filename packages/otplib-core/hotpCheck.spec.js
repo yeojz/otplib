@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import hotpCheck from './hotpCheck';
 import hotpSecret from './hotpSecret';
 
-describe('hotpCheck', function () {
+describe('hotpCheck', () => {
   const secret = 'i6im0gc96j0mn00c';
   const token = '229021';
   const options = {
@@ -10,22 +10,22 @@ describe('hotpCheck', function () {
     createHmacSecret: hotpSecret,
     crypto,
     digits: 6,
-    encoding: 'ascii',
-  }
+    encoding: 'ascii'
+  };
 
-  it('should throw an error when option is null', function () {
+  it('should throw an error when option is null', () => {
     expect(() => hotpCheck(token, secret, 0, null)).toThrow(Error);
   });
 
-  it('should throw an error when option is undefined', function () {
+  it('should throw an error when option is undefined', () => {
     expect(() => hotpCheck(token, secret, 0, void 0)).toThrow(Error);
   });
 
-  it('should return false when counter is null', function () {
+  it('should return false when counter is null', () => {
     expect(hotpCheck(token, secret, null, options)).toBe(false);
   });
 
-  it('should return false when counter is undefined', function () {
+  it('should return false when counter is undefined', () => {
     expect(hotpCheck(token, secret, void 0, options)).toBe(false);
   });
 
@@ -37,7 +37,7 @@ describe('hotpCheck', function () {
     ['2o9989k76ij7eh9c', 47412435, '343659']
   ].forEach((entry, idx) => {
     const [setSecret, setCounter, setToken] = entry;
-    it(`${idx} should return true `, function () {
+    it(`${idx} should return true `, () => {
       expect(hotpCheck(setToken, setSecret, setCounter, options)).toBe(true);
     });
   });

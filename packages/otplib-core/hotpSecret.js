@@ -8,7 +8,7 @@
  */
 function hotpSecret(secret, options) {
   if (typeof options.encoding !== 'string') {
-    throw new Error('Expecting options.encoding to be a string')
+    throw new Error('Expecting options.encoding to be a string');
   }
 
   return new Buffer(secret, options.encoding);

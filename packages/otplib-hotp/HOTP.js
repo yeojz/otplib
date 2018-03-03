@@ -1,4 +1,4 @@
-import {hotpCheck, hotpToken, hotpOptions} from 'otplib-core';
+import { hotpCheck, hotpToken, hotpOptions } from 'otplib-core';
 
 /**
  * HMAC-based One-time Password Algorithm
@@ -26,7 +26,6 @@ import {hotpCheck, hotpToken, hotpOptions} from 'otplib-core';
  * @since 3.0.0
  */
 class HOTP {
-
   constructor() {
     this._options = this.defaultOptions;
   }
@@ -77,7 +76,7 @@ class HOTP {
    * @return {object}
    */
   get optionsAll() {
-    return hotpOptions(this._options)
+    return hotpOptions(this._options);
   }
 
   /**
@@ -102,7 +101,7 @@ class HOTP {
    */
   generate(secret, counter) {
     const opt = this.optionsAll;
-    return hotpToken(secret || opt.secret, counter, opt)
+    return hotpToken(secret || opt.secret, counter, opt);
   }
 
   /**

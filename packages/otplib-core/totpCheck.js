@@ -1,4 +1,4 @@
-import {isSameToken} from 'otplib-utils';
+import { isSameToken } from 'otplib-utils';
 import totpToken from './totpToken';
 
 /**
@@ -10,7 +10,7 @@ import totpToken from './totpToken';
  * @param {object} options - options which was used to generate it originally
  * @return {boolean}
  */
-function totpCheck(token, secret, options){
+function totpCheck(token, secret, options) {
   const systemToken = totpToken(secret, options || {});
 
   if (systemToken.length < 1) {

@@ -11,7 +11,7 @@ function stringToHex(value) {
   let hex = '';
   let tmp = '';
 
-  for (let i = 0; i < val.length; i++){
+  for (let i = 0; i < val.length; i++) {
     // Convert to Hex and Ensure it's in 2 digit sets
     tmp = ('0000' + val.charCodeAt(i).toString(16)).slice(-2);
     hex += '' + tmp;
