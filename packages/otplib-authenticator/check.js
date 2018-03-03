@@ -1,4 +1,4 @@
-import {totpCheck} from 'otplib-core';
+import { totpCheck } from 'otplib-core';
 import decodeKey from './decodeKey';
 
 /**

@@ -8,7 +8,8 @@ import base32 from 'thirty-two';
  * @return {string} Base32 string
  */
 function encodeKey(secret) {
-  return base32.encode(secret)
+  return base32
+    .encode(secret)
     .toString()
     .replace(/=/g, '');
 }

@@ -1,5 +1,5 @@
 import totp from 'otplib-totp';
-import {secretKey} from 'otplib-utils';
+import { secretKey } from 'otplib-utils';
 import check from './check';
 import decodeKey from './decodeKey';
 import encodeKey from './encodeKey';
@@ -35,7 +35,6 @@ const TOTP = totp.TOTP;
  * @since 3.0.0
  */
 class Authenticator extends TOTP {
-
   constructor() {
     super();
   }
@@ -49,8 +48,8 @@ class Authenticator extends TOTP {
     return {
       encoding: 'hex',
       epoch: null,
-      step: 30,
-    }
+      step: 30
+    };
   }
 
   /**
@@ -122,5 +121,5 @@ Authenticator.prototype.utils = {
   encodeKey,
   keyuri,
   token
-}
+};
 export default Authenticator;

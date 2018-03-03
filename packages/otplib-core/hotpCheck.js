@@ -1,4 +1,4 @@
-import {isSameToken} from 'otplib-utils';
+import { isSameToken } from 'otplib-utils';
 import hotpToken from './hotpToken';
 
 /**

@@ -20,7 +20,7 @@ function totpCheckWithWindow(token, secret, options) {
   const decrement = opt.step * 1000;
 
   for (let i = 0; i <= opt.window; i++) {
-    opt.epoch = opt.epoch - (i * decrement);
+    opt.epoch = opt.epoch - i * decrement;
 
     if (totpCheck(token, secret, opt)) {
       return true;

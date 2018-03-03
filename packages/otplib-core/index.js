@@ -50,4 +50,4 @@ export {
   totpOptions,
   totpSecret,
   totpToken
-}
+};

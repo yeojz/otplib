@@ -19,17 +19,11 @@ const defaultOptions = {
  * @return {object}
  */
 function totpOptions(options = {}) {
-  let opt = Object.assign(
-    hotpOptions(),
-    defaultOptions,
-    options
-  );
+  let opt = Object.assign(hotpOptions(), defaultOptions, options);
 
   opt.window = Math.floor(opt.window || 0);
 
-  opt.epoch = typeof opt.epoch === 'number'
-    ? opt.epoch * 1000
-    : Date.now();
+  opt.epoch = typeof opt.epoch === 'number' ? opt.epoch * 1000 : Date.now();
 
   return opt;
 }

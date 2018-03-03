@@ -1,4 +1,4 @@
-import {totpCheckWithWindow, totpToken, totpOptions} from 'otplib-core';
+import { totpCheckWithWindow, totpToken, totpOptions } from 'otplib-core';
 import hotp from 'otplib-hotp';
 
 const HOTP = hotp.HOTP;
@@ -28,7 +28,6 @@ const HOTP = hotp.HOTP;
  * @since 3.0.0
  */
 class TOTP extends HOTP {
-
   constructor() {
     super();
   }
@@ -53,7 +52,7 @@ class TOTP extends HOTP {
    * @return {object}
    */
   get optionsAll() {
-    return totpOptions(this._options)
+    return totpOptions(this._options);
   }
 
   /**
@@ -78,7 +77,7 @@ class TOTP extends HOTP {
    * @return {boolean}
    * @see {@link module:core/totpCheck}
    */
-  check(token, secret){
+  check(token, secret) {
     const opt = this.optionsAll;
     return totpCheckWithWindow(token, secret || opt.secret, opt);
   }

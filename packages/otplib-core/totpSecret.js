@@ -1,4 +1,4 @@
-import {padSecret} from 'otplib-utils';
+import { padSecret } from 'otplib-utils';
 
 /**
  * Conversion of secret to buffer for TOTP
@@ -15,11 +15,11 @@ import {padSecret} from 'otplib-utils';
  */
 function totpSecret(secret, options) {
   if (typeof options.algorithm !== 'string') {
-    throw new Error('Expecting options.algorithm to be a string')
+    throw new Error('Expecting options.algorithm to be a string');
   }
 
   if (typeof options.encoding !== 'string') {
-    throw new Error('Expecting options.encoding to be a string')
+    throw new Error('Expecting options.encoding to be a string');
   }
 
   const encoded = new Buffer(secret, options.encoding);
@@ -33,7 +33,9 @@ function totpSecret(secret, options) {
     case 'sha512':
       return padSecret(encoded, 64, options.encoding);
     default:
-      throw new Error(`Unsupported algorithm ${algorithm}. Accepts: sha1, sha256, sha512`)
+      throw new Error(
+        `Unsupported algorithm ${algorithm}. Accepts: sha1, sha256, sha512`
+      );
   }
 }
 

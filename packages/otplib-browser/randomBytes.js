@@ -1,19 +1,21 @@
 /**
-  * randomBytes browser implementation.
-  *
-  * Reference:
-  * -   https://github.com/crypto-browserify/randombytes
-  * -   https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
-  *
-  * @module otplib-browser/randomBytes
-  * @param {string} size - the size
-  * @return {string}
-  */
+ * randomBytes browser implementation.
+ *
+ * Reference:
+ * -   https://github.com/crypto-browserify/randombytes
+ * -   https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
+ *
+ * @module otplib-browser/randomBytes
+ * @param {string} size - the size
+ * @return {string}
+ */
 function randomBytes(size) {
-  const crypto = window.crypto || window.msCrypto
+  const crypto = window.crypto || window.msCrypto;
 
   if (!crypto || typeof crypto.getRandomValues !== 'function') {
-    throw new Error('Unable to load crypto module. You may be on an older browser')
+    throw new Error(
+      'Unable to load crypto module. You may be on an older browser'
+    );
   }
 
   if (size > 65536) {

@@ -12,7 +12,7 @@ jest.mock('./encodeKey', () => jest.fn());
 jest.mock('./keyuri', () => jest.fn());
 jest.mock('./token', () => jest.fn());
 
-describe('Authenticator', function () {
+describe('Authenticator', () => {
   let lib;
   const testValue = 'test';
 
@@ -20,11 +20,11 @@ describe('Authenticator', function () {
     lib = new Authenticator();
   });
 
-  it('exposes the class as a prototype', function () {
+  it('exposes the class as a prototype', () => {
     expect(lib.Authenticator).toEqual(Authenticator);
   });
 
-  it('exposes authenticator functions as utils', function () {
+  it('exposes authenticator functions as utils', () => {
     expect(Object.keys(lib.utils)).toEqual([
       'check',
       'decodeKey',
@@ -34,40 +34,34 @@ describe('Authenticator', function () {
     ]);
   });
 
-  it('should have expected default options', function () {
+  it('should have expected default options', () => {
     const options = lib.options;
     expect(options).toEqual({
       encoding: 'hex',
       epoch: null,
-      step: 30,
+      step: 30
     });
   });
 
-  it('method: encode => encodeKey', function () {
-    methodExpectation('encode', encodeKey, [
-      '123'
-    ]);
+  it('method: encode => encodeKey', () => {
+    methodExpectation('encode', encodeKey, ['123']);
   });
 
-  it('method: decode => decodeKey', function () {
-    methodExpectation('decode', decodeKey, [
-      '123'
-    ]);
+  it('method: decode => decodeKey', () => {
+    methodExpectation('decode', decodeKey, ['123']);
   });
 
-  it('method: keyuri => keyuri', function () {
-    methodExpectation('keyuri', keyuri, [
-      '123'
-    ]);
+  it('method: keyuri => keyuri', () => {
+    methodExpectation('keyuri', keyuri, ['123']);
   });
 
-  it('method: generateSecret returns empty string on falsy len params', function () {
+  it('method: generateSecret returns empty string on falsy len params', () => {
     expect(lib.generateSecret(0)).toBe('');
   });
 
-  it('method: generateSecret should return an encoded secret', function () {
+  it('method: generateSecret should return an encoded secret', () => {
     const mocks = mockGenerateSecret();
-    lib.options = { epoch: 1519995424045 }
+    lib.options = { epoch: 1519995424045 };
     const result = lib.generateSecret(10);
 
     expect(mocks.secretKey).toHaveBeenCalledTimes(1);
@@ -79,14 +73,14 @@ describe('Authenticator', function () {
     expect(result).toBe(testValue);
   });
 
-  it('method: generateSecret should return empty string on null parms', function () {
+  it('method: generateSecret should return empty string on null parms', () => {
     const mocks = mockGenerateSecret();
     const result = lib.generateSecret(null);
     expect(result).toBe('');
     expect(mocks.secretKey).toHaveBeenCalledTimes(0);
   });
 
-  it('method: generateSecret should use default params on undefined params', function () {
+  it('method: generateSecret should use default params on undefined params', () => {
     const mocks = mockGenerateSecret();
     const result = lib.generateSecret();
     expect(mocks.secretKey).toHaveBeenCalledTimes(1);
@@ -94,37 +88,27 @@ describe('Authenticator', function () {
     expect(result).toBe(testValue);
   });
 
-  it('method: generate => token', function () {
-    methodExpectationWithOptions('generate', token, [
-      'secret'
-    ]);
+  it('method: generate => token', () => {
+    methodExpectationWithOptions('generate', token, ['secret']);
   });
 
-  it('method: generate => token (fallback to secret in options)', function () {
-    lib.options = { secret: 'option-secret' }
-    methodExpectationWithOptions('generate', token, [
-      null
-    ], [
-      'option-secret'
-    ]);
+  it('method: generate => token (fallback to secret in options)', () => {
+    lib.options = { secret: 'option-secret' };
+    methodExpectationWithOptions('generate', token, [null], ['option-secret']);
   });
 
-  it('method: check => check', function () {
-    methodExpectationWithOptions('check', check, [
-      'token',
-      'secret'
-    ]);
+  it('method: check => check', () => {
+    methodExpectationWithOptions('check', check, ['token', 'secret']);
   });
 
-  it('method: check => check (fallback to secret in options)', function () {
-    lib.options = { secret: 'option-secret' }
-    methodExpectationWithOptions('check', check, [
-      'token',
-      null
-    ], [
-      'token',
-      'option-secret'
-    ]);
+  it('method: check => check (fallback to secret in options)', () => {
+    lib.options = { secret: 'option-secret' };
+    methodExpectationWithOptions(
+      'check',
+      check,
+      ['token', null],
+      ['token', 'option-secret']
+    );
   });
 
   function methodExpectation(methodName, mockFn, args) {
@@ -137,21 +121,27 @@ describe('Authenticator', function () {
     expect(mockFn).toHaveBeenCalledWith(...args);
   }
 
-  function methodExpectationWithOptions(methodName, mockFn, args, modifiedArgs) {
+  function methodExpectationWithOptions(
+    methodName,
+    mockFn,
+    args,
+    modifiedArgs
+  ) {
     mockFn.mockImplementation(() => testValue);
-    lib.options = { epoch: 1519995424045 }
+    lib.options = { epoch: 1519995424045 };
 
     const result = lib[methodName](...args);
     const calledArgs = modifiedArgs || args;
 
     expect(result).toBe(testValue);
     expect(mockFn).toHaveBeenCalledTimes(1);
-    expect(mockFn).toHaveBeenCalledWith(...calledArgs, lib.optionsAll)
+    expect(mockFn).toHaveBeenCalledWith(...calledArgs, lib.optionsAll);
   }
 
   function mockGenerateSecret() {
     const secret = '1234567890';
-    const secretKey = jest.spyOn(utils, 'secretKey')
+    const secretKey = jest
+      .spyOn(utils, 'secretKey')
       .mockImplementation(() => secret);
 
     encodeKey.mockImplementation(() => testValue);
@@ -159,6 +149,6 @@ describe('Authenticator', function () {
     return {
       secret,
       secretKey
-    }
+    };
   }
 });

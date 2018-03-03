@@ -15,8 +15,7 @@ function setsOf(value, amount = 4, divider = ' ') {
   }
 
   const regex = new RegExp('.{1,' + amount + '}', 'g');
-  return value.match(regex)
-    .join(divider);
+  return value.match(regex).join(divider);
 }
 
 export default setsOf;

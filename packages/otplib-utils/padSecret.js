@@ -12,7 +12,9 @@ function padSecret(secretBuffer, size, encoding) {
   const len = secret.length;
 
   if (size && len < size) {
-    const newSecret = new Array((size - len) + 1).join(secretBuffer.toString('hex'));
+    const newSecret = new Array(size - len + 1).join(
+      secretBuffer.toString('hex')
+    );
     return new Buffer(newSecret, 'hex').slice(0, size);
   }
 

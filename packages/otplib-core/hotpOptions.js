@@ -9,13 +9,16 @@ import hotpSecret from './hotpSecret';
  * @return {object}
  */
 function hotpOptions(options = {}) {
-  return Object.assign({
-    algorithm: 'sha1',
-    createHmacSecret: hotpSecret,
-    crypto: null,
-    digits: 6,
-    encoding: 'ascii',
-  }, options)
+  return Object.assign(
+    {
+      algorithm: 'sha1',
+      createHmacSecret: hotpSecret,
+      crypto: null,
+      digits: 6,
+      encoding: 'ascii'
+    },
+    options
+  );
 }
 
 export default hotpOptions;

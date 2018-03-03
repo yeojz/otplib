@@ -1,12 +1,12 @@
 import hotp from './index';
 import HOTP from './HOTP';
 
-describe('index', function () {
-  it('should expose hotp class', function () {
+describe('index', () => {
+  it('should expose hotp class', () => {
     expect(hotp.HOTP).toEqual(HOTP);
   });
 
-  it('should expose an instance of HOTP', function () {
+  it('should expose an instance of HOTP', () => {
     expect(hotp).toBeInstanceOf(HOTP);
   });
 });

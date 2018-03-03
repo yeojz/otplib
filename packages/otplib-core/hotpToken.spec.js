@@ -2,47 +2,61 @@ import crypto from 'crypto';
 import hotpToken from './hotpToken';
 import hotpSecret from './hotpSecret';
 
-describe('hotpToken', function () {
+describe('hotpToken', () => {
   const secret = 'i6im0gc96j0mn00c';
   const options = {
     algorithm: 'sha1',
     createHmacSecret: hotpSecret,
     crypto,
     digits: 6,
-    encoding: 'ascii',
-  }
+    encoding: 'ascii'
+  };
 
-  it('should throw an error when option is null', function () {
+  it('should throw an error when option is null', () => {
     expect(() => hotpToken(secret, 3, null)).toThrow(Error);
   });
 
-  it('should throw an error when option is undefined', function () {
+  it('should throw an error when option is undefined', () => {
     expect(() => hotpToken(secret, 3, void 0)).toThrow(Error);
   });
 
-  it('should throw an error when option.digits is undefined', function () {
-    expect(() => hotpToken(secret, 3, {})).toThrowError('Expecting options.digits to be a number');
+  it('should throw an error when option.digits is undefined', () => {
+    expect(() => hotpToken(secret, 3, {})).toThrowError(
+      'Expecting options.digits to be a number'
+    );
   });
-  it(`should return empty string when counter is null`, function () {
+  it(`should return empty string when counter is null`, () => {
     expect(hotpToken(secret, null, options)).toBe('');
   });
 
-  it(`should return empty string when counter is void 0`, function () {
+  it(`should return empty string when counter is void 0`, () => {
     expect(hotpToken(secret, void 0, options)).toBe('');
   });
 
-  it('should return tokens with 8 digits', function () {
-    const token = hotpToken(secret, 3, Object.assign({}, options, { digits: 8 }));
+  it('should return tokens with 8 digits', () => {
+    const token = hotpToken(
+      secret,
+      3,
+      Object.assign({}, options, { digits: 8 })
+    );
     expect(token).toBe('12229021');
   });
 
-  it('should return correct tokens with hex secret', function () {
-    const token = hotpToken('6936696d30676339366a306d6e303063', 3, Object.assign({}, options, { encoding: 'hex' }));
+  it('should return correct tokens with hex secret', () => {
+    const token = hotpToken(
+      '6936696d30676339366a306d6e303063',
+      3,
+      Object.assign({}, options, { encoding: 'hex' })
+    );
     expect(token).toBe('229021');
   });
 
-  it('should return correct tokens with base64 secret', function () {
-    const token = hotpToken('aTZpbTBnYzk2ajBtbjAwYw==', 3, Object.assign({}, options, { encoding: 'base64' }));
+  it('should return correct tokens with base64 secret', () => {
+    const token = hotpToken(
+      'aTZpbTBnYzk2ajBtbjAwYw==',
+      3,
+      Object.assign({}, options, { encoding: 'base64' })
+    );
     expect(token).toBe('229021');
   });
 
@@ -55,7 +69,7 @@ describe('hotpToken', function () {
   ].forEach((entry, idx) => {
     const [setSecret, setCounter, setToken] = entry;
 
-    it(`[${idx}] should return correct tokens`, function () {
+    it(`[${idx}] should return correct tokens`, () => {
       const token = hotpToken(setSecret, setCounter, options);
       expect(token).toBe(setToken);
     });

@@ -40,4 +40,4 @@ export {
   secretKey,
   setsOf,
   stringToHex
-}
+};

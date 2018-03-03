@@ -8,7 +8,7 @@ const ENV = process.env.NODE_ENV;
 
 module.exports = {
   entry: {
-    'otplib': directory.SOURCE + '/otplib-browser/index.js'
+    otplib: directory.SOURCE + '/otplib-browser/index.js'
   },
   output: {
     library: '[name]',
@@ -17,13 +17,13 @@ module.exports = {
     filename: 'otplib-browser.js'
   },
   module: {
-    rules: [{
-      test: /\.js?$/,
-      exclude: /node_modules/,
-      use: [
-        'babel-loader',
-      ]
-    }]
+    rules: [
+      {
+        test: /\.js?$/,
+        exclude: /node_modules/,
+        use: ['babel-loader']
+      }
+    ]
   },
   resolve: {
     alias: aliases

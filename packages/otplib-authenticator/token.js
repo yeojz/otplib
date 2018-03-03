@@ -1,4 +1,4 @@
-import {totpToken} from 'otplib-core';
+import { totpToken } from 'otplib-core';
 import decodeKey from './decodeKey';
 
 /**

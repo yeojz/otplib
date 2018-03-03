@@ -1,16 +1,15 @@
 import totpSecret from './totpSecret';
 
-describe('totpSecret', function () {
-
-  it('should throw an error when options.algorithm is not defined', function () {
+describe('totpSecret', () => {
+  it('should throw an error when options.algorithm is not defined', () => {
     expect(() => totpSecret('hello', {})).toThrow(Error);
   });
 
-  it('should throw an error when options.encoding is not defined', function () {
+  it('should throw an error when options.encoding is not defined', () => {
     expect(() => totpSecret('hello', { algorithm: 'sha1' })).toThrow(Error);
   });
 
-  it('should have length 20 with sha1', function () {
+  it('should have length 20 with sha1', () => {
     const result = totpSecret('hello', {
       encoding: 'ascii',
       algorithm: 'sha1'
@@ -19,7 +18,7 @@ describe('totpSecret', function () {
     expect(result.length).toBe(20);
   });
 
-  it('should have length 32 with sha256', function () {
+  it('should have length 32 with sha256', () => {
     const result = totpSecret('hello', {
       encoding: 'ascii',
       algorithm: 'sha256'
@@ -28,7 +27,7 @@ describe('totpSecret', function () {
     expect(result.length).toBe(32);
   });
 
-  it('should have length 64 with sha512', function () {
+  it('should have length 64 with sha512', () => {
     const result = totpSecret('hello', {
       encoding: 'ascii',
       algorithm: 'sha512'
@@ -37,11 +36,12 @@ describe('totpSecret', function () {
     expect(result.length).toBe(64);
   });
 
-  it('should throw error when unrecognized algorithm found', function () {
-    const result = () => totpSecret('hello', {
-      encoding: 'ascii',
-      algorithm: 'sha-custom'
-    });
+  it('should throw error when unrecognized algorithm found', () => {
+    const result = () =>
+      totpSecret('hello', {
+        encoding: 'ascii',
+        algorithm: 'sha-custom'
+      });
 
     expect(result).toThrow(Error);
   });

@@ -1,8 +1,7 @@
-
 import hotpSecret from './hotpSecret';
 import hotpOptions from './hotpOptions';
 
-describe('hotpOptions', function () {
+describe('hotpOptions', () => {
   const defaults = {
     algorithm: 'sha1',
     createHmacSecret: hotpSecret,
@@ -11,15 +10,15 @@ describe('hotpOptions', function () {
     crypto: null
   };
 
-  it('should return default when option is null', function () {
+  it('should return default when option is null', () => {
     expect(hotpOptions(null)).toEqual(defaults);
   });
 
-  it('should return default when option is undefined', function () {
+  it('should return default when option is undefined', () => {
     expect(hotpOptions(void 0)).toEqual(defaults);
   });
 
-  it('should return options with new values added', function () {
+  it('should return options with new values added', () => {
     const opt = Object.assign({}, defaults, {
       extra: true
     });

@@ -17,11 +17,11 @@ function hotpDigest(secret, counter, options) {
   }
 
   if (typeof options.createHmacSecret !== 'function') {
-    throw new Error('Expecting options.createHmacSecret to be a function')
+    throw new Error('Expecting options.createHmacSecret to be a function');
   }
 
   if (typeof options.algorithm !== 'string') {
-    throw new Error('Expecting options.algorithm to be a string')
+    throw new Error('Expecting options.algorithm to be a string');
   }
 
   // Convert secret to encoding for hmacSecret
@@ -34,8 +34,7 @@ function hotpDigest(secret, counter, options) {
   const cryptoHmac = options.crypto.createHmac(options.algorithm, hmacSecret);
 
   // Update HMAC with the counter
-  return cryptoHmac.update(new Buffer(hexCounter, 'hex'))
-    .digest();
+  return cryptoHmac.update(new Buffer(hexCounter, 'hex')).digest();
 }
 
 export default hotpDigest;

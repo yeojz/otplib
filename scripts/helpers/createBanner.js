@@ -7,7 +7,7 @@ function createBanner(name) {
  * @author ${pkg.author}
  * @version: ${pkg.version}
  * @license: ${pkg.license}
- **/`
+ **/`;
 }
 
 module.exports = createBanner;

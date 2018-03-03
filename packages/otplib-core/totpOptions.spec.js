@@ -1,7 +1,7 @@
 import totpSecret from './totpSecret';
 import totpOptions from './totpOptions';
 
-describe('totpOptions', function () {
+describe('totpOptions', () => {
   const DateNow = global.Date.now;
 
   const defaults = {
@@ -19,27 +19,27 @@ describe('totpOptions', function () {
     epoch: defaults.epoch * 1000
   };
 
-  beforeEach(function () {
+  beforeEach(() => {
     global.Date.now = jest.fn(() => 1483228800000);
   });
 
-  afterEach(function () {
+  afterEach(() => {
     global.Date.now = DateNow;
   });
 
-  it('should return default options', function () {
+  it('should return default options', () => {
     expect(totpOptions()).toEqual(defaults);
     expect(totpOptions(null)).toEqual(defaults);
     expect(totpOptions(void 0)).toEqual(defaults);
   });
 
-  it('should return javascript epoch', function () {
+  it('should return javascript epoch', () => {
     const opt = Object.assign({}, defaults);
     const expected = Object.assign({}, opt, epoch);
     expect(totpOptions(opt)).toEqual(expected);
   });
 
-  it('should return options with new values added', function () {
+  it('should return options with new values added', () => {
     const opt = Object.assign({}, defaults, {
       extra: true
     });
@@ -49,7 +49,7 @@ describe('totpOptions', function () {
     expect(totpOptions(opt)).toEqual(expected);
   });
 
-  it('should return window with rounded down number', function () {
+  it('should return window with rounded down number', () => {
     const opt = Object.assign({}, defaults, {
       window: 1.5
     });
