@@ -24,7 +24,6 @@ deployment:
     commands:
       - npm run clean
       - npm run build
-      - echo -e "$NPM_USER\n$NPM_PASS\n$NPM_EMAIL" | npm login
       - cd dist && npm publish
       - npm logout
       - git config --global user.email $CI_DEPLOY_EMAIL
@@ -36,6 +35,5 @@ deployment:
     commands:
       - npm run clean
       - npm run build
-      - echo -e "$NPM_USER\n$NPM_PASS\n$NPM_EMAIL" | npm login
       - cd dist && npm publish --tag next
       - npm logout
