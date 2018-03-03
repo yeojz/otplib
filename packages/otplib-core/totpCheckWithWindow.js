@@ -8,7 +8,7 @@ import totpCheck from './totpCheck';
  * @param {string} token - the OTP token to check
  * @param {string} secret - your secret that is used to generate the token
  * @param {object} options - options which was used to generate it originally
- * @return {boolean}
+ * @return {integer} - the number of windows back it was successful. -1 otherwise
  */
 function totpCheckWithWindow(token, secret, options) {
   let opt = Object.assign({}, options);
@@ -18,16 +18,17 @@ function totpCheckWithWindow(token, secret, options) {
   }
 
   const decrement = opt.step * 1000;
+  const epoch = opt.epoch;
 
   for (let i = 0; i <= opt.window; i++) {
-    opt.epoch = opt.epoch - i * decrement;
+    opt.epoch = epoch - i * decrement;
 
     if (totpCheck(token, secret, opt)) {
-      return true;
+      return i;
     }
   }
 
-  return false;
+  return -1;
 }
 
 export default totpCheckWithWindow;

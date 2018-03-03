@@ -58,36 +58,36 @@ describe('totpCheck', () => {
     expect(totpCheck).toHaveBeenCalledTimes(2);
   });
 
-  it('time 3, window 1, token 0, called 2, return false', () => {
+  it('time 2, window 1, token 0, called 2, return -1', () => {
     totpCheck.mockImplementation((...args) => {
       return totpCheckOriginal(...args);
     });
 
     const result = totpCheckWithWindow(token(0), secret, getOptions(2, 1));
 
-    expect(result).toBe(false);
+    expect(result).toBe(-1);
     expect(totpCheck).toHaveBeenCalledTimes(2);
   });
 
-  it('time 2, window 1, token 1, called 2, return true', () => {
+  it('time 1, window 1, token 1, called 2, return 1', () => {
     totpCheck.mockImplementation((...args) => {
       return totpCheckOriginal(...args);
     });
 
     const result = totpCheckWithWindow(token(0), secret, getOptions(1, 1));
 
-    expect(result).toBe(true);
+    expect(result).toBe(1);
     expect(totpCheck).toHaveBeenCalledTimes(2);
   });
 
-  it('time 3, window 2, token 1, called 2, return true', () => {
+  it('time 2, window 2, token 0, called 3, return 2', () => {
     totpCheck.mockImplementation((...args) => {
       return totpCheckOriginal(...args);
     });
 
-    const result = totpCheckWithWindow(token(1), secret, getOptions(2, 2));
+    const result = totpCheckWithWindow(token(0), secret, getOptions(2, 2));
 
-    expect(result).toBe(true);
-    expect(totpCheck).toHaveBeenCalledTimes(2);
+    expect(result).toBe(2);
+    expect(totpCheck).toHaveBeenCalledTimes(3);
   });
 });
