@@ -7,6 +7,7 @@
 [![Coverage Status][coveralls-badge]][coveralls-link]
 [![npm downloads][npm-downloads-badge]][npm-link]
 [![PRs Welcome][pr-welcome-badge]][pr-welcome-link]
+[![Support Project][donate-badge]][donate-link]
 
 <img width="150" src="https://yeojz.github.io/otplib/otplib.png" />
 
@@ -313,7 +314,7 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 
 ## Contributing
 
-* Check out: [CONTRIBUTING.md][pr-welcome-link]
+Check out: [CONTRIBUTING.md][pr-welcome-link]
 
 ## License
 
@@ -338,3 +339,5 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 [rfc-3548]: http://tools.ietf.org/html/rfc3548
 [rfc-4226-wiki]: http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
 [rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
+[donate-badge]: https://img.shields.io/badge/donate-%3C3-red.svg?longCache=true&style=flat-square
+[donate-link]: https://www.paypal.me/yeojz
