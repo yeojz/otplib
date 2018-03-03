@@ -1,12 +1,12 @@
 # Generate file dependants
-yarn run build:browser
-yarn run build:docs
+npm run build:browser
+npm run build:docs
 
 # Build within site directory
 cd site
-yarn install
-yarn run clean
-yarn run build
-yarn run deploy
+npm install
+npm run clean
+npm run build
+npm run deploy
 
 cd ..
