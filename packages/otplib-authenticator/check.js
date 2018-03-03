@@ -1,4 +1,4 @@
-import { totpCheck } from 'otplib-core';
+import { totpCheckWithWindow } from 'otplib-core';
 import decodeKey from './decodeKey';
 
 /**
@@ -11,7 +11,7 @@ import decodeKey from './decodeKey';
  * @return {boolean}
  */
 function check(token, secret, options) {
-  return totpCheck(token, decodeKey(secret), options);
+  return totpCheckWithWindow(token, decodeKey(secret), options) >= 0;
 }
 
 export default check;

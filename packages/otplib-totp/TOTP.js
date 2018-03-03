@@ -79,7 +79,7 @@ class TOTP extends HOTP {
    */
   check(token, secret) {
     const opt = this.optionsAll;
-    return totpCheckWithWindow(token, secret || opt.secret, opt);
+    return totpCheckWithWindow(token, secret || opt.secret, opt) >= 0;
   }
 
   /**

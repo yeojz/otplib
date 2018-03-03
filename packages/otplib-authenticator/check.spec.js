@@ -11,7 +11,7 @@ describe('check', () => {
     const options = { test: 'test' };
 
     const spy = jest
-      .spyOn(core, 'totpCheck')
+      .spyOn(core, 'totpCheckWithWindow')
       .mockImplementation(() => jest.fn());
 
     decodeKey.mockImplementation(() => 'decode');
