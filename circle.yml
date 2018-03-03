@@ -22,6 +22,7 @@ deployment:
     tag: /^v[0-9]+(\.[0-9]+)*$/
     owner: yeojz
     commands:
+      - npx conventional-github-releaser -p angular
       - npm run clean
       - npm run build
       - cd dist && npm publish
@@ -33,6 +34,7 @@ deployment:
     tag: /^v[0-9]+(\.[0-9]+)*\-[0-9]+$/
     owner: yeojz
     commands:
+      - npx conventional-github-releaser -p angular
       - npm run clean
       - npm run build
       - cd dist && npm publish --tag next
