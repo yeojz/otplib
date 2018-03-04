@@ -5,4 +5,4 @@ cp README.md dist/README.md
 cp LICENSE dist/LICENSE
 cp package.json dist/package.json
 cp .npmignore dist/.npmignore
-cp .npmrc dist/.npmrc
+cp scripts/.npmrc dist/.npmrc

@@ -57,9 +57,16 @@ This library is also compatible with [Google Authenticator](https://github.com/g
 
 Install the library via:
 
-```
+```bash
 $ npm install otplib --save
+
+# To install the Release Candidates:
+$ npm install otplib@next --save
 ```
+
+| Current / Stable  | [![npm][npm-badge]][npm-link]      |
+| ----------------- | ---------------------------------- |
+| Release Candidate | [![npm][npm-next-badge]][npm-link] |
 
 ## Upgrading
 
@@ -133,7 +140,7 @@ const Authenticator = authenticator.Authenticator;
 // const inst = new Authenticator();
 ```
 
-__Example Usage__
+**Example Usage**
 
 ```js
 import { Authenticator } from 'otplib/authenticator';
@@ -322,6 +329,7 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 
 [npm-badge]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [npm-link]: https://www.npmjs.com/package/otplib
+[npm-next-badge]: https://img.shields.io/npm/v/otplib/next.svg?style=flat-square
 [npm-downloads-badge]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
 [circle-badge]: https://img.shields.io/circleci/project/github/yeojz/otplib/master.svg?style=flat-square
 [circle-link]: https://circleci.com/gh/yeojz/otplib
