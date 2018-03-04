@@ -64,8 +64,9 @@ $ npm install otplib --save
 $ npm install otplib@next --save
 ```
 
+| Release Type      | Version                            |
+| :---------------- | :--------------------------------- |
 | Current / Stable  | [![npm][npm-badge]][npm-link]      |
-| ----------------- | ---------------------------------- |
 | Release Candidate | [![npm][npm-next-badge]][npm-link] |
 
 ## Upgrading
