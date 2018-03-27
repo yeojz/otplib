@@ -2,16 +2,26 @@
 
 [![PRs Welcome][pr-welcome-badge]][pr-welcome-link]
 
-Thank you for opening (and reading) this document. :)
-We are open to, and grateful for, any contributions made.
+Thank you for reaching this document. :)
+Feel free to contribute code, documentation, ideas for improvements or even example snippets.
+All are welcomed.
 
-## Semantic Versioning
+## Some notes about this project:
+
+### Semantic Versioning
 
 This repository generally follows semantic versioning. We release patch versions for bug fixes, minor versions for new features, and major versions for any breaking changes.
 
 All releases to npm or any other supported distribution channels will corresponding to a tagged commit.
 
-## Testing
+### Commit messages
+
+As the release information is generated from commit messages, it is highly recommended that commit messages
+are in the format of [conventional-commits](https://conventionalcommits.org/)
+
+For example: `feat(browser): description`, `fix: description`, `chore(readme): description` etc.
+
+### Testing
 
 To only run linting:
 
@@ -25,7 +35,7 @@ To continuously watch and run tests, run the following:
 
 `npm run test:watch`
 
-## Sending a Pull Request
+### Sending a Pull Request
 
 If you send a pull request, please do it against the master branch.
 
@@ -42,5 +52,5 @@ Before submitting a pull request, please make sure the following is done:
 
 Thank you for contributing!
 
-[pr-welcome-badge]: https://img.shields.io/badge/PRs-Welcome-ff69b4.svg?style=flat-square
+[pr-welcome-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [pr-welcome-link]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md

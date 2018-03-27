@@ -181,7 +181,7 @@ Alternatively you can
 * Use unpkg.com
 
 ```html
-<script src="https://unpkg.com/otplib@^6.0.0/otplib-browser.js"></script>
+<script src="https://unpkg.com/otplib@^8.0.0/otplib-browser.js"></script>
 ```
 
 For a live example, the [project site][project-web] has been built using `otplib-browser.js`.
@@ -305,7 +305,7 @@ While this library provides the "otpauth" uri, you'll need a library to generate
 An example is shown below:
 
 ```js
-// npm install node-qrcode
+// npm install qrcode
 import qrcode from 'qrcode';
 import otplib from 'otplib';
 
@@ -336,7 +336,7 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [circle-link]: https://circleci.com/gh/yeojz/otplib
 [coveralls-badge]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [coveralls-link]: https://coveralls.io/github/yeojz/otplib
-[pr-welcome-badge]: https://img.shields.io/badge/PRs-Welcome-ff69b4.svg?style=flat-square
+[pr-welcome-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [pr-welcome-link]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
 [mdn-uint8array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
 [mdn-crypto]: https://developer.mozilla.org/en-US/docs/Web/API/Window/crypto
