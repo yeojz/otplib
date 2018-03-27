@@ -26,7 +26,6 @@ deployment:
       - npm run clean
       - npm run build
       - cd dist && npm publish
-      - npm logout
       - git config --global user.email $CI_DEPLOY_EMAIL
       - git config --global user.name $CI_DEPLOY_NAME
       - npm run deploy-gh-pages
@@ -38,4 +37,3 @@ deployment:
       - npm run clean
       - npm run build
       - cd dist && npm publish --tag next
-      - npm logout
