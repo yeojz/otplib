@@ -1,4 +1,4 @@
-/* global qrcodelib otplib*/
+/* global QRCode otplib*/
 (function() {
   var secret = '';
   var step = 30;
@@ -28,7 +28,7 @@
 
     document.querySelector('.otp-secret').innerHTML = secret;
 
-    qrcodelib.toDataURL(otpauth, function(err, url) {
+    QRCode.toDataURL(otpauth, function(err, url) {
       var container = document.querySelector('.otp-qrcode .qrcode');
       if (err) {
         container.innerHTML = 'Error generating QR Code';
