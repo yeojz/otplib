@@ -1,5 +1,11 @@
 {
   "extends": [
-    "config:base"
-  ]
+    "config:js-lib"
+  ],
+  "labels": ["chore"],
+  "major": {
+    "automerge": false
+  },
+  "pinVersions": false,
+  "rebaseStalePrs": true
 }
