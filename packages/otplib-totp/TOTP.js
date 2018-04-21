@@ -79,7 +79,8 @@ class TOTP extends HOTP {
    */
   check(token, secret) {
     const opt = this.optionsAll;
-    return totpCheckWithWindow(token, secret || opt.secret, opt) >= 0;
+    const delta = totpCheckWithWindow(token, secret || opt.secret, opt);
+    return Number.isInteger(delta);
   }
 
   /**

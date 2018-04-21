@@ -38,56 +38,118 @@ describe('totpCheck', () => {
 
   it('should throw an error when opt.window is undefined', () => {
     expect(() => totpCheckWithWindow('a', 'b', {})).toThrowError(
-      'Expecting options.window to be a number'
+      'Expecting options.window to be a number or an array'
     );
   });
 
   it('should call totpCheck 1 time when window is 0', () => {
     totpCheck.mockImplementation(() => false);
 
-    totpCheckWithWindow(token(0), secret, getOptions(1, 0));
-
+    totpCheckWithWindow(token(0), secret, getOptions(1, [0, 0]));
     expect(totpCheck).toHaveBeenCalledTimes(1);
   });
 
-  it('should call totpCheck 2 times when window is 1', () => {
+  it('(backward) should call totpCheck 2 times when window is -1', () => {
     totpCheck.mockImplementation(() => false);
 
-    totpCheckWithWindow('', secret, getOptions(1, 1));
+    totpCheckWithWindow('', secret, getOptions(1, [1, 0]));
 
     expect(totpCheck).toHaveBeenCalledTimes(2);
   });
 
-  it('time 2, window 1, token 0, called 2, return -1', () => {
+  it('(backward) time 2, window -1, token 0, called 2, return null', () => {
     totpCheck.mockImplementation((...args) => {
       return totpCheckOriginal(...args);
     });
 
-    const result = totpCheckWithWindow(token(0), secret, getOptions(2, 1));
+    const result = totpCheckWithWindow(token(0), secret, getOptions(2, [1, 0]));
+
+    expect(result).toBe(null);
+    expect(totpCheck).toHaveBeenCalledTimes(2);
+  });
+
+  it('(backward) time 1, window -1, token 0, called 2, return -1', () => {
+    totpCheck.mockImplementation((...args) => {
+      return totpCheckOriginal(...args);
+    });
+
+    const result = totpCheckWithWindow(token(0), secret, getOptions(1, [1, 0]));
 
     expect(result).toBe(-1);
     expect(totpCheck).toHaveBeenCalledTimes(2);
   });
 
-  it('time 1, window 1, token 1, called 2, return 1', () => {
+  it('(backward) time 2, window -2, token 0, called 3, return -2', () => {
     totpCheck.mockImplementation((...args) => {
       return totpCheckOriginal(...args);
     });
 
-    const result = totpCheckWithWindow(token(0), secret, getOptions(1, 1));
+    const result = totpCheckWithWindow(token(0), secret, getOptions(2, [2, 0]));
+
+    expect(result).toBe(-2);
+    expect(totpCheck).toHaveBeenCalledTimes(3);
+  });
+
+  it('(forward) should call totpCheck 2 times when window is 1', () => {
+    totpCheck.mockImplementation(() => false);
+
+    totpCheckWithWindow('', secret, getOptions(1, [0, 1]));
+
+    expect(totpCheck).toHaveBeenCalledTimes(2);
+  });
+
+  it('(forward) time 0, window 1, token 2, called 2, return null', () => {
+    totpCheck.mockImplementation((...args) => {
+      return totpCheckOriginal(...args);
+    });
+
+    const result = totpCheckWithWindow(token(2), secret, getOptions(0, [0, 1]));
+
+    expect(result).toBe(null);
+    expect(totpCheck).toHaveBeenCalledTimes(2);
+  });
+
+  it('(forward) time 1, window 1, token 2, called 2, return 1', () => {
+    totpCheck.mockImplementation((...args) => {
+      return totpCheckOriginal(...args);
+    });
+
+    const result = totpCheckWithWindow(token(2), secret, getOptions(1, [0, 1]));
 
     expect(result).toBe(1);
     expect(totpCheck).toHaveBeenCalledTimes(2);
   });
 
-  it('time 2, window 2, token 0, called 3, return 2', () => {
+  it('(forward) time 0, window 2, token 2, called 3, return 2', () => {
     totpCheck.mockImplementation((...args) => {
       return totpCheckOriginal(...args);
     });
 
-    const result = totpCheckWithWindow(token(0), secret, getOptions(2, 2));
+    const result = totpCheckWithWindow(token(2), secret, getOptions(0, [0, 2]));
 
     expect(result).toBe(2);
+    expect(totpCheck).toHaveBeenCalledTimes(3);
+  });
+
+  it('(both) time 1, window 1, token 2, called 3, return 1', () => {
+    totpCheck.mockImplementation((...args) => {
+      return totpCheckOriginal(...args);
+    });
+
+    const result = totpCheckWithWindow(token(2), secret, getOptions(1, 1));
+
+    expect(result).toBe(1);
+    expect(totpCheck).toHaveBeenCalledTimes(3);
+  });
+
+  it('(both) time 1, window 1, token 0, called 2, return 1', () => {
+    totpCheck.mockImplementation((...args) => {
+      return totpCheckOriginal(...args);
+    });
+
+    const result = totpCheckWithWindow(token(2), secret, getOptions(1, 1));
+
+    expect(result).toBe(1);
     expect(totpCheck).toHaveBeenCalledTimes(3);
   });
 });

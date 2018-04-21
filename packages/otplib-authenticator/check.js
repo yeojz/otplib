@@ -11,7 +11,8 @@ import decodeKey from './decodeKey';
  * @return {boolean}
  */
 function check(token, secret, options) {
-  return totpCheckWithWindow(token, decodeKey(secret), options) >= 0;
+  const delta = totpCheckWithWindow(token, decodeKey(secret), options);
+  return Number.isInteger(delta);
 }
 
 export default check;

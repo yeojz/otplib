@@ -1,5 +1,5 @@
-import totpSecret from './totpSecret';
 import totpOptions from './totpOptions';
+import totpSecret from './totpSecret';
 
 describe('totpOptions', () => {
   const DateNow = global.Date.now;
@@ -45,18 +45,6 @@ describe('totpOptions', () => {
     });
 
     const expected = Object.assign({}, opt, epoch);
-
-    expect(totpOptions(opt)).toEqual(expected);
-  });
-
-  it('should return window with rounded down number', () => {
-    const opt = Object.assign({}, defaults, {
-      window: 1.5
-    });
-
-    const expected = Object.assign({}, opt, epoch, {
-      window: 1
-    });
 
     expect(totpOptions(opt)).toEqual(expected);
   });

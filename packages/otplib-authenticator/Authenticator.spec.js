@@ -39,7 +39,8 @@ describe('Authenticator', () => {
     expect(options).toEqual({
       encoding: 'hex',
       epoch: null,
-      step: 30
+      step: 30,
+      window: 0
     });
   });
 

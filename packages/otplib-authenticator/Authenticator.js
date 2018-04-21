@@ -48,7 +48,8 @@ class Authenticator extends TOTP {
     return {
       encoding: 'hex',
       epoch: null,
-      step: 30
+      step: 30,
+      window: 0
     };
   }
 
