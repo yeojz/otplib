@@ -4,7 +4,7 @@ import decodeKey from './decodeKey';
 
 jest.mock('./decodeKey', () => jest.fn());
 
-describe('check', () => {
+describe('checkDelta', () => {
   it('should call and return value from totpToken', () => {
     const token = '123456';
     const secret = 'GEZDGNBVGY3TQOJQGEZDG';
