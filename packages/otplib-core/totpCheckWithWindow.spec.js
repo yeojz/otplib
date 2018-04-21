@@ -38,7 +38,7 @@ describe('totpCheck', () => {
 
   it('should throw an error when opt.window is undefined', () => {
     expect(() => totpCheckWithWindow('a', 'b', {})).toThrowError(
-      'Expecting options.window to be a number or an array'
+      'Expecting options.window to be an integer or an array of integers'
     );
   });
 

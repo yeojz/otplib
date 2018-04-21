@@ -22,7 +22,9 @@ function getWindowBounds(opt) {
     : [parseInt(opt.window, 10), parseInt(opt.window, 10)];
 
   if (!Number.isInteger(bounds[0]) || !Number.isInteger(bounds[1])) {
-    throw new Error('Expecting options.window to be a number or an array');
+    throw new Error(
+      'Expecting options.window to be an integer or an array of integers'
+    );
   }
 
   return bounds;
@@ -30,13 +32,13 @@ function getWindowBounds(opt) {
 
 /**
  * Checks the provided OTP token against system generated token
- * with support for checking previous x time-step windows
+ * with support for checking previous or future x time-step windows
  *
  * @module otplib-core/totpCheckWithWindow
  * @param {string} token - the OTP token to check
  * @param {string} secret - your secret that is used to generate the token
  * @param {object} options - options which was used to generate it originally
- * @return {integer} - the number of windows back (-) or forward it was successful. null otherwise
+ * @return {integer | null} - the number of windows back (eg: -1) or forward if it was successful. null otherwise
  */
 function totpCheckWithWindow(token, secret, options) {
   let opt = Object.assign({}, options);
