@@ -154,6 +154,7 @@ authenticator.options = {
   algorithm: 'sha512',
   step: 20,
   digits: 8,
+  window: 1,
   crypto
 };
 
@@ -239,7 +240,8 @@ import otplib from 'otplib';
 
 // setting
 otplib.authenticator.options = {
-  step: 30
+  step: 30,
+  window: 1
 };
 
 // getting
@@ -251,16 +253,19 @@ otplib.authenticator.resetOptions();
 
 #### Available Options
 
-| Option           | Type     | Defaults                          | Description                                                                                         |
-| ---------------- | -------- | --------------------------------- | --------------------------------------------------------------------------------------------------- |
-| algorithm        | string   | 'sha1'                            | Algorithm used for HMAC                                                                             |
-| createHmacSecret | function | hotpSecret, totpSecret            | Transforms the secret and applies any modifications like padding to it.                             |
-| crypto           | object   | node crypto                       | Crypto module to use.                                                                               |
-| digits           | integer  | 6                                 | The length of the token                                                                             |
-| encoding         | string   | 'ascii' ('hex' for Authenticator) | The encoding of secret which is given to digest                                                     |
-| epoch (totp)     | integer  | null                              | starting time since the UNIX epoch (seconds). _Note_ non-javascript epoch. i.e. `Date.now() / 1000` |
-| step (totp)      | integer  | 30                                | Time step (seconds)                                                                                 |
-| window (totp)    | integer  | 0                                 | Tokens in the previous x-windows that should be considered valid                                    |
+| Option           | Type             | Defaults                          | Description                                                                                                                                                                  |
+| ---------------- | ---------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| algorithm        | string           | 'sha1'                            | Algorithm used for HMAC                                                                                                                                                      |
+| createHmacSecret | function         | hotpSecret, totpSecret            | Transforms the secret and applies any modifications like padding to it.                                                                                                      |
+| crypto           | object           | node crypto                       | Crypto module to use.                                                                                                                                                        |
+| digits           | integer          | 6                                 | The length of the token                                                                                                                                                      |
+| encoding         | string           | 'ascii' ('hex' for Authenticator) | The encoding of secret which is given to digest                                                                                                                              |
+| epoch (totp)     | integer          | null                              | starting time since the UNIX epoch (seconds). _Note_ non-javascript epoch. i.e. `Date.now() / 1000`                                                                          |
+| step (totp)      | integer          | 30                                | Time step (seconds)                                                                                                                                                          |
+| window (totp)    | integer or array | 0                                 | Tokens in the previous and future x-windows that should be considered valid. If integer, same value will be used for both. Alternatively, define array: `[previous, future]` |
+
+_Note 1_: non "totp" label applies to all
+_Note 2_: "totp" applies to authenticator as well
 
 ### Seed / secret length
 
