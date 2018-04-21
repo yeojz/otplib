@@ -1,6 +1,7 @@
 import totp from 'otplib-totp';
 import { secretKey } from 'otplib-utils';
 import check from './check';
+import checkDelta from './checkDelta';
 import decodeKey from './decodeKey';
 import encodeKey from './encodeKey';
 import keyuri from './keyuri';
@@ -48,7 +49,8 @@ class Authenticator extends TOTP {
     return {
       encoding: 'hex',
       epoch: null,
-      step: 30
+      step: 30,
+      window: 0
     };
   }
 
@@ -112,11 +114,28 @@ class Authenticator extends TOTP {
     const opt = this.optionsAll;
     return check(token, secret || opt.secret, opt);
   }
+
+  /**
+   * Checks validity of token.
+   * Returns the delta (window) which token passes.
+   * Returns null otherwise.
+   * Passes instance options to underlying core function
+   *
+   * @param {string} token
+   * @param {string} secret
+   * @return {number | null}
+   * @see {@link module:impl/authenticator/checkDelta}
+   */
+  checkDelta(token, secret) {
+    const opt = this.optionsAll;
+    return checkDelta(token, secret || opt.secret, opt);
+  }
 }
 
 Authenticator.prototype.Authenticator = Authenticator;
 Authenticator.prototype.utils = {
   check,
+  checkDelta,
   decodeKey,
   encodeKey,
   keyuri,

@@ -75,11 +75,26 @@ class TOTP extends HOTP {
    * @param {string} token
    * @param {string} secret
    * @return {boolean}
-   * @see {@link module:core/totpCheck}
    */
   check(token, secret) {
+    const delta = this.checkDelta(token, secret);
+    return Number.isInteger(delta);
+  }
+
+  /**
+   * Checks validity of token
+   * Returns the delta (window) which token passes.
+   * Returns null otherwise.
+   * Passes instance options to underlying core function
+   *
+   * @param {string} token
+   * @param {string} secret
+   * @return {integer | null}
+   * @see {@link module:core/totpCheckWithWindow}
+   */
+  checkDelta(token, secret) {
     const opt = this.optionsAll;
-    return totpCheckWithWindow(token, secret || opt.secret, opt) >= 0;
+    return totpCheckWithWindow(token, secret || opt.secret, opt);
   }
 
   /**

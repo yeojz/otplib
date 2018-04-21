@@ -1,12 +1,14 @@
 import * as utils from 'otplib-utils';
 import Authenticator from './Authenticator';
 import check from './check';
+import checkDelta from './checkDelta';
 import decodeKey from './decodeKey';
 import encodeKey from './encodeKey';
 import keyuri from './keyuri';
 import token from './token';
 
 jest.mock('./check', () => jest.fn());
+jest.mock('./checkDelta', () => jest.fn());
 jest.mock('./decodeKey', () => jest.fn());
 jest.mock('./encodeKey', () => jest.fn());
 jest.mock('./keyuri', () => jest.fn());
@@ -27,6 +29,7 @@ describe('Authenticator', () => {
   it('exposes authenticator functions as utils', () => {
     expect(Object.keys(lib.utils)).toEqual([
       'check',
+      'checkDelta',
       'decodeKey',
       'encodeKey',
       'keyuri',
@@ -39,7 +42,8 @@ describe('Authenticator', () => {
     expect(options).toEqual({
       encoding: 'hex',
       epoch: null,
-      step: 30
+      step: 30,
+      window: 0
     });
   });
 
@@ -106,6 +110,20 @@ describe('Authenticator', () => {
     methodExpectationWithOptions(
       'check',
       check,
+      ['token', null],
+      ['token', 'option-secret']
+    );
+  });
+
+  it('method: checkDelta => checkDelta', () => {
+    methodExpectationWithOptions('checkDelta', checkDelta, ['token', 'secret']);
+  });
+
+  it('method: checkDelta => checkDelta (fallback to secret in options)', () => {
+    lib.options = { secret: 'option-secret' };
+    methodExpectationWithOptions(
+      'checkDelta',
+      checkDelta,
       ['token', null],
       ['token', 'option-secret']
     );

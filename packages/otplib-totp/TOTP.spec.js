@@ -40,6 +40,25 @@ describe('TOTP', () => {
     ]);
   });
 
+  it('method: check calls checkDelta', () => {
+    const spy = jest.spyOn(lib, 'checkDelta');
+
+    lib.check('token', 'secret');
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith('token', 'secret');
+  });
+
+  it('method: checkDelta', () => {
+    methodExpectation('checkDelta', 'totpCheckWithWindow');
+  });
+
+  it('method: checkDelta => totpCheckWithWindow ', () => {
+    methodExpectationWithOptions('checkDelta', 'totpCheckWithWindow', [
+      'token',
+      'secret'
+    ]);
+  });
+
   it('method: verify', () => {
     methodExpectation('verify', 'totpCheckWithWindow');
   });
@@ -70,6 +89,7 @@ describe('TOTP', () => {
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith('token', 'secret');
   });
+
   function methodExpectation(methodName, coreName) {
     jest.spyOn(core, coreName).mockImplementation(() => 'result');
 

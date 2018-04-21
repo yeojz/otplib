@@ -4,6 +4,10 @@
   var step = 30;
   var timing;
 
+  otplib.authenticator.options = {
+    window: 1
+  };
+
   function toggleTabs(evt) {
     document.querySelectorAll('.tab-item').forEach(function(tab) {
       tab.classList.remove('is-active');
@@ -75,21 +79,23 @@
       .querySelector('.otp-verify-send')
       .addEventListener('click', function() {
         var inputValue = document.querySelector('.otp-verify-input').value;
-        var isValid = otplib.authenticator.check(inputValue, secret);
+        var delta = otplib.authenticator.checkDelta(inputValue, secret);
 
         var text = document.querySelector('.otp-verify-result .text');
         var icon = document.querySelector('.otp-verify-result .fa');
 
-        if (isValid) {
+        var win = '<br /> (window: ' + delta + ')';
+
+        if (Number.isInteger(delta)) {
           icon.classList.add('fa-check');
           icon.classList.remove('fa-times');
-          text.innerHTML = 'Verified token';
+          text.innerHTML = 'Verified token' + win;
           return;
         }
 
         icon.classList.add('fa-times');
         icon.classList.remove('fa-check');
-        text.innerHTML = 'Cannot verify token.';
+        text.innerHTML = 'Cannot verify token';
       });
   }
 
