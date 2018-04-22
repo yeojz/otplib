@@ -52,6 +52,7 @@ This library is also compatible with [Google Authenticator](https://github.com/g
 
 * [Documentation][project-docs]
 * [Demo][project-web]
+* [FAQ / Common Issues](https://github.com/yeojz/otplib/wiki/FAQ)
 
 ## Installation
 
