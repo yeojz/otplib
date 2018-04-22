@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const directory = require('./directory');
 
-function createIndexFile(PUBLIC_URL, pkg) {
+function createIndexFile(PUBLIC_URL, pkg, version) {
   const publicUrl = PUBLIC_URL === '/' ? '' : PUBLIC_URL;
   const indexFile = path.join(directory.WEBSITE_ROOT, 'public', 'index.html');
   const outputFile = path.join(directory.WEBSITE_BUILD, 'index.html');
@@ -16,9 +16,9 @@ function createIndexFile(PUBLIC_URL, pkg) {
 
     const parsed = content
       .toString()
-      .replace(/\%PUBLIC_URL\%/g, publicUrl)
-      .replace(/\%KEYWORDS\%/g, pkg.keywords.join(', '))
-      .replace(/\%PACKAGE_VERSION\%/g, pkg.version);
+      .replace(/%PUBLIC_URL%/g, publicUrl)
+      .replace(/%KEYWORDS%/g, pkg.keywords.join(', '))
+      .replace(/%PACKAGE_VERSION%/g, version);
 
     fs.writeFile(outputFile, parsed, err => {
       if (err) {

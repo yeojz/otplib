@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const path = require('path');
 const ncp = require('ncp').ncp;
-const pkg = require('../../package.json');
+const libpkg = require('../../package.json');
 const directory = require('./directory');
 
 function copyDocs() {
@@ -14,7 +14,7 @@ function copyDocs() {
   };
 
   ncp(
-    path.join(directory.ROOT, 'docs', pkg.name, pkg.version),
+    path.join(directory.ROOT, 'docs', libpkg.name, libpkg.version),
     path.join(directory.WEBSITE_BUILD, 'docs'),
     callback
   );
