@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+const libpkg = require('../../package.json');
 const pkg = require('../package.json');
 const copyDocs = require('./copyDocs');
 const copyFile = require('./copyFile');
@@ -8,7 +9,7 @@ const PUBLIC_URL = process.env.PUBLIC_URL || pkg.homepage;
 const targets = (process.env.BUILD_PKG || '').split(',');
 
 if (targets.indexOf('site') > -1) {
-  createIndexFile(PUBLIC_URL, pkg);
+  createIndexFile(PUBLIC_URL, pkg, libpkg.version);
 
   // Library Files
   copyFile('../dist/otplib-browser.js', 'dist/lib', '../dist');
