@@ -1,11 +1,26 @@
 {
   "extends": [
-    "config:js-lib"
+    ":separateMajorReleases",
+    ":combinePatchMinorReleases",
+    ":ignoreUnstable",
+    ":renovatePrefix",
+    ":semanticPrefixFixDepsChoreOthers",
+    ":updateNotScheduled",
+    ":automergeDisabled",
+    ":ignoreModulesAndTests",
+    ":maintainLockFilesDisabled",
+    ":autodetectPinVersions",
+    ":prHourlyLimit2",
+    ":prConcurrentLimit20",
+
+    ":prNotPending",
+    ":preserveSemverRanges",
+    ":automergePatch",
+
+    "group:monorepos",
+    "helpers:disableTypesNodeMajor",
+    "helpers:oddIsUnstablePackages"
   ],
   "labels": ["chore"],
-  "major": {
-    "automerge": false
-  },
-  "pinVersions": false,
   "rebaseStalePrs": true
 }
