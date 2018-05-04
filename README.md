@@ -8,6 +8,7 @@
 [![npm downloads][npm-downloads-badge]][npm-link]
 [![PRs Welcome][pr-welcome-badge]][pr-welcome-link]
 [![Support Project][donate-badge]][donate-link]
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyeojz%2Fotplib.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyeojz%2Fotplib?ref=badge_shield)
 
 <img width="150" src="https://yeojz.github.io/otplib/otplib.png" />
 
@@ -356,3 +357,6 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
 [donate-badge]: https://img.shields.io/badge/donate-%3C3-red.svg?longCache=true&style=flat-square
 [donate-link]: https://www.paypal.me/yeojz
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyeojz%2Fotplib.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyeojz%2Fotplib?ref=badge_large)
