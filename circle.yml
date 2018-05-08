@@ -10,9 +10,11 @@ general:
 test:
   pre:
     - npm run clean
+    - npm run build
   override:
     - npm run test
-    - npm run lint
+    - npm run lint:js
+    - npm run lint:ts
 deployment:
   coverage:
     branch: [master, /^hotfix\/.*$/, /^feature\/.*$/]

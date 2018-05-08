@@ -2,7 +2,8 @@
   "name": "otplib",
   "version": "9.0.0",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "main": "otplib.js",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "./scripts/build.sh",
     "build:browser": "webpack --config ./scripts/webpack.config.js",
@@ -14,8 +15,9 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "deploy-gh-pages": "./scripts/build-site.sh",
     "deploy-package": "./scripts/build-publish.sh",
-    "lint": "eslint \"packages/**/**\"",
+    "lint:js": "eslint \"packages/**/**?(.spec|).js\"",
     "lint:format": "prettier --write \"{packages,scripts,site/scripts,site/public}/**/**.js\"",
+    "lint:ts": "dtslint ./packages/types-ts",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch"
   },
@@ -51,6 +53,7 @@
     "babel-preset-env": "^1.6.1",
     "coveralls": "^3.0.0",
     "create-hmac": "^1.1.4",
+    "dtslint": "^0.3.0",
     "eslint": "^4.18.2",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
@@ -71,7 +74,8 @@
   "jest": {
     "coverageDirectory": "./coverage/",
     "coveragePathIgnorePatterns": [
-      "<rootDir>/scripts/*"
+      "<rootDir>/scripts/*",
+      "<rootDir>/dist/*"
     ],
     "modulePaths": [
       "<rootDir>/packages/"
@@ -79,10 +83,16 @@
     "resetMocks": true,
     "setupFiles": [],
     "testPathIgnorePatterns": [
-      "/dist/",
       "/node_modules/",
+      "<rootDir>/dist/*",
       "<rootDir>/scripts/*",
       "<rootDir>/tests/"
     ]
-  }
+  },
+  "repl": [
+    {
+      "name": "otplib",
+      "module": "./dist/index"
+    }
+  ]
 }
