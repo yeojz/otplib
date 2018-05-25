@@ -54,7 +54,7 @@
     "eslint": "^4.18.2",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
-    "jest": "^22.4.2",
+    "jest": "^23.0.0",
     "jsdoc": "^3.4.3",
     "minami": "^1.1.1",
     "prettier": "1.12.1",
