@@ -28,6 +28,7 @@ deployment:
       - npx conventional-github-releaser -p angular
       - npm run clean
       - npm run build
+      - npm run build:types
       - cd dist && npm publish
       - git config --global user.email $CI_DEPLOY_EMAIL
       - git config --global user.name $CI_DEPLOY_NAME
@@ -39,4 +40,5 @@ deployment:
       - npx conventional-github-releaser -p angular
       - npm run clean
       - npm run build
+      - npm run build:types
       - cd dist && npm publish --tag next

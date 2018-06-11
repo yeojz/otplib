@@ -31,6 +31,15 @@ class HOTP {
   }
 
   /**
+   * returns a HOTP class
+   *
+   * @return {class}
+   */
+  getClass() {
+    return HOTP;
+  }
+
+  /**
    * getter for defaultOptions
    *
    * @return {object}

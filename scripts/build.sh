@@ -8,5 +8,3 @@ cp LICENSE dist/LICENSE
 cp package.json dist/package.json
 cp .npmignore dist/.npmignore
 cp scripts/.npmrc dist/.npmrc
-# typings
-cp packages/types-ts/index.d.ts dist/index.d.ts

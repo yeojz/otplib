@@ -12,6 +12,10 @@ describe('HOTP', () => {
     expect(lib.HOTP).toEqual(HOTP);
   });
 
+  it('method: getClass returns the class', () => {
+    expect(lib.getClass()).toEqual(HOTP);
+  });
+
   it('should have expected default options', () => {
     const options = lib.options;
     expect(options).toEqual({});

@@ -14,6 +14,15 @@
     "paths": {
       "otplib": [
         "index"
+      ],
+      "otplib/hotp": [
+        "hotp"
+      ],
+      "otplib/totp": [
+        "totp"
+      ],
+      "otplib/authenticator": [
+        "authenticator"
       ]
     }
   },

@@ -41,6 +41,15 @@ class Authenticator extends TOTP {
   }
 
   /**
+   * returns an Authenticator class
+   *
+   * @return {class}
+   */
+  getClass() {
+    return Authenticator;
+  }
+
+  /**
    * getter for defaultOptions
    *
    * @return {object}

@@ -11,6 +11,7 @@
     "build:module": "./scripts/build-module.sh",
     "build:rollup": "rollup -c scripts/rollup.config.js",
     "build:transpile": "babel dist --out-dir dist",
+    "build:types": "./scripts/build-types.sh",
     "clean": "rimraf dist coverage docs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "deploy-gh-pages": "./scripts/build-site.sh",
