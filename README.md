@@ -7,7 +7,6 @@
 [![Coverage Status][coveralls-badge]][coveralls-link]
 [![npm downloads][npm-downloads-badge]][npm-link]
 [![PRs Welcome][pr-welcome-badge]][pr-welcome-link]
-[![Support Project][donate-badge]][donate-link]
 
 <img width="150" src="https://yeojz.github.io/otplib/otplib.png" />
 
@@ -25,9 +24,10 @@
   - [Core](#core)
   - [Other Bundles](#other-bundles)
 - [Notes](#notes)
+  - [TypeScript Support](#typescript-support)
   - [Setting Custom Options](#setting-custom-options)
     - [Available Options](#available-options)
-  - [Seed / secret length](#seed-secret-length)
+  - [Seed / secret length](#seed---secret-length)
   - [Google Authenticator](#google-authenticator)
     - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
     - [Base32 Keys and RFC3548](#base32-keys-and-rfc3548)
@@ -227,6 +227,10 @@ For more information about the functions, check out the [documentation][project-
 
 ## Notes
 
+### TypeScript Support
+
+As of `v10.0.0`, TypeScript definition files are included within the package.
+
 ### Setting Custom Options
 
 All instantiated classes will have their options inherited from their respective options
@@ -330,9 +334,12 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 
 Check out: [CONTRIBUTING.md][pr-welcome-link]
 
+[![Support Project][coffee-badge]][coffee-link]
+
 ## License
 
 `otplib` is [MIT licensed](./LICENSE)
+
 
 [npm-badge]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [npm-link]: https://www.npmjs.com/package/otplib
@@ -356,3 +363,5 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
 [donate-badge]: https://img.shields.io/badge/donate-%3C3-red.svg?longCache=true&style=flat-square
 [donate-link]: https://www.paypal.me/yeojz
+[coffee-badge]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F%20%20-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
+[coffee-link]: https://ko-fi.com/geraldyeo
