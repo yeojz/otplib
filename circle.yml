@@ -9,6 +9,7 @@ general:
       - gh-pages
 test:
   pre:
+    - npm install --no-save typescript
     - npm run clean
     - npm run build
   override:
