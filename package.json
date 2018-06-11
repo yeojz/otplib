@@ -72,6 +72,10 @@
   "dependencies": {
     "thirty-two": "1.0.2"
   },
+  "optionalDependencies": {
+    "@types/node": "latest",
+    "typescript": "next"
+  },
   "jest": {
     "coverageDirectory": "./coverage/",
     "coveragePathIgnorePatterns": [
