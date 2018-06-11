@@ -10,7 +10,7 @@ const renameImports = require('./helpers/renameImports');
 
 const PACKAGE_LIST = Object.keys(packageConfig);
 const PACKAGE_NAME = process.env.OTPLIB_NAME;
-const FILENAME = PACKAGE_NAME.replace('otplib-', '');
+const FILENAME = renameImports[PACKAGE_NAME];
 
 if (!PACKAGE_NAME) {
   throw new Error('process.env.OTPLIB_NAME is not defined.');

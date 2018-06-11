@@ -25,7 +25,7 @@ For example: `feat(browser): description`, `fix: description`, `chore(readme): d
 
 To only run linting:
 
-`npm run lint`
+`npm run lint:js`
 
 To run tests and coverage:
 

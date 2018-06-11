@@ -10,10 +10,6 @@ import crypto from 'crypto';
  *
  * ```js
  * {
- *    Authenticator // class
- *    HOTP // class
- *    TOTP // class
- *
  *    authenticator // instance
  *    hotp // instance
  *    totp // instance
@@ -28,9 +24,6 @@ hotp.options = { crypto };
 totp.options = { crypto };
 
 export default {
-  Authenticator: authenticator.Authenticator,
-  HOTP: hotp.HOTP,
-  TOTP: totp.TOTP,
   authenticator,
   hotp,
   totp

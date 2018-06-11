@@ -26,6 +26,10 @@ describe('Authenticator', () => {
     expect(lib.Authenticator).toEqual(Authenticator);
   });
 
+  it('method: getClass returns the class', () => {
+    expect(lib.getClass()).toEqual(Authenticator);
+  });
+
   it('exposes authenticator functions as utils', () => {
     expect(Object.keys(lib.utils)).toEqual([
       'check',

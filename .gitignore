@@ -44,3 +44,5 @@ coverage
 /totp.js
 /utils.js
 /lib-test.js
+
+audit.txt

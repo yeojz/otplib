@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "lib": [
+      "es2015"
+    ],
+    "baseUrl": "../../dist",
+    "paths": {
+      "otplib": [
+        "index"
+      ],
+      "otplib/hotp": [
+        "hotp"
+      ],
+      "otplib/totp": [
+        "totp"
+      ],
+      "otplib/authenticator": [
+        "authenticator"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

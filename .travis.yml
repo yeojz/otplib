@@ -9,7 +9,7 @@ before_script:
   - npm run clean
 script:
   - npm run test
-  - npm run lint
+  - npm run lint:js
 after_script:
   - npm run coveralls
 before_deploy:

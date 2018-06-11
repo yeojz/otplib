@@ -33,6 +33,15 @@ class TOTP extends HOTP {
   }
 
   /**
+   * returns a TOTP class
+   *
+   * @return {class}
+   */
+  getClass() {
+    return TOTP;
+  }
+
+  /**
    * getter for defaultOptions
    *
    * @return {object}

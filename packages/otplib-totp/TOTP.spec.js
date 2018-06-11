@@ -12,6 +12,10 @@ describe('TOTP', () => {
     expect(lib.TOTP).toEqual(TOTP);
   });
 
+  it('method: getClass returns the class', () => {
+    expect(lib.getClass()).toEqual(TOTP);
+  });
+
   it('should have expected default options', () => {
     const options = lib.options;
     expect(options).toEqual({

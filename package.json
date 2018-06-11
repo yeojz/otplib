@@ -2,7 +2,8 @@
   "name": "otplib",
   "version": "9.0.0",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "main": "otplib.js",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "./scripts/build.sh",
     "build:browser": "webpack --config ./scripts/webpack.config.js",
@@ -10,12 +11,14 @@
     "build:module": "./scripts/build-module.sh",
     "build:rollup": "rollup -c scripts/rollup.config.js",
     "build:transpile": "babel dist --out-dir dist",
+    "build:types": "./scripts/build-types.sh",
     "clean": "rimraf dist coverage docs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "deploy-gh-pages": "./scripts/build-site.sh",
     "deploy-package": "./scripts/build-publish.sh",
-    "lint": "eslint \"packages/**/**\"",
+    "lint:js": "eslint \"packages/**/**?(.spec|).js\"",
     "lint:format": "prettier --write \"{packages,scripts,site/scripts,site/public}/**/**.js\"",
+    "lint:ts": "dtslint ./packages/types-ts",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch"
   },
@@ -51,6 +54,7 @@
     "babel-preset-env": "^1.6.1",
     "coveralls": "^3.0.0",
     "create-hmac": "^1.1.4",
+    "dtslint": "^0.3.0",
     "eslint": "^4.18.2",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
@@ -62,8 +66,8 @@
     "rollup": "^0.59.0",
     "rollup-plugin-cleanup": "^2.0.0",
     "rollup-plugin-node-resolve": "^3.0.0",
-    "webpack": "^4.0.1",
-    "webpack-cli": "^2.0.10"
+    "webpack": "^4.12.0",
+    "webpack-cli": "^3.0.3"
   },
   "dependencies": {
     "thirty-two": "1.0.2"
@@ -71,7 +75,8 @@
   "jest": {
     "coverageDirectory": "./coverage/",
     "coveragePathIgnorePatterns": [
-      "<rootDir>/scripts/*"
+      "<rootDir>/scripts/*",
+      "<rootDir>/dist/*"
     ],
     "modulePaths": [
       "<rootDir>/packages/"
@@ -79,10 +84,16 @@
     "resetMocks": true,
     "setupFiles": [],
     "testPathIgnorePatterns": [
-      "/dist/",
       "/node_modules/",
+      "<rootDir>/dist/*",
       "<rootDir>/scripts/*",
       "<rootDir>/tests/"
     ]
-  }
+  },
+  "repl": [
+    {
+      "name": "otplib",
+      "module": "./dist/index"
+    }
+  ]
 }
