@@ -3,10 +3,7 @@ interface hmacOptions {
   encoding?: string;
 }
 
-type createHmacSecret = (
-  secret: string,
-  options: hmacOptions
-) => Buffer;
+type createHmacSecret = (secret: string, options: hmacOptions) => Buffer;
 
 interface hotpOptionsInterface extends hmacOptions {
   createHmacSecret?: createHmacSecret;
@@ -114,9 +111,14 @@ declare class Authenticator extends TOTP {
 }
 
 declare module 'otplib' {
-  const authenticator: Authenticator;
-  const hotp: HOTP;
-  const totp: TOTP;
+  interface otplibModule {
+    authenticator: Authenticator;
+    hotp: HOTP;
+    totp: TOTP;
+  }
+
+  const otplib: otplibModule;
+  export = otplib;
 }
 
 declare module 'otplib/authenticator' {
@@ -135,7 +137,7 @@ declare module 'otplib/hotp' {
 }
 
 declare module 'otplib/core' {
-  interface core {
+  interface coreModule {
     hotpCheck: hotpCheck;
     hotpCounter: hotpCounter;
     hotpDigest: hotpDigest;
@@ -149,6 +151,7 @@ declare module 'otplib/core' {
     totpSecret: totpSecret;
     totpToken: totpToken;
   }
-  const lib: core;
-  export = lib;
+
+  const core: coreModule;
+  export = core;
 }
