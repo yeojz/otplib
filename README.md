@@ -73,10 +73,11 @@ $ npm install otplib@next --save
 ### TypeScript Support
 
 As of `v10.0.0`, TypeScript definition files are included with the package.
+
 You will also need to install the following typings:
 
 ```bash
-npm install @types/node # for node Buffer support
+npm install @types/node
 ```
 
 ## Upgrading
@@ -270,12 +271,15 @@ otplib.authenticator.resetOptions();
 | crypto           | object           | node crypto                       | Crypto module to use.                                                                                                                                                        |
 | digits           | integer          | 6                                 | The length of the token                                                                                                                                                      |
 | encoding         | string           | 'ascii' ('hex' for Authenticator) | The encoding of secret which is given to digest                                                                                                                              |
-| epoch (totp)     | integer          | null                              | starting time since the UNIX epoch (seconds). _Note_ non-javascript epoch. i.e. `Date.now() / 1000`                                                                          |
+| epoch (totp)     | integer          | null                              | Starting time since the UNIX epoch (seconds).                                                                                                                                |
 | step (totp)      | integer          | 30                                | Time step (seconds)                                                                                                                                                          |
 | window (totp)    | integer or array | 0                                 | Tokens in the previous and future x-windows that should be considered valid. If integer, same value will be used for both. Alternatively, define array: `[previous, future]` |
 
-_Note 1_: non "totp" label applies to all
-_Note 2_: "totp" applies to authenticator as well
+_Note 1_: epoch format is non-javascript. i.e. `Date.now() / 1000`
+
+_Note 2_: non "totp" label applies to all
+
+_Note 3_: "totp" applies to authenticator as well
 
 ### Seed / secret length
 
@@ -357,7 +361,7 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [circle-link]: https://circleci.com/gh/yeojz/otplib
 [coveralls-badge]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [coveralls-link]: https://coveralls.io/github/yeojz/otplib
-[pr-welcome-badge]: https://img.shields.io/badge/welcome-PRs-brightgreen.svg?style=flat-square&longCache=true
+[pr-welcome-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&longCache=true
 [pr-welcome-link]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
 [mdn-uint8array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
 [mdn-crypto]: https://developer.mozilla.org/en-US/docs/Web/API/Window/crypto

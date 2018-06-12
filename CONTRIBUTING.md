@@ -52,5 +52,5 @@ Before submitting a pull request, please make sure the following is done:
 
 Thank you for contributing!
 
-[pr-welcome-badge]: https://img.shields.io/badge/welcome-PRs-brightgreen.svg?style=flat-square&longCache=true
+[pr-welcome-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&longCache=true
 [pr-welcome-link]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
