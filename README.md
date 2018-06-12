@@ -13,6 +13,7 @@
 - [About](#about)
 - [Demo and Documentation](#demo-and-documentation)
 - [Installation](#installation)
+  - [TypeScript Support](#typescript-support)
 - [Upgrading](#upgrading)
 - [Getting Started](#getting-started)
   - [In node](#in-node)
@@ -24,7 +25,6 @@
   - [Core](#core)
   - [Other Bundles](#other-bundles)
 - [Notes](#notes)
-  - [TypeScript Support](#typescript-support)
   - [Setting Custom Options](#setting-custom-options)
     - [Available Options](#available-options)
   - [Seed / secret length](#seed---secret-length)
@@ -69,6 +69,15 @@ $ npm install otplib@next --save
 | :---------------- | :--------------------------------- |
 | Current / Stable  | [![npm][npm-badge]][npm-link]      |
 | Release Candidate | [![npm][npm-next-badge]][npm-link] |
+
+### TypeScript Support
+
+As of `v10.0.0`, TypeScript definition files are included with the package.
+You will also need to install the following typings:
+
+```bash
+npm install @types/node # for node Buffer support
+```
 
 ## Upgrading
 
@@ -183,7 +192,7 @@ Alternatively you can
 * Use unpkg.com
 
 ```html
-<script src="https://unpkg.com/otplib@^8.0.0/otplib-browser.js"></script>
+<script src="https://unpkg.com/otplib@^10.0.0/otplib-browser.js"></script>
 ```
 
 For a live example, the [project site][project-web] has been built using `otplib-browser.js`.
@@ -226,10 +235,6 @@ Ihis library been split and classified into 6 core files with other specific env
 For more information about the functions, check out the [documentation][project-docs].
 
 ## Notes
-
-### TypeScript Support
-
-As of `v10.0.0`, TypeScript definition files are included within the package.
 
 ### Setting Custom Options
 
@@ -368,5 +373,5 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [donate-link]: https://www.paypal.me/yeojz
 [coffee-badge]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F%20-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
 [coffee-link]: https://ko-fi.com/geraldyeo
-[type-ts-badge]: https://img.shields.io/badge/included-.d.ts-blue.svg?style=flat-square&longCache=true
+[type-ts-badge]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
 [type-ts-link]: https://github.com/yeojz/otplib/tree/master/packages/types-ts
