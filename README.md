@@ -1,3 +1,4 @@
+
 # otplib
 
 > Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
@@ -6,9 +7,8 @@
 [![Build Status][circle-badge]][circle-link]
 [![Coverage Status][coveralls-badge]][coveralls-link]
 [![npm downloads][npm-downloads-badge]][npm-link]
-[![PRs Welcome][pr-welcome-badge]][pr-welcome-link]
+[![TypeScript Support][type-ts-badge]][type-ts-link]
 
-<img width="150" src="https://yeojz.github.io/otplib/otplib.png" />
 
 - [About](#about)
 - [Demo and Documentation](#demo-and-documentation)
@@ -335,10 +335,13 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 Check out: [CONTRIBUTING.md][pr-welcome-link]
 
 [![Support Project][coffee-badge]][coffee-link]
+[![PRs Welcome][pr-welcome-badge]][pr-welcome-link]
 
 ## License
 
 `otplib` is [MIT licensed](./LICENSE)
+
+<img width="150" src="https://yeojz.github.io/otplib/otplib.png" />
 
 
 [npm-badge]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
@@ -349,7 +352,7 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [circle-link]: https://circleci.com/gh/yeojz/otplib
 [coveralls-badge]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [coveralls-link]: https://coveralls.io/github/yeojz/otplib
-[pr-welcome-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
+[pr-welcome-badge]: https://img.shields.io/badge/welcome-PRs-brightgreen.svg?style=flat-square&longCache=true
 [pr-welcome-link]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
 [mdn-uint8array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
 [mdn-crypto]: https://developer.mozilla.org/en-US/docs/Web/API/Window/crypto
@@ -363,5 +366,7 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
 [donate-badge]: https://img.shields.io/badge/donate-%3C3-red.svg?longCache=true&style=flat-square
 [donate-link]: https://www.paypal.me/yeojz
-[coffee-badge]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F%20%20-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
+[coffee-badge]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F%20-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
 [coffee-link]: https://ko-fi.com/geraldyeo
+[type-ts-badge]: https://img.shields.io/badge/included-.d.ts-blue.svg?style=flat-square&longCache=true
+[type-ts-link]: https://github.com/yeojz/otplib/tree/master/packages/types-ts

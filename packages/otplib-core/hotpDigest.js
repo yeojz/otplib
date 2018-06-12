@@ -25,7 +25,10 @@ function hotpDigest(secret, counter, options) {
   }
 
   // Convert secret to encoding for hmacSecret
-  const hmacSecret = options.createHmacSecret(secret, options);
+  const hmacSecret = options.createHmacSecret(secret, {
+    algorithm: options.algorithm,
+    encoding: options.encoding
+  });
 
   // Ensure counter is a buffer or string (for HMAC creation)
   const hexCounter = hotpCounter(counter);

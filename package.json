@@ -78,20 +78,17 @@
   },
   "jest": {
     "coverageDirectory": "./coverage/",
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/scripts/*",
-      "<rootDir>/dist/*"
-    ],
+    "coveragePathIgnorePatterns": [],
     "modulePaths": [
+      "<rootDir>/packages/"
+    ],
+    "roots": [
       "<rootDir>/packages/"
     ],
     "resetMocks": true,
     "setupFiles": [],
     "testPathIgnorePatterns": [
-      "/node_modules/",
-      "<rootDir>/dist/*",
-      "<rootDir>/scripts/*",
-      "<rootDir>/tests/"
+      "/node_modules/"
     ]
   },
   "repl": [
