@@ -35,6 +35,17 @@ To continuously watch and run tests, run the following:
 
 `npm run test:watch`
 
+### Type Definitions
+
+#### TypeScript
+
+`.d.ts` files were introduced in `v10.0.0`, and can be found in `packages/types-ts`.
+
+Before adding new type defintions, first do a `npm run build`.
+This is because the types are checked against the published bundle and not your source files.
+
+To check for validity, you can use `npm run lint:ts` to lint your files.
+
 ### Sending a Pull Request
 
 If you send a pull request, please do it against the master branch.
@@ -46,7 +57,8 @@ Before submitting a pull request, please make sure the following is done:
 * Fork the repository and create your branch from master.
 * If you've added code that should be tested, add tests!
   * Ensure the test suite passes (`npm run test`).
-  * Make sure your code lints (`npm run lint`).
+  * Make sure your code lints (`npm run lint:js`).
+  * Update type definitions if you change the function signatures (`npm run lint:ts`).
   * Ensure code is properly formatted `npm run lint:format`
 * Make a PR to this repository's master branch.
 
