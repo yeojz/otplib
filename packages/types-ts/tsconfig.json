@@ -15,6 +15,9 @@
       "otplib": [
         "index"
       ],
+      "otplib/core": [
+        "core"
+      ],
       "otplib/hotp": [
         "hotp"
       ],

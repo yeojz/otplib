@@ -1,5 +1,6 @@
 import * as otplib from 'otplib';
 import authenticator = require('otplib/authenticator');
+import core = require('otplib/core');
 import hotp = require('otplib/hotp');
 import totp = require('otplib/totp');
 
@@ -7,8 +8,8 @@ const SECRET = '1234567890';
 let secret = '';
 let token = '';
 
-secret = otplib.authenticator.generateSecret(20);
-token = otplib.authenticator.generate(secret);
+secret = otplib.authenticator.generateSecret(20); // $ExpectType string
+token = otplib.authenticator.generate(secret); // $ExpectType string
 
 otplib.authenticator.check(token, secret); // $ExpectType boolean
 otplib.authenticator.checkDelta(token, secret); // $ExpectType number | null
@@ -27,7 +28,7 @@ authenticator.keyuri('me', 'otplib-test', secret); // $ExpectType string
 authenticator.Authenticator;
 authenticator.getClass();
 
-token = otplib.totp.generate(SECRET);
+token = otplib.totp.generate(SECRET); // $ExpectType string
 otplib.totp.check(token, SECRET); // $ExpectType boolean
 otplib.totp.checkDelta(token, SECRET); // $ExpectType number | null
 otplib.totp.verify({ secret: SECRET, token }); // $ExpectType boolean
@@ -39,7 +40,7 @@ totp.verify({ secret: SECRET, token }); // $ExpectType boolean
 totp.TOTP;
 totp.getClass();
 
-token = otplib.hotp.generate(SECRET, 1);
+token = otplib.hotp.generate(SECRET, 1); // $ExpectType string
 otplib.hotp.check(token, SECRET, 1); // $ExpectType boolean
 otplib.hotp.verify({ secret: SECRET, token, counter: 1 }); // $ExpectType boolean
 otplib.hotp.HOTP;
@@ -48,3 +49,17 @@ hotp.check(token, SECRET, 1); // $ExpectType boolean
 hotp.verify({ secret: SECRET, token, counter: 1 }); // $ExpectType boolean
 hotp.HOTP;
 hotp.getClass();
+
+const hotpOpt = core.hotpOptions({});
+core.hotpCheck('123', SECRET, 0, hotpOpt); // $ExpectType boolean
+core.hotpCounter(0); // $ExpectType string
+core.hotpDigest(SECRET, 0, hotpOpt); // $ExpectType string
+core.hotpSecret(SECRET, { algorithm: hotpOpt.algorithm, encoding: hotpOpt.encoding }); // $ExpectType Buffer
+core.hotpToken(SECRET, 0, hotpOpt); // $ExpectType string
+
+const totpOpt = core.totpOptions({});
+core.totpCheck('123', SECRET, totpOpt); // $ExpectType boolean
+core.totpCheckWithWindow('123', SECRET, totpOpt); // $ExpectType number | null
+core.totpCounter(new Date().valueOf(), 0); // $ExpectType number
+core.totpSecret(SECRET, { algorithm: totpOpt.algorithm, encoding: totpOpt.encoding }); // $ExpectType Buffer
+core.totpToken(SECRET, totpOpt); // $ExpectType string

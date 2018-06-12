@@ -1,52 +1,103 @@
-type CreateHmacSecretFunction = (secret: string, options: any) => Buffer;
-
-interface HOTPOptions {
+interface hmacOptions {
   algorithm?: string;
-  createHmacSecret?: CreateHmacSecretFunction;
-  crypto?: any;
-  digits?: number;
   encoding?: string;
 }
 
-interface HOTPVerifyOptions {
+type createHmacSecret = (
+  secret: string,
+  options: hmacOptions
+) => Buffer;
+
+interface hotpOptionsInterface extends hmacOptions {
+  createHmacSecret?: createHmacSecret;
+  crypto?: any;
+  digits?: number;
+}
+
+interface hotpVerifyOptionsInterface {
   token?: string;
   secret?: string;
   counter?: number;
 }
 
-interface TOTPOptions extends HOTPOptions {
+type hotpCheck = (
+  token: string,
+  secret: string,
+  counter: number,
+  options: hotpOptionsInterface
+) => boolean;
+
+type hotpCounter = (counter: number) => string;
+
+type hotpDigest = (
+  secret: string,
+  counter: number,
+  options: hotpOptionsInterface
+) => string;
+
+type hotpOptions = (options: any) => hotpOptionsInterface;
+
+type hotpSecret = createHmacSecret;
+
+type hotpToken = (
+  secret: string,
+  counter: number,
+  options: hotpOptionsInterface
+) => string;
+
+interface totpOptionsInterface extends hotpOptionsInterface {
   epoch?: any;
   step?: number;
   window?: number | number[];
 }
 
-interface TOTPVerifyOptions {
+interface totpVerifyOptionsInterface {
   token?: string;
   secret?: string;
 }
+
+type totpCheck = (
+  token: string,
+  secret: string,
+  options: totpOptionsInterface
+) => boolean;
+
+type totpCheckWithWindow = (
+  token: string,
+  secret: string,
+  options: totpOptionsInterface
+) => number | null;
+
+type totpCounter = (epoch: number, step: number) => number;
+
+type totpOptions = (options: any) => totpOptionsInterface;
+
+type totpSecret = createHmacSecret;
+
+type totpToken = (secret: string, options: totpOptionsInterface) => string;
 
 declare class HOTP {
   HOTP: typeof HOTP;
   getClass(): typeof HOTP;
 
-  options: HOTPOptions;
-  optionsAll: HOTPOptions;
+  options: totpOptionsInterface;
+  optionsAll: totpOptionsInterface;
   resetOptions(): this;
   generate(secret: string, counter: number): string;
   check(token: string, secret: string, counter: number): boolean;
-  verify(opts: HOTPVerifyOptions): boolean;
+  verify(opts: hotpVerifyOptionsInterface): boolean;
 }
 
 declare class TOTP extends HOTP {
   TOTP: typeof TOTP;
   getClass(): typeof TOTP;
 
-  options: TOTPOptions;
-  optionsAll: TOTPOptions;
+  options: totpOptionsInterface;
+  optionsAll: totpOptionsInterface;
   generate(secret: string): string;
   check(token: string, secret: string): boolean;
   checkDelta(token: string, secret: string): number | null;
-  verify(opts: TOTPVerifyOptions): boolean;
+  verify(opts: totpVerifyOptionsInterface): boolean;
 }
 
 declare class Authenticator extends TOTP {
@@ -81,4 +132,23 @@ declare module 'otplib/totp' {
 declare module 'otplib/hotp' {
   const hotp: HOTP;
   export = hotp;
+}
+
+declare module 'otplib/core' {
+  interface core {
+    hotpCheck: hotpCheck;
+    hotpCounter: hotpCounter;
+    hotpDigest: hotpDigest;
+    hotpOptions: hotpOptions;
+    hotpSecret: hotpSecret;
+    hotpToken: hotpToken;
+    totpCheck: totpCheck;
+    totpCheckWithWindow: totpCheckWithWindow;
+    totpCounter: totpCounter;
+    totpOptions: totpOptions;
+    totpSecret: totpSecret;
+    totpToken: totpToken;
+  }
+  const lib: core;
+  export = lib;
 }
