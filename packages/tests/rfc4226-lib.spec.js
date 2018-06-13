@@ -1,4 +1,4 @@
-import otplib from 'otplib';
+import * as otplib from 'otplib';
 import rfc4226 from './rfc4226';
 
 describe('RFC 4226 - integration', () => {

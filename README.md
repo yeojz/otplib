@@ -9,11 +9,12 @@
 [![npm downloads][npm-downloads-badge]][npm-link]
 [![TypeScript Support][type-ts-badge]][type-ts-link]
 
+---
 
 - [About](#about)
 - [Demo and Documentation](#demo-and-documentation)
 - [Installation](#installation)
-  - [TypeScript Support](#typescript-support)
+  - [Type Definitions](#type-definitions)
 - [Upgrading](#upgrading)
 - [Getting Started](#getting-started)
   - [In node](#in-node)
@@ -63,6 +64,9 @@ $ npm install otplib --save
 
 # To install the Release Candidates:
 $ npm install otplib@next --save
+
+# Additional dependencies for TypeScript
+$ npm install @types/node
 ```
 
 | Release Type      | Version                            |
@@ -70,15 +74,9 @@ $ npm install otplib@next --save
 | Current / Stable  | [![npm][npm-badge]][npm-link]      |
 | Release Candidate | [![npm][npm-next-badge]][npm-link] |
 
-### TypeScript Support
+### Type Definitions
 
-As of `v10.0.0`, TypeScript definition files are included with the package.
-
-You will also need to install the following typings:
-
-```bash
-npm install @types/node
-```
+`TypeScript` support was introduced in `v10.0.0`
 
 ## Upgrading
 

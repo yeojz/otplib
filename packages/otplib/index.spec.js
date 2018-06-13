@@ -2,7 +2,7 @@ import hotp from 'otplib-hotp';
 import totp from 'otplib-totp';
 import authenticator from 'otplib-authenticator';
 
-import otplib from './index';
+import * as otplib from './index';
 
 describe('index', () => {
   it('should expose an instance of HOTP', () => {

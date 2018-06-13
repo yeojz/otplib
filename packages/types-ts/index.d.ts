@@ -111,14 +111,9 @@ declare class Authenticator extends TOTP {
 }
 
 declare module 'otplib' {
-  interface otplibModule {
-    authenticator: Authenticator;
-    hotp: HOTP;
-    totp: TOTP;
-  }
-
-  const otplib: otplibModule;
-  export = otplib;
+  const authenticator: Authenticator;
+  const hotp: HOTP;
+  const totp: TOTP;
 }
 
 declare module 'otplib/authenticator' {
@@ -137,21 +132,16 @@ declare module 'otplib/hotp' {
 }
 
 declare module 'otplib/core' {
-  interface coreModule {
-    hotpCheck: hotpCheck;
-    hotpCounter: hotpCounter;
-    hotpDigest: hotpDigest;
-    hotpOptions: hotpOptions;
-    hotpSecret: hotpSecret;
-    hotpToken: hotpToken;
-    totpCheck: totpCheck;
-    totpCheckWithWindow: totpCheckWithWindow;
-    totpCounter: totpCounter;
-    totpOptions: totpOptions;
-    totpSecret: totpSecret;
-    totpToken: totpToken;
-  }
-
-  const core: coreModule;
-  export = core;
+  const hotpCheck: hotpCheck;
+  const hotpCounter: hotpCounter;
+  const hotpDigest: hotpDigest;
+  const hotpOptions: hotpOptions;
+  const hotpSecret: hotpSecret;
+  const hotpToken: hotpToken;
+  const totpCheck: totpCheck;
+  const totpCheckWithWindow: totpCheckWithWindow;
+  const totpCounter: totpCounter;
+  const totpOptions: totpOptions;
+  const totpSecret: totpSecret;
+  const totpToken: totpToken;
 }
