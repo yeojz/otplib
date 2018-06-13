@@ -6,6 +6,19 @@ const directory = require('./helpers/directory');
 
 const ENV = (process.env.NODE_ENV || 'development').toLowerCase();
 
+const babelOverrides = {
+  presets: [
+    [
+      'env',
+      {
+        targets: {
+          browsers: ['last 5 versions']
+        }
+      }
+    ]
+  ]
+};
+
 module.exports = {
   mode: ENV === 'production' ? ENV : 'development',
   entry: {
@@ -22,7 +35,10 @@ module.exports = {
       {
         test: /\.js?$/,
         exclude: /node_modules/,
-        use: ['babel-loader']
+        use: {
+          loader: 'babel-loader',
+          options: babelOverrides
+        }
       }
     ]
   },

@@ -10,7 +10,6 @@ const renameImports = require('./helpers/renameImports');
 
 const PACKAGE_LIST = Object.keys(packageConfig);
 const PACKAGE_NAME = process.env.OTPLIB_NAME;
-const FILENAME = renameImports[PACKAGE_NAME];
 
 if (!PACKAGE_NAME) {
   throw new Error('process.env.OTPLIB_NAME is not defined.');
@@ -22,23 +21,31 @@ if (!config) {
   throw new Error('Unable to find configuration for ', PACKAGE_NAME);
 }
 
-console.log('build - ', PACKAGE_NAME);
-console.log('ouput - ', FILENAME);
+function buildConfig(format) {
+  const renameMap = renameImports(format);
+  const FILENAME = renameMap[PACKAGE_NAME];
 
-module.exports = {
-  input: path.join(directory.SOURCE, PACKAGE_NAME, 'index.js'),
-  output: {
-    banner: createBanner(PACKAGE_NAME),
-    file: path.join(directory.BUILD, FILENAME + '.js'),
-    format: 'cjs',
-    globals: config.globals,
-    paths: renameImports
-  },
-  external: Object.keys(config.globals || {}).concat(PACKAGE_LIST),
-  plugins: [
-    nodeResolve(),
-    cleanup({
-      comments: 'none'
-    })
-  ]
-};
+  console.log('format -', format);
+  console.log('build -', PACKAGE_NAME);
+  console.log('output -', FILENAME);
+
+  return {
+    input: path.join(directory.SOURCE, PACKAGE_NAME, 'index.js'),
+    output: {
+      banner: createBanner(PACKAGE_NAME),
+      file: path.join(directory.BUILD, FILENAME + '.js'),
+      format: format,
+      globals: config.globals,
+      paths: renameMap
+    },
+    external: Object.keys(config.globals || {}).concat(PACKAGE_LIST),
+    plugins: [
+      nodeResolve(),
+      cleanup({
+        comments: 'none'
+      })
+    ]
+  };
+}
+
+module.exports = [buildConfig('cjs')];

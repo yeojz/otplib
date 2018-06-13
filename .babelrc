@@ -7,12 +7,8 @@
     }]
   ],
   "plugins": [
-    "transform-object-assign",
-    "transform-class-properties",
     ["module-resolver", {
       "root": ["./packages"]
     }]
-  ],
-  "env": {
-  }
+  ]
 }

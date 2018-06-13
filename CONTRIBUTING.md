@@ -58,7 +58,7 @@ Before submitting a pull request, please make sure the following is done:
 * If you've added code that should be tested, add tests!
   * Ensure the test suite passes (`npm run test`).
   * Make sure your code lints (`npm run lint:js`).
-  * Update type definitions if you change the function signatures (`npm run lint:ts`).
+  * Update type definitions if you change any function signatures (`npm run lint:ts`).
   * Ensure code is properly formatted `npm run lint:format`
 * Make a PR to this repository's master branch.
 
