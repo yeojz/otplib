@@ -58,7 +58,7 @@
     "jest": "^23.0.0",
     "jsdoc": "^3.4.3",
     "minami": "^1.1.1",
-    "prettier": "1.12.1",
+    "prettier": "1.13.5",
     "rimraf": "^2.6.1",
     "rollup": "^0.60.0",
     "rollup-plugin-cleanup": "^2.0.0",
