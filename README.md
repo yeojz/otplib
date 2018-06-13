@@ -208,7 +208,7 @@ To find out more about the replacements, you can take a look at `packages/otplib
 **Output sizes:**
 
 * with node crypto: ~311Kb
-* with alternative crypto: ~96Kb
+* with alternative crypto: ~106Kb
 
 ## Advanced Usage
 

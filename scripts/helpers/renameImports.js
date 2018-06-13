@@ -1,4 +1,4 @@
-const packageConfig = require('../package.config');
+const buildConfig = require('../../build.config');
 
 const suffixes = {
   cjs: '',
@@ -9,8 +9,8 @@ const suffixes = {
 function renameImports(format) {
   const suffix = suffixes[format];
 
-  return Object.keys(packageConfig).reduce((accum, name) => {
-    accum[name] = './' + packageConfig[name].alias + suffix;
+  return Object.keys(buildConfig).reduce((accum, name) => {
+    accum[name] = './' + buildConfig[name].alias + suffix;
     return accum;
   }, {});
 }
