@@ -16,9 +16,6 @@ hotp.options = { crypto };
 totp.options = { crypto };
 
 module.exports = {
-  Authenticator: authenticator.Authenticator,
-  HOTP: hotp.HOTP,
-  TOTP: totp.TOTP,
   authenticator,
   hotp,
   totp

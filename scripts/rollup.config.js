@@ -3,37 +3,26 @@ const cleanup = require('rollup-plugin-cleanup');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const path = require('path');
 
-const packageConfig = require('./package.config');
+const buildConfig = require('../build.config');
 const createBanner = require('./helpers/createBanner');
 const directory = require('./helpers/directory');
 const renameImports = require('./helpers/renameImports');
 
-const PACKAGE_LIST = Object.keys(packageConfig);
-const PACKAGE_NAME = process.env.OTPLIB_NAME;
+const PACKAGE_LIST = Object.keys(buildConfig).filter(
+  name => buildConfig[name].bundler === 'rollup'
+);
 
-if (!PACKAGE_NAME) {
-  throw new Error('process.env.OTPLIB_NAME is not defined.');
-}
-
-const config = packageConfig[PACKAGE_NAME];
-
-if (!config) {
-  throw new Error('Unable to find configuration for ', PACKAGE_NAME);
-}
-
-function buildConfig(format) {
+function rollupConfig(name, config, format) {
   const renameMap = renameImports(format);
-  const FILENAME = renameMap[PACKAGE_NAME];
+  const filename = renameMap[name];
 
-  console.log('format -', format);
-  console.log('build -', PACKAGE_NAME);
-  console.log('output -', FILENAME);
+  console.log(['build:' + format, name, '=>', filename].join(' '));
 
   return {
-    input: path.join(directory.SOURCE, PACKAGE_NAME, 'index.js'),
+    input: path.join(directory.SOURCE, name, 'index.js'),
     output: {
-      banner: createBanner(PACKAGE_NAME),
-      file: path.join(directory.BUILD, FILENAME + '.js'),
+      banner: createBanner(name),
+      file: path.join(directory.BUILD, filename + '.js'),
       format: format,
       globals: config.globals,
       paths: renameMap
@@ -48,4 +37,9 @@ function buildConfig(format) {
   };
 }
 
-module.exports = [buildConfig('cjs')];
+const list = PACKAGE_LIST.map(name => {
+  const config = buildConfig[name];
+  return rollupConfig(name, config, 'cjs');
+});
+
+module.exports = list;
