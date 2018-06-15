@@ -1,12 +1,12 @@
 aliases:
   - &restore_test_cache
     keys:
-      - test-{{ .Environment.PROJECT_CACHE_VERSION }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "package-lock.json" }}
+      - test-{{ .Environment.PROJECT_CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "package-lock.json" }}
 
   - &save_test_cache
     paths:
       - ./node_modules
-    key: test-{{ .Environment.PROJECT_CACHE_VERSION }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "package-lock.json" }}
+    key: test-{{ .Environment.PROJECT_CACHE_VERSION }}-{{ .Branch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "package-lock.json" }}
 
   - &restore_release_cache
     keys:
