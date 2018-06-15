@@ -202,6 +202,10 @@ workflows:
           filters: *filter_tag_beta
       - hold:
           type: approval
+          requires:
+            - node_v6
+            - node_v8
+            - node_v10
           filters: *filter_tag_stable
       - publish_npm_stable:
           requires:
