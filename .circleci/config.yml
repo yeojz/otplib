@@ -91,10 +91,13 @@ aliases:
           working_directory: ~/yeojz/otplib/dist/otplib
           name: publish to npm
           command: |
+            echo "npm tag = $RUNTIME_NPM_TAG"
+
             if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+              echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
               npm publish --tag $RUNTIME_NPM_TAG
             else
-              echo "Skipping publication."
+              echo "skipping publication."
             fi
 
 version: 2
@@ -164,7 +167,7 @@ jobs:
               npm run build
               npm run deploy
             else
-              echo "Skipping deploy."
+              echo "skipping deploy."
             fi
 
 workflows:
