@@ -1,9 +1,13 @@
-# packaging
-npm run build:module
-NODE_ENV=production npm run build:browser
-cp README.md dist/README.md
-cp LICENSE dist/LICENSE
-# npm essentials
-cp package.json dist/package.json
-cp .npmignore dist/.npmignore
-cp scripts/.npmrc dist/.npmrc
+echo "--- packing ---"
+npm run build:modules
+NODE_ENV=production npm run build:bundles
+
+echo "--- copying meta ---"
+cp ./README.md ./dist/otplib/README.md
+cp ./LICENSE ./dist/otplib/LICENSE
+cp ./package.json ./dist/otplib/package.json
+cp ./.npmignore ./dist/otplib/.npmignore
+
+echo "--- adding type definitions ---"
+cp ./packages/types-ts/index.d.ts ./dist/otplib/index.d.ts
+

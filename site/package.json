@@ -5,9 +5,9 @@
   "homepage": "https://yeojz.github.io/otplib",
   "main": "build.js",
   "scripts": {
-    "build": "BUILD_PKG=site,docs node ./scripts/build.js",
-    "build:dev": "PUBLIC_URL=/ BUILD_PKG=site node ./scripts/build.js",
-    "build:site": "BUILD_PKG=site node ./scripts/build.js",
+    "build": "PUBLIC_URL= ./scripts/build.sh",
+    "build:deps": "./scripts/build-deps.sh",
+    "build:dev": "PUBLIC_URL=/ ./scripts/build.sh",
     "clean": "rimraf dist",
     "deploy": "gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,10 +18,8 @@
   "author": "Gerald Yeo <contact@fusedthought.com>",
   "license": "MIT",
   "dependencies": {
-    "copy": "^0.3.0",
     "gh-pages": "^1.1.0",
     "highlight.js": "^9.10.0",
-    "ncp": "^2.0.0",
     "qrcode": "^1.2.0",
     "rimraf": "^2.6.1"
   }
