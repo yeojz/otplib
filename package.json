@@ -82,7 +82,7 @@
   "repl": [
     {
       "name": "otplib",
-      "module": "./dist/index"
+      "module": "./dist/otplib/index"
     }
   ]
 }
