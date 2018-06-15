@@ -68,7 +68,7 @@ aliases:
   - &defaults
     working_directory: ~/yeojz/otplib
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:8@sha256:130a6d1e553544472e77f84300b0acabefe48181d601e7b0b37e0d56c6e801c4
 
   - &npm_publish
     steps:
@@ -125,12 +125,12 @@ jobs:
 
   node_v6:
     docker:
-      - image: circleci/node:6
+      - image: circleci/node:6@sha256:6cafe8d1415c66c68281b5404b471a5ef5b9c3bbbb6ec881278fcef7122fd64c
     <<: *node_tests
 
   node_v10:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:10@sha256:7189657514235d0946b5a64941dbe6f29fbc8f45a1abf744d179bf51dad04d44
     <<: *node_tests
 
   publish_npm_stable:
