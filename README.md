@@ -103,7 +103,9 @@ in the [releases](https://github.com/yeojz/otplib/releases) page.
 ```js
 import otplib from 'otplib';
 
-const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD' // or generate using otplib.authenticator.generateSecret();
+const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD'
+// Alternatively: const secret = otplib.authenticator.generateSecret();
+
 const token = otplib.authenticator.generate(secret);
 
 const isValid = otplib.authenticator.check(token, secret);
