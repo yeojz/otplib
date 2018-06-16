@@ -1,4 +1,10 @@
-import { totpCheckWithWindow, totpToken, totpOptions } from 'otplib-core';
+import {
+  totpCheckWithWindow,
+  totpOptions,
+  totpTimeRemaining,
+  totpTimeUsed,
+  totpToken
+} from 'otplib-core';
 import hotp from 'otplib-hotp';
 
 const HOTP = hotp.HOTP;
@@ -118,6 +124,28 @@ class TOTP extends HOTP {
       return false;
     }
     return this.check(opts.token, opts.secret);
+  }
+
+  /**
+   * Calculates the number of seconds to before current token is invalid.
+   *
+   * @return {integer}
+   * @see {@link module:core/totpTimeRemaining}
+   */
+  timeRemaining() {
+    const opt = this.optionsAll;
+    return totpTimeRemaining(opt.epoch, opt.step);
+  }
+
+  /**
+   * Calculates the number of seconds used for the current token validity period.
+   *
+   * @return {integer}
+   * @see {@link module:core/totpTimeUsed}
+   */
+  timeUsed() {
+    const opt = this.optionsAll;
+    return totpTimeUsed(opt.epoch, opt.step);
   }
 }
 

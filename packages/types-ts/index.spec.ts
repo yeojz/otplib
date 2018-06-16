@@ -17,6 +17,8 @@ otplib.authenticator.decode('test'); // $ExpectType string
 otplib.authenticator.encode('test'); // $ExpectType string
 otplib.authenticator.verify({ secret, token }); // $ExpectType boolean
 otplib.authenticator.keyuri('me', 'otplib-test', secret); // $ExpectType string
+otplib.authenticator.timeRemaining(); // $ExpectType number
+otplib.authenticator.timeUsed(); // $ExpectType number
 otplib.authenticator.Authenticator;
 otplib.authenticator.getClass();
 authenticator.check(token, secret); // $ExpectType boolean
@@ -25,6 +27,8 @@ authenticator.decode('test'); // $ExpectType string
 authenticator.encode('test'); // $ExpectType string
 authenticator.verify({ secret, token }); // $ExpectType boolean
 authenticator.keyuri('me', 'otplib-test', secret); // $ExpectType string
+authenticator.timeRemaining(); // $ExpectType number
+authenticator.timeUsed(); // $ExpectType number
 authenticator.Authenticator;
 authenticator.getClass();
 
@@ -32,11 +36,15 @@ token = otplib.totp.generate(SECRET); // $ExpectType string
 otplib.totp.check(token, SECRET); // $ExpectType boolean
 otplib.totp.checkDelta(token, SECRET); // $ExpectType number | null
 otplib.totp.verify({ secret: SECRET, token }); // $ExpectType boolean
+otplib.totp.timeRemaining(); // $ExpectType number
+otplib.totp.timeUsed(); // $ExpectType number
 otplib.totp.TOTP;
 otplib.totp.getClass();
 totp.check(token, SECRET); // $ExpectType boolean
 totp.checkDelta(token, SECRET); // $ExpectType number | null
 totp.verify({ secret: SECRET, token }); // $ExpectType boolean
+totp.timeRemaining(); // $ExpectType number
+totp.timeUsed(); // $ExpectType number
 totp.TOTP;
 totp.getClass();
 
@@ -63,3 +71,5 @@ core.totpCheckWithWindow('123', SECRET, totpOpt); // $ExpectType number | null
 core.totpCounter(new Date().valueOf(), 0); // $ExpectType number
 core.totpSecret(SECRET, { algorithm: totpOpt.algorithm, encoding: totpOpt.encoding }); // $ExpectType Buffer
 core.totpToken(SECRET, totpOpt); // $ExpectType string
+core.totpTimeRemaining(1, 1);  // $ExpectType number
+core.totpTimeUsed(1, 1);  // $ExpectType number

@@ -71,6 +71,10 @@ type totpOptions = (options: any) => totpOptionsInterface;
 
 type totpSecret = createHmacSecret;
 
+type totpTimeRemaining = (epoch: number, step: number) => number;
+
+type totpTimeUsed = (epoch: number, step: number) => number;
+
 type totpToken = (secret: string, options: totpOptionsInterface) => string;
 
 declare class HOTP {
@@ -95,6 +99,8 @@ declare class TOTP extends HOTP {
   check(token: string, secret: string): boolean;
   checkDelta(token: string, secret: string): number | null;
   verify(opts: totpVerifyOptionsInterface): boolean;
+  timeUsed(): number;
+  timeRemaining(): number;
 }
 
 declare class Authenticator extends TOTP {
@@ -143,5 +149,7 @@ declare module 'otplib/core' {
   const totpCounter: totpCounter;
   const totpOptions: totpOptions;
   const totpSecret: totpSecret;
+  const totpTimeRemaining: totpTimeRemaining;
+  const totpTimeUsed: totpTimeUsed;
   const totpToken: totpToken;
 }

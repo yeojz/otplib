@@ -1,11 +1,11 @@
 /* global QRCode otplib*/
 (function() {
   var secret = '';
-  var step = 30;
   var timing;
 
   otplib.authenticator.options = {
-    window: 1
+    window: 1,
+    step: 30
   };
 
   function toggleTabs(evt) {
@@ -46,23 +46,19 @@
     document.querySelector('.otp-token').innerHTML = token;
   }
 
-  function setTimeLeft(timeLeft) {
-    document.querySelector('.otp-countdown').innerHTML = timeLeft + 's';
-  }
-
   function generator() {
     if (!secret) {
       window.clearInterval(timing);
       return;
     }
 
-    const epoch = Math.floor(new Date().getTime() / 1000);
-    const count = epoch % 30;
-
-    if (count === 0) {
+    if (otplib.authenticator.timeUsed() === 0) {
       setToken(otplib.authenticator.generate(secret));
     }
-    setTimeLeft(step - count);
+
+    // time left
+    document.querySelector('.otp-countdown').innerHTML =
+      otplib.authenticator.timeRemaining() + 's';
   }
 
   function startCountdown() {

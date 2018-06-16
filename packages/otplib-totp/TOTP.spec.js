@@ -94,6 +94,14 @@ describe('TOTP', () => {
     expect(spy).toHaveBeenCalledWith('token', 'secret');
   });
 
+  it('method: totpTimeRemaining', () => {
+    methodExpectation('timeRemaining', 'totpTimeRemaining');
+  });
+
+  it('method: totpTimeUsed', () => {
+    methodExpectation('timeUsed', 'totpTimeUsed');
+  });
+
   function methodExpectation(methodName, coreName) {
     jest.spyOn(core, coreName).mockImplementation(() => 'result');
 
