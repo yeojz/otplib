@@ -2,7 +2,7 @@
  * Generates a counter for TOTP
  *
  * @module otplib-core/totpCounter
- * @param {number} epoch - starting time since the UNIX epoch (seconds)
+ * @param {number} epoch - starting time since the JavasSript epoch (seconds) (UNIX epoch * 1000)
  * @param {number} step - time step (seconds)
  * @return {float}
  */

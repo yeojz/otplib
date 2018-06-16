@@ -52,13 +52,13 @@
       return;
     }
 
+    const remaining = otplib.authenticator.timeRemaining();
     if (otplib.authenticator.timeUsed() === 0) {
       setToken(otplib.authenticator.generate(secret));
     }
 
     // time left
-    document.querySelector('.otp-countdown').innerHTML =
-      otplib.authenticator.timeRemaining() + 's';
+    document.querySelector('.otp-countdown').innerHTML = remaining + 's';
   }
 
   function startCountdown() {
