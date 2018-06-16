@@ -35,6 +35,7 @@
     - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
     - [Base32 Keys and RFC3548](#base32-keys-and-rfc3548)
     - [Displaying a QR code](#displaying-a-qr-code)
+  - [Getting Time Remaining / Time Used](#getting-time-remaining--time-used)
   - [Exploring with local-repl](#exploring-with-local-repl)
 - [Contributing](#contributing)
 - [License](#license)
@@ -63,6 +64,7 @@ and includes additional methods to allow you to work with Google Authenticator.
 - [Documentation][project-docs]
 - [Demo][project-web]
 - [FAQ / Common Issues](https://github.com/yeojz/otplib/wiki/FAQ)
+- [List of available methods][type-ts-file] (documented via TypeScript)
 
 ## Installation
 
@@ -344,6 +346,16 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 });
 ```
 
+### Getting Time Remaining / Time Used
+
+Helper methods for getting the remaining time and used time within a validity period
+of a `totp` or `authenticator` token were introduced in `v10.0.0`.
+
+```js
+authenticator.timeUsed(); // or totp.timeUsed();
+authenticator.timeRemaining(); // or totp.timeRemaining();
+```
+
 ### Exploring with local-repl
 
 If you'll like to explore the library with `local-repl` you can do so as well.
@@ -398,7 +410,8 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
 [donate-badge]: https://img.shields.io/badge/donate-%3C3-red.svg?longCache=true&style=flat-square
 [donate-link]: https://www.paypal.me/yeojz
-[coffee-badge]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F%20-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
+[coffee-badge]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
 [coffee-link]: https://ko-fi.com/geraldyeo
 [type-ts-badge]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
 [type-ts-link]: https://github.com/yeojz/otplib/tree/master/packages/types-ts
+[type-ts-file]: https://github.com/yeojz/otplib/blob/master/packages/types-ts/index.d.ts

@@ -9,6 +9,8 @@ import totpCheckWithWindow from './totpCheckWithWindow';
 import totpCounter from './totpCounter';
 import totpOptions from './totpOptions';
 import totpSecret from './totpSecret';
+import totpTimeRemaining from './totpTimeRemaining';
+import totpTimeUsed from './totpTimeUsed';
 import totpToken from './totpToken';
 
 /**
@@ -49,5 +51,7 @@ export {
   totpCounter,
   totpOptions,
   totpSecret,
+  totpTimeRemaining,
+  totpTimeUsed,
   totpToken
 };
