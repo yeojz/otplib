@@ -9,7 +9,7 @@
     "build:deps": "./scripts/build-deps.sh",
     "build:dev": "PUBLIC_URL=/ ./scripts/build.sh",
     "clean": "rimraf dist",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -t -d dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
