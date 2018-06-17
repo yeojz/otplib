@@ -65,6 +65,7 @@ and includes additional methods to allow you to work with Google Authenticator.
 - [Demo][project-web]
 - [FAQ / Common Issues](https://github.com/yeojz/otplib/wiki/FAQ)
 - [List of available methods][type-ts-file] (documented via TypeScript)
+- [Examples][project-examples]
 
 ## Installation
 
@@ -354,6 +355,10 @@ of a `totp` or `authenticator` token were introduced in `v10.0.0`.
 ```js
 authenticator.timeUsed(); // or totp.timeUsed();
 authenticator.timeRemaining(); // or totp.timeRemaining();
+
+// The start of a new token would be when:
+// - timeUsed() === 0
+// - timeRemaining() === step
 ```
 
 ### Exploring with local-repl
@@ -403,6 +408,7 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [project-web]: https://yeojz.github.io/otplib
 [project-docs]: https://yeojz.github.io/otplib/docs
 [project-lib]: https://github.com/yeojz/otplib/tree/gh-pages/lib
+[project-examples]: https://github.com/yeojz/otplib/tree/master/examples
 [rfc-4226]: http://tools.ietf.org/html/rfc4226
 [rfc-6238]: http://tools.ietf.org/html/rfc6238
 [rfc-3548]: http://tools.ietf.org/html/rfc3548
