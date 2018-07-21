@@ -37,7 +37,7 @@ function hotpDigest(secret, counter, options) {
   const cryptoHmac = options.crypto.createHmac(options.algorithm, hmacSecret);
 
   // Update HMAC with the counter
-  return cryptoHmac.update(new Buffer(hexCounter, 'hex')).digest();
+  return cryptoHmac.update(Buffer.from(hexCounter, 'hex')).digest();
 }
 
 export default hotpDigest;

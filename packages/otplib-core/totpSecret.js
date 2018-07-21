@@ -22,7 +22,7 @@ function totpSecret(secret, options) {
     throw new Error('Expecting options.encoding to be a string');
   }
 
-  const encoded = new Buffer(secret, options.encoding);
+  const encoded = Buffer.from(secret, options.encoding);
   const algorithm = options.algorithm.toLowerCase();
 
   switch (algorithm) {

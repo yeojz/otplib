@@ -1,7 +1,7 @@
 import padSecret from './padSecret';
 
 describe('padSecret', () => {
-  const secret = new Buffer('hello');
+  const secret = Buffer.from('hello');
 
   it('should have length 20', () => {
     const result = padSecret(secret, 20);
