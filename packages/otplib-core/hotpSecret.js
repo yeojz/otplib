@@ -11,7 +11,7 @@ function hotpSecret(secret, options) {
     throw new Error('Expecting options.encoding to be a string');
   }
 
-  return new Buffer(secret, options.encoding);
+  return Buffer.from(secret, options.encoding);
 }
 
 export default hotpSecret;

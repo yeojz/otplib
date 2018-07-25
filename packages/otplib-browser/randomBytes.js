@@ -29,7 +29,7 @@ function randomBytes(size) {
   const rawBytes = new Uint8Array(size);
   crypto.getRandomValues(rawBytes);
 
-  return new Buffer(rawBytes.buffer);
+  return Buffer.from(rawBytes.buffer);
 }
 
 export default randomBytes;
