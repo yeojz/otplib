@@ -77,7 +77,8 @@
     "setupFiles": [],
     "testPathIgnorePatterns": [
       "/node_modules/"
-    ]
+    ],
+    "testURL": "http://localhost"
   },
   "repl": [
     {
