@@ -55,7 +55,7 @@
     "minami": "^1.1.1",
     "prettier": "1.14.2",
     "rimraf": "^2.6.1",
-    "rollup": "^0.63.0",
+    "rollup": "^0.64.0",
     "rollup-plugin-cleanup": "^3.0.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "webpack": "^4.12.0",
