@@ -125,7 +125,7 @@ jobs:
 
   node_v6:
     docker:
-      - image: circleci/node:6@sha256:b8ea1a58a96d8f625212b649183f09996afe482dd6b27dbbcfc4c0d11cbde27e
+      - image: circleci/node:6@sha256:f1196c0f4c681f0422b0cb2d4479b755cabc0750c77b4e093dc03664df0ba815
     <<: *node_tests
 
   node_v10:
