@@ -130,7 +130,7 @@ jobs:
 
   node_v10:
     docker:
-      - image: circleci/node:10@sha256:db36ac8d0f94f0f646d17626db5c4c854c35ea2b4c676ec1ba781ef836376548
+      - image: circleci/node:10@sha256:73e7fff08fadc31bd14e0106fe14eb3cd302165997024c33e839c00218b3bd9f
     <<: *node_tests
 
   publish_npm_stable:
