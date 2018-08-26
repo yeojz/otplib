@@ -16,6 +16,7 @@
 /webpack.config.js
 
 circle.yml
+.circleci
 coverage
 jsdoc.json
 node_modules

@@ -1,17 +1,17 @@
-interface hmacOptions {
+interface HmacOptions {
   algorithm?: string;
   encoding?: string;
 }
 
-type createHmacSecret = (secret: string, options: hmacOptions) => Buffer;
+type createHmacSecret = (secret: string, options: HmacOptions) => Buffer;
 
-interface hotpOptionsInterface extends hmacOptions {
+interface HotpOptionsInterface extends HmacOptions {
   createHmacSecret?: createHmacSecret;
   crypto?: any;
   digits?: number;
 }
 
-interface hotpVerifyOptionsInterface {
+interface HotpVerifyOptionsInterface {
   token?: string;
   secret?: string;
   counter?: number;
@@ -21,7 +21,7 @@ type hotpCheck = (
   token: string,
   secret: string,
   counter: number,
-  options: hotpOptionsInterface
+  options: HotpOptionsInterface
 ) => boolean;
 
 type hotpCounter = (counter: number) => string;
@@ -29,26 +29,26 @@ type hotpCounter = (counter: number) => string;
 type hotpDigest = (
   secret: string,
   counter: number,
-  options: hotpOptionsInterface
+  options: HotpOptionsInterface
 ) => string;
 
-type hotpOptions = (options: any) => hotpOptionsInterface;
+type hotpOptions = (options: any) => HotpOptionsInterface;
 
 type hotpSecret = createHmacSecret;
 
 type hotpToken = (
   secret: string,
   counter: number,
-  options: hotpOptionsInterface
+  options: HotpOptionsInterface
 ) => string;
 
-interface totpOptionsInterface extends hotpOptionsInterface {
+interface TotpOptionsInterface extends HotpOptionsInterface {
   epoch?: any;
   step?: number;
   window?: number | number[];
 }
 
-interface totpVerifyOptionsInterface {
+interface TotpVerifyOptionsInterface {
   token?: string;
   secret?: string;
 }
@@ -56,18 +56,18 @@ interface totpVerifyOptionsInterface {
 type totpCheck = (
   token: string,
   secret: string,
-  options: totpOptionsInterface
+  options: TotpOptionsInterface
 ) => boolean;
 
 type totpCheckWithWindow = (
   token: string,
   secret: string,
-  options: totpOptionsInterface
+  options: TotpOptionsInterface
 ) => number | null;
 
 type totpCounter = (epoch: number, step: number) => number;
 
-type totpOptions = (options: any) => totpOptionsInterface;
+type totpOptions = (options: any) => TotpOptionsInterface;
 
 type totpSecret = createHmacSecret;
 
@@ -75,30 +75,30 @@ type totpTimeRemaining = (epoch: number, step: number) => number;
 
 type totpTimeUsed = (epoch: number, step: number) => number;
 
-type totpToken = (secret: string, options: totpOptionsInterface) => string;
+type totpToken = (secret: string, options: TotpOptionsInterface) => string;
 
 declare class HOTP {
   HOTP: typeof HOTP;
   getClass(): typeof HOTP;
 
-  options: totpOptionsInterface;
-  optionsAll: totpOptionsInterface;
+  options: TotpOptionsInterface;
+  optionsAll: TotpOptionsInterface;
   resetOptions(): this;
   generate(secret: string, counter: number): string;
   check(token: string, secret: string, counter: number): boolean;
-  verify(opts: hotpVerifyOptionsInterface): boolean;
+  verify(opts: HotpVerifyOptionsInterface): boolean;
 }
 
 declare class TOTP extends HOTP {
   TOTP: typeof TOTP;
   getClass(): typeof TOTP;
 
-  options: totpOptionsInterface;
-  optionsAll: totpOptionsInterface;
+  options: TotpOptionsInterface;
+  optionsAll: TotpOptionsInterface;
   generate(secret: string): string;
   check(token: string, secret: string): boolean;
   checkDelta(token: string, secret: string): number | null;
-  verify(opts: totpVerifyOptionsInterface): boolean;
+  verify(opts: TotpVerifyOptionsInterface): boolean;
   timeUsed(): number;
   timeRemaining(): number;
 }
