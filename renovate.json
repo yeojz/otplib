@@ -16,6 +16,7 @@
     ":prNotPending",
     ":preserveSemverRanges",
     ":automergePatch",
+    ":pinDigestsDisabled",
 
     "group:monorepos",
     "helpers:disableTypesNodeMajor",
