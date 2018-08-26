@@ -59,17 +59,25 @@ hotp.HOTP;
 hotp.getClass();
 
 const hotpOpt = core.hotpOptions({});
+const hotpSecretOpt = {
+  algorithm: hotpOpt.algorithm,
+  encoding: hotpOpt.encoding
+};
 core.hotpCheck('123', SECRET, 0, hotpOpt); // $ExpectType boolean
 core.hotpCounter(0); // $ExpectType string
 core.hotpDigest(SECRET, 0, hotpOpt); // $ExpectType string
-core.hotpSecret(SECRET, { algorithm: hotpOpt.algorithm, encoding: hotpOpt.encoding }); // $ExpectType Buffer
+core.hotpSecret(SECRET, hotpSecretOpt); // $ExpectType Buffer
 core.hotpToken(SECRET, 0, hotpOpt); // $ExpectType string
 
 const totpOpt = core.totpOptions({});
+const totpSecretOpt = {
+  algorithm: totpOpt.algorithm,
+  encoding: totpOpt.encoding
+};
 core.totpCheck('123', SECRET, totpOpt); // $ExpectType boolean
 core.totpCheckWithWindow('123', SECRET, totpOpt); // $ExpectType number | null
 core.totpCounter(new Date().valueOf(), 0); // $ExpectType number
-core.totpSecret(SECRET, { algorithm: totpOpt.algorithm, encoding: totpOpt.encoding }); // $ExpectType Buffer
+core.totpSecret(SECRET, totpSecretOpt); // $ExpectType Buffer
 core.totpToken(SECRET, totpOpt); // $ExpectType string
-core.totpTimeRemaining(1, 1);  // $ExpectType number
-core.totpTimeUsed(1, 1);  // $ExpectType number
+core.totpTimeRemaining(1, 1); // $ExpectType number
+core.totpTimeUsed(1, 1); // $ExpectType number
