@@ -1,5 +1,12 @@
-echo "--- packing ---"
+echo "\n--- packing modules ---"
 npm run build:modules
+
+echo "\n--- transpile modules ---"
+npx babel \
+  dist/otplib \
+  -d dist/otplib
+
+echo "\n--- packing bundles ---"
 NODE_ENV=production npm run build:bundles
 
 echo "--- copying meta ---"
