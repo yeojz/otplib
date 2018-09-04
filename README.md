@@ -76,9 +76,6 @@ $ npm install otplib --save
 
 # To install the Release Candidates:
 $ npm install otplib@next --save
-
-# Additional dependencies for TypeScript
-$ npm install @types/node
 ```
 
 | Release Type      | Version                            |
@@ -89,6 +86,11 @@ $ npm install @types/node
 ### Type Definitions
 
 `TypeScript` support was introduced in `v10.0.0`
+
+```bash
+# Additional dependencies needed for TypeScript
+$ npm install @types/node
+```
 
 ## Upgrading
 
