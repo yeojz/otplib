@@ -349,6 +349,8 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 });
 ```
 
+> **Note**: For versions `v10.1.0` and below, `keyuri` does not uri encode `user` and `service`.
+
 ### Getting Time Remaining / Time Used
 
 Helper methods for getting the remaining time and used time within a validity period
