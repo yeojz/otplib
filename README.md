@@ -421,7 +421,7 @@ Check out: [CONTRIBUTING.md][pr-welcome-link]
 [donate-badge]: https://img.shields.io/badge/donate-%3C3-red.svg?longCache=true&style=flat-square
 [donate-link]: https://www.paypal.me/yeojz
 [coffee-badge]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
-[coffee-link]: https://ko-fi.com/geraldyeo
+[coffee-link]: https://paypal.me/yeojz
 [type-ts-badge]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
 [type-ts-link]: https://github.com/yeojz/otplib/tree/master/packages/types-ts
 [type-ts-file]: https://github.com/yeojz/otplib/blob/master/packages/types-ts/index.d.ts
