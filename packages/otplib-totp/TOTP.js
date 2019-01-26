@@ -36,6 +36,14 @@ const HOTP = hotp.HOTP;
 class TOTP extends HOTP {
   constructor() {
     super();
+
+    this._defaultOptions = {
+      epoch: null,
+      step: 30,
+      window: 0
+    };
+
+    this._options = this._defaultOptions;
   }
 
   /**
@@ -45,19 +53,6 @@ class TOTP extends HOTP {
    */
   getClass() {
     return TOTP;
-  }
-
-  /**
-   * getter for defaultOptions
-   *
-   * @return {object}
-   */
-  get defaultOptions() {
-    return {
-      epoch: null,
-      step: 30,
-      window: 0
-    };
   }
 
   /**

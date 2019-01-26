@@ -27,7 +27,8 @@ import { hotpCheck, hotpToken, hotpOptions } from 'otplib-core';
  */
 class HOTP {
   constructor() {
-    this._options = this.defaultOptions;
+    this._defaultOptions = {};
+    this._options = this._defaultOptions;
   }
 
   /**
@@ -40,30 +41,38 @@ class HOTP {
   }
 
   /**
-   * getter for defaultOptions
+   * Sets an option as instance default.
+   * Setting an option as default will allow it to persist
+   * even if resetOptions is called
+   *
+   * @since 10.2.0
+   * @type {object}
+   */
+  set defaultOptions(opt = {}) {
+    if (opt) {
+      this._defaultOptions = Object.assign({}, this.defaultOptions, opt);
+      this.options = opt;
+    }
+  }
+
+  /**
+   * Returns the defaultOptions
    *
    * @return {object}
    */
   get defaultOptions() {
-    return {};
+    return this._defaultOptions;
   }
 
   /**
-   * Getter and Setter methods for instance options
+   * Sets the instance options
    * that will be used to override the defaults.
    *
    * ```
-   * // Setter
    * const hotp = new HOTP();
    * hotp.options = {
    *   digits: 8
    * }
-   * ```
-   *
-   * ```
-   * // Getter
-   * const hotp = new HOTP();
-   * const opt = hotp.options;
    * ```
    *
    * @type {object}
@@ -74,12 +83,23 @@ class HOTP {
     }
   }
 
+  /**
+   * Gets the current instance options
+   * without presets
+   *
+   * ```
+   * const hotp = new HOTP();
+   * const opt = hotp.options;
+   * ```
+   *
+   * @return {object}
+   */
   get options() {
     return Object.assign({}, this._options);
   }
 
   /**
-   * Returns instance options, polyfilled with
+   * Returns instance options, preset with
    * all missing library defaults
    *
    * @return {object}
@@ -89,7 +109,8 @@ class HOTP {
   }
 
   /**
-   * Resets options to presets
+   * Resets options to presets and
+   * any preferences set in defaultOptions
    *
    * @param {object} option object
    * @return {instance}

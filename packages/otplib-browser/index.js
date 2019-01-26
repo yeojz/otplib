@@ -11,9 +11,9 @@ import crypto from './crypto';
  * @module otplib-browser
  * @since 3.0.0
  */
-authenticator.options = { crypto };
-hotp.options = { crypto };
-totp.options = { crypto };
+authenticator.defaultOptions = { crypto };
+hotp.defaultOptions = { crypto };
+totp.defaultOptions = { crypto };
 
 module.exports = {
   authenticator,

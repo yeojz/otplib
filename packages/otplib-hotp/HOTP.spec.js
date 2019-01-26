@@ -22,8 +22,11 @@ describe('HOTP', () => {
   });
 
   it('defaultOptions getter returns expected result', () => {
+    lib.defaultOptions = {
+      test: 'me'
+    };
     const options = lib.defaultOptions;
-    expect(options).toEqual({});
+    expect(options).toEqual({ test: 'me' });
   });
 
   it('options setter / getter should work', () => {
@@ -49,14 +52,30 @@ describe('HOTP', () => {
     expect(prev).toEqual(lib.options);
   });
 
+  it('defaultOptions setter should take in null ', () => {
+    const prev = lib.defaultOptions;
+    lib.defaultOptions = null;
+    expect(prev).toEqual(lib.defaultOptions);
+  });
+
+  it('defaultOptions setter should take in void 0 ', () => {
+    const prev = lib.defaultOptions;
+    lib.defaultOptions = void 0;
+    expect(prev).toEqual(lib.defaultOptions);
+  });
+
   it('method: resetOptions - should return options to defaults', () => {
     lib.options = {
       test: 'value'
     };
-    expect(lib.options).toEqual({ test: 'value' });
+    lib.defaultOptions = {
+      test2: 'value'
+    };
+
+    expect(lib.options).toEqual({ test: 'value', test2: 'value' });
 
     lib.resetOptions();
-    expect(lib.options).toEqual({});
+    expect(lib.options).toEqual({ test2: 'value' });
   });
 
   it('method: generate', () => {
