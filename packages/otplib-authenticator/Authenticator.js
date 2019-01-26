@@ -38,6 +38,15 @@ const TOTP = totp.TOTP;
 class Authenticator extends TOTP {
   constructor() {
     super();
+
+    this._defaultOptions = {
+      encoding: 'hex',
+      epoch: null,
+      step: 30,
+      window: 0
+    };
+
+    this._options = this._defaultOptions;
   }
 
   /**
@@ -47,20 +56,6 @@ class Authenticator extends TOTP {
    */
   getClass() {
     return Authenticator;
-  }
-
-  /**
-   * getter for defaultOptions
-   *
-   * @return {object}
-   */
-  get defaultOptions() {
-    return {
-      encoding: 'hex',
-      epoch: null,
-      step: 30,
-      window: 0
-    };
   }
 
   /**

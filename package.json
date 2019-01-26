@@ -15,6 +15,7 @@
     "lint:format": "prettier --write \"{packages,scripts,site/scripts,site/public}/**/**.js\"",
     "lint:ts": "dtslint ./packages/types-ts",
     "test": "jest --coverage --runInBand",
+    "test:nocover": "jest",
     "test:watch": "jest --coverage --watch"
   },
   "repository": {
