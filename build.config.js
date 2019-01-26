@@ -40,7 +40,7 @@ module.exports = {
   'otplib-browser': {
     bundler: 'webpack',
     babel: {
-      presets: [['env', browsers]]
+      presets: [['@babel/preset-env', browsers]]
     }
   }
 };
