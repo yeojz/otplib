@@ -81,7 +81,8 @@ declare class HOTP {
   HOTP: typeof HOTP;
   getClass(): typeof HOTP;
 
-  options: TotpOptionsInterface;
+  defaultOptions: HotpOptionsInterface;
+  options: HotpOptionsInterface;
   optionsAll: TotpOptionsInterface;
   resetOptions(): this;
   generate(secret: string, counter: number): string;
@@ -93,6 +94,7 @@ declare class TOTP extends HOTP {
   TOTP: typeof TOTP;
   getClass(): typeof TOTP;
 
+  defaultOptions: TotpOptionsInterface;
   options: TotpOptionsInterface;
   optionsAll: TotpOptionsInterface;
   generate(secret: string): string;
