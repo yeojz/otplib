@@ -349,7 +349,7 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 });
 ```
 
-> **Note**: For versions `v10.1.0` and below, `keyuri` does not uri encode `user` and `service`.
+> **Note**: For versions `v10.x.x` and below, `keyuri` does not uri encode `user` and `service`.
 
 ### Getting Time Remaining / Time Used
 
