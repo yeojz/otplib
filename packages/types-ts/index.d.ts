@@ -83,7 +83,7 @@ declare class HOTP {
 
   defaultOptions: HotpOptionsInterface;
   options: HotpOptionsInterface;
-  optionsAll: TotpOptionsInterface;
+  optionsAll: HotpOptionsInterface;
   resetOptions(): this;
   generate(secret: string, counter: number): string;
   check(token: string, secret: string, counter: number): boolean;
