@@ -1,0 +1,14 @@
+export const hotpCheck = jest.fn();
+export const hotpCounter = jest.fn();
+export const hotpDigest = jest.fn();
+export const hotpOptions = jest.fn();
+export const hotpSecret = jest.fn();
+export const hotpToken = jest.fn();
+export const totpCheck = jest.fn();
+export const totpCheckWithWindow = jest.fn();
+export const totpCounter = jest.fn();
+export const totpOptions = jest.fn();
+export const totpSecret = jest.fn();
+export const totpTimeRemaining = jest.fn();
+export const totpTimeUsed = jest.fn();
+export const totpToken = jest.fn();

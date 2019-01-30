@@ -117,6 +117,7 @@ jobs:
           name: lint
           command: |
             npm run lint:js
+            ./node_modules/.bin/dtslint --version
             npm run lint:ts
       - run:
           name: send coverage report

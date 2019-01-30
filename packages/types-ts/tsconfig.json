@@ -7,26 +7,14 @@
     "noImplicitThis": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
-    "lib": [
-      "es2015"
-    ],
+    "lib": ["es2015"],
     "baseUrl": "../../dist",
     "paths": {
-      "otplib": [
-        "index"
-      ],
-      "otplib/core": [
-        "core"
-      ],
-      "otplib/hotp": [
-        "hotp"
-      ],
-      "otplib/totp": [
-        "totp"
-      ],
-      "otplib/authenticator": [
-        "authenticator"
-      ]
+      "otplib": ["index"],
+      "otplib/core": ["core"],
+      "otplib/hotp": ["hotp"],
+      "otplib/totp": ["totp"],
+      "otplib/authenticator": ["authenticator"]
     }
   },
   "exclude": [
