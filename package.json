@@ -73,13 +73,17 @@
     "modulePaths": [
       "<rootDir>/packages/"
     ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.*/__mocks__"
+    ],
     "roots": [
       "<rootDir>/packages/"
     ],
     "resetMocks": true,
     "setupFiles": [],
     "testPathIgnorePatterns": [
-      "/node_modules/"
+      "/node_modules/",
+      "/packages/types-ts/"
     ],
     "testURL": "http://localhost"
   },
