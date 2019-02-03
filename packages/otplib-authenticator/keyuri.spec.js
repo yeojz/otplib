@@ -9,6 +9,12 @@ describe('keyuri', () => {
       void 0,
       void 0,
       void 0
+    ],
+    [
+      'otpauth://totp/test%20got%20space:me%20got%20space?secret=123&issuer=test%20got%20space',
+      'me got space',
+      'test got space',
+      '123'
     ]
   ].forEach((entry, idx) => {
     const [url, ...args] = entry;

@@ -3,6 +3,9 @@ const data = '{service}:{user}?secret={secret}&issuer={service}';
 /**
  * Generates an otpauth uri
  *
+ * The "user" and "service" parameters will
+ * be passed to encodeURIComponent for encoding
+ *
  * @namespace otplib/impl/authenticator
  * @module otplib-authenticator/keyuri
  * @param {string} user - the name/id of your user
@@ -13,9 +16,9 @@ const data = '{service}:{user}?secret={secret}&issuer={service}';
 function keyuri(user = 'user', service = 'service', secret = '') {
   const protocol = 'otpauth://totp/';
   const value = data
-    .replace('{user}', user)
+    .replace('{user}', encodeURIComponent(user))
     .replace('{secret}', secret)
-    .replace(/{service}/g, service);
+    .replace(/{service}/g, encodeURIComponent(service));
 
   return protocol + value;
 }
