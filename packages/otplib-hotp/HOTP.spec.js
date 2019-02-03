@@ -1,11 +1,21 @@
 import * as core from 'otplib-core';
+import { resetObjectMocks } from 'tests/helpers';
 import HOTP from './HOTP';
+
+jest.mock('otplib-core');
 
 describe('HOTP', () => {
   let lib;
 
+  function mockOptions() {
+    core.hotpOptions.mockImplementation(() => ({
+      secret: 'secret'
+    }));
+  }
+
   beforeEach(() => {
     lib = new HOTP();
+    resetObjectMocks(core);
   });
 
   it('exposes the class as a prototype', () => {
@@ -79,6 +89,8 @@ describe('HOTP', () => {
   });
 
   it('method: generate', () => {
+    mockOptions();
+
     methodExpectation('generate', 'hotpToken');
   });
 
@@ -90,6 +102,8 @@ describe('HOTP', () => {
   });
 
   it('method: check', () => {
+    mockOptions();
+
     methodExpectation('check', 'hotpCheck');
   });
 
@@ -134,16 +148,17 @@ describe('HOTP', () => {
   });
 
   function methodExpectation(methodName, coreName) {
-    jest.spyOn(core, coreName).mockImplementation(() => 'result');
+    core[coreName].mockImplementation(() => 'result');
+
     expect(typeof lib[methodName] === 'function').toBe(true);
     expect(() => lib[methodName]()).not.toThrow(Error);
   }
 
   function methodExpectationWithOptions(methodName, coreName, args) {
-    const spy = jest.spyOn(core, coreName).mockImplementation(() => 'result');
+    core[coreName].mockImplementation(() => 'result');
 
     lib[methodName](...args);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(...args, lib.optionsAll);
+    expect(core[coreName]).toHaveBeenCalledTimes(1);
+    expect(core[coreName]).toHaveBeenCalledWith(...args, lib.optionsAll);
   }
 });

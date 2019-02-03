@@ -1,11 +1,21 @@
 import * as core from 'otplib-core';
+import { resetObjectMocks } from 'tests/helpers';
 import TOTP from './TOTP';
+
+jest.mock('otplib-core');
 
 describe('TOTP', () => {
   let lib;
 
+  function mockOptions() {
+    core.totpOptions.mockImplementation(() => ({
+      secret: 'secret'
+    }));
+  }
+
   beforeEach(() => {
     lib = new TOTP();
+    resetObjectMocks(core);
   });
 
   it('exposes the class as a prototype', () => {
@@ -26,6 +36,10 @@ describe('TOTP', () => {
   });
 
   it('method: generate', () => {
+    core.totpOptions.mockImplementation(() => ({
+      secret: 'secret'
+    }));
+
     methodExpectation('generate', 'totpToken');
   });
 
@@ -34,6 +48,8 @@ describe('TOTP', () => {
   });
 
   it('method: check', () => {
+    mockOptions();
+
     methodExpectation('check', 'totpCheckWithWindow');
   });
 
@@ -53,6 +69,8 @@ describe('TOTP', () => {
   });
 
   it('method: checkDelta', () => {
+    mockOptions();
+
     methodExpectation('checkDelta', 'totpCheckWithWindow');
   });
 
@@ -64,6 +82,7 @@ describe('TOTP', () => {
   });
 
   it('method: verify', () => {
+    mockOptions();
     methodExpectation('verify', 'totpCheckWithWindow');
   });
 
@@ -95,15 +114,17 @@ describe('TOTP', () => {
   });
 
   it('method: totpTimeRemaining', () => {
+    mockOptions();
     methodExpectation('timeRemaining', 'totpTimeRemaining');
   });
 
   it('method: totpTimeUsed', () => {
+    mockOptions();
     methodExpectation('timeUsed', 'totpTimeUsed');
   });
 
   function methodExpectation(methodName, coreName) {
-    jest.spyOn(core, coreName).mockImplementation(() => 'result');
+    core[coreName].mockImplementation(() => 'result');
 
     expect(typeof lib[methodName] === 'function').toBe(true);
     expect(() => lib[methodName]()).not.toThrow(Error);
@@ -111,11 +132,10 @@ describe('TOTP', () => {
 
   function methodExpectationWithOptions(methodName, coreName, args) {
     lib.options = { epoch: 1519995424045 };
-
-    const spy = jest.spyOn(core, coreName).mockImplementation(() => 'result');
+    core[coreName].mockImplementation(() => 'result');
 
     lib[methodName](...args);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(...args, lib.optionsAll);
+    expect(core[coreName]).toHaveBeenCalledTimes(1);
+    expect(core[coreName]).toHaveBeenCalledWith(...args, lib.optionsAll);
   }
 });
