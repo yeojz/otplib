@@ -1,4 +1,5 @@
 import * as utils from 'otplib-utils';
+import { resetObjectMocks } from 'tests/helpers';
 import Authenticator from './Authenticator';
 import check from './check';
 import checkDelta from './checkDelta';
@@ -7,6 +8,7 @@ import encodeKey from './encodeKey';
 import keyuri from './keyuri';
 import token from './token';
 
+jest.mock('otplib-utils');
 jest.mock('./check', () => jest.fn());
 jest.mock('./checkDelta', () => jest.fn());
 jest.mock('./decodeKey', () => jest.fn());
@@ -20,6 +22,7 @@ describe('Authenticator', () => {
 
   beforeEach(() => {
     lib = new Authenticator();
+    resetObjectMocks(utils);
   });
 
   it('exposes the class as a prototype', () => {
@@ -162,15 +165,13 @@ describe('Authenticator', () => {
 
   function mockGenerateSecret() {
     const secret = '1234567890';
-    const secretKey = jest
-      .spyOn(utils, 'secretKey')
-      .mockImplementation(() => secret);
+    utils.secretKey.mockImplementation(() => secret);
 
     encodeKey.mockImplementation(() => testValue);
 
     return {
       secret,
-      secretKey
+      secretKey: utils.secretKey
     };
   }
 });

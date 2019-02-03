@@ -1,16 +1,19 @@
 import * as core from 'otplib-core';
+import { resetObjectMocks } from 'tests/helpers';
 import decodeKey from './decodeKey';
 import token from './token';
 
+jest.mock('otplib-core');
 jest.mock('./decodeKey', () => jest.fn());
 
 describe('token', () => {
+  beforeEach(() => {
+    resetObjectMocks(core);
+  });
+
   it('should return expected result', () => {
     decodeKey.mockImplementation(() => 10);
-
-    const totpToken = jest
-      .spyOn(core, 'totpToken')
-      .mockImplementation(() => 'result');
+    core.totpToken.mockImplementation(() => 'result');
 
     const options = { test: 1 };
 
@@ -19,7 +22,7 @@ describe('token', () => {
     expect(decodeKey).toHaveBeenCalledTimes(1);
     expect(decodeKey).toHaveBeenCalledWith('test');
 
-    expect(totpToken).toHaveBeenCalledTimes(1);
-    expect(totpToken).toHaveBeenCalledWith(10, options);
+    expect(core.totpToken).toHaveBeenCalledTimes(1);
+    expect(core.totpToken).toHaveBeenCalledWith(10, options);
   });
 });
