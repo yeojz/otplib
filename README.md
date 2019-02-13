@@ -338,7 +338,10 @@ An example is shown below:
 import qrcode from 'qrcode';
 import otplib from 'otplib';
 
-const otpauth = otplib.authenticator.keyuri('user', 'service', secret);
+const user = 'A user name, possibly an email';
+const service = 'A service name';
+const otpauth = otplib.authenticator.keyuri(
+    encodeURIComponent(user), encodeURIComponent(service), secret);
 
 qrcode.toDataURL(otpauth, (err, imageUrl) => {
   if (err) {
@@ -349,7 +352,8 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 });
 ```
 
-> **Note**: For versions `v10.x.x` and below, `keyuri` does not uri encode `user` and `service`.
+> **Note**: For versions `v10.x.x` and below, `keyuri` does not URI encode
+> `user` and `service` and it's the developer's job to do it as show above.
 
 ### Getting Time Remaining / Time Used
 
