@@ -49,7 +49,7 @@
     "babel-plugin-module-resolver": "^3.1.0",
     "coveralls": "^3.0.0",
     "create-hmac": "^1.1.4",
-    "dtslint": "^0.3.0",
+    "dtslint": "^0.5.0",
     "eslint": "^5.0.0",
     "eslint-config-prettier": "^3.0.0",
     "eslint-plugin-prettier": "^3.0.0",
