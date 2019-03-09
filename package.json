@@ -10,13 +10,14 @@
     "build:docs": "jsdoc --configure jsdoc.json",
     "build:modules": "rollup -c scripts/rollup.config.js",
     "clean": "rimraf dist coverage docs",
-    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "lint:js": "eslint \"packages/**/**?(.spec|).js\"",
     "lint:format": "prettier --write \"{packages,scripts,site/scripts,site/public}/**/**.js\"",
     "lint:ts": "dtslint ./packages/types-ts",
     "test": "jest --coverage --runInBand",
     "test:nocover": "jest",
-    "test:watch": "jest --coverage --watch"
+    "test:watch": "jest --coverage --watch",
+    "update:release-notes": "npx conventional-github-releaser -p angular",
+    "upload:coverage": "cat ./coverage/lcov.info | coveralls"
   },
   "repository": {
     "type": "git",

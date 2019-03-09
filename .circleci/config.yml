@@ -75,13 +75,7 @@ aliases:
       - checkout
       - restore-cache: *restore_release_cache
       - run: *install_npm
-      - run:
-          name: install conventional-github-releaser
-          command: npm install --no-save conventional-github-releaser
       - save_cache: *save_release_cache
-      - run:
-          name: update github release description
-          command: npx conventional-github-releaser -p angular
       - run:
           name: build for npm
           command: |
@@ -96,6 +90,13 @@ aliases:
             if [ -z "$CIRCLE_PULL_REQUEST" ]; then
               echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
               npm publish --tag $RUNTIME_NPM_TAG
+
+              {
+                npm run update:release-notes
+              } || {
+                echo "unable to update release notes."
+              }
+
             else
               echo "skipping publication."
             fi
@@ -120,7 +121,16 @@ jobs:
             npm run lint:ts
       - run:
           name: send coverage report
-          command: npm run coveralls
+          command: |
+            if [[ $CIRCLE_PROJECT_USERNAME == $PROJECT_OWNER_NAME ]]; then
+              {
+                npm run upload:coverage
+              } || {
+                echo "unable to update coverage."
+              }
+            else
+              echo "skipping coverage uploading."
+            fi
           when: on_success
 
   node_v6:
