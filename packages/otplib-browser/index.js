@@ -15,8 +15,4 @@ authenticator.defaultOptions = { crypto };
 hotp.defaultOptions = { crypto };
 totp.defaultOptions = { crypto };
 
-module.exports = {
-  authenticator,
-  hotp,
-  totp
-};
+export { authenticator, hotp, totp };
