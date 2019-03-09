@@ -13,7 +13,7 @@ const PACKAGE_LIST = Object.keys(buildConfig).filter(
 
 function webpackConfig(name, config) {
   return {
-    // mode: ENV === 'production' ? ENV : 'development',
+    mode: ENV === 'production' ? ENV : 'development',
     entry: {
       otplib: directory.SOURCE + '/otplib-browser/index.js'
     },
