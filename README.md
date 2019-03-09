@@ -340,8 +340,13 @@ import otplib from 'otplib';
 
 const user = 'A user name, possibly an email';
 const service = 'A service name';
+
+// v10.x.x and below
 const otpauth = otplib.authenticator.keyuri(
     encodeURIComponent(user), encodeURIComponent(service), secret);
+
+// v11.x.x and above
+const otpauth = otplib.authenticator.keyuri(user, service, secret);
 
 qrcode.toDataURL(otpauth, (err, imageUrl) => {
   if (err) {
