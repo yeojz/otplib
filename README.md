@@ -108,14 +108,20 @@ in the [releases](https://github.com/yeojz/otplib/releases) page.
 ```js
 import otplib from 'otplib';
 
-const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD'
+const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
 // Alternatively: const secret = otplib.authenticator.generateSecret();
 
 const token = otplib.authenticator.generate(secret);
 
-const isValid = otplib.authenticator.check(token, secret);
-// or
-const isValid = otplib.authenticator.verify({ token, secret })
+try {
+    const isValid = otplib.authenticator.check(token, secret);
+    // or
+    const isValid = otplib.authenticator.verify({ token, secret });
+} catch (err) {
+    // Error possibly thrown by the thirty-two package
+    // 'Invalid input - it is not base32 encoded string'
+    console.error(err);
+}
 ```
 
 #### Using specific OTP implementations
@@ -341,12 +347,12 @@ import otplib from 'otplib';
 const user = 'A user name, possibly an email';
 const service = 'A service name';
 
+// v11.x.x and above
+const otpauth = otplib.authenticator.keyuri(user, service, secret);
+
 // v10.x.x and below
 const otpauth = otplib.authenticator.keyuri(
     encodeURIComponent(user), encodeURIComponent(service), secret);
-
-// v11.x.x and above
-const otpauth = otplib.authenticator.keyuri(user, service, secret);
 
 qrcode.toDataURL(otpauth, (err, imageUrl) => {
   if (err) {
