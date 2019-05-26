@@ -24,3 +24,8 @@ hotp.defaultOptions = { crypto };
 totp.defaultOptions = { crypto };
 
 export { authenticator, hotp, totp };
+export default {
+  authenticator,
+  hotp,
+  totp
+};
