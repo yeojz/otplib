@@ -31,18 +31,7 @@ coverage
 .npm
 .node_repl_history
 
-/dist
-/docs
-/site/dist
-/site/public/docs/*
-
-/authenticator.js
-/core.js
-/hotp.js
-/index.js
-/otplib.js
-/totp.js
-/utils.js
-/lib-test.js
-
 audit.txt
+/build-*
+
+lib.test.*

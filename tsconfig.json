@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": "",
+    "target": "es2015",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "build-pkg",
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "rootDir": ".",
+    "paths": {
+      "packages/*": ["packages/*"],
+    }
+  },
+  "include": ["packages/**/*"],
+  "exclude": ["node_modules"]
+}

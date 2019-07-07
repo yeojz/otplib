@@ -5,19 +5,12 @@
   "main": "./index.js",
   "typings": "./index.d.ts",
   "scripts": {
-    "build": "./scripts/build.sh",
-    "build:bundles": "webpack --config ./scripts/webpack.config.js",
-    "build:docs": "jsdoc --configure jsdoc.json",
-    "build:modules": "rollup -c scripts/rollup.config.js",
-    "build:site": "./scripts/build-site.sh",
+    "build": "echo \"build\"",
     "clean": "rimraf dist coverage docs",
-    "lint:js": "eslint \"packages/**/**?(.spec|).js\"",
-    "lint:format": "prettier --write \"{packages,scripts,site/scripts,site/public}/**/**.js\"",
-    "lint:ts": "dtslint ./packages/types-ts",
+    "lint": "npm run lint:ts",
+    "lint:ts": "tsc --noEmit",
     "test": "jest --coverage --runInBand",
-    "test:nocover": "jest",
-    "test:watch": "jest --coverage --watch",
-    "update:release-notes": "npx conventional-github-releaser -p angular",
+    "test:watch": "jest --watch",
     "upload:coverage": "cat ./coverage/lcov.info | coveralls"
   },
   "repository": {
@@ -44,50 +37,56 @@
   },
   "homepage": "https://yeojz.github.io/otplib",
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "babel-loader": "^8.0.0",
-    "babel-plugin-module-resolver": "^3.1.0",
-    "coveralls": "^3.0.0",
-    "create-hmac": "^1.1.4",
-    "dtslint": "^0.3.0",
-    "eslint": "^5.0.0",
-    "eslint-config-prettier": "^3.0.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "jest": "^24.0.0",
-    "jsdoc": "^3.4.3",
-    "minami": "^1.1.1",
-    "prettier": "1.16.1",
-    "rimraf": "^2.6.1",
-    "rollup": "^1.0.0",
-    "rollup-plugin-cleanup": "^3.0.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3"
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-typescript": "^7.3.3",
+    "@types/crypto-js": "^3.1.43",
+    "@types/jest": "^24.0.16",
+    "@types/node": "^12.6.9",
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
+    "babel-jest": "^24.8.0",
+    "base32-decode": "^1.0.0",
+    "base32-encode": "^1.1.1",
+    "crypto-js": "^3.1.9-1",
+    "eslint": "^6.1.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "jest": "^24.8.0",
+    "prettier": "^1.18.2",
+    "rimraf": "^2.6.3",
+    "thirty-two": "^1.0.2",
+    "typescript": "^3.5.3"
   },
-  "dependencies": {
-    "thirty-two": "1.0.2"
-  },
+  "dependencies": {},
   "jest": {
+    "collectCoverageFrom": [
+      "packages/**/*.{js,ts}",
+      "!**/node_modules/**",
+      "!packages/tests-*/*",
+      "!packages/otplib-browser/*"
+    ],
     "coverageDirectory": "./coverage/",
-    "coveragePathIgnorePatterns": [],
     "modulePaths": [
-      "<rootDir>/packages/"
+      "<rootDir>"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/.*/__mocks__"
     ],
     "roots": [
-      "<rootDir>/packages/"
+      "<rootDir>"
     ],
     "resetMocks": true,
     "setupFiles": [],
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/packages/types-ts/"
+      "/packages/tests-data/",
+      "/packages/tests-suites/"
     ],
-    "testURL": "http://localhost"
+    "testURL": "http://localhost",
+    "transform": {
+      "^.+\\.(js|ts)$": "babel-jest"
+    }
   },
   "repl": [
     {

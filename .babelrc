@@ -2,14 +2,9 @@
   "presets": [
     ["@babel/preset-env", {
       "targets": {
-        "node": "6",
-        "ios": "9"
+        "node": "8"
       }
-    }]
-  ],
-  "plugins": [
-    ["module-resolver", {
-      "root": ["./packages"]
-    }]
+    }],
+    "@babel/preset-typescript"
   ]
 }
