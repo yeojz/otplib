@@ -1,4 +1,5 @@
-const data = '{service}:{user}?secret={secret}&issuer={service}&algorithm={algorithm}&digits={digits}&period={period}';
+const data =
+  '{service}:{user}?secret={secret}&issuer={service}&algorithm={algorithm}&digits={digits}&period={period}';
 
 /**
  * Generates an otpauth uri
