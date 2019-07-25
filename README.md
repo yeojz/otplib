@@ -335,6 +335,13 @@ instead of manually entering the secret. Google Authenticator and similar apps
 take in a QR code that holds a URL with the protocol `otpauth://`,
 which you get from `otplib.authenticator.keyuri`.
 
+Google Authenticator will ignore the `algorithm`, `digits`, and `step` options.
+See the [documentation](https://github.com/google/google-authenticator/wiki/Key-Uri-Format)
+for more information.
+
+If you are using a different authenticator app, check the documentation
+for that app if the token provided does not work.
+
 While this library provides the "otpauth" uri, you'll need a library to generate the QR Code image.
 
 An example is shown below:
