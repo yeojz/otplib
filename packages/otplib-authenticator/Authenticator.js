@@ -73,10 +73,15 @@ class Authenticator extends TOTP {
   }
 
   /**
+   * @param {string} user - the name/id of your user
+   * @param {string} service - the name of your service
+   * @param {string} secret - your secret that is used to generate the token
+   * @return {string} otpauth uri. Example: otpauth://totp/user:localhost?secret=NKEIBAOUFA
    * @see {@link module:impl/authenticator/keyuri}
    */
-  keyuri(...args) {
-    return keyuri(...args);
+  keyuri(user = 'user', service = 'service', secret = '') {
+    const opt = this.optionsAll;
+    return keyuri(user, service, secret, opt);
   }
 
   /**

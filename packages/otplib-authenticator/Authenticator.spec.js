@@ -63,7 +63,16 @@ describe('Authenticator', () => {
   });
 
   it('method: keyuri => keyuri', () => {
-    methodExpectation('keyuri', keyuri, ['123']);
+    methodExpectationWithOptions('keyuri', keyuri, ['123', '456', '789']);
+  });
+
+  it('method: keyuri should use default params on undefined params', () => {
+    methodExpectationWithOptions(
+      'keyuri',
+      keyuri,
+      [void 0, void 0, void 0],
+      ['user', 'service', '']
+    );
   });
 
   it('method: generateSecret returns empty string on falsy len params', () => {
