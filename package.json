@@ -9,6 +9,7 @@
     "build:bundles": "webpack --config ./scripts/webpack.config.js",
     "build:docs": "jsdoc --configure jsdoc.json",
     "build:modules": "rollup -c scripts/rollup.config.js",
+    "build:site": "./scripts/build-site.sh",
     "clean": "rimraf dist coverage docs",
     "lint:js": "eslint \"packages/**/**?(.spec|).js\"",
     "lint:format": "prettier --write \"{packages,scripts,site/scripts,site/public}/**/**.js\"",
