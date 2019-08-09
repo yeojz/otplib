@@ -1,23 +1,25 @@
 // @ts-ignore
 import thirtyTwo from 'thirty-two';
-import {
-  RFC4648String,
-  KeyDecoder,
-  KeyEncoder
-} from 'packages/otplib-authenticator';
-import { KeyEncodings } from 'packages/otplib-core';
+import { Base32SecretKey, KeyDecoder, KeyEncoder } from 'otplib-authenticator';
+import { KeyEncodings, SecretKey } from 'otplib-core';
 
+/**
+ * - Key decoder using npm `thirty-two`
+ */
 export const keyDecoder: KeyDecoder = (
-  encodedSecret: RFC4648String,
+  encodedSecret: Base32SecretKey,
   encoding: KeyEncodings
-): string => {
+): SecretKey => {
   return thirtyTwo.decode(encodedSecret).toString(encoding);
 };
 
+/**
+ * - Key encoder using npm `thirty-two`
+ */
 export const keyEncoder: KeyEncoder = (
-  secret: string,
+  secret: SecretKey,
   encoding: KeyEncodings
-): RFC4648String => {
+): Base32SecretKey => {
   return thirtyTwo
     .encode(Buffer.from(secret, encoding).toString())
     .toString()

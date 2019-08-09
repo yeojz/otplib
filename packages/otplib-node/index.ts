@@ -2,16 +2,12 @@ import crypto from 'crypto';
 import {
   HashAlgorithms,
   CreateDigest,
-  KeyEncodings,
   HOTP,
   HexString,
+  KeyEncodings,
   TOTP
-} from 'packages/otplib-core';
-import {
-  Authenticator,
-  CreateRandomBytes
-} from 'packages/otplib-authenticator';
-import { keyDecoder, keyEncoder } from 'packages/otplib-base32/base32-codec';
+} from 'otplib-core';
+import { Authenticator, CreateRandomBytes } from 'otplib-authenticator';
 
 const createDigest: CreateDigest = (
   algorithm: HashAlgorithms,
@@ -30,17 +26,37 @@ const createRandomBytes: CreateRandomBytes = (
   return crypto.randomBytes(size).toString(encoding);
 };
 
+/**
+ * A HOTP instance.
+ *
+ * Initialised with package-specific implementation of:
+ *
+ * - createDigest
+ */
 export const hotp = new HOTP({
   createDigest
 });
 
+/**
+ * A TOTP instance.
+ *
+ * Initialised with package-specific implementation of:
+ *
+ * - createDigest
+ */
 export const totp = new TOTP({
   createDigest
 });
 
+/**
+ * An Authenticator instance.
+ *
+ * Initialised with package-specific implementation of:
+ *
+ * - createDigest
+ * - createRandomBytes
+ */
 export const authenticator = new Authenticator({
   createDigest,
-  createRandomBytes,
-  keyDecoder,
-  keyEncoder
+  createRandomBytes
 });

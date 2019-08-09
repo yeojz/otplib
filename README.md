@@ -2,364 +2,268 @@
 
 > Time-based (TOTP) and HMAC-based (HOTP) One-Time Password library
 
-[![npm][npm-badge]][npm-link]
-[![Build Status][circle-badge]][circle-link]
-[![Coverage Status][coveralls-badge]][coveralls-link]
-[![npm downloads][npm-downloads-badge]][npm-link]
-[![TypeScript Support][type-ts-badge]][type-ts-link]
+[![npm][badge-npm]][project-npm]
+[![Build Status][badge-circle]][project-circle]
+[![Coverage Status][badge-coveralls]][project-coveralls]
+[![npm downloads][badge-npm-downloads]][project-npm]
+[![TypeScript Support][badge-type-ts]][project-docs]
 
 ---
 
 <!-- TOC depthFrom:2 -->
 
 - [About](#about)
-- [Demo and Documentation](#demo-and-documentation)
-- [Installation](#installation)
-  - [Type Definitions](#type-definitions)
-- [Upgrading](#upgrading)
-- [Getting Started](#getting-started)
-  - [In node](#in-node)
-    - [Using specific OTP implementations](#using-specific-otp-implementations)
-    - [Using classes](#using-classes)
-    - [Using with Expo.io](#using-with-expoio)
-  - [In browser](#in-browser)
-    - [Browser Compatibility](#browser-compatibility)
-- [Advanced Usage](#advanced-usage)
-  - [Core](#core)
-  - [Other Bundles](#other-bundles)
-- [Notes](#notes)
-  - [Setting Custom Options](#setting-custom-options)
-    - [Available Options](#available-options)
-  - [Seed / secret length](#seed--secret-length)
-  - [Google Authenticator](#google-authenticator)
-    - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
-    - [Base32 Keys and RFC3548](#base32-keys-and-rfc3548)
-    - [Displaying a QR code](#displaying-a-qr-code)
-  - [Getting Time Remaining / Time Used](#getting-time-remaining--time-used)
+  - [Features](#features)
+- [Getting Started (Node.js)](#getting-started-nodejs)
+  - [Install the package](#install-the-package)
+  - [Choose a base32 module (for Google Authenticator)](#choose-a-base32-module-for-google-authenticator)
+  - [Alternative: Using the UMD Module](#alternative-using-the-umd-module)
+- [Getting Started (Browsers)](#getting-started-browsers)
+  - [Adding the scripts](#adding-the-scripts)
+  - [Browser bundle size](#browser-bundle-size)
+- [Available Packages](#available-packages)
+  - [Base](#base)
+  - [Plugins](#plugins)
+    - [Crypto](#crypto)
+    - [Base 32](#base-32)
+  - [Packages](#packages)
+- [Available Options](#available-options)
+- [Google Authenticator](#google-authenticator)
+  - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
+  - [RFC3548 Base32](#rfc3548-base32)
+  - [Displaying a QR code](#displaying-a-qr-code)
+- [Others](#others)
   - [Exploring with local-repl](#exploring-with-local-repl)
-- [Contributing](#contributing)
 - [License](#license)
 
 <!-- /TOC -->
 
 ## About
 
-`otplib` is a JavaScript One Time Password (OTP) library.
-It provides both functional and class based interfaces for
-dealing with OTP generation and verification.
+`otplib` is a JavaScript One Time Password (OTP) library for OTP generation and verification.
 
 It implements both [HOTP][rfc-4226-wiki] - [RFC 4226][rfc-4226]
 and [TOTP][rfc-6238-wiki] - [RFC 6238][rfc-6238],
 and are tested against the test vectors provided in their respective RFC specifications.
-These datasets can be found in the `packages/tests` folder.
+These datasets can be found in the `packages/tests-data` folder.
 
-- [RFC 4226 Dataset](https://github.com/yeojz/otplib/blob/master/packages/tests/rfc4226.js)
-- [RFC 6238 Dataset](https://github.com/yeojz/otplib/blob/master/packages/tests/rfc6238.js)
+- [RFC 4226 Dataset][rfc-4226-dataset]
+- [RFC 6238 Dataset][rfc-6238-dataset]
 
 This library is also compatible with [Google Authenticator](https://github.com/google/google-authenticator),
 and includes additional methods to allow you to work with Google Authenticator.
 
-## Demo and Documentation
+### Features
 
-- [Documentation][project-docs]
-- [Demo][project-web]
-- [FAQ / Common Issues](https://github.com/yeojz/otplib/wiki/FAQ)
-- [List of available methods][type-ts-file] (documented via TypeScript)
-- [Examples][project-examples]
+- [x] Typescript support
+- [x] [Class][mdn-classes] interfaces
+- [x] [Function][mdn-functions] interfaces
+- [x] Pluggable crypto modules
+  - `crypto`
+  - `cryptojs`
+  - etc.
+- [x] Pluggable base32 modules
+  - `thirty-two`
+  - `base32-encode` + `base32-decode`
+  - etc.
+- [x] Multi platform builds provided
+  - `node`
+  - `browser` ()
+  - etc.
 
-## Installation
+## Getting Started (Node.js)
 
-Install the library via:
-
-```bash
-$ npm install otplib --save
-
-# To install the Release Candidates:
-$ npm install otplib@next --save
-```
-
-| Release Type      | Version                            |
-| :---------------- | :--------------------------------- |
-| Current / Stable  | [![npm][npm-badge]][npm-link]      |
-| Release Candidate | [![npm][npm-next-badge]][npm-link] |
-
-### Type Definitions
-
-`TypeScript` support was introduced in `v10.0.0`
+### Install the package
 
 ```bash
-# Additional dependencies needed for TypeScript
-$ npm install @types/node
+npm install otplib
 ```
 
-## Upgrading
+### Choose a base32 module (for Google Authenticator)
 
-This library follows `semver`. As such, major version bumps usually mean API changes or behavior changes.
-Please check [upgrade notes](https://github.com/yeojz/otplib/wiki/upgrade-notes) for more information,
-especially before making any major upgrades.
+If you're using Google Authenticator, you'll need a base32 module for
+encoding and decoding your secrets.
 
-You might also want to check out the release notes associated with each tagged versions
-in the [releases](https://github.com/yeojz/otplib/releases) page.
+Currently out-of-box, 2 libraries are supported.
+Install one of them and initialise `otplib` with the corresponding helpers.
 
-## Getting Started
-
-### In node
+```bash
+# choose either
+npm install thirty-two
+# or
+npm install base32-encode base32-decode
+```
 
 ```js
-import otplib from 'otplib';
+import { authenticator } from 'otplib';
 
-const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
-// Alternatively: const secret = otplib.authenticator.generateSecret();
+// for thirty-two
+import { keyDecoder, keyEncoder } from 'otplib/base32/thirty-two';
+// for base32-encode and base32-decode
+import { keyDecoder, keyEncoder } from 'otplib/base32/base32-endec';
 
-const token = otplib.authenticator.generate(secret);
-
-try {
-    const isValid = otplib.authenticator.check(token, secret);
-    // or
-    const isValid = otplib.authenticator.verify({ token, secret });
-} catch (err) {
-    // Error possibly thrown by the thirty-two package
-    // 'Invalid input - it is not base32 encoded string'
-    console.error(err);
-}
+// Initialise your instance by
+authenticator.options = { keyDecoder, keyEncoder };
+// or
+const instance = authenticator.clone({ keyDecoder, keyEncoder });
 ```
 
-#### Using specific OTP implementations
+### Alternative: Using the UMD Module
 
-If you want to include a specific OTP specification, you can import it directly:
+As the browser module provided is bundled as an `umd` module,
+you can also use it as a node package import, without having to install
+any third party packages after doing `npm install otplib`.
 
 ```js
-import hotp from 'otplib/hotp';
-import totp from 'otplib/totp';
-import authenticator from 'otplib/authenticator';
+import * as otplib from 'otplib/browser';
+// or const otplib = require('otplib/browser');
 ```
 
-**Important**: If you import the libraries directly, you will have to provide a crypto
-solution (this is to allow custom crypto solutions), as long as they implement `createHmac` and `randomBytes`.
-Take a look at the [browser implementation](https://github.com/yeojz/otplib/blob/master/packages/otplib-browser)
-of this package as an example.
+Do note that many of the node dependencies within the bundle were replaced with
+browser shims.
 
-For **example**:
+## Getting Started (Browsers)
 
-```js
-import authenticator from 'otplib/authenticator';
-import crypto from 'crypto';
+The browser module is a `umd` bundle with some node modules replaced to reduce the browser size.
 
-authenticator.options = { crypto };
+The following defaults have been used:
 
-// Or if you're using the other OTP methods
-// hotp.options = { crypto }
-// totp.options = { crypto }
+- **crypto**: `crypto-js`
+- **encoder**: `base32-encode`
+- **decoder**: `base32-decode`
 
-const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD'
-const token = authenticator.generate(secret); // 556443
-```
+To see what is included, you can take a look at `packages/otplib-browser/index.ts`.
 
-#### Using classes
-
-For ease of use, the default exports are all instantiated instances of their respective classes.
-You can access the original classes via it's same name property of the instantiated class.
-
-i.e
-
-```js
-import hotp from 'otplib/hotp';
-const HOTP = hotp.HOTP;
-// const inst = new HOTP();
-
-import totp from 'otplib/totp';
-const TOTP = totp.TOTP;
-// const inst = new TOTP();
-
-import authenticator from 'otplib/authenticator';
-const Authenticator = authenticator.Authenticator;
-// const inst = new Authenticator();
-
-// Alternatively, you can get it from the default module as well
-import otplib from 'otplib';
-const HOTP = otplib.hotp.HOTP
-const TOTP = otplib.totp.TOTP
-const Authenticator = otplib.authenticator.Authenticator
-```
-
-#### Using with Expo.io
-
-[Expo](https://expo.io) does not contain a `randomBytes` implementation
-within the platform-provided crypto. As such, you should avoid
-using `otplib.authenticator.generateSecret();` and generate your own secrets instead.
-
-### In browser
-
-A browser-targeted version has been compiled.
-You'll need to add the following scripts to your code:
+### Adding the scripts
 
 ```html
-<script src="otplib-browser.js"></script>
+<script src="https://unpkg.com/otplib@^12.0.0/browser/buffer.js"></script>
+<script src="https://unpkg.com/otplib@^12.0.0/browser/index.js"></script>
 
 <script type="text/javascript">
-   // window.otplib
+  // window.otplib
 </script>
 ```
 
-You can find it in `node_modules/otplib` after you install.
+There are 2 scripts required. The `browser/index.js` script as well as `browser/buffer.js`.
 
-Alternatively you can
+The `buffer.js` provided in by this library is a cached copy
+from [https://www.npmjs.com/package/buffer](https://www.npmjs.com/package/buffer).
+You can also download and include the latest version via their project page.
 
-- Download from [gh-pages][project-lib].
-- Use unpkg.com
+**Alternatively**, you can find the required files at `node_modules/otplib/browser/*`
+after you `npm install otplib`.
 
-```html
-<script src="https://unpkg.com/otplib@^10.0.0/otplib-browser.js"></script>
-```
+### Browser bundle size
 
-For a live example, the [project site][project-web] has been built using `otplib-browser.js`.
-The source code can be found [here](https://github.com/yeojz/otplib/tree/master/site).
+The approximate **bundle sizes** are as follows:
 
-#### Browser Compatibility
+| Bundle Type                       | Size       |
+| --------------------------------- | ---------- |
+| original                          | 324KB      |
+| original, minified + gzipped      | 102KB      |
+| optimised                         | 28.3KB     |
+| **optimised, minified + gzipped** | **9.12KB** |
 
-In order to reduce the size of the browser package, the `crypto` package has been replaced with
-an alternative implementation. The current implementation depends on [Uint8Array][mdn-uint8array]
-and the browser's native [crypto][mdn-crypto] methods, which may only be available in
-recent browser versions.
+Paired with the gzipped browser `buffer.js` module, it would be about `7.65KB + 9.12KB = 16.77KB`.
 
-To find out more about the replacements, you can take a look at `packages/otplib-browser/crypto.js`
+## Available Packages
 
-The approximate **output sizes** are as follows:
+This library has been split into 3 categories: `base`, `plugins` and `packages`.
 
-- with node crypto: ~311Kb
-- with alternative crypto: ~106Kb
+### Base
 
-## Advanced Usage
+These provides the main functionality of the library. However parts of the logic
+has been separated out in order to provide flexibility to the library.
 
-Ihis library been split and classified into 6 core files with other specific
-environment based bundles provided.
+| file                 | description                        |
+| -------------------- | ---------------------------------- |
+| otplib/core          | HOTP and TOTP functionality        |
+| otplib/authenticator | Google Authenticator functionality |
 
-### Core
+### Plugins
 
-| file                                                                                     | description                                                     |
-| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| [authenticator.js](https://yeojz.github.io/otplib/docs/module-otplib-authenticator.html) | Google Authenticator bindings                                   |
-| [core.js](https://yeojz.github.io/otplib/docs/module-otplib-core.html)                   | Functions for various steps in the OTP generation process       |
-| [hotp.js](https://yeojz.github.io/otplib/docs/module-otplib-hotp.html)                   | Wraps core functions into an instantiated HOTP class            |
-| [otplib.js](https://yeojz.github.io/otplib/docs/module-otplib.html)                      | Library entry file, containing all instances with crypto set up |
-| [totp.js](https://yeojz.github.io/otplib/docs/module-otplib-totp.html)                   | Wraps core functions into an instantiated TOTP class            |
-| [utils.js](https://yeojz.github.io/otplib/docs/module-otplib-utils.html)                 | Helper utilities                                                |
+#### Crypto
 
-### Other Bundles
+| file                   | description               |
+| ---------------------- | ------------------------- |
+| otplib/crypto/node     | node crypto based methods |
+| otplib/crypto/cryptojs | crypto-js based methods   |
 
-| file                                                                                | description                                   |
-| ----------------------------------------------------------------------------------- | --------------------------------------------- |
-| [otplib-browser.js](https://yeojz.github.io/otplib/docs/module-otplib-browser.html) | Browser compatible package built with webpack |
+#### Base 32
 
-For more information about the functions, check out the [documentation][project-docs].
+| file                       | description                                           |
+| -------------------------- | ----------------------------------------------------- |
+| otplib/base32/thirty-two   | Encoder/Decoder using thirty-two                      |
+| otplib/base32/base32-endec | Encoder/Decoder using base32-encode and base32-decode |
 
-## Notes
+### Packages
 
-### Setting Custom Options
+| file            | description                                                 |
+| --------------- | ----------------------------------------------------------- |
+| otplib/node     | Uses node crypto + thirty-two                               |
+| otplib/cryptojs | Uses crypto-js + thirty-two                                 |
+| otplib/browser  | Webpack bundle. Uses base32-endec + crypto-js               |
+| otplib/legacy   | Wrapper to adapt the APIs to otplib@v11.x compatible format |
 
-All instantiated classes will have their options inherited from their respective options
-generator. i.e. HOTP from `hotpOptions` and TOTP/Authenticator from `totpOptions`.
+## Available Options
 
-All OTP classes have an object setter and getter method to override these default options.
+## Google Authenticator
 
-For example,
-
-```js
-import otplib from 'otplib';
-
-// setting
-otplib.authenticator.options = {
-  step: 30,
-  window: 1
-};
-
-// getting
-const opts = otplib.authenticator.options;
-
-// reset to default
-otplib.authenticator.resetOptions();
-```
-
-#### Available Options
-
-| Option                       | Type             | Defaults                          | Description                                                                                                                                                                                |
-| ---------------------------- | ---------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| algorithm                    | string           | 'sha1'                            | Algorithm used for HMAC                                                                                                                                                                    |
-| createHmacSecret             | function         | hotpSecret, totpSecret            | Transforms the secret and applies any modifications like padding to it.                                                                                                                    |
-| crypto                       | object           | node crypto                       | Crypto module to use.                                                                                                                                                                      |
-| digits                       | integer          | 6                                 | The length of the token                                                                                                                                                                    |
-| encoding                     | string           | 'ascii' ('hex' for authenticator) | The encoding of secret which is given to digest                                                                                                                                            |
-| epoch (totp, authenticator)  | integer          | null                              | Starting time since the UNIX epoch (seconds). <br /> epoch format is non-javascript. i.e. `Date.now() / 1000`                                                                              |
-| step (totp, authenticator)   | integer          | 30                                | Time step (seconds)                                                                                                                                                                        |
-| window (totp, authenticator) | integer or array | 0                                 | Tokens in the previous and future x-windows that should be considered valid. <br /> If integer, same value will be used for both. <br /> Alternatively, define array: `[previous, future]` |
-
-### Seed / secret length
-
-In [RFC 6238][rfc-6238], the secret / seed length for different algorithms is predefined:
-
-```txt
-HMAC-SHA1 - 20 bytes
-HMAC-SHA256 - 32 bytes
-HMAC-SHA512 - 64 bytes
-```
-
-As such, the length of the secret is padded and sliced according to the expected
-length for respective algorithms.
-
-### Google Authenticator
-
-#### Difference between Authenticator and TOTP
+### Difference between Authenticator and TOTP
 
 The default encoding option has been set to `hex` (Authenticator) instead of `ascii` (TOTP).
 
-#### Base32 Keys and RFC3548
+### RFC3548 Base32
 
 Google Authenticator requires keys to be base32 encoded.
 It also requires the base32 encoder to be [RFC 3548][rfc-3548] compliant.
 
 OTP calculation will still work should you want to use
-other base32 encoding methods (like Crockford's Base 32)
+other base32 encoding methods (like Crockford's Base32)
 but it will NOT be compatible with Google Authenticator.
 
 ```js
-import authenticator from 'otplib/authenticator';
-
-const secret = authenticator.generateSecret(); // base 32 encoded hex secret key
+const secret = authenticator.generateSecret(); // base32 encoded hex secret key
 const token = authenticator.generate(secret);
 ```
 
-#### Displaying a QR code
+### Displaying a QR code
 
 You may want to generate and display a QR Code so that users can scan
 instead of manually entering the secret. Google Authenticator and similar apps
 take in a QR code that holds a URL with the protocol `otpauth://`,
-which you get from `otplib.authenticator.keyuri`.
+which you get from `authenticator.keyuri`.
 
 Google Authenticator will ignore the `algorithm`, `digits`, and `step` options.
 See the [documentation](https://github.com/google/google-authenticator/wiki/Key-Uri-Format)
 for more information.
 
 If you are using a different authenticator app, check the documentation
-for that app if the token provided does not work.
+for that app to see if any options are ignored, which will result in invalid tokens.
 
-While this library provides the "otpauth" uri, you'll need a library to generate the QR Code image.
+While this library provides the "otpauth" uri, you'll need a library to
+generate the QR Code image.
 
 An example is shown below:
 
 ```js
 // npm install qrcode
 import qrcode from 'qrcode';
-import otplib from 'otplib';
+import { authenticator } from 'otplib';
 
 const user = 'A user name, possibly an email';
 const service = 'A service name';
 
 // v11.x.x and above
-const otpauth = otplib.authenticator.keyuri(user, service, secret);
+const otpauth = authenticator.keyuri(user, service, secret);
 
 // v10.x.x and below
-const otpauth = otplib.authenticator.keyuri(
-    encodeURIComponent(user), encodeURIComponent(service), secret);
+const otpauth = authenticator.keyuri(
+  encodeURIComponent(user),
+  encodeURIComponent(service),
+  secret
+);
 
 qrcode.toDataURL(otpauth, (err, imageUrl) => {
   if (err) {
@@ -371,21 +275,9 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 ```
 
 > **Note**: For versions `v10.x.x` and below, `keyuri` does not URI encode
-> `user` and `service` and it's the developer's job to do it as show above.
+> `user` and `service`. You'll need to do so before passing in the parameteres.
 
-### Getting Time Remaining / Time Used
-
-Helper methods for getting the remaining time and used time within a validity period
-of a `totp` or `authenticator` token were introduced in `v10.0.0`.
-
-```js
-authenticator.timeUsed(); // or totp.timeUsed();
-authenticator.timeRemaining(); // or totp.timeRemaining();
-
-// The start of a new token would be when:
-// - timeUsed() === 0
-// - timeRemaining() === step
-```
+## Others
 
 ### Exploring with local-repl
 
@@ -406,44 +298,39 @@ $ [otplib] > secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD'
 $ [otplib] > otplib.authenticator.generate(secret)
 ```
 
-## Contributing
-
-Check out: [CONTRIBUTING.md][pr-welcome-link]
-
-[![Support Project][coffee-badge]][coffee-link]
-[![PRs Welcome][pr-welcome-badge]][pr-welcome-link]
-
 ## License
 
 `otplib` is [MIT licensed](./LICENSE)
 
-<img width="150" src="https://yeojz.github.io/otplib/otplib.png" />
+<img width="150" src="https://otplib.yeojz.com/otplib.png" />
 
-[npm-badge]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
-[npm-link]: https://www.npmjs.com/package/otplib
-[npm-next-badge]: https://img.shields.io/npm/v/otplib/next.svg?style=flat-square
-[npm-downloads-badge]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
-[circle-badge]: https://img.shields.io/circleci/project/github/yeojz/otplib/master.svg?style=flat-square
-[circle-link]: https://circleci.com/gh/yeojz/otplib
-[coveralls-badge]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
-[coveralls-link]: https://coveralls.io/github/yeojz/otplib
-[pr-welcome-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&longCache=true
-[pr-welcome-link]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
-[mdn-uint8array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
+<!-- readmelinks -->
+
+[badge-circle]: https://img.shields.io/circleci/project/github/yeojz/otplib/master.svg?style=flat-square
+[badge-coffee]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
+[badge-coveralls]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
+[badge-npm-downloads]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
+[badge-npm-next]: https://img.shields.io/npm/v/otplib/next.svg?style=flat-square
+[badge-npm]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
+[badge-pr-welcome]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&longCache=true
+[badge-type-ts]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
+[mdn-classes]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
 [mdn-crypto]: https://developer.mozilla.org/en-US/docs/Web/API/Window/crypto
-[project-web]: https://yeojz.github.io/otplib
-[project-docs]: https://yeojz.github.io/otplib/docs
-[project-lib]: https://github.com/yeojz/otplib/tree/gh-pages/lib
-[project-examples]: https://github.com/yeojz/otplib/tree/master/examples
-[rfc-4226]: http://tools.ietf.org/html/rfc4226
-[rfc-6238]: http://tools.ietf.org/html/rfc6238
+[mdn-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions
+[mdn-uint8array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
+[project-circle]: https://circleci.com/gh/yeojz/otplib
+[project-coffee]: https://paypal.me/yeojz
+[project-coveralls]: https://coveralls.io/github/yeojz/otplib
+[project-docs]: https://otplib.yeojz.com/docs
+[project-npm]: https://www.npmjs.com/package/otplib
+[project-pr-welcome]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
+[project-web]: https://otplib.yeojz.com
 [rfc-3548]: http://tools.ietf.org/html/rfc3548
+[rfc-4226-dataset]: https://github.com/yeojz/otplib/blob/master/packages/tests-data/rfc4226.ts
 [rfc-4226-wiki]: http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
+[rfc-4226]: http://tools.ietf.org/html/rfc4226
+[rfc-6238-dataset]: https://github.com/yeojz/otplib/blob/master/packages/tests-data/rfc6238.ts
 [rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
-[donate-badge]: https://img.shields.io/badge/donate-%3C3-red.svg?longCache=true&style=flat-square
-[donate-link]: https://www.paypal.me/yeojz
-[coffee-badge]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
-[coffee-link]: https://paypal.me/yeojz
-[type-ts-badge]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
-[type-ts-link]: https://github.com/yeojz/otplib/tree/master/packages/types-ts
-[type-ts-file]: https://github.com/yeojz/otplib/blob/master/packages/types-ts/index.d.ts
+[rfc-6238]: http://tools.ietf.org/html/rfc6238
+
+<!-- /readmelinks -->

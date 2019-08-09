@@ -1,5 +1,5 @@
-import { Authenticator } from 'packages/otplib-authenticator';
-import { keyDecoder, keyEncoder } from 'packages/otplib-base32/thirty-two';
+import { Authenticator } from 'otplib-authenticator';
+import { keyDecoder, keyEncoder } from 'otplib-base32/thirty-two';
 
 export interface IssuesTestSuiteOptions {
   authenticator: Authenticator;
@@ -10,7 +10,7 @@ export function issuesTestSuite(
   opt: IssuesTestSuiteOptions
 ): void {
   const { authenticator } = opt;
-  const { createDigest } = authenticator.finalOptions();
+  const { createDigest } = authenticator.allOptions();
 
   describe(`(${name}) issues`, (): void => {
     describe('#7', (): void => {

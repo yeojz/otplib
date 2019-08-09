@@ -100,6 +100,29 @@ aliases:
             else
               echo "skipping publication."
             fi
+  - &site_publish
+    steps:
+      - checkout
+      - restore-cache: *restore_release_cache
+      - run: *install_npm
+      - save_cache: *save_release_cache
+      - run:
+          name: configure git user
+          command: |
+            git config --global user.email $PROJECT_DEPLOY_EMAIL
+            git config --global user.name $PROJECT_DEPLOY_NAME
+      - run:
+          working_directory: ~/project/site
+          name: deploying website
+          command: |
+            if [[ $CIRCLE_PROJECT_USERNAME == $PROJECT_OWNER_NAME && -z $CI_PULL_REQUEST && -z $CIRCLE_PR_USERNAME ]]; then
+              npm install
+              npm run build:deps
+              npm run build
+              npm run deploy
+            else
+              echo "skipping deploy."
+            fi
 
 version: 2
 jobs:
@@ -154,30 +177,15 @@ jobs:
     <<: *defaults
     <<: *npm_publish
 
+  publish_npm_support:
+    environment:
+      RUNTIME_NPM_TAG: support
+    <<: *defaults
+    <<: *npm_publish
+
   deploy_website:
     <<: *defaults
-    steps:
-      - checkout
-      - restore-cache: *restore_release_cache
-      - run: *install_npm
-      - save_cache: *save_release_cache
-      - run:
-          name: configure git user
-          command: |
-            git config --global user.email $PROJECT_DEPLOY_EMAIL
-            git config --global user.name $PROJECT_DEPLOY_NAME
-      - run:
-          working_directory: ~/project/site
-          name: deploying website
-          command: |
-            if [[ $CIRCLE_PROJECT_USERNAME == $PROJECT_OWNER_NAME && -z $CI_PULL_REQUEST && -z $CIRCLE_PR_USERNAME ]]; then
-              npm install
-              npm run build:deps
-              npm run build
-              npm run deploy
-            else
-              echo "skipping deploy."
-            fi
+    <<: *site_publish
 
 workflows:
   version: 2
@@ -209,7 +217,7 @@ workflows:
             - node_v8
             - node_v10
           filters: *filter_tag_beta
-      - hold:
+      - hold_stable:
           type: approval
           requires:
             - node_v6
@@ -218,6 +226,16 @@ workflows:
           filters: *filter_tag_stable
       - publish_npm_stable:
           requires:
-            - hold
+            - hold_stable
           filters: *filter_tag_stable
-
+     - hold_support:
+          type: approval
+          requires:
+            - node_v6
+            - node_v8
+            - node_v10
+          filters: *filter_tag_stable
+      - publish_npm_support:
+          requires:
+            - hold_support
+          filters: *filter_tag_stable

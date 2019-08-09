@@ -2,15 +2,16 @@ import { KeyURIOptions, Strategy, keyuri, HashAlgorithms } from './utils';
 
 describe('keyuri', (): void => {
   const common: KeyURIOptions = {
-    label: 'test label',
+    accountName: 'test user',
+    issuer: 'test label',
     secret: 'testsecret',
-    type: Strategy.TOTP,
-    user: 'test user'
+    type: Strategy.TOTP
   };
 
   const hotpPrefix = 'otpauth://hotp/';
   const totpPrefix = 'otpauth://totp/';
   const commonPrefix = 'test%20label:test%20user?secret=testsecret';
+  const issuerQuery = '&issuer=test%20label';
 
   test('should throw error without a type', (): void => {
     const fn = (): void => {
@@ -51,7 +52,9 @@ describe('keyuri', (): void => {
       counter: 1
     });
 
-    expect(result).toEqual(`${hotpPrefix}${commonPrefix}&counter=1`);
+    expect(result).toEqual(
+      `${hotpPrefix}${commonPrefix}&counter=1${issuerQuery}`
+    );
   });
 
   test('totp - should not return counter', (): void => {
@@ -60,7 +63,7 @@ describe('keyuri', (): void => {
       counter: 1
     });
 
-    expect(result).toEqual(`${totpPrefix}${commonPrefix}`);
+    expect(result).toEqual(`${totpPrefix}${commonPrefix}${issuerQuery}`);
   });
 
   test('hotp - should not return step', (): void => {
@@ -71,7 +74,9 @@ describe('keyuri', (): void => {
       step: 30
     });
 
-    expect(result).toEqual(`${hotpPrefix}${commonPrefix}&counter=1`);
+    expect(result).toEqual(
+      `${hotpPrefix}${commonPrefix}&counter=1${issuerQuery}`
+    );
   });
 
   test('totp - should return step', (): void => {
@@ -80,7 +85,9 @@ describe('keyuri', (): void => {
       step: 30
     });
 
-    expect(result).toEqual(`${totpPrefix}${commonPrefix}&period=30`);
+    expect(result).toEqual(
+      `${totpPrefix}${commonPrefix}&period=30${issuerQuery}`
+    );
   });
 
   test('should return digits', (): void => {
@@ -89,7 +96,9 @@ describe('keyuri', (): void => {
       digits: 6
     });
 
-    expect(result).toEqual(`${totpPrefix}${commonPrefix}&digits=6`);
+    expect(result).toEqual(
+      `${totpPrefix}${commonPrefix}&digits=6${issuerQuery}`
+    );
   });
 
   test('should return algorithm', (): void => {
@@ -98,15 +107,20 @@ describe('keyuri', (): void => {
       algorithm: HashAlgorithms.SHA1
     });
 
-    expect(result).toEqual(`${totpPrefix}${commonPrefix}&algorithm=SHA1`);
+    expect(result).toEqual(
+      `${totpPrefix}${commonPrefix}&algorithm=SHA1${issuerQuery}`
+    );
   });
 
-  test('should return issuer', (): void => {
+  test('should not return issuer but account name', (): void => {
     const result = keyuri({
-      ...common,
-      issuer: 'test issuer'
+      accountName: 'test user',
+      secret: 'testsecret',
+      type: Strategy.TOTP
     });
 
-    expect(result).toEqual(`${totpPrefix}${commonPrefix}&issuer=test%20issuer`);
+    expect(result).toEqual(
+      `${totpPrefix}test%20user:test%20user?secret=testsecret`
+    );
   });
 });

@@ -1,15 +1,22 @@
 import {
-  HASH_ALGORITHMS,
   HashAlgorithms,
   HexString,
-  KEY_ENCODINGS,
   KeyEncodings,
+  SecretKey,
   Strategy,
   isTokenValid,
   keyuri,
-  KeyURIOptions
+  objectValues,
+  padStart
 } from './utils';
 
+const HASH_ALGORITHMS = objectValues<typeof HashAlgorithms>(HashAlgorithms);
+const KEY_ENCODINGS = objectValues<typeof KeyEncodings>(KeyEncodings);
+
+/**
+ * Interface method for generating a HMAC digest
+ * which is then used to generate the token.
+ */
 export interface CreateDigest {
   (
     algorithm: HashAlgorithms,
@@ -18,23 +25,40 @@ export interface CreateDigest {
   ): HexString;
 }
 
+/**
+ * Interface method for formatting the [[SecretKey]] with
+ * the algorithm constraints before it is given to [[CreateDigest]].
+ */
 export interface CreateHmacKey {
   (
     algorithm: HashAlgorithms,
-    secret: string,
+    secret: SecretKey,
     encoding: KeyEncodings
   ): HexString;
 }
 
+/**
+ * Interface for options used in HOTP.
+ */
 export interface HOTPOptions {
+  /** The algorithm used for calculating the HMAC. */
   algorithm: HashAlgorithms;
+  /** Creates the digest which token is derived from. */
   createDigest: CreateDigest;
+  /** The method used to create a HMAC key (when calculating HMAC). */
   createHmacKey: CreateHmacKey;
+  /** The number of digits a token will have. Usually 6 or 8. */
   digits: number;
+  /** The encoding that was used on the secret. */
   encoding: KeyEncodings;
 }
 
-export function hotpOptionsValidator(options: Partial<HOTPOptions>): void {
+/**
+ * Validates the given [[HOTPOptions]]
+ */
+export function hotpOptionsValidator(
+  options: Readonly<Partial<HOTPOptions>>
+): void {
   if (typeof options.createDigest !== 'function') {
     throw new Error('Expecting options.createDigest to be a function.');
   }
@@ -64,15 +88,27 @@ export function hotpOptionsValidator(options: Partial<HOTPOptions>): void {
   }
 }
 
-export function hotpCounter(counter: number): string {
+/**
+ * Formats a given counter into a string counter.
+ */
+export function hotpCounter(counter: number): HexString {
   const hexCounter = counter.toString(16);
-  return hexCounter.padStart(16, '0');
+  return padStart(hexCounter, 16, '0');
 }
 
+/**
+ * Generates a HMAC-based One-time Token (HOTP)
+ *
+ * **References**
+ *
+ * -   http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
+ * -   http://tools.ietf.org/html/rfc4226
+ *
+ */
 export function hotpToken(
-  secret: string,
+  secret: SecretKey,
   counter: number,
-  options: HOTPOptions
+  options: Readonly<HOTPOptions>
 ): string {
   const hexCounter = hotpCounter(counter);
   const hmacKey = options.createHmacKey(
@@ -94,14 +130,19 @@ export function hotpToken(
     (digest[offset + 3] & 0xff);
 
   const token = binary % Math.pow(10, options.digits);
-  return String(token).padStart(options.digits, '0');
+  return padStart(String(token), options.digits, '0');
 }
 
+/**
+ * Checks the given token against the system generated token.
+ *
+ * **Note**: Token is valid only if it is a number string
+ */
 export function hotpCheck(
   token: string,
-  secret: string,
+  secret: SecretKey,
   counter: number,
-  options: HOTPOptions
+  options: Readonly<HOTPOptions>
 ): boolean {
   if (!isTokenValid(token)) {
     return false;
@@ -111,15 +152,28 @@ export function hotpCheck(
   return token === systemToken;
 }
 
+/**
+ * Takes a HOTP secret and derives the HMAC key
+ * for use in token generation.
+ *
+ * @param algorithm - Reference: [[HOTPOptions.algorithm]]
+ * @param secret
+ * @param encoding - Reference: [[HOTPOptions.encoding]]
+ */
 export const hotpCreateHmacKey: CreateHmacKey = (
   algorithm: HashAlgorithms,
-  secret: string,
+  secret: SecretKey,
   encoding: KeyEncodings
 ): HexString => {
   return Buffer.from(secret, encoding).toString('hex');
 };
 
-export function hotpOptions(opt: Partial<HOTPOptions>): HOTPOptions {
+/**
+ * Takes an HOTP Option object and provides presets for
+ * some of the missing required HOTP option fields and validates
+ * the resultant options.
+ */
+export function hotpOptions(opt: Readonly<Partial<HOTPOptions>>): HOTPOptions {
   const options: Partial<HOTPOptions> = {
     algorithm: HashAlgorithms.SHA1,
     createHmacKey: hotpCreateHmacKey,
@@ -133,69 +187,175 @@ export function hotpOptions(opt: Partial<HOTPOptions>): HOTPOptions {
   return options as HOTPOptions;
 }
 
-export class HOTP<T extends HOTPOptions = HOTPOptions> {
-  private _defaultOptions: Partial<T>;
-  private _options: Partial<T>;
+/**
+ * This is a helper method which provides a common set of steps
+ * during class initialisation.
+ *
+ * It is mainly for use internally by ".clone()" and ".create()" class methods.
+ *
+ * @param OTP - Class object that you want to initialise (eg: HOTP).
+ * @param defaultOptions - Persistent options.
+ * @param options - Transient options that can be reset.
+ */
+export function createInstance<T extends HOTPOptions, S extends HOTP<T>>(
+  OTP: { new (opt: Partial<T>): S },
+  defaultOptions: Partial<T>,
+  options: Partial<T> = {}
+): S {
+  const instance = new OTP(defaultOptions);
+  instance.options = options;
+  return instance;
+}
 
+/**
+ * A class wrapper containing all HOTP methods.
+ */
+export class HOTP<T extends HOTPOptions = HOTPOptions> {
+  /**
+   * Default options for an instance.
+   *
+   * These options **WILL PERSIST** even when [[resetOptions]] is called.
+   */
+  protected _defaultOptions: Readonly<Partial<T>>;
+
+  /**
+   * Transient options for an instance.
+   *
+   * Values set here will take precedence over the same options that
+   * are set in [[_defaultOptions]].
+   *
+   * These options **WILL NOT PERSIST** upon calling [[resetOptions]].
+   */
+  protected _options: Readonly<Partial<T>>;
+
+  /**
+   * Constructs the class with defaultOptions set.
+   *
+   * @param defaultOptions used to override or add existing defaultOptions.
+   */
   public constructor(defaultOptions: Partial<T> = {}) {
-    this._defaultOptions = { ...defaultOptions };
-    this._options = {};
+    this._defaultOptions = Object.freeze({ ...defaultOptions });
+    this._options = Object.freeze({});
   }
 
+  /**
+   * Creates a new HOTP instance with all defaultOptions and options reset.
+   *
+   * This is the same as calling `new HOTP()`
+   */
+  public create(defaultOptions: Partial<T> = {}): HOTP<T> {
+    return createInstance<T, HOTP<T>>(HOTP, defaultOptions);
+  }
+
+  /**
+   * Copies the defaultOptions and options from the current
+   * HOTP instance and applies the provided defaultOptions.
+   */
+  public clone(defaultOptions: Partial<T> = {}): HOTP<T> {
+    return createInstance<T, HOTP<T>>(
+      HOTP,
+      { ...this._defaultOptions, ...defaultOptions },
+      this._options
+    );
+  }
+
+  /**
+   * - The options **getter** will return all [[_options]],
+   * including those set into [[_defaultOptions]].
+   */
   public get options(): Partial<T> {
-    return {
+    return Object.freeze({
       ...this._defaultOptions,
       ...this._options
-    };
+    });
   }
 
-  public set options(opt: Partial<T>) {
-    this._options = {
+  /**
+   * - The options **setter** sets values into [[_options]].
+   */
+  public set options(options: Partial<T>) {
+    this._options = Object.freeze({
       ...this._options,
-      ...opt
-    };
+      ...options
+    });
   }
 
-  public finalOptions(): T {
-    return hotpOptions(this.options) as T;
+  /**
+   * Returns class options polyfilled with some of
+   * the missing required options.
+   *
+   * Reference: [[hotpOptions]]
+   */
+  public allOptions(): Readonly<T> {
+    return Object.freeze(
+      hotpOptions({
+        ...this._defaultOptions,
+        ...this._options
+      })
+    ) as Readonly<T>;
   }
 
+  /**
+   * Resets the current options. Does not reset default options.
+   *
+   * Default options are those that are specified during class
+   * inititialisation, when calling [[clone]] or when calling [[create]]
+   */
   public resetOptions(): void {
-    this._options = {};
+    this._options = Object.freeze({});
   }
 
-  public generate(secret: string, counter: number): string {
-    return hotpToken(secret, counter, this.finalOptions());
+  /**
+   * Reference: [[hotpToken]]
+   */
+  public generate(secret: SecretKey, counter: number): string {
+    return hotpToken(secret, counter, this.allOptions());
   }
 
-  public check(token: string, secret: string, counter: number): boolean {
-    return hotpCheck(token, secret, counter, this.finalOptions());
+  /**
+   * Reference: [[hotpCheck]]
+   */
+  public check(token: string, secret: SecretKey, counter: number): boolean {
+    return hotpCheck(token, secret, counter, this.allOptions());
   }
 
+  /**
+   * Same as [[check]] but accepts a single object based argument.
+   */
   public verify(opts: {
     token: string;
-    secret: string;
+    secret: SecretKey;
     counter: number;
   }): boolean {
+    if (!opts || typeof opts !== 'object') {
+      throw new Error(
+        `Expecting argument to be an object. Received ${typeof opts}`
+      );
+    }
+
     return this.check(opts.token, opts.secret, opts.counter);
   }
 
+  /**
+   * Calls [keyuri](../#keyuri) with class options and type
+   * set to HOTP.
+   */
   public keyuri(
-    user: string,
-    label: string,
-    secret: string,
-    params?: Pick<KeyURIOptions, 'counter' | 'issuer'>
+    accountName: string,
+    issuer: string,
+    secret: SecretKey,
+    counter?: number
   ): string {
-    const options = this.finalOptions();
+    const options = this.allOptions();
 
     return keyuri({
-      ...params,
       algorithm: options.algorithm,
       digits: options.digits,
       type: Strategy.HOTP,
-      label,
-      secret,
-      user
+      accountName,
+      counter,
+      issuer,
+      secret
     });
   }
 }

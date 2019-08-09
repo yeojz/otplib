@@ -1,4 +1,4 @@
-import { HashAlgorithms } from 'packages/otplib-core';
+import { HashAlgorithms } from 'otplib-core';
 
 /*
 Source: https://tools.ietf.org/html/rfc6238

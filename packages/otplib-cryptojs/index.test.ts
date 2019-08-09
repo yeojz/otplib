@@ -1,9 +1,13 @@
-import { pkgTestSuite } from 'packages/tests-suites';
+import { pkgTestSuite } from 'tests-suites';
+import { keyDecoder, keyEncoder } from 'otplib-base32/base32-endec';
 import * as pkg from './index';
 
-pkgTestSuite('otplib-cryptojs', pkg);
-
 const createDigest = pkg.hotp.options.createDigest;
+
+pkgTestSuite('otplib-cryptojs', {
+  ...pkg,
+  authenticator: pkg.authenticator.clone({ keyEncoder, keyDecoder })
+});
 
 test('createDigest fails on unsupported encoding format', (): void => {
   const fn = (): void => {

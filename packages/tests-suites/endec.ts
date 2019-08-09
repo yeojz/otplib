@@ -1,6 +1,6 @@
-import { KeyDecoder, KeyEncoder } from 'packages/otplib-authenticator';
-import { KeyEncodings } from 'packages/otplib-core';
-import { authenticator } from 'packages/otplib-node';
+import { KeyDecoder, KeyEncoder } from 'otplib-authenticator';
+import { KeyEncodings } from 'otplib-core';
+import { authenticator } from 'otplib-node';
 
 interface TestKeys {
   encoded: string;

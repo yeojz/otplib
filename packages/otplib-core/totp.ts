@@ -3,26 +3,43 @@ import {
   HOTP,
   HOTPOptions,
   hotpOptionsValidator,
-  hotpToken
+  hotpToken,
+  createInstance
 } from './hotp';
 import {
-  HASH_ALGORITHMS,
   HashAlgorithms,
   HexString,
   KeyEncodings,
+  SecretKey,
   Strategy,
   isTokenValid,
   keyuri,
-  KeyURIOptions
+  objectValues
 } from './utils';
 
+const HASH_ALGORITHMS = objectValues<typeof HashAlgorithms>(HashAlgorithms);
+
+/**
+ * Interface for options used in TOTP.
+ *
+ * Contains additional options in addition to
+ * those within HOTP.
+ */
 export interface TOTPOptions extends HOTPOptions {
+  /** The starting time since the JavasSript epoch (seconds) (UNIX epoch * 1000). */
   epoch: number;
+  /** Time step (seconds). */
   step: number;
+  /** How many windows (x * step) past and future do we consider as valid during check. */
   window: number | [number, number];
 }
 
-export function totpOptionsValidator(options: Partial<TOTPOptions>): void {
+/**
+ * Validates the given [[TOTPOptions]].
+ */
+export function totpOptionsValidator(
+  options: Readonly<Partial<TOTPOptions>>
+): void {
   hotpOptionsValidator(options);
 
   if (typeof options.epoch !== 'number') {
@@ -34,19 +51,45 @@ export function totpOptionsValidator(options: Partial<TOTPOptions>): void {
   }
 }
 
+/**
+ * Generates the counter based on the current epoch and step.
+ * This dynamic counter is used in the HOTP algorithm.
+ *
+ * @param epoch - Reference: [[TOTPOptions.epoch]]
+ * @param step - Reference: [[TOTPOptions.step]]
+ */
 export function totpCounter(epoch: number, step: number): number {
   return Math.floor(epoch / step / 1000);
 }
 
-export function totpToken(secret: string, options: TOTPOptions): string {
+/**
+ * Generates a Time-based One-time Token (TOTP)
+ *
+ * tl;dr: TOTP = HOTP + counter based on current time.
+ *
+ * **References**
+ *
+ * -   http://tools.ietf.org/html/rfc6238
+ * -   http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
+ *
+ */
+export function totpToken(
+  secret: SecretKey,
+  options: Readonly<TOTPOptions>
+): string {
   const counter = totpCounter(options.epoch, options.step);
   return hotpToken(secret, counter, options);
 }
 
+/**
+ * Checks the given token against the system generated token.
+ *
+ * **Note**: Token is valid only if it is a number string.
+ */
 export function totpCheck(
   token: string,
-  secret: string,
-  options: TOTPOptions
+  secret: SecretKey,
+  options: Readonly<TOTPOptions>
 ): boolean {
   if (!isTokenValid(token)) {
     return false;
@@ -56,6 +99,10 @@ export function totpCheck(
   return token === systemToken;
 }
 
+/**
+ * Validates and formats the given window into an array
+ * containing how many windows past and future to check.
+ */
 function getWindowBounds(win: number | [number, number]): [number, number] {
   if (typeof win === 'number') {
     return [win, win];
@@ -76,10 +123,15 @@ function getWindowBounds(win: number | [number, number]): [number, number] {
 
 type TOTPCheckRunner = (direction: 1 | -1, rounds: number) => number | null;
 
-export function createTOTPCheckRunner(
+/**
+ * Creats a method which will loop-check TOTP validity by
+ * the specified number of windows in the specified
+ * direction (past or future).
+ */
+function createTOTPCheckRunner(
   token: string,
-  secret: string,
-  options: TOTPOptions
+  secret: SecretKey,
+  options: Readonly<TOTPOptions>
 ): TOTPCheckRunner {
   const delta = options.step * 1000;
   const epoch = options.epoch;
@@ -102,10 +154,20 @@ export function createTOTPCheckRunner(
   };
 }
 
+/**
+ * Checks the provided OTP token against system generated token
+ * with support for checking past or future x * step windows.
+ *
+ * Return values:
+ *
+ * - null = check failed
+ * - positive number = token at future x * step
+ * - negative number = token at past x * step
+ */
 export function totpCheckWithWindow(
   token: string,
-  secret: string,
-  options: TOTPOptions
+  secret: SecretKey,
+  options: Readonly<TOTPOptions>
 ): number | null {
   const bounds = getWindowBounds(options.window);
 
@@ -118,46 +180,79 @@ export function totpCheckWithWindow(
   return backward !== null ? backward : totpCheckRunner(1, bounds[1]);
 }
 
+/**
+ * Calculates the number of seconds used in the current tick for TOTP.
+ *
+ * The start of a new token: `timeUsed() === 0`
+ *
+ * @param epoch - Reference: [[TOTPOptions.epoch]]
+ * @param step - Reference: [[TOTPOptions.step]]
+ */
 export function totpTimeUsed(epoch: number, step: number): number {
   return Math.floor(epoch / 1000) % step;
 }
 
+/**
+ * Calculates the number of seconds till next tick for TOTP.
+ *
+ * The start of a new token: `timeRemaining() === step`
+ *
+ * @param epoch - Reference: [[TOTPOptions.epoch]]
+ * @param step - Reference: [[TOTPOptions.step]]
+ */
 export function totpTimeRemaining(epoch: number, step: number): number {
   return step - totpTimeUsed(epoch, step);
 }
 
+/**
+ * Pads the secret to the expected minimum length
+ * and returns a hex representation of the string.
+ */
 export const totpPadSecret = (
-  secret: Buffer,
-  currentSize: number,
-  targetSize: number
+  secret: SecretKey,
+  encoding: KeyEncodings,
+  minLength: number
 ): HexString => {
-  const hexSecret = secret.toString('hex');
+  const currentLength = secret.length;
+  const hexSecret = Buffer.from(secret, encoding).toString('hex');
 
-  if (currentSize < targetSize) {
-    const newSecret = new Array(targetSize - currentSize + 1).join(hexSecret);
+  if (currentLength < minLength) {
+    const newSecret = new Array(minLength - currentLength + 1).join(hexSecret);
     return Buffer.from(newSecret, 'hex')
-      .slice(0, targetSize)
+      .slice(0, minLength)
       .toString('hex');
   }
 
   return hexSecret;
 };
 
+/**
+ * Takes a TOTP secret and derives the HMAC key
+ * for use in token generation.
+ *
+ * In RFC 6238, the secret / seed length for different algorithms
+ * are predefined.
+ *
+ * - HMAC-SHA1 (20 bytes)
+ * - HMAC-SHA256 (32 bytes)
+ * - HMAC-SHA512 (64 bytes)
+ *
+ * @param algorithm - Reference: [[TOTPOptions.algorithm]]
+ * @param secret
+ * @param encoding - Reference: [[TOTPOptions.encoding]]
+ */
 export const totpCreateHmacKey: CreateHmacKey = (
   algorithm: HashAlgorithms,
-  secret: string,
+  secret: SecretKey,
   encoding: KeyEncodings
 ): HexString => {
-  const encoded = Buffer.from(secret, encoding);
-  const len = secret.length;
-
   switch (algorithm) {
     case HashAlgorithms.SHA1:
-      return totpPadSecret(encoded, len, 20);
+      return totpPadSecret(secret, encoding, 20);
     case HashAlgorithms.SHA256:
-      return totpPadSecret(encoded, len, 32);
+      return totpPadSecret(secret, encoding, 32);
     case HashAlgorithms.SHA512:
-      return totpPadSecret(encoded, len, 64);
+      return totpPadSecret(secret, encoding, 64);
     default:
       throw new Error(
         `Expecting algorithm to be one of ${HASH_ALGORITHMS.join(
@@ -167,7 +262,12 @@ export const totpCreateHmacKey: CreateHmacKey = (
   }
 };
 
-export function totpOptions(opt: Partial<TOTPOptions>): TOTPOptions {
+/**
+ * Takes an TOTP Option object and provides presets for
+ * some of the missing required TOTP option fields and validates
+ * the resultant options.
+ */
+export function totpOptions(opt: Readonly<Partial<TOTPOptions>>): TOTPOptions {
   const options: Partial<TOTPOptions> = {
     algorithm: HashAlgorithms.SHA1,
     createHmacKey: totpCreateHmacKey,
@@ -184,55 +284,120 @@ export function totpOptions(opt: Partial<TOTPOptions>): TOTPOptions {
   return options as TOTPOptions;
 }
 
+/**
+ * A class wrapper containing all TOTP methods.
+ */
 export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
-  public finalOptions(): T {
-    return totpOptions(this.options) as T;
+  /**
+   * Creates a new TOTP instance with all defaultOptions and options reset.
+   *
+   * This is the same as calling `new TOTP()`
+   */
+  public create(defaultOptions: Partial<T> = {}): TOTP<T> {
+    return createInstance<T, TOTP<T>>(TOTP, defaultOptions);
   }
 
-  public generate(secret: string): string {
-    return totpToken(secret, this.finalOptions());
+  /**
+   * Copies the defaultOptions and options from the current
+   * TOTP instance and applies the provided defaultOptions.
+   */
+  public clone(defaultOptions: Partial<T> = {}): TOTP<T> {
+    return createInstance<T, TOTP<T>>(
+      TOTP,
+      { ...this._defaultOptions, ...defaultOptions },
+      this._options
+    );
   }
 
-  public check(token: string, secret: string): boolean {
+  /**
+   * Returns class options polyfilled with some of
+   * the missing required options.
+   *
+   * Reference: [[totpOptions]]
+   */
+  public allOptions(): Readonly<T> {
+    return totpOptions({
+      ...this._defaultOptions,
+      ...this._options
+    }) as Readonly<T>;
+  }
+
+  /**
+   * Reference: [[totpToken]]
+   */
+  public generate(secret: SecretKey): string {
+    return totpToken(secret, this.allOptions());
+  }
+
+  /**
+   * Reference: [[totpCheckWithWindow]]
+   */
+  public checkDelta(token: string, secret: SecretKey): number | null {
+    return totpCheckWithWindow(token, secret, this.allOptions());
+  }
+
+  /**
+   * Checks if a given TOTP token matches the generated
+   * token at the given epoch (default to current time).
+   *
+   * This method will return true as long as the token is
+   * still within the acceptable time window defined.
+   *
+   * i.e when [[checkDelta]] returns a number.
+   */
+  public check(token: string, secret: SecretKey): boolean {
     const delta = this.checkDelta(token, secret);
     return typeof delta === 'number';
   }
 
-  public verify(opts: { token: string; secret: string }): boolean {
+  /**
+   * Same as [[check]] but accepts a single object based argument.
+   */
+  public verify(opts: { token: string; secret: SecretKey }): boolean {
+    if (!opts || typeof opts !== 'object') {
+      throw new Error(
+        `Expecting argument to be an object. Received ${typeof opts}`
+      );
+    }
+
     return this.check(opts.token, opts.secret);
   }
 
-  public checkDelta(token: string, secret: string): number | null {
-    return totpCheckWithWindow(token, secret, this.finalOptions());
-  }
-
+  /**
+   * Reference: [[totpTimeRemaining]]
+   */
   public timeRemaining(): number {
-    const options = this.finalOptions();
+    const options = this.allOptions();
     return totpTimeRemaining(options.epoch, options.step);
   }
 
+  /**
+   * Reference: [[totpTimeUsed]]
+   */
   public timeUsed(): number {
-    const options = this.finalOptions();
+    const options = this.allOptions();
     return totpTimeUsed(options.epoch, options.step);
   }
 
+  /**
+   * Calls [keyuri](../#keyuri) with class options and type
+   * set to TOTP.
+   */
   public keyuri(
-    user: string,
-    label: string,
-    secret: string,
-    params?: Pick<KeyURIOptions, 'issuer'>
+    accountName: string,
+    issuer: string,
+    secret: SecretKey
   ): string {
-    const options = this.finalOptions();
+    const options = this.allOptions();
 
     return keyuri({
-      ...params,
       algorithm: options.algorithm,
       digits: options.digits,
       step: options.step,
       type: Strategy.TOTP,
-      label,
-      secret,
-      user
+      accountName,
+      issuer,
+      secret
     });
   }
 }

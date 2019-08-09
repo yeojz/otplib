@@ -6,7 +6,7 @@ import {
   totpCreateHmacKey,
   totpCheckWithWindow
 } from './totp';
-import { KeyEncodings } from './utils';
+import { KeyEncodings, HashAlgorithms } from './utils';
 
 interface TOTPCheckTestCase {
   delta: number;
@@ -165,6 +165,25 @@ describe('TOTP', (): void => {
     expect(result).toBe(entry.token);
   });
 
+  test('verify method should error when argument given is not an object', (): void => {
+    const instance = new TOTP({});
+
+    expect((): void => {
+      // @ts-ignore
+      instance.verify(null);
+    }).toThrow();
+
+    expect((): void => {
+      // @ts-ignore
+      instance.verify();
+    }).toThrow();
+
+    expect((): void => {
+      // @ts-ignore
+      instance.verify(true);
+    }).toThrow();
+  });
+
   const checkInstance = new TOTP({
     epoch: dataset[1].epoch,
     window: [1, 2]
@@ -223,7 +242,38 @@ describe('TOTP', (): void => {
   test('should return expected keyuri', (): void => {
     const instance = new TOTP({ createDigest: (): string => '' });
     expect(instance.keyuri('otpuser', 'otplib', 'otpsecret')).toEqual(
-      'otpauth://totp/otplib:otpuser?secret=otpsecret&period=30&digits=6&algorithm=SHA1'
+      'otpauth://totp/otplib:otpuser?secret=otpsecret&period=30&digits=6&algorithm=SHA1&issuer=otplib'
     );
+  });
+
+  test('calling clone returns a new instance with new set of defaults', (): void => {
+    const opt = {
+      algorithm: HashAlgorithms.SHA256
+    };
+
+    const instance = new TOTP({});
+    instance.options = opt;
+    expect(instance.options).toEqual(opt);
+
+    const instance2 = instance.clone();
+    expect(instance2).toBeInstanceOf(TOTP);
+    expect(instance.options).toEqual(opt);
+
+    const instance3 = instance.clone({ digits: 8 });
+    expect(instance.options).toEqual(opt);
+    expect(instance3.options).toEqual({ ...opt, digits: 8 });
+  });
+
+  test('calling create returns a new instance with new set of defaults', (): void => {
+    const opt = {
+      algorithm: HashAlgorithms.SHA256
+    };
+
+    const instance = new TOTP(opt);
+    expect(instance.options).toEqual(opt);
+
+    const instance2 = instance.create();
+    expect(instance2).toBeInstanceOf(TOTP);
+    expect(instance2.options).toEqual({});
   });
 });

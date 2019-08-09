@@ -1,31 +1,38 @@
-import Crypto, { Hashes } from 'crypto-js';
+import { Hashes } from 'crypto-js';
+import cryptoJsCore from 'crypto-js/core';
+import SHA1 from 'crypto-js/hmac-sha1';
+import SHA256 from 'crypto-js/hmac-sha256';
+import SHA512 from 'crypto-js/hmac-sha512';
+import Hex from 'crypto-js/enc-hex';
 import {
-  HashAlgorithms,
   CreateDigest,
-  KeyEncodings,
   HOTP,
+  HashAlgorithms,
   HexString,
-  TOTP
-} from 'packages/otplib-core';
-import {
-  Authenticator,
-  CreateRandomBytes
-} from 'packages/otplib-authenticator';
-import { keyDecoder, keyEncoder } from 'packages/otplib-base32/base32-codec';
+  KeyEncodings,
+  TOTP,
+  objectValues
+} from 'otplib-core';
+import { Authenticator, CreateRandomBytes } from 'otplib-authenticator';
 
-type Encoder = Hashes['HmacSHA1'] | Hashes['HmacSHA256'] | Hashes['HmacSHA512'];
+const HASH_ALGORITHMS = objectValues<typeof HashAlgorithms>(HashAlgorithms);
+const { WordArray } = cryptoJsCore.lib;
 
-function getEncoder(algorithm: HashAlgorithms): Encoder {
+function cryptoEncoder(
+  algorithm: HashAlgorithms
+): Hashes['HmacSHA1'] | Hashes['HmacSHA256'] | Hashes['HmacSHA512'] {
   switch (algorithm) {
-    case 'sha1':
-      return Crypto.HmacSHA1;
-    case 'sha256':
-      return Crypto.HmacSHA256;
-    case 'sha512':
-      return Crypto.HmacSHA512;
+    case HashAlgorithms.SHA1:
+      return SHA1;
+    case HashAlgorithms.SHA256:
+      return SHA256;
+    case HashAlgorithms.SHA512:
+      return SHA512;
     default:
       throw new Error(
-        `Unsupported algorithm ${algorithm}. Accepts: sha1, sha256, sha512`
+        `Expecting argument 0 to be one of ${HASH_ALGORITHMS.join(
+          ', '
+        )}. Received ${algorithm}.`
       );
   }
 }
@@ -35,9 +42,9 @@ const createDigest: CreateDigest = (
   hmacKey: HexString,
   counter: HexString
 ): HexString => {
-  const encoder = getEncoder(algorithm);
-  const message = Crypto.enc.Hex.parse(counter);
-  const secret = Crypto.enc.Hex.parse(hmacKey);
+  const encoder = cryptoEncoder(algorithm);
+  const message = Hex.parse(counter);
+  const secret = Hex.parse(hmacKey);
   return String(encoder(message, secret));
 };
 
@@ -45,9 +52,8 @@ const createRandomBytes: CreateRandomBytes = (
   numberOfBytes: number,
   encoding: KeyEncodings
 ): string => {
-  const words = Crypto.lib.WordArray.random(numberOfBytes);
-  const rand = Crypto.enc.Hex.stringify(words);
-  return Buffer.from(rand, 'hex').toString(encoding);
+  const words = WordArray.random(numberOfBytes);
+  return Buffer.from(words.toString(), 'hex').toString(encoding);
 };
 
 export const hotp = new HOTP({
@@ -60,7 +66,5 @@ export const totp = new TOTP({
 
 export const authenticator = new Authenticator({
   createDigest,
-  createRandomBytes,
-  keyDecoder,
-  keyEncoder
+  createRandomBytes
 });

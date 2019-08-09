@@ -5,10 +5,10 @@ import {
   TOTP,
   hotpCounter,
   totpCounter
-} from 'packages/otplib-core';
+} from 'otplib-core';
 
-import * as rfc6238 from 'packages/tests-data/rfc6238';
-import * as rfc4226 from 'packages/tests-data/rfc4226';
+import * as rfc6238 from 'tests-data/rfc6238';
+import * as rfc4226 from 'tests-data/rfc4226';
 
 interface HOTPTestSuiteOptions {
   hotp: HOTP;
@@ -18,7 +18,7 @@ export function hotpTestSuite(name: string, opt: HOTPTestSuiteOptions): void {
   const { tokens, secret, digests } = rfc4226;
   const { hotp } = opt;
 
-  const { createDigest, createHmacKey } = hotp.finalOptions();
+  const { createDigest, createHmacKey } = hotp.allOptions();
 
   describe(`(${name}) RFC4226`, (): void => {
     tokens.forEach((token: string, counter: number): void => {

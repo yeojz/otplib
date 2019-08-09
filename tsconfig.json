@@ -1,17 +1,13 @@
 {
   "compilerOptions": {
-    "baseUrl": "",
-    "target": "es2015",
+    "baseUrl": "./packages",
+    "target": "es2017",
     "module": "commonjs",
     "declaration": true,
-    "outDir": "build-pkg",
+    "outDir": "builds/otplib",
     "strict": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "rootDir": ".",
-    "paths": {
-      "packages/*": ["packages/*"],
-    }
+    "esModuleInterop": true
   },
   "include": ["packages/**/*"],
   "exclude": ["node_modules"]

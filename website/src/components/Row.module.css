@@ -1,0 +1,62 @@
+.container {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 5px 6px 10px #ddd;
+  margin: 0 1em 1em;
+  padding: 1em 0;
+  position: relative;
+  text-align: center;
+}
+
+.content {
+  color: #666;
+  flex: 1;
+  padding: 0.5em;
+}
+
+.label h3 {
+  margin: 0;
+}
+
+.action {
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .container {
+    background: transparent;
+    box-shadow: none;
+    display: flex;
+    justify-content: center;
+    margin: 0 0 1.5em;
+    padding: 0;
+    text-align: left;
+  }
+
+  .content {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 5px 6px 10px #ddd;
+    padding: 0.5em 6em 0.5em 1em;
+  }
+
+  .content p {
+    padding: 0 0.5em;
+  }
+
+  .label {
+    padding: 0.5em 1em 0 0;
+    width: 9em;
+  }
+
+  .label h3 {
+    margin-top: 0.25em;
+  }
+
+  .action {
+    position: absolute;
+    right: 0;
+    top: 0.75em;
+    text-align: left;
+  }
+}

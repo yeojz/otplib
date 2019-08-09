@@ -1,4 +1,4 @@
-import { secret } from 'packages/tests-data/rfc4226';
+import { secret } from 'tests-data/rfc4226';
 import { HOTPOptions, hotpOptionsValidator, HOTP } from './hotp';
 import { HashAlgorithms } from './utils';
 
@@ -111,6 +111,13 @@ describe('HOTP', (): void => {
     expect((): HOTP => new HOTP()).not.toThrow();
   });
 
+  test('null argument, should init without error', (): void => {
+    expect((): void => {
+      // @ts-ignore
+      new HOTP(null);
+    }).not.toThrow();
+  });
+
   test('should init default values which does not reset', (): void => {
     let instance = new HOTP({});
     expect(instance.options).toEqual({});
@@ -131,10 +138,40 @@ describe('HOTP', (): void => {
     expect(instance.options).toEqual({});
   });
 
+  test('should not throw even when options given is null', (): void => {
+    const instance = new HOTP({});
+
+    expect((): void => {
+      // @ts-ignore
+      instance.options = null;
+    }).not.toThrow();
+
+    expect(typeof instance.options).toBe('object');
+  });
+
   test('token given is not a number string, should return false', (): void => {
     const instance = new HOTP({ createDigest: (): string => '' });
     const result = instance.check('not-a-number', secret, 0);
     expect(result).toBe(false);
+  });
+
+  test('verify method should error when argument given is not an object', (): void => {
+    const instance = new HOTP({});
+
+    expect((): void => {
+      // @ts-ignore
+      instance.verify(null);
+    }).toThrow();
+
+    expect((): void => {
+      // @ts-ignore
+      instance.verify();
+    }).toThrow();
+
+    expect((): void => {
+      // @ts-ignore
+      instance.verify(true);
+    }).toThrow();
   });
 
   dataset.forEach((entry): void => {
@@ -166,10 +203,39 @@ describe('HOTP', (): void => {
 
   test('should return expected keyuri', (): void => {
     const instance = new HOTP({ createDigest: (): string => '' });
-    expect(
-      instance.keyuri('otpuser', 'otplib', 'otpsecret', { counter: 0 })
-    ).toEqual(
-      'otpauth://hotp/otplib:otpuser?secret=otpsecret&counter=0&digits=6&algorithm=SHA1'
+    expect(instance.keyuri('otpuser', 'otplib', 'otpsecret', 0)).toEqual(
+      'otpauth://hotp/otplib:otpuser?secret=otpsecret&counter=0&digits=6&algorithm=SHA1&issuer=otplib'
     );
+  });
+
+  test('calling clone returns a new instance with new set of defaults', (): void => {
+    const opt = {
+      algorithm: HashAlgorithms.SHA256
+    };
+
+    const instance = new HOTP({});
+    instance.options = opt;
+    expect(instance.options).toEqual(opt);
+
+    const instance2 = instance.clone();
+    expect(instance2).toBeInstanceOf(HOTP);
+    expect(instance.options).toEqual(opt);
+
+    const instance3 = instance.clone({ digits: 8 });
+    expect(instance.options).toEqual(opt);
+    expect(instance3.options).toEqual({ ...opt, digits: 8 });
+  });
+
+  test('calling create returns a new instance with new set of defaults', (): void => {
+    const opt = {
+      algorithm: HashAlgorithms.SHA256
+    };
+
+    const instance = new HOTP(opt);
+    expect(instance.options).toEqual(opt);
+
+    const instance2 = instance.create();
+    expect(instance2).toBeInstanceOf(HOTP);
+    expect(instance2.options).toEqual({});
   });
 });

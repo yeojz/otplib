@@ -2,13 +2,14 @@
   "name": "otplib",
   "version": "11.1.0-0",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "main": "./index.js",
-  "typings": "./index.d.ts",
+  "main": "./node/index.js",
+  "typings": "./node/index.d.ts",
   "scripts": {
-    "build": "echo \"build\"",
-    "clean": "rimraf dist coverage docs",
-    "lint": "npm run lint:ts",
-    "lint:ts": "tsc --noEmit",
+    "build": "./scripts/build.sh",
+    "build:site": "./scripts/build-site.sh",
+    "clean": "rimraf builds coverage",
+    "format": "prettier --write \"{packages,scripts,configs}/**/*.{ts,tsx,js,jsx,json,md,mdx}\"",
+    "lint": "tsc --noEmit",
     "test": "jest --coverage --runInBand",
     "test:watch": "jest --watch",
     "upload:coverage": "cat ./coverage/lcov.info | coveralls"
@@ -46,8 +47,10 @@
     "@typescript-eslint/eslint-plugin": "^1.13.0",
     "@typescript-eslint/parser": "^1.13.0",
     "babel-jest": "^24.8.0",
+    "babel-loader": "^8.0.6",
     "base32-decode": "^1.0.0",
     "base32-encode": "^1.1.1",
+    "create-hmac": "^1.1.7",
     "crypto-js": "^3.1.9-1",
     "eslint": "^6.1.0",
     "eslint-config-prettier": "^6.0.0",
@@ -55,8 +58,15 @@
     "jest": "^24.8.0",
     "prettier": "^1.18.2",
     "rimraf": "^2.6.3",
+    "rollup": "^1.19.4",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-cleanup": "^3.1.1",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "thirty-two": "^1.0.2",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6"
   },
   "dependencies": {},
   "jest": {
@@ -68,13 +78,13 @@
     ],
     "coverageDirectory": "./coverage/",
     "modulePaths": [
-      "<rootDir>"
+      "<rootDir>/packages/"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/.*/__mocks__"
     ],
     "roots": [
-      "<rootDir>"
+      "<rootDir>/packages/"
     ],
     "resetMocks": true,
     "setupFiles": [],
@@ -91,7 +101,7 @@
   "repl": [
     {
       "name": "otplib",
-      "module": "./dist/otplib/index"
+      "module": "./builds/otplib/node"
     }
   ]
 }
