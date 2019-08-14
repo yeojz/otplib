@@ -59,7 +59,7 @@
     "jsdoc": "^3.4.3",
     "minami": "^1.1.1",
     "prettier": "1.16.1",
-    "rimraf": "^2.6.1",
+    "rimraf": "^3.0.0",
     "rollup": "^1.0.0",
     "rollup-plugin-cleanup": "^3.0.0",
     "rollup-plugin-node-resolve": "^4.0.0",
