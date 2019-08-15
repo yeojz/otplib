@@ -22,13 +22,13 @@ export function hotpTestSuite(name: string, opt: HOTPTestSuiteOptions): void {
 
   describe(`(${name}) RFC4226`, (): void => {
     tokens.forEach((token: string, counter: number): void => {
-      test(`token verification - ${counter}`, (): void => {
+      test(`given counter (${counter}) and secret, expect token to be (${token}) `, (): void => {
         expect(hotp.check(token, secret, counter)).toBe(true);
       });
     });
 
     digests.forEach((digest: string, counter: number): void => {
-      test(`expected intermediate HMAC value - ${counter}`, (): void => {
+      test(`given counter (${counter}), should recieve expected digest`, (): void => {
         const result = createDigest(
           HashAlgorithms.SHA1,
           createHmacKey(HashAlgorithms.SHA1, secret, KeyEncodings.ASCII),
@@ -51,21 +51,21 @@ export function totpTestSuite(name: string, opt: TOTPTestSuiteOptions): void {
 
   function runTable(fn: (id: string, row: rfc6238.RowData) => void): void {
     table.forEach((row: rfc6238.RowData): void => {
-      const id = `${row.algorithm} / ${row.epoch}`;
+      const id = `algorithm (${row.algorithm}) and epoch (${row.epoch})`;
       fn(id, row);
     });
   }
 
   describe(`(${name}) RFC6238`, (): void => {
     runTable((id, row): void => {
-      test(`expected counter value - ${id}`, (): void => {
+      test(`given ${id}, should receive expected counter`, (): void => {
         const counter = hotpCounter(totpCounter(row.epoch * 1000, step));
         expect(counter.toUpperCase()).toBe(row.counter);
       });
     });
 
     runTable((id, row): void => {
-      test(`token verification - ${id}`, (): void => {
+      test(`given ${id}, should receive token (${row.token})`, (): void => {
         totp.options = {
           epoch: row.epoch * 1000,
           algorithm: row.algorithm,

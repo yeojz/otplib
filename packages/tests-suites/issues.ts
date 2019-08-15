@@ -1,5 +1,5 @@
 import { Authenticator } from 'otplib-authenticator';
-import { keyDecoder, keyEncoder } from 'otplib-base32/thirty-two';
+import { keyDecoder, keyEncoder } from 'otplib-plugin-thirty-two';
 
 export interface IssuesTestSuiteOptions {
   authenticator: Authenticator;

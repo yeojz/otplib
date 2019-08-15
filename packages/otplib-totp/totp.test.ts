@@ -1,4 +1,5 @@
-import * as hotp from './hotp';
+import { KeyEncodings, HashAlgorithms } from 'otplib-hotp';
+import * as hotp from 'otplib-hotp/hotp';
 import {
   TOTPOptions,
   totpOptionsValidator,
@@ -6,7 +7,6 @@ import {
   totpCreateHmacKey,
   totpCheckWithWindow
 } from './totp';
-import { KeyEncodings, HashAlgorithms } from './utils';
 
 interface TOTPCheckTestCase {
   delta: number;

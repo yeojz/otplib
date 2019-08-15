@@ -1,6 +1,6 @@
 import { secret } from 'tests-data/rfc4226';
-import { HOTPOptions, hotpOptionsValidator, HOTP } from './hotp';
 import { HashAlgorithms } from './utils';
+import { HOTPOptions, hotpOptionsValidator, HOTP } from './hotp';
 
 interface HOTPCheckTestCase {
   token: string;

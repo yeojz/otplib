@@ -2,14 +2,16 @@ import {
   HashAlgorithms,
   KeyEncodings,
   SecretKey,
+  createInstance
+} from 'otplib-hotp';
+import {
   TOTP,
   TOTPOptions,
   totpCheckWithWindow,
   totpCreateHmacKey,
   totpOptionsValidator,
-  totpToken,
-  createInstance
-} from 'otplib-core';
+  totpToken
+} from 'otplib-totp';
 
 /**
  * RFC4648 / RFC3548 Base32 String.

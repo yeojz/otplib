@@ -2,8 +2,8 @@
   "name": "otplib",
   "version": "11.1.0-0",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "main": "./node/index.js",
-  "typings": "./node/index.d.ts",
+  "main": "./core/index.js",
+  "typings": "./core/index.d.ts",
   "scripts": {
     "build": "./scripts/build.sh",
     "build:site": "./scripts/build-site.sh",

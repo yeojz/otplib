@@ -6,14 +6,12 @@ import SHA512 from 'crypto-js/hmac-sha512';
 import Hex from 'crypto-js/enc-hex';
 import {
   CreateDigest,
-  HOTP,
   HashAlgorithms,
   HexString,
   KeyEncodings,
-  TOTP,
   objectValues
 } from 'otplib-core';
-import { Authenticator, CreateRandomBytes } from 'otplib-authenticator';
+import { CreateRandomBytes } from 'otplib-authenticator';
 
 const HASH_ALGORITHMS = objectValues<typeof HashAlgorithms>(HashAlgorithms);
 const { WordArray } = cryptoJsCore.lib;
@@ -37,7 +35,7 @@ function cryptoEncoder(
   }
 }
 
-const createDigest: CreateDigest = (
+export const createDigest: CreateDigest = (
   algorithm: HashAlgorithms,
   hmacKey: HexString,
   counter: HexString
@@ -48,23 +46,10 @@ const createDigest: CreateDigest = (
   return String(encoder(message, secret));
 };
 
-const createRandomBytes: CreateRandomBytes = (
+export const createRandomBytes: CreateRandomBytes = (
   numberOfBytes: number,
   encoding: KeyEncodings
 ): string => {
   const words = WordArray.random(numberOfBytes);
   return Buffer.from(words.toString(), 'hex').toString(encoding);
 };
-
-export const hotp = new HOTP({
-  createDigest
-});
-
-export const totp = new TOTP({
-  createDigest
-});
-
-export const authenticator = new Authenticator({
-  createDigest,
-  createRandomBytes
-});

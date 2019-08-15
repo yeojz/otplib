@@ -36,7 +36,8 @@ function rollupConfig(config, helpers) {
         ]
       }),
       nodeResolve({
-        extensions: helpers.EXTENSIONS
+        extensions: helpers.EXTENSIONS,
+        preferBuiltins: true
       }),
       commonjs({
         include: 'node_modules/**'

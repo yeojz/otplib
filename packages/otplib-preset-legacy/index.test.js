@@ -1,8 +1,7 @@
 import * as rfc4226 from 'tests-data/rfc4226';
 import * as rfc6238 from 'tests-data/rfc6238';
-import { AUTHENTICATOR_DATASET } from 'tests-suites';
 import { hotp, totp, authenticator } from './index';
-import { HOTP, TOTP, Authenticator } from './legacy';
+import { HOTP, TOTP, Authenticator } from './v11';
 
 let originalConsoleWarn;
 
@@ -190,7 +189,23 @@ describe('TOTP - RFC 6238', () => {
 });
 
 describe('Authenticator', () => {
-  AUTHENTICATOR_DATASET.forEach(entry => {
+  [
+    {
+      epoch: 1565103854545,
+      secret: 'NBCC6NZLM5DU4L2HMF3HS4DPNYYHK32R',
+      token: '566155'
+    },
+    {
+      secret: 'NBCC6NZLM5DU4L2HMF3HS4DPNYYHK32R',
+      epoch: 1565103878581,
+      token: '522154'
+    },
+    {
+      secret: 'MNWGYTSQMR4UG3ZRJ5VUQUTCGFTVMT3W',
+      epoch: 1565103903110,
+      token: '540849'
+    }
+  ].forEach(entry => {
     test(`should return expected token - ${entry.token}`, () => {
       const instance = authenticator.clone();
       instance.options = { epoch: entry.epoch };

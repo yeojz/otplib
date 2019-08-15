@@ -16,11 +16,6 @@ function webpackConfig(config, helpers) {
       path: config.buildFolderPath,
       filename: config.buildFileName
     },
-    // externals: {
-    //   Buffer: {
-    //     root: 'buffer.Buffer'
-    //   }
-    // },
     node: {
       Buffer: false
     },

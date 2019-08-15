@@ -1,11 +1,42 @@
-import { AUTHENTICATOR_DATASET } from 'tests-suites';
-import * as totp from 'otplib-core/totp';
-import { HashAlgorithms } from 'otplib-core';
+import * as totp from 'otplib-totp/totp';
+import { HashAlgorithms } from 'otplib-hotp';
 import {
   AuthenticatorOptions,
   authenticatorOptionValidator,
   Authenticator
 } from './authenticator';
+
+interface AuthenticatorTestCase {
+  decoded: string;
+  digest: string;
+  secret: string;
+  epoch: number;
+  token: string;
+}
+
+export const AUTHENTICATOR_DATASET: AuthenticatorTestCase[] = [
+  {
+    decoded: '68442f372b67474e2f47617679706f6e30756f51',
+    digest: '422eb1a849cf0650fef4dbdd8b0ee0fe57a87eb9',
+    epoch: 1565103854545,
+    secret: 'NBCC6NZLM5DU4L2HMF3HS4DPNYYHK32R',
+    token: '566155'
+  },
+  {
+    decoded: '68442f372b67474e2f47617679706f6e30756f51',
+    digest: 'c305b82dbf2a8d2d8a22e9d3992e4e666222d0e2',
+    secret: 'NBCC6NZLM5DU4L2HMF3HS4DPNYYHK32R',
+    epoch: 1565103878581,
+    token: '522154'
+  },
+  {
+    decoded: '636c6c4e506479436f314f6b4852623167564f76',
+    digest: '64a959e511420af1a406424f87b4412977b3cbd4',
+    secret: 'MNWGYTSQMR4UG3ZRJ5VUQUTCGFTVMT3W',
+    epoch: 1565103903110,
+    token: '540849'
+  }
+];
 
 const runOptionValidator = (
   opt: Partial<AuthenticatorOptions>

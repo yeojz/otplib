@@ -1,4 +1,4 @@
-import { epochUnixToJS, epochJSToUnix } from './legacy';
+import { epochUnixToJS, epochJSToUnix } from './v11';
 
 test('should return empty object if argument is non-object', () => {
   expect(epochUnixToJS()).toEqual({});

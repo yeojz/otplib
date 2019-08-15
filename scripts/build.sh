@@ -23,7 +23,7 @@ NODE_ENV=production npx webpack \
 
 echo "\n--- downloading buffer module ---"
 curl https://bundle.run/buffer@5.3.0 \
-  --output ./builds/otplib/browser/buffer.js
+  --output ./builds/otplib/preset-browser/buffer.js
 
 echo "\n--- copying meta ---"
 cp ./README.md ./builds/otplib/README.md

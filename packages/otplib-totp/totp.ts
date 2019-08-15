@@ -2,20 +2,18 @@ import {
   CreateHmacKey,
   HOTP,
   HOTPOptions,
-  hotpOptionsValidator,
-  hotpToken,
-  createInstance
-} from './hotp';
-import {
   HashAlgorithms,
   HexString,
   KeyEncodings,
   SecretKey,
   Strategy,
+  createInstance,
+  hotpOptionsValidator,
+  hotpToken,
   isTokenValid,
   keyuri,
   objectValues
-} from './utils';
+} from 'otplib-hotp';
 
 const HASH_ALGORITHMS = objectValues<typeof HashAlgorithms>(HashAlgorithms);
 

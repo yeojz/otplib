@@ -22,11 +22,11 @@
   - [Adding the scripts](#adding-the-scripts)
   - [Browser bundle size](#browser-bundle-size)
 - [Available Packages](#available-packages)
-  - [Base](#base)
+  - [Core](#core)
   - [Plugins](#plugins)
     - [Crypto](#crypto)
-    - [Base 32](#base-32)
-  - [Packages](#packages)
+    - [Base32](#base32)
+  - [Presets](#presets)
 - [Available Options](#available-options)
 - [Google Authenticator](#google-authenticator)
   - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
@@ -169,42 +169,53 @@ Paired with the gzipped browser `buffer.js` module, it would be about `7.65KB + 
 
 ## Available Packages
 
-This library has been split into 3 categories: `base`, `plugins` and `packages`.
+This library has been split into 3 categories: `core`, `plugin` and `preset`.
 
-### Base
+### Core
 
 These provides the main functionality of the library. However parts of the logic
 has been separated out in order to provide flexibility to the library.
 
-| file                 | description                        |
-| -------------------- | ---------------------------------- |
-| otplib/core          | HOTP and TOTP functionality        |
-| otplib/authenticator | Google Authenticator functionality |
+| file                 | description                                          |
+| -------------------- | ---------------------------------------------------- |
+| otplib/hotp          | HOTP functions + class                               |
+| otplib/hotp          | TOTP functions + class                               |
+| otplib/authenticator | Google Authenticator functions + class               |
+| otplib/core          | Aggregates hotp/totp/authenticator functions + class |
 
 ### Plugins
 
 #### Crypto
 
-| file                   | description               |
-| ---------------------- | ------------------------- |
-| otplib/crypto/node     | node crypto based methods |
-| otplib/crypto/cryptojs | crypto-js based methods   |
+These plugins provide the core digest generation which is used in
+token generation.
 
-#### Base 32
+| plugin                 | npm                     |
+| ---------------------- | ----------------------- |
+| otplib/plugin-crypto   | crypto module from node |
+| otplib/plugin-cryptojs | `npm install crypto-js` |
 
-| file                       | description                                           |
-| -------------------------- | ----------------------------------------------------- |
-| otplib/base32/thirty-two   | Encoder/Decoder using thirty-two                      |
-| otplib/base32/base32-endec | Encoder/Decoder using base32-encode and base32-decode |
+#### Base32
 
-### Packages
+The Base32 functionalities are used when encoding and decoding keys
+in the Google Authenticator implementation.
 
-| file            | description                                                 |
-| --------------- | ----------------------------------------------------------- |
-| otplib/node     | Uses node crypto + thirty-two                               |
-| otplib/cryptojs | Uses crypto-js + thirty-two                                 |
-| otplib/browser  | Webpack bundle. Uses base32-endec + crypto-js               |
-| otplib/legacy   | Wrapper to adapt the APIs to otplib@v11.x compatible format |
+| plugin                       | npm                                       |
+| ---------------------------- | ----------------------------------------- |
+| otplib/plugin-thirty-two     | `npm install thirty-two`                  |
+| otplib/plugin-base32-enc-dec | `npm install base32-encode base32-decode` |
+
+### Presets
+
+Presets are preconfigured HOTP, TOTP, Authenticator instances to allow for a
+faster implementations. They would need the corresponding npm module
+to be installed (except `preset-browser`).
+
+| file                  | description                                                 |
+| --------------------- | ----------------------------------------------------------- |
+| otplib/preset-default | Uses node crypto + thirty-two                               |
+| otplib/preset-browser | Webpack bundle. Uses base32-endec + crypto-js               |
+| otplib/preset-legacy  | Wrapper to adapt the APIs to otplib@v11.x compatible format |
 
 ## Available Options
 
