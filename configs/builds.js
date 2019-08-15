@@ -50,8 +50,8 @@ module.exports = {
   },
 
   'otplib-preset-default': standard('preset-default'),
-  'otplib-preset-legacy': {
-    ...standard('preset-legacy'),
+  'otplib-preset-v11': {
+    ...standard('preset-v11'),
     files: ['index.js']
   }
 };

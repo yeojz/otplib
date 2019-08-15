@@ -16,6 +16,11 @@ const testKeys: TestKeys[] = [
     decoded: '68442f372b67474e2f47617679706f6e30756f51'
   },
   {
+    // ensure lowercase strings do not fail
+    encoded: 'nbcc6nzlm5du4l2hmf3hs4dpnyyhk32r',
+    decoded: '68442f372b67474e2f47617679706f6e30756f51'
+  },
+  {
     encoded: 'MNWGYTSQMR4UG3ZRJ5VUQUTCGFTVMT3W',
     decoded: '636c6c4e506479436f314f6b4852623167564f76'
   },

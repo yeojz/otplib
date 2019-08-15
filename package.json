@@ -74,7 +74,7 @@
       "packages/**/*.{js,ts}",
       "!**/node_modules/**",
       "!packages/tests-*/*",
-      "!packages/otplib-browser/*"
+      "!packages/otplib-preset-browser/*"
     ],
     "coverageDirectory": "./coverage/",
     "modulePaths": [

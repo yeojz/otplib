@@ -47,6 +47,7 @@ export function createV11(Base, legacyOptions) {
   class Legacy extends Base {
     constructor(defaultOptions = {}) {
       super(epochUnixToJS({ ...legacyOptions, ...defaultOptions }));
+      console.warn(Base.name, 'initialised with v11.x adapter');
     }
 
     static get name() {
@@ -55,13 +56,19 @@ export function createV11(Base, legacyOptions) {
     }
 
     set options(opt = {}) {
+      console.warn(
+        Base.name,
+        '.options setter will remove UNIX epoch if it is set to null.' +
+          '\n Do note that library versions above v11.x uses JavaScript epoch.'
+      );
       super.options = epochUnixToJS(opt);
     }
 
     get options() {
       console.warn(
         Base.name,
-        'The [OTP].options getter will remove epoch if it is set to null'
+        '.options getter will remove epoch if it is set to null' +
+          '\n Do note that library versions above v11.x uses JavaScript epoch.'
       );
       return epochJSToUnix(super.options);
     }
@@ -69,8 +76,8 @@ export function createV11(Base, legacyOptions) {
     get defaultOptions() {
       console.warn(
         Base.name,
-        'The [OTP].defaultOptions getter has been deprecated in favour of the [OTP].options getter' +
-          '\n\n The [OTP].options getter now returns the combined defaultOptions and options values' +
+        '.defaultOptions getter has been deprecated in favour of the .options getter' +
+          '\n\n The .options getter now returns the combined defaultOptions and options values' +
           'instead of setting options when adding defaultOptions.'
       );
 
@@ -80,7 +87,7 @@ export function createV11(Base, legacyOptions) {
     set defaultOptions(opt) {
       console.warn(
         Base.name,
-        'The [OTP].defaultOptions setter has been deprecated in favour of the [OTP].clone(defaultOptions) function'
+        '.defaultOptions setter has been deprecated in favour of the .clone(defaultOptions) method'
       );
       this._defaultOptions = Object.freeze({
         ...this._defaultOptions,
@@ -91,9 +98,10 @@ export function createV11(Base, legacyOptions) {
     get optionsAll() {
       console.warn(
         Base.name,
-        'The [OTP].optionsAll getter has been deprecated in favour of the [OTP].allOptions() function.' +
-          '\n That epoch returned here will be in Unix Epoch, while [OTP].allOptions()' +
-          ' will return JavaScript epoch.'
+        '.optionsAll getter has been deprecated in favour of the .allOptions() method.' +
+          '\n That epoch returned here will be in Unix Epoch, while .allOptions()' +
+          ' will return JavaScript epoch.' +
+          '\n Do note that library versions above v11.x uses JavaScript epoch.'
       );
       return epochJSToUnix(super.allOptions());
     }

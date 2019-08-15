@@ -32,11 +32,22 @@ export function cryptoPluginTestSuite(
       });
     });
 
-    test('should create random bytes of expected length', (): void => {
-      // 10 bytes * 8 = 80 bits
-      // 80 / 4 = 20 for hex encoded;
-      const result = plugin.createRandomBytes(10, KeyEncodings.HEX);
-      expect(result.length).toBe(20);
-    });
+    test('given an invalid algorithm, createDigest should throw', (): void => {
+      const result = (): string =>
+        plugin.createDigest(
+          // @ts-ignore
+          'oops',
+          hotpCreateHmacKey(HashAlgorithms.SHA1, secret, KeyEncodings.ASCII),
+          hotpCounter(1000)
+        );
+
+      expect(result).toThrow();
+    }),
+      test('should create random bytes of expected length', (): void => {
+        // 10 bytes * 8 = 80 bits
+        // 80 / 4 = 20 for hex encoded;
+        const result = plugin.createRandomBytes(10, KeyEncodings.HEX);
+        expect(result.length).toBe(20);
+      });
   });
 }

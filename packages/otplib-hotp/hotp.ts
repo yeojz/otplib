@@ -45,7 +45,7 @@ export interface HOTPOptions {
   algorithm: HashAlgorithms;
   /** Creates the digest which token is derived from. */
   createDigest: CreateDigest;
-  /** The method used to create a HMAC key (when calculating HMAC). */
+  /** Formats the secret into a HMAC key, applying transformations (like padding) where needed  */
   createHmacKey: CreateHmacKey;
   /** The number of digits a token will have. Usually 6 or 8. */
   digits: number;
