@@ -7,7 +7,6 @@ import {
   KeyEncodings,
   SecretKey,
   Strategy,
-  createInstance,
   hotpOptionsValidator,
   hotpToken,
   isTokenValid,
@@ -16,6 +15,28 @@ import {
 } from 'otplib-hotp';
 
 const HASH_ALGORITHMS = objectValues<typeof HashAlgorithms>(HashAlgorithms);
+
+/**
+ * Validates and formats the given window into an array
+ * containing how many windows past and future to check.
+ */
+function parseWindowBounds(win?: number | [number, number]): [number, number] {
+  if (typeof win === 'number') {
+    return [Math.abs(win), Math.abs(win)];
+  }
+
+  if (Array.isArray(win)) {
+    const [past, future] = win;
+
+    if (typeof past === 'number' && typeof future === 'number') {
+      return [Math.abs(past), Math.abs(future)];
+    }
+  }
+
+  throw new Error(
+    'Expecting options.window to be an number or [number, number].'
+  );
+}
 
 /**
  * Interface for options used in TOTP.
@@ -35,10 +56,11 @@ export interface TOTPOptions extends HOTPOptions {
 /**
  * Validates the given [[TOTPOptions]].
  */
-export function totpOptionsValidator(
-  options: Readonly<Partial<TOTPOptions>>
+export function totpOptionsValidator<T extends TOTPOptions = TOTPOptions>(
+  options: Partial<T>
 ): void {
-  hotpOptionsValidator(options);
+  hotpOptionsValidator<T>(options);
+  parseWindowBounds(options.window);
 
   if (typeof options.epoch !== 'number') {
     throw new Error('Expecting options.epoch to be a number.');
@@ -71,12 +93,60 @@ export function totpCounter(epoch: number, step: number): number {
  * -   http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
  *
  */
-export function totpToken(
+export function totpToken<T extends TOTPOptions = TOTPOptions>(
   secret: SecretKey,
-  options: Readonly<TOTPOptions>
+  options: Readonly<T>
 ): string {
   const counter = totpCounter(options.epoch, options.step);
   return hotpToken(secret, counter, options);
+}
+
+function generateEpoch(
+  epoch: number,
+  direction: number,
+  deltaPerEpoch: number,
+  numOfEpoches: number
+): number[] {
+  const result: number[] = [];
+
+  if (numOfEpoches === 0) {
+    return result;
+  }
+
+  for (let i = 1; i <= numOfEpoches; i++) {
+    const delta = direction * i * deltaPerEpoch;
+    result.push(epoch + delta);
+  }
+
+  return result;
+}
+
+/**
+ * Interface for available epoches derived from
+ * the current epoch.
+ */
+export interface EpochAvailable {
+  current: number;
+  future: number[];
+  past: number[];
+}
+
+/**
+ * Gets a set of epoches derived from
+ * the current epoch and the acceptable window.
+ */
+export function totpEpochAvailable<T extends TOTPOptions = TOTPOptions>(
+  options: Readonly<Pick<T, 'window' | 'epoch' | 'step'>>
+): EpochAvailable {
+  const bounds = parseWindowBounds(options.window);
+  const epoch = options.epoch;
+  const delta = options.step * 1000; // to JS Time
+
+  return {
+    current: epoch,
+    past: generateEpoch(epoch, -1, delta, bounds[0]),
+    future: generateEpoch(epoch, 1, delta, bounds[1])
+  };
 }
 
 /**
@@ -84,10 +154,10 @@ export function totpToken(
  *
  * **Note**: Token is valid only if it is a number string.
  */
-export function totpCheck(
+export function totpCheck<T extends TOTPOptions = TOTPOptions>(
   token: string,
   secret: SecretKey,
-  options: Readonly<TOTPOptions>
+  options: Readonly<T>
 ): boolean {
   if (!isTokenValid(token)) {
     return false;
@@ -98,58 +168,32 @@ export function totpCheck(
 }
 
 /**
- * Validates and formats the given window into an array
- * containing how many windows past and future to check.
+ * Checks if there is a valid TOTP token in a given list of epoches.
+ * Returns the (index + 1) of a valid epoch in the list.
  */
-function getWindowBounds(win: number | [number, number]): [number, number] {
-  if (typeof win === 'number') {
-    return [win, win];
-  }
-
-  if (
-    Array.isArray(win) &&
-    typeof win[0] === 'number' &&
-    typeof win[1] === 'number'
-  ) {
-    return [win[0], win[1]];
-  }
-
-  throw new Error(
-    'Expecting options.window to be an number or [number, number].'
-  );
-}
-
-type TOTPCheckRunner = (direction: 1 | -1, rounds: number) => number | null;
-
-/**
- * Creats a method which will loop-check TOTP validity by
- * the specified number of windows in the specified
- * direction (past or future).
- */
-function createTOTPCheckRunner(
+export function totpCheckByEpoch<T extends TOTPOptions = TOTPOptions>(
+  epoches: number[],
   token: string,
   secret: SecretKey,
-  options: Readonly<TOTPOptions>
-): TOTPCheckRunner {
-  const delta = options.step * 1000;
-  const epoch = options.epoch;
+  options: Readonly<T>
+): number | null {
+  let position = null;
 
-  return (direction: 1 | -1, rounds: number): number | null => {
-    for (let i = 1; i <= rounds; i++) {
-      const position = direction * i;
+  epoches.some((epoch, idx): boolean => {
+    const result = totpCheck<T>(token, secret, {
+      ...options,
+      epoch
+    });
 
-      const currentOptions = {
-        ...options,
-        epoch: epoch + position * delta
-      };
-
-      if (totpCheck(token, secret, currentOptions)) {
-        return position;
-      }
+    if (result) {
+      position = idx + 1;
+      return true;
     }
 
-    return null;
-  };
+    return false;
+  });
+
+  return position;
 }
 
 /**
@@ -162,20 +206,23 @@ function createTOTPCheckRunner(
  * - positive number = token at future x * step
  * - negative number = token at past x * step
  */
-export function totpCheckWithWindow(
+export function totpCheckWithWindow<T extends TOTPOptions = TOTPOptions>(
   token: string,
   secret: SecretKey,
-  options: Readonly<TOTPOptions>
+  options: Readonly<T>
 ): number | null {
-  const bounds = getWindowBounds(options.window);
-
   if (totpCheck(token, secret, options)) {
     return 0;
   }
 
-  const totpCheckRunner = createTOTPCheckRunner(token, secret, options);
-  const backward = totpCheckRunner(-1, bounds[0]);
-  return backward !== null ? backward : totpCheckRunner(1, bounds[1]);
+  const epoches = totpEpochAvailable<T>(options);
+  const backward = totpCheckByEpoch<T>(epoches.past, token, secret, options);
+
+  if (backward !== null) {
+    return backward * -1;
+  }
+
+  return totpCheckByEpoch<T>(epoches.future, token, secret, options);
 }
 
 /**
@@ -261,25 +308,40 @@ export const totpCreateHmacKey: CreateHmacKey = (
 };
 
 /**
- * Takes an TOTP Option object and provides presets for
- * some of the missing required TOTP option fields and validates
- * the resultant options.
+ * Returns a set of default options for TOTP at the current epoch.
  */
-export function totpOptions(opt: Readonly<Partial<TOTPOptions>>): TOTPOptions {
-  const options: Partial<TOTPOptions> = {
+export function totpDefaultOptions<
+  T extends TOTPOptions = TOTPOptions
+>(): Partial<T> {
+  const options = {
     algorithm: HashAlgorithms.SHA1,
     createHmacKey: totpCreateHmacKey,
     digits: 6,
     encoding: KeyEncodings.ASCII,
     epoch: Date.now(),
     step: 30,
-    window: 0,
+    window: 0
+  };
+
+  return options as Partial<T>;
+}
+
+/**
+ * Takes an TOTP Option object and provides presets for
+ * some of the missing required TOTP option fields and validates
+ * the resultant options.
+ */
+export function totpOptions<T extends TOTPOptions = TOTPOptions>(
+  opt: Partial<T>
+): Readonly<T> {
+  const options = {
+    ...totpDefaultOptions<T>(),
     ...opt
   };
 
-  totpOptionsValidator(options);
+  totpOptionsValidator<T>(options as Partial<T>);
 
-  return options as TOTPOptions;
+  return Object.freeze(options) as Readonly<T>;
 }
 
 /**
@@ -287,24 +349,10 @@ export function totpOptions(opt: Readonly<Partial<TOTPOptions>>): TOTPOptions {
  */
 export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
   /**
-   * Creates a new TOTP instance with all defaultOptions and options reset.
-   *
-   * This is the same as calling `new TOTP()`
+   * Creates a new instance with all defaultOptions and options reset.
    */
-  public create(defaultOptions: Partial<T> = {}): TOTP<T> {
-    return createInstance<T, TOTP<T>>(TOTP, defaultOptions);
-  }
-
-  /**
-   * Copies the defaultOptions and options from the current
-   * TOTP instance and applies the provided defaultOptions.
-   */
-  public clone(defaultOptions: Partial<T> = {}): TOTP<T> {
-    return createInstance<T, TOTP<T>>(
-      TOTP,
-      { ...this._defaultOptions, ...defaultOptions },
-      this._options
-    );
+  public create(defaultOptions: Partial<T>): TOTP<T> {
+    return new TOTP<T>(defaultOptions);
   }
 
   /**
@@ -314,24 +362,24 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
    * Reference: [[totpOptions]]
    */
   public allOptions(): Readonly<T> {
-    return totpOptions({
+    return totpOptions<T>({
       ...this._defaultOptions,
       ...this._options
-    }) as Readonly<T>;
+    });
   }
 
   /**
    * Reference: [[totpToken]]
    */
   public generate(secret: SecretKey): string {
-    return totpToken(secret, this.allOptions());
+    return totpToken<T>(secret, this.allOptions());
   }
 
   /**
    * Reference: [[totpCheckWithWindow]]
    */
   public checkDelta(token: string, secret: SecretKey): number | null {
-    return totpCheckWithWindow(token, secret, this.allOptions());
+    return totpCheckWithWindow<T>(token, secret, this.allOptions());
   }
 
   /**

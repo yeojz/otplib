@@ -47,9 +47,9 @@ export const createDigest: CreateDigest = (
 };
 
 export const createRandomBytes: CreateRandomBytes = (
-  numberOfBytes: number,
+  size: number,
   encoding: KeyEncodings
 ): string => {
-  const words = WordArray.random(numberOfBytes);
+  const words = WordArray.random(size);
   return Buffer.from(words.toString(), 'hex').toString(encoding);
 };

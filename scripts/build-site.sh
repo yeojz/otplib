@@ -11,5 +11,5 @@ npx typedoc \
   --out ./builds/typedocs
 
 echo "\n--- copying statics to website ---"
-cp -r ./builds/otplib/browser ./website/static/otplib-browser
-cp -r ./builds/typedocs ./website/static/api
+cp -r ./builds/otplib/preset-browser/. ./website/static/otplib-browser
+cp -r ./builds/typedocs/. ./website/static/api

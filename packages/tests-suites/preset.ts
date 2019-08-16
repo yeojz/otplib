@@ -68,6 +68,10 @@ export function presetTestSuite(name: string, pkg: Presets): void {
   describe(`${name} - Authenticator`, (): void => {
     const { authenticator } = pkg;
 
+    beforeEach((): void => {
+      authenticator.resetOptions();
+    });
+
     tokenSets.forEach((entry): void => {
       test(`given epoch (${entry.epoch}) and secret, should receive expected token ${entry.token}`, (): void => {
         authenticator.options = {
@@ -75,6 +79,39 @@ export function presetTestSuite(name: string, pkg: Presets): void {
         };
 
         expect(authenticator.generate(entry.secret)).toBe(entry.token);
+      });
+    });
+
+    describe('given a epoch and window, a set of tokens should return the correct validation window', (): void => {
+      const secret = 'J44DMWLUIFHE63SQKR4FKODQKB2UWZCT';
+      const epoch = 1565973031233;
+      const deltaSets: [string, number | null][] = [
+        ['039223', -2],
+        ['311336', -1],
+        ['288367', 0],
+        ['408608', 1],
+        ['721767', 2],
+        ['819412', null]
+      ];
+
+      deltaSets.forEach(([token, delta]): void => {
+        test(`given window (2), token (${token}), should return delta (${delta})`, (): void => {
+          authenticator.options = {
+            epoch,
+            window: 2
+          };
+
+          expect(authenticator.checkDelta(token, secret)).toEqual(delta);
+        });
+
+        test(`given window ([2, 2]), token (${token}), should return delta (${delta})`, (): void => {
+          authenticator.options = {
+            epoch,
+            window: [2, 2]
+          };
+
+          expect(authenticator.checkDelta(token, secret)).toEqual(delta);
+        });
       });
     });
   });

@@ -52,7 +52,7 @@ export function base32PluginTestSuite(
 
       test(`given decoded key ${entry.decoded}, should receive encoded key ${entry.encoded}`, (): void => {
         expect(plugin.keyEncoder(entry.decoded, KeyEncodings.HEX)).toBe(
-          entry.encoded
+          entry.encoded.toUpperCase()
         );
       });
     });

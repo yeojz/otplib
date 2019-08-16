@@ -105,8 +105,27 @@ describe('totpOptionsValidator', (): void => {
     hotpOptionsValidator.mockReset();
   });
 
-  test('missing options.epoch, should throw error', (): void => {
+  test('invalid options.window, should throw error', (): void => {
     const result = runOptionValidator({});
+
+    expect(result.error).toBe(true);
+    expect(result.message).toContain('options.window');
+  });
+
+  test('invalid options.window, array but non-number, should throw error', (): void => {
+    const result = runOptionValidator({
+      // @ts-ignore
+      window: ['hi', ' me']
+    });
+
+    expect(result.error).toBe(true);
+    expect(result.message).toContain('options.window');
+  });
+
+  test('missing options.epoch, should throw error', (): void => {
+    const result = runOptionValidator({
+      window: 0
+    });
 
     expect(result.error).toBe(true);
     expect(result.message).toContain('options.epoch');
@@ -114,7 +133,8 @@ describe('totpOptionsValidator', (): void => {
 
   test('missing options.step, should throw error', (): void => {
     const result = runOptionValidator({
-      epoch: Date.now()
+      epoch: Date.now(),
+      window: 0
     });
 
     expect(result.error).toBe(true);

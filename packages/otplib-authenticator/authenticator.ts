@@ -1,9 +1,4 @@
-import {
-  HashAlgorithms,
-  KeyEncodings,
-  SecretKey,
-  createInstance
-} from 'otplib-hotp';
+import { HashAlgorithms, KeyEncodings, SecretKey } from 'otplib-hotp';
 import {
   TOTP,
   TOTPOptions,
@@ -68,10 +63,10 @@ export interface AuthenticatorOptions extends TOTPOptions {
 /**
  * Validates the given [[AuthenticatorOptions]].
  */
-export function authenticatorOptionValidator(
-  options: Readonly<Partial<AuthenticatorOptions>>
-): void {
-  totpOptionsValidator(options);
+export function authenticatorOptionValidator<
+  T extends AuthenticatorOptions = AuthenticatorOptions
+>(options: Partial<T>): void {
+  totpOptionsValidator<T>(options);
 
   if (typeof options.keyDecoder !== 'function') {
     throw new Error('Expecting options.keyDecoder to be a function.');
@@ -86,9 +81,11 @@ export function authenticatorOptionValidator(
  * Encodes a given secret key into a Base32 secret
  * using a [[KeyEncoder]] method set in the options.
  */
-export function authenticatorEncoder(
+export function authenticatorEncoder<
+  T extends AuthenticatorOptions = AuthenticatorOptions
+>(
   secret: SecretKey,
-  options: Pick<AuthenticatorOptions, 'keyEncoder' | 'encoding'>
+  options: Pick<T, 'keyEncoder' | 'encoding'>
 ): Base32SecretKey {
   return options.keyEncoder(secret, options.encoding);
 }
@@ -97,9 +94,11 @@ export function authenticatorEncoder(
  * Decodes a given Base32 secret to a secret key
  * using a [[KeyDecoder]] method set in the options.
  */
-export function authenticatorDecoder(
+export function authenticatorDecoder<
+  T extends AuthenticatorOptions = AuthenticatorOptions
+>(
   secret: Base32SecretKey,
-  options: Pick<AuthenticatorOptions, 'keyDecoder' | 'encoding'>
+  options: Pick<T, 'keyDecoder' | 'encoding'>
 ): SecretKey {
   return options.keyDecoder(secret, options.encoding);
 }
@@ -107,12 +106,11 @@ export function authenticatorDecoder(
 /**
  * Generates a random Base32 Secret Key.
  */
-export function authenticatorGenerateSecret(
+export function authenticatorGenerateSecret<
+  T extends AuthenticatorOptions = AuthenticatorOptions
+>(
   numberOfBytes: number,
-  options: Pick<
-    AuthenticatorOptions,
-    'keyEncoder' | 'encoding' | 'createRandomBytes'
-  >
+  options: Pick<T, 'keyEncoder' | 'encoding' | 'createRandomBytes'>
 ): Base32SecretKey {
   const key = options.createRandomBytes(numberOfBytes, options.encoding);
   return authenticatorEncoder(key, options);
@@ -128,26 +126,42 @@ export function authenticatorGenerateSecret(
  * -   https://en.wikipedia.org/wiki/Google_Authenticator
  *
  */
-export function authenticatorToken(
-  secret: Base32SecretKey,
-  options: Readonly<AuthenticatorOptions>
-): string {
-  return totpToken(authenticatorDecoder(secret, options), options);
+export function authenticatorToken<
+  T extends AuthenticatorOptions = AuthenticatorOptions
+>(secret: Base32SecretKey, options: Readonly<T>): string {
+  return totpToken<T>(authenticatorDecoder<T>(secret, options), options);
 }
 
 /**
  * Decodes the encodedSecret and passes it to [[totpCheckWithWindow]]
  */
-export function authenticatorCheckWithWindow(
-  token: string,
-  secret: Base32SecretKey,
-  options: Readonly<AuthenticatorOptions>
-): number | null {
-  return totpCheckWithWindow(
+export function authenticatorCheckWithWindow<
+  T extends AuthenticatorOptions = AuthenticatorOptions
+>(token: string, secret: Base32SecretKey, options: Readonly<T>): number | null {
+  return totpCheckWithWindow<T>(
     token,
-    authenticatorDecoder(secret, options),
+    authenticatorDecoder<T>(secret, options),
     options
   );
+}
+
+/**
+ * Returns a set of default options for authenticator at the current epoch.
+ */
+export function authenticatorDefaultOptions<
+  T extends AuthenticatorOptions = AuthenticatorOptions
+>(): Partial<T> {
+  const options = {
+    algorithm: HashAlgorithms.SHA1,
+    createHmacKey: totpCreateHmacKey,
+    digits: 6,
+    encoding: KeyEncodings.HEX,
+    epoch: Date.now(),
+    step: 30,
+    window: 0
+  };
+
+  return options as Partial<T>;
 }
 
 /**
@@ -155,23 +169,17 @@ export function authenticatorCheckWithWindow(
  * some of the missing required Authenticator option fields and validates
  * the resultant options.
  */
-export function authenticatorOptions(
-  opt: Readonly<Partial<AuthenticatorOptions>>
-): AuthenticatorOptions {
-  const options: Partial<AuthenticatorOptions> = {
-    algorithm: HashAlgorithms.SHA1,
-    createHmacKey: totpCreateHmacKey,
-    digits: 6,
-    encoding: KeyEncodings.HEX,
-    epoch: Date.now(),
-    step: 30,
-    window: 0,
+export function authenticatorOptions<
+  T extends AuthenticatorOptions = AuthenticatorOptions
+>(opt: Partial<T>): Readonly<T> {
+  const options = {
+    ...authenticatorDefaultOptions(),
     ...opt
   };
 
-  authenticatorOptionValidator(options);
+  authenticatorOptionValidator<T>(options as Partial<T>);
 
-  return options as AuthenticatorOptions;
+  return Object.freeze(options) as Readonly<T>;
 }
 
 /**
@@ -181,24 +189,10 @@ export class Authenticator<
   T extends AuthenticatorOptions = AuthenticatorOptions
 > extends TOTP<T> {
   /**
-   * Creates a new Authenticator instance with all defaultOptions and options reset.
-   *
-   * This is the same as calling `new Authenticator()`
+   * Creates a new instance with all defaultOptions and options reset.
    */
   public create(defaultOptions: Partial<T> = {}): Authenticator<T> {
-    return createInstance<T, Authenticator<T>>(Authenticator, defaultOptions);
-  }
-
-  /**
-   * Copies the defaultOptions and options from the current
-   * Authenticator instance and applies the provided defaultOptions.
-   */
-  public clone(defaultOptions: Partial<T> = {}): Authenticator<T> {
-    return createInstance<T, Authenticator<T>>(
-      Authenticator,
-      { ...this._defaultOptions, ...defaultOptions },
-      this._options
-    );
+    return new Authenticator<T>(defaultOptions);
   }
 
   /**
@@ -208,44 +202,44 @@ export class Authenticator<
    * Refer to [[authenticatorOptions]]
    */
   public allOptions(): Readonly<T> {
-    return authenticatorOptions({
+    return authenticatorOptions<T>({
       ...this._defaultOptions,
       ...this._options
-    }) as Readonly<T>;
+    });
   }
 
   /**
    * Reference: [[authenticatorToken]]
    */
   public generate(secret: Base32SecretKey): string {
-    return authenticatorToken(secret, this.allOptions());
+    return authenticatorToken<T>(secret, this.allOptions());
   }
 
   /**
    * Reference: [[authenticatorCheckWithWindow]]
    */
   public checkDelta(token: string, secret: Base32SecretKey): number | null {
-    return authenticatorCheckWithWindow(token, secret, this.allOptions());
+    return authenticatorCheckWithWindow<T>(token, secret, this.allOptions());
   }
 
   /**
    * Reference: [[authenticatorEncoder]]
    */
   public encode(secret: SecretKey): Base32SecretKey {
-    return authenticatorEncoder(secret, this.allOptions());
+    return authenticatorEncoder<T>(secret, this.allOptions());
   }
 
   /**
    * Reference: [[authenticatorDecoder]]
    */
   public decode(secret: Base32SecretKey): SecretKey {
-    return authenticatorDecoder(secret, this.allOptions());
+    return authenticatorDecoder<T>(secret, this.allOptions());
   }
 
   /**
    * Reference: [[authenticatorGenerateSecret]]
    */
   public generateSecret(numberOfBytes: number = 10): Base32SecretKey {
-    return authenticatorGenerateSecret(numberOfBytes, this.allOptions());
+    return authenticatorGenerateSecret<T>(numberOfBytes, this.allOptions());
   }
 }

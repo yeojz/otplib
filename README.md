@@ -76,7 +76,7 @@ and includes additional methods to allow you to work with Google Authenticator.
 - [x] Presets provided
   - `default (node)`
   - `browser`
-  - `v11 (legacy)`
+  - `v11 (legacy/backport)`
 
 ## Quick Start
 
@@ -90,7 +90,7 @@ npm install otplib thirty-two
 import { authenticator } from 'otplib/preset-default';
 
 const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
-// Alternatively: const secret = authenticator.generateSecret();
+// Alternative: const secret = authenticator.generateSecret();
 
 const token = otplib.authenticator.generate(secret);
 
@@ -99,18 +99,17 @@ try {
   // or
   const isValid = otplib.authenticator.verify({ token, secret });
 } catch (err) {
-  // Error possibly thrown by the thirty-two package
-  // 'Invalid input - it is not base32 encoded string'
+  // Possible errors
+  // - options validation
+  // - "Invalid input - it is not base32 encoded string" (if thiry-two is used)
   console.error(err);
 }
 ```
 
 ### In Browser
 
-The browser preset is a self contained module, with `Buffer` split out as an external dependency.
-
-As such, there are 2 scripts required. The `preset-browser/index.js` script
-as well as `preset-browser/buffer.js`.
+The browser preset is a self contained `umd` module with `Buffer` split out as an external dependency.
+As such, there are 2 scripts required: `preset-browser/index.js` and `preset-browser/buffer.js`.
 
 ```html
 <script src="https://unpkg.com/otplib@^12.0.0/preset-browser/buffer.js"></script>
@@ -123,7 +122,7 @@ as well as `preset-browser/buffer.js`.
 </script>
 ```
 
-The `buffer.js` provided in by this library is a cached copy
+The `buffer.js` provided by this library is a cached copy
 from [https://www.npmjs.com/package/buffer][link-npm-buffer].
 You can also download and include the latest version via their project page.
 
@@ -136,11 +135,29 @@ especially before making any major upgrades.
 Check out the release notes associated with each tagged versions
 in the [releases](https://github.com/yeojz/otplib/releases) page.
 
+If you're coming from `v11.x`, a preset with available with classes wrapped to provide methods
+that behave like `v11.x` of `otplib`.
+
+```js
+// Update
+import { authenticator } from 'otplib'; // v11.x
+// to
+import { authenticator } from 'otplib/preset-v11';
+
+// There should be no changes to your current code.
+// However, deprecated or modified class methods will have console.warn.
+```
+
 ## Getting Started
 
-This is a more in-depth setup which has more customisation steps.
+This is a more in-depth setup guide which includes steps for customising your
+dependencies. Check out the [Quick Start][docs-quick-start] if you do need or want
+to select your own dependencies.
 
-Check out the [Quick Start][docs-quick-start] if you do not need such customisation.
+Other References:
+
+- [API Documentation][project-api]
+- [Demo Website][project-web]
 
 ### Install the Package
 
@@ -156,9 +173,13 @@ The crypto modules are used to generate the digest used to derive the OTP tokens
 By default, Node.js has inbuilt `crypto` functionality, but you might want to replace it
 for certain environments that do not support it.
 
+Currently out-of-the-box, there are some [Crypto Plugins][docs-plugins-crypto] included.
+Install the dependencies for one of them.
+
 ```bash
-# choose either node crypto
-# (you don't need to install anything else)
+# Choose either
+# Node.js crypto (you don't need to install anything else - http://nodejs.org/api/crypto.html)
+
 # or
 npm install crypto-js
 ```
@@ -168,12 +189,13 @@ npm install crypto-js
 If you're using Google Authenticator, you'll need a base32 module for
 encoding and decoding your secrets.
 
-Currently out-of-the-box, there are already some plugins included.
+Currently out-of-the-box, there are some [Base32 Plugins][docs-plugins-base32] included.
 Install the dependencies for one of them.
 
 ```bash
-# choose either
+# Choose either
 npm install thirty-two
+
 # or
 npm install base32-encode base32-decode
 ```
@@ -187,15 +209,15 @@ import { HOTP, TOTP, Authenticator } from 'otplib';
 
 // Base32 Plugin
 // for thirty-two
-import { keyDecoder, keyEncoder } from 'otplib/base32/thirty-two';
+import { keyDecoder, keyEncoder } from 'otplib/plugin-thirty-two';
 // for base32-encode and base32-decode
-import { keyDecoder, keyEncoder } from 'otplib/base32/base32-endec';
+import { keyDecoder, keyEncoder } from 'otplib/plugin-base32-enc-dec';
 
 // Crypto Plugin
 // for node crypto
-import { createDigest, createRandomBytes } from 'otplib-plugin-crypto';
+import { createDigest, createRandomBytes } from 'otplib/plugin-crypto';
 // for crypto-js
-import { createDigest, createRandomBytes } from 'otplib-plugin-crypto-js';
+import { createDigest, createRandomBytes } from 'otplib/plugin-crypto-js';
 
 // Setup an OTP instance which you need
 const hotp = new HOTP({ createDigest });
@@ -219,9 +241,14 @@ Alternatively, if you are using the functions directly instead of the classes,
 pass these as options into the functions.
 
 ```js
-import { hotpOptions, hotpToken } from 'otplib/hotp';
-import { totpOptions, totpToken } from 'otplib/totp';
-import { authenticatorOptions, authenticatorToken } from 'otplib/authenticator';
+import {
+  hotpOptions,
+  hotpToken,
+  totpOptions,
+  totpToken,
+  authenticatorOptions,
+  authenticatorToken
+} from 'otplib/core';
 
 // As with classes, import your desired Base32 Plugin and Crypto Plugin.
 // import ...
@@ -264,11 +291,11 @@ const token = authenticatorToken(YOUR_SECRET, authenticatorOptions({
 
 > Note: Includes all HOTP Options
 
-| Option | Type                             | Description                                                                                                                                                                                |
-| ------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| epoch  | integer                          | Starting time since the UNIX epoch (seconds). <br /> epoch format is javascript. i.e. `Date.now()` or `UNIX time * 1000`                                                                   |
-| step   | integer                          | Time step (seconds)                                                                                                                                                                        |
-| window | integer, <br /> [number, number] | Tokens in the previous and future x-windows that should be considered valid. <br /> If integer, same value will be used for both. <br /> Alternatively, define array: `[previous, future]` |
+| Option | Type                             | Description                                                                                                                                                                            |
+| ------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| epoch  | integer                          | Starting time since the UNIX epoch (seconds). <br /> epoch format is javascript. i.e. `Date.now()` or `UNIX time * 1000`                                                               |
+| step   | integer                          | Time step (seconds)                                                                                                                                                                    |
+| window | integer, <br /> [number, number] | Tokens in the previous and future x-windows that should be considered valid. <br /> If integer, same value will be used for both. <br /> Alternatively, define array: `[past, future]` |
 
 ```js
 // TOTP defaults
@@ -308,8 +335,9 @@ This library has been split into 3 categories: `core`, `plugin` and `preset`.
 
 ### Core
 
-These provides the main functionality of the library. However parts of the logic
-has been separated out in order to provide flexibility to the library.
+Provides the core functionality of the library. Parts of the logic
+has been separated out in order to provide flexibility to the library via
+available plugins.
 
 | file                 | description                                          |
 | -------------------- | ---------------------------------------------------- |
@@ -322,38 +350,48 @@ has been separated out in order to provide flexibility to the library.
 
 #### Crypto Plugins
 
+| plugin                 | depends on                   |
+| ---------------------- | ---------------------------- |
+| otplib/plugin-crypto   | crypto (included in Node.js) |
+| otplib/plugin-cryptojs | `npm install crypto-js`      |
+
 These crypto plugins provides:
 
-- `createDigest` - used for token derivation
-- `createRandomBytes` - used to generate random keys for Google Authenticator
-
-| plugin                 | npm                     |
-| ---------------------- | ----------------------- |
-| otplib/plugin-crypto   | node crypto             |
-| otplib/plugin-cryptojs | `npm install crypto-js` |
+```js
+{
+  createDigest, // used for token derivation
+  createRandomBytes, //used to generate random keys for Google Authenticator
+}
+```
 
 #### Base32 Plugins
 
-These Base32 plugins provides `keyDecoder` and `keyEncoder` for decoding and encoding
-secrets for Google Authenticator respectively.
-
-| plugin                       | npm                                       |
+| plugin                       | depends on                                |
 | ---------------------------- | ----------------------------------------- |
 | otplib/plugin-thirty-two     | `npm install thirty-two`                  |
 | otplib/plugin-base32-enc-dec | `npm install base32-encode base32-decode` |
 
+These Base32 plugins provides:
+
+```js
+{
+  keyDecoder, //for decoding Google Authenticator secrets
+  keyEncoder, // for encoding Google Authenticator secrets.
+}
+```
+
 ### Presets
 
-Presets are preconfigured HOTP, TOTP, Authenticator instances to allow for quick starts.
+Presets are preconfigured HOTP, TOTP, Authenticator instances to
+allow you to get started with the library quickly.
 
-They would need the corresponding npm modules to be installed (except
-for `preset-browser` which bundles in the dependents).
+Each presets would need the corresponding dependent npm modules to be installed.
 
-| file                  | description                                                    |
-| --------------------- | -------------------------------------------------------------- |
-| otplib/preset-default | Uses node crypto + thirty-two                                  |
-| otplib/preset-browser | Webpack bundle. Uses base32-encode + base32-decode + crypto-js |
-| otplib/preset-v11     | Wrapper to adapt the APIs to v11.x compatible format           |
+| file                  | depends on               | description                                          |
+| --------------------- | ------------------------ | ---------------------------------------------------- |
+| otplib/preset-default | `npm install thirty-two` |                                                      |
+| otplib/preset-browser | Buffer                   | Webpack bundle and is self contained.                |
+| otplib/preset-v11     | `npm install thirty-two` | Wrapper to adapt the APIs to v11.x compatible format |
 
 ## Notes
 
@@ -377,10 +415,10 @@ The approximate **bundle sizes** are as follows:
 | --------------------------------- | ---------- |
 | original                          | 324KB      |
 | original, minified + gzipped      | 102KB      |
-| optimised                         | 28.3KB     |
-| **optimised, minified + gzipped** | **9.12KB** |
+| optimised                         | 29.3KB     |
+| **optimised, minified + gzipped** | **9.42KB** |
 
-Paired with the gzipped browser `buffer.js` module, it would be about `7.65KB + 9.12KB = 16.77KB`.
+Paired with the gzipped browser `buffer.js` module, it would be about `7.65KB + 9.42KB = 17.07KB`.
 
 ### Google Authenticator
 
@@ -413,7 +451,7 @@ take in a QR code that holds a URL with the protocol `otpauth://`,
 which you get from `authenticator.keyuri`.
 
 Google Authenticator will ignore the `algorithm`, `digits`, and `step` options.
-See the [documentation](https://github.com/google/google-authenticator/wiki/Key-Uri-Format)
+See the [keyuri documentation](https://github.com/google/google-authenticator/wiki/Key-Uri-Format)
 for more information.
 
 If you are using a different authenticator app, check the documentation
@@ -487,11 +525,14 @@ $ [otplib] > otplib.authenticator.generate(secret)
 [badge-npm]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [badge-pr-welcome]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&longCache=true
 [badge-type-ts]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
+[docs-plugins-base32]: #base32-plugins
+[docs-plugins-crypto]: #crypto-plugins
 [docs-quick-start]: #quick-start
 [link-mdn-classes]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
 [link-mdn-crypto]: https://developer.mozilla.org/en-US/docs/Web/API/Window/crypto
 [link-mdn-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions
 [link-npm-buffer]: https://www.npmjs.com/package/buffer
+[project-api]: https://otplib.yeojz.com/api
 [project-circle]: https://circleci.com/gh/yeojz/otplib
 [project-coffee]: https://paypal.me/yeojz
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib
