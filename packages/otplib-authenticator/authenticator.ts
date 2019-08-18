@@ -1,4 +1,9 @@
-import { HashAlgorithms, KeyEncodings, SecretKey } from 'otplib-hotp';
+import {
+  HashAlgorithms,
+  KeyEncodings,
+  SecretKey,
+  createDigestPlaceholder
+} from 'otplib-hotp';
 import {
   TOTP,
   TOTPOptions,
@@ -19,22 +24,22 @@ export type Base32SecretKey = SecretKey;
 /**
  * Interface method for [[AuthenticatorOptions.keyEncoder]].
  */
-export interface KeyEncoder {
-  (secret: SecretKey, encoding: KeyEncodings): Base32SecretKey;
+export interface KeyEncoder<T = Base32SecretKey> {
+  (secret: SecretKey, encoding: KeyEncodings): T;
 }
 
 /**
  * Interface method for [[AuthenticatorOptions.keyDecoder]].
  */
-export interface KeyDecoder {
-  (encodedSecret: Base32SecretKey, encoding: KeyEncodings): SecretKey;
+export interface KeyDecoder<T = SecretKey> {
+  (encodedSecret: Base32SecretKey, encoding: KeyEncodings): T;
 }
 
 /**
  * Interface method for [[AuthenticatorOptions.createRandomBytes]].
  */
-export interface CreateRandomBytes {
-  (size: number, encoding: KeyEncodings): string;
+export interface CreateRandomBytes<T = string> {
+  (size: number, encoding: KeyEncodings): T;
 }
 
 /**
@@ -43,28 +48,28 @@ export interface CreateRandomBytes {
  * Contains additional options in addition to
  * those within TOTP.
  */
-export interface AuthenticatorOptions extends TOTPOptions {
+export interface AuthenticatorOptions<T = string> extends TOTPOptions<T> {
   /**
    * Encodes a secret key into a Base32 string before it is
    * sent to the user (in QR Code etc).
    */
-  keyEncoder: KeyEncoder;
+  keyEncoder: KeyEncoder<T>;
   /**
    * Decodes the Base32 string given by the user into a secret.
    * */
-  keyDecoder: KeyDecoder;
+  keyDecoder: KeyDecoder<T>;
   /**
    * Creates a random string containing the defined number of
    * bytes to be used in generating a secret key.
    */
-  createRandomBytes: CreateRandomBytes;
+  createRandomBytes: CreateRandomBytes<T>;
 }
 
 /**
  * Validates the given [[AuthenticatorOptions]].
  */
 export function authenticatorOptionValidator<
-  T extends AuthenticatorOptions = AuthenticatorOptions
+  T extends AuthenticatorOptions<unknown> = AuthenticatorOptions<unknown>
 >(options: Partial<T>): void {
   totpOptionsValidator<T>(options);
 
@@ -78,16 +83,55 @@ export function authenticatorOptionValidator<
 }
 
 /**
+ * Returns a set of default options for authenticator at the current epoch.
+ */
+export function authenticatorDefaultOptions<
+  T extends AuthenticatorOptions<unknown> = AuthenticatorOptions<unknown>
+>(): Partial<T> {
+  const options = {
+    algorithm: HashAlgorithms.SHA1,
+    createDigest: createDigestPlaceholder,
+    createHmacKey: totpCreateHmacKey,
+    digits: 6,
+    encoding: KeyEncodings.HEX,
+    epoch: Date.now(),
+    step: 30,
+    window: 0
+  };
+
+  return (options as unknown) as Partial<T>;
+}
+
+/**
+ * Takes an Authenticator Option object and provides presets for
+ * some of the missing required Authenticator option fields and validates
+ * the resultant options.
+ */
+export function authenticatorOptions<
+  T extends AuthenticatorOptions<unknown> = AuthenticatorOptions<unknown>
+>(opt: Partial<T>): Readonly<T> {
+  const options = {
+    ...authenticatorDefaultOptions<T>(),
+    ...opt
+  };
+
+  authenticatorOptionValidator<T>(options);
+  return Object.freeze(options) as Readonly<T>;
+}
+
+/**
  * Encodes a given secret key into a Base32 secret
  * using a [[KeyEncoder]] method set in the options.
  */
 export function authenticatorEncoder<
-  T extends AuthenticatorOptions = AuthenticatorOptions
+  T extends AuthenticatorOptions<unknown> = AuthenticatorOptions<unknown>
 >(
   secret: SecretKey,
   options: Pick<T, 'keyEncoder' | 'encoding'>
-): Base32SecretKey {
-  return options.keyEncoder(secret, options.encoding);
+): ReturnType<T['keyEncoder']> {
+  return options.keyEncoder(secret, options.encoding) as ReturnType<
+    T['keyEncoder']
+  >;
 }
 
 /**
@@ -95,12 +139,14 @@ export function authenticatorEncoder<
  * using a [[KeyDecoder]] method set in the options.
  */
 export function authenticatorDecoder<
-  T extends AuthenticatorOptions = AuthenticatorOptions
+  T extends AuthenticatorOptions<unknown> = AuthenticatorOptions<unknown>
 >(
   secret: Base32SecretKey,
   options: Pick<T, 'keyDecoder' | 'encoding'>
-): SecretKey {
-  return options.keyDecoder(secret, options.encoding);
+): ReturnType<T['keyDecoder']> {
+  return options.keyDecoder(secret, options.encoding) as ReturnType<
+    T['keyDecoder']
+  >;
 }
 
 /**
@@ -113,7 +159,7 @@ export function authenticatorGenerateSecret<
   options: Pick<T, 'keyEncoder' | 'encoding' | 'createRandomBytes'>
 ): Base32SecretKey {
   const key = options.createRandomBytes(numberOfBytes, options.encoding);
-  return authenticatorEncoder(key, options);
+  return authenticatorEncoder<T>(key, options);
 }
 
 /**
@@ -146,47 +192,10 @@ export function authenticatorCheckWithWindow<
 }
 
 /**
- * Returns a set of default options for authenticator at the current epoch.
- */
-export function authenticatorDefaultOptions<
-  T extends AuthenticatorOptions = AuthenticatorOptions
->(): Partial<T> {
-  const options = {
-    algorithm: HashAlgorithms.SHA1,
-    createHmacKey: totpCreateHmacKey,
-    digits: 6,
-    encoding: KeyEncodings.HEX,
-    epoch: Date.now(),
-    step: 30,
-    window: 0
-  };
-
-  return options as Partial<T>;
-}
-
-/**
- * Takes an Authenticator Option object and provides presets for
- * some of the missing required Authenticator option fields and validates
- * the resultant options.
- */
-export function authenticatorOptions<
-  T extends AuthenticatorOptions = AuthenticatorOptions
->(opt: Partial<T>): Readonly<T> {
-  const options = {
-    ...authenticatorDefaultOptions(),
-    ...opt
-  };
-
-  authenticatorOptionValidator<T>(options as Partial<T>);
-
-  return Object.freeze(options) as Readonly<T>;
-}
-
-/**
  * A class wrapper containing all Authenticator methods.
  */
 export class Authenticator<
-  T extends AuthenticatorOptions = AuthenticatorOptions
+  T extends AuthenticatorOptions<string> = AuthenticatorOptions<string>
 > extends TOTP<T> {
   /**
    * Creates a new instance with all defaultOptions and options reset.
@@ -202,10 +211,7 @@ export class Authenticator<
    * Refer to [[authenticatorOptions]]
    */
   public allOptions(): Readonly<T> {
-    return authenticatorOptions<T>({
-      ...this._defaultOptions,
-      ...this._options
-    });
+    return authenticatorOptions<T>(this.options);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { base32PluginTestSuite } from 'tests-suites';
+import { testSuiteBase32Plugin } from 'tests-suites/plugin-base32';
 import * as plugin from './index';
 
-base32PluginTestSuite('plugin-thirty-two', plugin);
+testSuiteBase32Plugin('plugin-thirty-two', plugin);

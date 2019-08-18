@@ -1,4 +1,4 @@
-import { presetTestSuite } from 'tests-suites';
+import { testSuitePreset } from 'tests-suites/preset';
 import * as otplib from '../../builds/otplib/preset-browser';
 
-presetTestSuite('[builds] preset-browser', otplib);
+testSuitePreset('[builds] preset-browser', otplib);

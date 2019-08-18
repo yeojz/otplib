@@ -11,18 +11,20 @@ import {
 const { secret, digests } = rfc4226;
 
 interface CryptoPlugin {
-  createDigest: CreateDigest;
-  createRandomBytes: CreateRandomBytes;
+  createDigest: CreateDigest | CreateDigest<Promise<string>>;
+  createRandomBytes: CreateRandomBytes | CreateRandomBytes<Promise<string>>;
 }
 
-export function cryptoPluginTestSuite(
+export function testSuiteCryptoPlugin(
   name: string,
   plugin: CryptoPlugin
 ): void {
-  describe(`${name}`, (): void => {
+  describe(`(${name}) createDigest`, (): void => {
     digests.forEach((digest: string, counter: number): void => {
-      test(`given counter (${counter}), should recieve expected digest`, (): void => {
-        const result = plugin.createDigest(
+      test(`given counter (${counter}), should recieve expected digest`, async (): Promise<
+        void
+      > => {
+        const result = await plugin.createDigest(
           HashAlgorithms.SHA1,
           hotpCreateHmacKey(HashAlgorithms.SHA1, secret, KeyEncodings.ASCII),
           hotpCounter(counter)
@@ -32,22 +34,36 @@ export function cryptoPluginTestSuite(
       });
     });
 
-    test('given an invalid algorithm, createDigest should throw', (): void => {
-      const result = (): string =>
-        plugin.createDigest(
+    test('given an invalid algorithm, createDigest should throw', async (): Promise<
+      void
+    > => {
+      let error;
+      try {
+        await plugin.createDigest(
           // @ts-ignore
           'oops',
           hotpCreateHmacKey(HashAlgorithms.SHA1, secret, KeyEncodings.ASCII),
           hotpCounter(1000)
         );
+      } catch (err) {
+        error = err;
+      }
 
-      expect(result).toThrow();
-    }),
-      test('should create random bytes of expected length', (): void => {
-        // 10 bytes * 8 = 80 bits
-        // 80 / 4 = 20 for hex encoded;
-        const result = plugin.createRandomBytes(10, KeyEncodings.HEX);
-        expect(result.length).toBe(20);
+      expect(error).not.toBeUndefined();
+    });
+  });
+
+  describe(`(${name}) createRandomBytes`, (): void => {
+    // 10 bytes * 8 = 80 bits
+    // 80 / 4 = 20 for hex encoded;
+    [10, 20, 30, 60].forEach((size): void => {
+      const hexSize = (size * 8) / 4;
+      test(`create byte size of ${size} with hex size of ${hexSize}`, async (): Promise<
+        void
+      > => {
+        const result = await plugin.createRandomBytes(size, KeyEncodings.HEX);
+        expect(result.length).toBe(hexSize);
       });
+    });
   });
 }

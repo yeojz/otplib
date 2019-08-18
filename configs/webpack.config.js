@@ -27,9 +27,10 @@ function webpackConfig(config, helpers) {
           use: {
             loader: 'babel-loader',
             options: {
+              babelrc: false,
               presets: [
-                '@babel/preset-typescript',
-                ['@babel/preset-env', { modules: false, ...config.presetEnv }]
+                ['@babel/preset-env', { modules: false, ...config.presetEnv }],
+                '@babel/preset-typescript'
               ]
             }
           }

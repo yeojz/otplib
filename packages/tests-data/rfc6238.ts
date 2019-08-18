@@ -60,27 +60,7 @@ RFC 6238                      HOTPepochBased                     May 2011
 M'Raihi, et al.               Informational                    [Page 15]
 */
 
-export interface RowData {
-  epoch: number;
-  counter: string;
-  token: string;
-  algorithm: HashAlgorithms;
-}
-
-function toAlgorithmEnum(text: string): HashAlgorithms {
-  switch (text) {
-    case 'SHA1':
-      return HashAlgorithms.SHA1;
-    case 'SHA256':
-      return HashAlgorithms.SHA256;
-    case 'SHA512':
-      return HashAlgorithms.SHA512;
-    default:
-      throw new Error('Unsupported Algorithm in tests');
-  }
-}
-
-export const table: RowData[] = [
+export const table = [
   {
     epoch: 59,
     counter: '0000000000000001',
@@ -189,12 +169,33 @@ export const table: RowData[] = [
     token: '47863826',
     algorithm: 'SHA512'
   }
-].map(
-  (row): RowData => ({
+].map((row): {
+  epoch: number;
+  counter: string;
+  token: string;
+  algorithm: HashAlgorithms;
+} => {
+  let algorithm: HashAlgorithms;
+
+  switch (row.algorithm) {
+    case 'SHA1':
+      algorithm = HashAlgorithms.SHA1;
+      break;
+    case 'SHA256':
+      algorithm = HashAlgorithms.SHA256;
+      break;
+    case 'SHA512':
+      algorithm = HashAlgorithms.SHA512;
+      break;
+    default:
+      throw new Error('Unsupported Algorithm in tests');
+  }
+
+  return {
     ...row,
-    algorithm: toAlgorithmEnum(row.algorithm)
-  })
-);
+    algorithm
+  };
+});
 
 export const secret = '12345678901234567890';
 export const step = 30;

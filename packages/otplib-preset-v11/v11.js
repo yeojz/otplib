@@ -103,16 +103,24 @@ export function createV11(Base, legacyOptions) {
           ' will return JavaScript epoch.' +
           '\n Do note that library versions above v11.x uses JavaScript epoch.'
       );
-      return epochJSToUnix(super.allOptions());
+      return epochJSToUnix(this.allOptions());
+    }
+
+    allOptions() {
+      return epochUnixToJS(super.allOptions());
     }
 
     getClass() {
       return Legacy;
     }
 
-    verify(...args) {
+    verify(opts) {
+      if (!opts || typeof opts !== 'object') {
+        return false;
+      }
+
       try {
-        return super.verify(...args);
+        return super.verify(opts);
       } catch (err) {
         return false;
       }

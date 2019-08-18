@@ -38,22 +38,24 @@ const testKeys: TestKeys[] = [
   }
 ];
 
-export function base32PluginTestSuite(
+export function testSuiteBase32Plugin(
   name: string,
   plugin: Base32Plugin
 ): void {
   describe(`${name}`, (): void => {
     testKeys.forEach((entry): void => {
-      test(`given encoded key ${entry.encoded}, should receive decoded key ${entry.decoded}`, (): void => {
-        expect(plugin.keyDecoder(entry.encoded, KeyEncodings.HEX)).toBe(
-          entry.decoded
-        );
+      test(`given encoded key ${entry.encoded}, should receive decoded key ${entry.decoded}`, async (): Promise<
+        void
+      > => {
+        const result = await plugin.keyDecoder(entry.encoded, KeyEncodings.HEX);
+        expect(result).toBe(entry.decoded);
       });
 
-      test(`given decoded key ${entry.decoded}, should receive encoded key ${entry.encoded}`, (): void => {
-        expect(plugin.keyEncoder(entry.decoded, KeyEncodings.HEX)).toBe(
-          entry.encoded.toUpperCase()
-        );
+      test(`given decoded key ${entry.decoded}, should receive encoded key ${entry.encoded}`, async (): Promise<
+        void
+      > => {
+        const result = await plugin.keyEncoder(entry.decoded, KeyEncodings.HEX);
+        expect(result).toBe(entry.encoded.toUpperCase());
       });
     });
   });

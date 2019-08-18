@@ -1,4 +1,4 @@
-import { presetTestSuite } from 'tests-suites';
+import { testSuitePreset } from 'tests-suites/preset';
 import * as preset from './index';
 
-presetTestSuite('otplib-node', preset);
+testSuitePreset('preset-default', preset);

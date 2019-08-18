@@ -1,4 +1,4 @@
-import { cryptoPluginTestSuite } from 'tests-suites/plugin-crypto';
+import { testSuiteCryptoPlugin } from 'tests-suites/plugin-crypto';
 import * as plugin from './index';
 
-cryptoPluginTestSuite('plugin-crypto', plugin);
+testSuiteCryptoPlugin('plugin-crypto', plugin);

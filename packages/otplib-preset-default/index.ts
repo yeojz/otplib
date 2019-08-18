@@ -1,7 +1,7 @@
 /**
  * otplib-preset-default
  *
- * Provides fully initialised classes that is targeted
+ * Provides fully initialised classes that are targeted
  * at the node environment. This is meant for getting started
  * quickly.
  *

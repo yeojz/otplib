@@ -1,4 +1,4 @@
-import { KeyURIOptions, Strategy, keyuri, HashAlgorithms } from './utils';
+import { KeyURIOptions, Strategy, keyuri, HashAlgorithms, OTP } from './utils';
 
 describe('keyuri', (): void => {
   const common: KeyURIOptions = {
@@ -122,5 +122,85 @@ describe('keyuri', (): void => {
     expect(result).toEqual(
       `${totpPrefix}test%20user:test%20user?secret=testsecret`
     );
+  });
+});
+
+describe('OTP', (): void => {
+  test('no arguments, should init without error', (): void => {
+    expect((): OTP => new OTP()).not.toThrow();
+  });
+
+  test('null argument, should init without error', (): void => {
+    expect((): void => {
+      // @ts-ignore
+      new OTP(null);
+    }).not.toThrow();
+  });
+
+  test('should init default values which does not reset', (): void => {
+    let instance = new OTP({});
+    expect(instance.options).toEqual({});
+
+    instance = new OTP({ digits: 100 });
+    expect(instance.options).toEqual({ digits: 100 });
+
+    instance.resetOptions();
+    expect(instance.options).toEqual({ digits: 100 });
+  });
+
+  test('should set options which resets', (): void => {
+    const instance = new OTP({});
+    instance.options = { digits: 100 };
+    expect(instance.options).toEqual({ digits: 100 });
+
+    instance.resetOptions();
+    expect(instance.options).toEqual({});
+  });
+
+  test('should not throw even when options given is null', (): void => {
+    const instance = new OTP({});
+
+    expect((): void => {
+      // @ts-ignore
+      instance.options = null;
+    }).not.toThrow();
+
+    expect(typeof instance.options).toBe('object');
+  });
+
+  test('calling create returns a new instance with new set of defaults', (): void => {
+    const opt = {
+      algorithm: HashAlgorithms.SHA256
+    };
+
+    const instance = new OTP(opt);
+    expect(instance.options).toEqual(opt);
+
+    const instance2 = instance.create();
+    expect(instance2).toBeInstanceOf(OTP);
+    expect(instance2.options).toEqual({});
+  });
+
+  test('calling clone returns a new instance with new set of defaults', (): void => {
+    const opt = {
+      algorithm: HashAlgorithms.SHA256
+    };
+
+    const instance = new OTP({});
+    instance.options = opt;
+    expect(instance.options).toEqual(opt);
+
+    const instance2 = instance.clone();
+    expect(instance2).toBeInstanceOf(OTP);
+    expect(instance.options).toEqual(opt);
+
+    const instance3 = instance.clone({ digits: 8 });
+    expect(instance.options).toEqual(opt);
+    expect(instance3.options).toEqual({ ...opt, digits: 8 });
+  });
+
+  test('allOptions should return options', (): void => {
+    const instance = new OTP();
+    expect(instance.allOptions()).toEqual(instance.options);
   });
 });

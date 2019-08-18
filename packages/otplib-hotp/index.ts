@@ -1,2 +1,2 @@
-export * from './hotp';
 export * from './utils';
+export * from './hotp';

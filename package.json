@@ -39,8 +39,10 @@
   "homepage": "https://yeojz.github.io/otplib",
   "devDependencies": {
     "@babel/core": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-typescript": "^7.3.3",
+    "@babel/runtime": "^7.5.5",
     "@types/crypto-js": "^3.1.43",
     "@types/jest": "^24.0.16",
     "@types/node": "^12.6.9",

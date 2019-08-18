@@ -126,6 +126,12 @@ describe('HOTP', () => {
     const result = lib.verify();
     expect(result).toBe(false);
   });
+
+  test('method verify returns false when super class errors', () => {
+    expect(hotp.verify({ token: 123, secret: 12142, counter: null })).toBe(
+      false
+    );
+  });
 });
 
 describe('HOTP - RFC 4226', () => {
@@ -133,7 +139,7 @@ describe('HOTP - RFC 4226', () => {
 
   tokens.forEach((token, counter) => {
     test(`[${counter}] otplib.hotp`, () => {
-      expect(hotp.check(token, secret, counter)).toBe(true);
+      expect(hotp.verify({ token, secret, counter })).toBe(true);
     });
   });
 });
