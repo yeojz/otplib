@@ -13,10 +13,15 @@ const standard = alias => ({
 
 module.exports = {
   // core
-  'otplib-authenticator': standard('authenticator'),
-  'otplib-core': standard('core'),
   'otplib-hotp': standard('hotp'),
   'otplib-totp': standard('totp'),
+  'otplib-authenticator': standard('authenticator'),
+  'otplib-core': standard('core'),
+
+  'otplib-hotp-async': standard('hotp-async'),
+  'otplib-totp-async': standard('totp-async'),
+  'otplib-authenticator-async': standard('authenticator-async'),
+  'otplib-core-async': standard('core-async'),
 
   // base32
   'otplib-plugin-base32-enc-dec': {
@@ -37,6 +42,10 @@ module.exports = {
     ...standard('plugin-crypto-js'),
     external: ['crypto']
   },
+  'otplib-plugin-crypto-async-ronomon': {
+    ...standard('plugin-crypto-async-ronomon'),
+    external: ['@ronomon/crypto-async', 'crypto']
+  },
 
   // presets
   'otplib-preset-browser': {
@@ -50,6 +59,8 @@ module.exports = {
   },
 
   'otplib-preset-default': standard('preset-default'),
+  'otplib-preset-default-async': standard('preset-default-async'),
+
   'otplib-preset-v11': {
     ...standard('preset-v11'),
     files: ['index.js']

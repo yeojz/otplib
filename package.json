@@ -43,6 +43,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-typescript": "^7.3.3",
     "@babel/runtime": "^7.5.5",
+    "@ronomon/crypto-async": "^5.0.1",
     "@types/crypto-js": "^3.1.43",
     "@types/jest": "^24.0.16",
     "@types/node": "^12.6.9",

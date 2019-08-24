@@ -18,6 +18,7 @@
   - [In Node.js](#in-nodejs)
   - [In Browser](#in-browser)
 - [Migration Guide](#migration-guide)
+  - [Migrating from v11.x](#migrating-from-v11x)
 - [Getting Started](#getting-started)
   - [Install the Package](#install-the-package)
   - [Choose Your Plugins](#choose-your-plugins)
@@ -30,13 +31,19 @@
   - [HOTP Options](#hotp-options)
   - [TOTP Options](#totp-options)
   - [Authenticator Options](#authenticator-options)
+  - [Async Options](#async-options)
 - [Available Packages](#available-packages)
   - [Core](#core)
+    - [Core Async Versions](#core-async-versions)
   - [Plugins](#plugins)
     - [Crypto Plugins](#crypto-plugins)
     - [Base32 Plugins](#base32-plugins)
   - [Presets](#presets)
 - [Notes](#notes)
+  - [Type Definitions](#type-definitions)
+  - [Async Support](#async-support)
+    - [Using Async Replacements](#using-async-replacements)
+    - [Async over Sync Methods](#async-over-sync-methods)
   - [Browser Compatiblity](#browser-compatiblity)
     - [Browser bundle size](#browser-bundle-size)
   - [Google Authenticator](#google-authenticator)
@@ -68,15 +75,18 @@ and includes additional methods to allow you to work with Google Authenticator.
 - [x] Typescript support
 - [x] [Class][link-mdn-classes] interfaces
 - [x] [Function][link-mdn-functions] interfaces
-- [x] Pluggable modules (base32 / crypto)
+- [x] [Async][link-mdn-async] interfaces
+- [x] Pluggable modules (crypto / base32)
   - `crypto (node)`
-  - `cryptojs`
+  - `crypto-js`
+  - `@ronomon/crypto-async`
   - `thirty-two`
   - `base32-encode` + `base32-decode`
 - [x] Presets provided
-  - `default (node)`
   - `browser`
-  - `v11 (legacy/backport)`
+  - `default (node)`
+  - `default-async (same as default, but with async methods)`
+  - `v11 (adapter for previous version)`
 
 ## Quick Start
 
@@ -135,8 +145,12 @@ especially before making any major upgrades.
 Check out the release notes associated with each tagged versions
 in the [releases](https://github.com/yeojz/otplib/releases) page.
 
-If you're coming from `v11.x`, a preset with available with classes wrapped to provide methods
-that behave like `v11.x` of `otplib`.
+### Migrating from v11.x
+
+> v12.x is a huge architectural and language rewrite. Please check out the docs if you are migrating.
+> A preset adapter is available to provide methods that behave like `v11.x` of `otplib`.
+
+Link to [v11.x README.md][project-readme-v11].
 
 ```js
 // Update
@@ -329,6 +343,19 @@ const token = authenticatorToken(YOUR_SECRET, authenticatorOptions({
 }
 ```
 
+### Async Options
+
+The following options are changed for `functions` and `classes` which are marked as `Async`.
+eg: `AuthenticatorAsync`, `hotpTokenAsync` etc.
+
+| Option            | Type           | Output                                              |
+| ----------------- | -------------- | --------------------------------------------------- |
+| createDigest      | async function | function returns Promise<string\> instead of string |
+| createHmacKey     | async function | function returns Promise<string\> instead of string |
+| createRandomBytes | async function | function returns Promise<string\> instead of string |
+| keyEncoder        | async function | function returns Promise<string\> instead of string |
+| keyDecoder        | async function | function returns Promise<string\> instead of string |
+
 ## Available Packages
 
 This library has been split into 3 categories: `core`, `plugin` and `preset`.
@@ -346,14 +373,24 @@ available plugins.
 | otplib/authenticator | Google Authenticator functions + class               |
 | otplib/core          | Aggregates hotp/totp/authenticator functions + class |
 
+#### Core Async Versions
+
+| file                       | description                             |
+| -------------------------- | --------------------------------------- |
+| otplib/hotp-async          | async version of `otplib/hotp`          |
+| otplib/hotp-async          | async version of `otplib/hotp`          |
+| otplib/authenticator-async | async version of `otplib/authenticator` |
+| otplib/core-async          | async version of `otplib/core`          |
+
 ### Plugins
 
 #### Crypto Plugins
 
-| plugin                 | depends on                   |
-| ---------------------- | ---------------------------- |
-| otplib/plugin-crypto   | crypto (included in Node.js) |
-| otplib/plugin-cryptojs | `npm install crypto-js`      |
+| plugin                             | type  | depends on                          |
+| ---------------------------------- | ----- | ----------------------------------- |
+| otplib/plugin-crypto               | sync  | crypto (included in Node.js)        |
+| otplib/plugin-crypto-js            | sync  | `npm install crypto-js`             |
+| otplib/plugin-crypto-async-ronomon | async | `npm install @ronomon/crypto-async` |
 
 These crypto plugins provides:
 
@@ -366,10 +403,10 @@ These crypto plugins provides:
 
 #### Base32 Plugins
 
-| plugin                       | depends on                                |
-| ---------------------------- | ----------------------------------------- |
-| otplib/plugin-thirty-two     | `npm install thirty-two`                  |
-| otplib/plugin-base32-enc-dec | `npm install base32-encode base32-decode` |
+| plugin                       | type | depends on                                |
+| ---------------------------- | ---- | ----------------------------------------- |
+| otplib/plugin-thirty-two     | sync | `npm install thirty-two`                  |
+| otplib/plugin-base32-enc-dec | sync | `npm install base32-encode base32-decode` |
 
 These Base32 plugins provides:
 
@@ -387,13 +424,81 @@ allow you to get started with the library quickly.
 
 Each presets would need the corresponding dependent npm modules to be installed.
 
-| file                  | depends on               | description                                          |
-| --------------------- | ------------------------ | ---------------------------------------------------- |
-| otplib/preset-default | `npm install thirty-two` |                                                      |
-| otplib/preset-browser | Buffer                   | Webpack bundle and is self contained.                |
-| otplib/preset-v11     | `npm install thirty-two` | Wrapper to adapt the APIs to v11.x compatible format |
+| file                        | depends on                                     | description                                          |
+| --------------------------- | ---------------------------------------------- | ---------------------------------------------------- |
+| otplib/preset-default       | `npm install thirty-two`                       |                                                      |
+| otplib/preset-default-async | `npm install thirty-two @ronomon/crypto-async` | async version of `otplib/preset-default`             |
+| otplib/preset-browser       | Buffer                                         | Webpack bundle and is self contained.                |
+| otplib/preset-v11           | `npm install thirty-two`                       | Wrapper to adapt the APIs to v11.x compatible format |
 
 ## Notes
+
+### Type Definitions
+
+`TypeScript` support was introduced in `v10.0.0`, adding type definitions over `.js` files.
+
+As of `v12.0.0`, the library was rewritten in Typescript from the ground up, with type definition
+files and interfaces available.
+
+### Async Support
+
+`async` support was introduced in `v12.0.0`.
+
+This was added as some libraries like [expo.io][link-expo-crypto] or
+the browser API - [window.Crypto.subtle][link-mdn-subtlecrypto], providing
+only async interfaces.
+
+There are 2 was to use `async` - using async replacements, or handling digests separately.
+
+#### Using Async Replacements
+
+This is the simplest way to get started. Other than `allOptions()` and `resetOptions`,
+all other methods are converted to async and thus needs to be `Promise.resolve` or `await`.
+eg: `await .generate(...)`, `await .check(...)`
+
+```js
+import { AuthenticatorAsync } from 'otplib/core-async';
+
+const authenticator = new AuthenticatorAsync({
+  // ...options
+  // make sure you use async versions of
+  // required functions like createDigest.
+});
+
+// Note: await needed as all methods are async
+const token = await authenticator.generate(secret);
+```
+
+#### Async over Sync Methods
+
+This is a more advanced use case.
+
+Essentially, you would take over the digest generation of the library, leaving
+the library to handle the digest to token conversion.
+
+```js
+import { Authenticator } from 'otplib/core';
+import { authenticatorDigestAsync } from 'otplib/authenticator-async';
+
+// This is a synchronous Authenticator class.
+const authenticator = new Authenticator({
+  // ...options
+});
+
+// Override the digest generation.
+const digest = await authenticatorDigestAsync(secret, {
+  ...authenticator.allOptions(),
+  createDigest: async (algorithm, hmacKey, counter) => 'string'; // put your async implementation
+});
+
+authenticator.options = { digest };
+const token = authenticator.generate(secret);
+
+// recommended: reset to remove the digest.
+authenticator.resetOptions();
+```
+
+Check the [API Documentation][project-api] for the full list of async functions.
 
 ### Browser Compatiblity
 
@@ -415,10 +520,10 @@ The approximate **bundle sizes** are as follows:
 | --------------------------------- | ---------- |
 | original                          | 324KB      |
 | original, minified + gzipped      | 102KB      |
-| optimised                         | 29.3KB     |
-| **optimised, minified + gzipped** | **9.42KB** |
+| optimised                         | 30.9KB     |
+| **optimised, minified + gzipped** | **9.53KB** |
 
-Paired with the gzipped browser `buffer.js` module, it would be about `7.65KB + 9.42KB = 17.07KB`.
+Paired with the gzipped browser `buffer.js` module, it would be about `7.65KB + 9.53KB = 17.18KB`.
 
 ### Google Authenticator
 
@@ -518,28 +623,26 @@ $ [otplib] > otplib.authenticator.generate(secret)
 <img width="150" src="https://otplib.yeojz.com/otplib.png" />
 
 [badge-circle]: https://img.shields.io/circleci/project/github/yeojz/otplib/master.svg?style=flat-square
-[badge-coffee]: https://img.shields.io/badge/%E2%98%95%EF%B8%8F-buy%20me%20a%20coffee-orange.svg?longCache=true&style=flat-square
 [badge-coveralls]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [badge-npm-downloads]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
-[badge-npm-next]: https://img.shields.io/npm/v/otplib/next.svg?style=flat-square
 [badge-npm]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
-[badge-pr-welcome]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&longCache=true
 [badge-type-ts]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
 [docs-plugins-base32]: #base32-plugins
 [docs-plugins-crypto]: #crypto-plugins
 [docs-quick-start]: #quick-start
+[link-expo-crypto]: https://docs.expo.io/versions/v33.0.0/sdk/crypto/
+[link-mdn-async]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 [link-mdn-classes]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
-[link-mdn-crypto]: https://developer.mozilla.org/en-US/docs/Web/API/Window/crypto
 [link-mdn-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions
+[link-mdn-subtlecrypto]: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto
 [link-npm-buffer]: https://www.npmjs.com/package/buffer
 [project-api]: https://otplib.yeojz.com/api
 [project-circle]: https://circleci.com/gh/yeojz/otplib
-[project-coffee]: https://paypal.me/yeojz
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib
-[project-docs]: https://otplib.yeojz.com/docs
+[project-docs]: https://otplib.yeojz.com/api
 [project-npm]: https://www.npmjs.com/package/otplib
-[project-pr-welcome]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
 [project-web]: https://otplib.yeojz.com
+[project-readme-v11]: https://github.com/yeojz/otplib/blob/d0aedccbca8ae7ec1983f40da4d7a14c9e815e9c/README.md
 [rfc-3548]: http://tools.ietf.org/html/rfc3548
 [rfc-4648]: https://tools.ietf.org/html/rfc4648
 [rfc-4226-dataset]: https://github.com/yeojz/otplib/blob/master/packages/tests-data/rfc4226.ts
