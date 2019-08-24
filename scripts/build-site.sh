@@ -1,8 +1,11 @@
+#!/bin/bash
+
 echo "\n--- cleaning prev builds ---"
 npx rimraf \
   ./builds/typedocs \
   ./website/static/otplib-browser \
-  ./website/static/docs
+  ./website/static/docs \
+  ./website/public
 
 echo "\n--- building docs ---"
 npx typedoc \

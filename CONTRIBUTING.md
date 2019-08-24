@@ -18,6 +18,13 @@ but it is mostly for emergencies. All automations are wired to the GitHub projec
 
 When a change lands on GitHub, it will be checked by the continuous integration system.
 
+## Getting Started
+
+```bash
+git clone <REPO ADDRESS>
+npm run setup
+```
+
 ### Code organization
 
 - This project's primary branch is `master`.
