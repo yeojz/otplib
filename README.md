@@ -46,10 +46,12 @@
     - [Async over Sync Methods](#async-over-sync-methods)
   - [Browser Compatiblity](#browser-compatiblity)
     - [Browser bundle size](#browser-bundle-size)
+  - [Length of Secrets](#length-of-secrets)
   - [Google Authenticator](#google-authenticator)
     - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
     - [RFC3548 Base32](#rfc3548-base32)
     - [Displaying a QR code](#displaying-a-qr-code)
+    - [Getting Time Remaining / Time Used](#getting-time-remaining--time-used)
   - [Using with Expo](#using-with-expo)
   - [Exploring with local-repl](#exploring-with-local-repl)
 - [Contributing](#contributing)
@@ -104,12 +106,12 @@ import { authenticator } from 'otplib/preset-default';
 const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
 // Alternative: const secret = authenticator.generateSecret();
 
-const token = otplib.authenticator.generate(secret);
+const token = authenticator.generate(secret);
 
 try {
-  const isValid = otplib.authenticator.check(token, secret);
+  const isValid = authenticator.check(token, secret);
   // or
-  const isValid = otplib.authenticator.verify({ token, secret });
+  const isValid = authenticator.verify({ token, secret });
 } catch (err) {
   // Possible errors
   // - options validation
@@ -137,6 +139,9 @@ As such, there are 2 scripts required: `preset-browser/index.js` and `preset-bro
 The `buffer.js` provided by this library is a cached copy
 from [https://www.npmjs.com/package/buffer][link-npm-buffer].
 You can also download and include the latest version via their project page.
+
+In the above example, we are directly using the scripts hosted by `unpkg.com`.
+You can also `npm install otplib` and get a copy from the `node_modules/otplib/preset-browser` folder.
 
 ## Migration Guide
 
@@ -288,6 +293,34 @@ const token = authenticatorToken(YOUR_SECRET, authenticatorOptions({
 ```
 
 ## Available Options
+
+All instantiated classes will have their options inherited from their respective options
+generator. i.e. HOTP from `hotpOptions`, TOTP from `totpOptions`
+and Authenticator from `authenticatorOptions`.
+
+All OTP classes have an object setter and getter method to override these default options.
+
+For example,
+
+```js
+import { authenticator } from 'otplib/preset-default';
+
+// setting
+authenticator.options = {
+  step: 30,
+  window: 1
+};
+
+// getting
+const opts = authenticator.options;
+
+// reset to default
+authenticator.resetOptions();
+
+// getting all options, with validation
+// and backfilled with library defaults
+const opts = authenticator.allOptions();
+```
 
 ### HOTP Options
 
@@ -481,9 +514,7 @@ const token = await authenticator.generate(secret);
 
 #### Async over Sync Methods
 
-This is a more advanced use case.
-
-Essentially, you would take over the digest generation of the library, leaving
+In this method, you would essentially take over the digest generation, leaving
 the library to handle the digest to token conversion.
 
 ```js
@@ -536,6 +567,19 @@ The approximate **bundle sizes** are as follows:
 | **optimised, minified + gzipped** | **9.53KB** |
 
 Paired with the gzipped browser `buffer.js` module, it would be about `7.65KB + 9.53KB = 17.18KB`.
+
+### Length of Secrets
+
+In [RFC 6238][rfc-6238], the secret / seed length for different algorithms are predefined:
+
+```txt
+HMAC-SHA1 - 20 bytes
+HMAC-SHA256 - 32 bytes
+HMAC-SHA512 - 64 bytes
+```
+
+As such, the length of the secret provided (after any decoding) will be padded and sliced
+according to the expected length for respective algorithms.
 
 ### Google Authenticator
 
@@ -608,6 +652,20 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 
 > **Note**: For versions `v10.x.x` and below, `keyuri` does not URI encode
 > `user` and `service`. You'll need to do so before passing in the parameteres.
+
+#### Getting Time Remaining / Time Used
+
+Helper methods for getting the remaining time and used time within a validity period
+of a `totp` or `authenticator` token were introduced in `v10.0.0`.
+
+```js
+authenticator.timeUsed(); // or totp.timeUsed();
+authenticator.timeRemaining(); // or totp.timeRemaining();
+
+// The start of a new token would be when:
+// - timeUsed() === 0
+// - timeRemaining() === step
+```
 
 ### Using with Expo
 
