@@ -5,7 +5,6 @@ import { authenticatorDigestAsync } from 'otplib-authenticator-async';
 
 test('Async Support - Async over Sync methods', async () => {
   const sample = authenticatorTable[0];
-
   const instance = authenticator.clone();
 
   const digest = await authenticatorDigestAsync(sample.secret, {
@@ -19,5 +18,6 @@ test('Async Support - Async over Sync methods', async () => {
 
   // make sure you reset to remove the digest.
   instance.resetOptions();
+
   expect(token).toEqual(sample.token);
 });

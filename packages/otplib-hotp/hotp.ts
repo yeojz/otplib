@@ -33,7 +33,7 @@ export interface HOTPOptions<T = string> extends OTPOptions {
    */
   algorithm: HashAlgorithms;
   /**
-   * **CAUTION NEEDED:** Given the same digest, the same token will be received.
+   * **USE WITH CAUTION:** Given the same digest, the same token will be received.
    *
    * This is provided for unique use cases. For example, digest generation might
    * depend on an async API.
@@ -195,6 +195,12 @@ function hotpDigest<T extends HOTPOptions = HOTPOptions>(
  * -   http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
  * -   http://tools.ietf.org/html/rfc4226
  *
+ * **Note**: If options.digest is provided, it will skip digest generation.
+ * Use options.digest with caution. Same digest = Same token.
+ *
+ * @param secret - Your secret key.
+ * @param counter - the OTP counter (usually it's an incremental count)
+ * @param options - A HOTPOptions object.
  */
 export function hotpToken<
   T extends HOTPOptions<unknown> = HOTPOptions<unknown>
@@ -228,8 +234,8 @@ export function hotpCheck<
 }
 
 /**
- * Calls [keyuri](../#keyuri) with class options and type
- * set to HOTP.
+ * Generates a [keyuri](../#keyuri) from options provided
+ * and it's type set to HOTP.
  */
 export function hotpKeyuri<
   T extends HOTPOptions<unknown> = HOTPOptions<unknown>

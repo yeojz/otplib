@@ -212,7 +212,7 @@ export function totpToken<
   return hotpToken<T>(secret, counter, options);
 }
 
-function generateEpoch(
+function totpEpochsInWindow(
   epoch: number,
   direction: number,
   deltaPerEpoch: number,
@@ -250,8 +250,8 @@ export function totpEpochAvailable(
 
   return {
     current: epoch,
-    past: generateEpoch(epoch, -1, delta, bounds[0]),
-    future: generateEpoch(epoch, 1, delta, bounds[1])
+    past: totpEpochsInWindow(epoch, -1, delta, bounds[0]),
+    future: totpEpochsInWindow(epoch, 1, delta, bounds[1])
   };
 }
 
@@ -274,6 +274,11 @@ export function totpCheck<
 /**
  * Checks if there is a valid TOTP token in a given list of epoches.
  * Returns the (index + 1) of a valid epoch in the list.
+ *
+ * @param epochs - List of epochs to check token against
+ * @param token - The token to check
+ * @param secret - Your secret key.
+ * @param options - A TOTPOptions object.
  */
 export function totpCheckByEpoch<T extends TOTPOptions = TOTPOptions>(
   epochs: number[],
@@ -304,6 +309,10 @@ export function totpCheckByEpoch<T extends TOTPOptions = TOTPOptions>(
  * - null = check failed
  * - positive number = token at future x * step
  * - negative number = token at past x * step
+ *
+ * @param token - The token to check
+ * @param secret - Your secret key.
+ * @param options - A TOTPOptions object.
  */
 export function totpCheckWithWindow<T extends TOTPOptions = TOTPOptions>(
   token: string,
@@ -352,9 +361,9 @@ export function totpTimeRemaining(epoch: number, step: number): number {
   return step - totpTimeUsed(epoch, step);
 }
 
-/*
- * Calls [keyuri](../#keyuri) with class options and type
- * set to TOTP.
+/**
+ * Generates a [keyuri](../#keyuri) from options provided
+ * and it's type set to TOTP.
  */
 export function totpKeyuri<
   T extends TOTPOptions<unknown> = TOTPOptions<unknown>

@@ -34,12 +34,12 @@
   - [Async Options](#async-options)
 - [Available Packages](#available-packages)
   - [Core](#core)
-    - [Core Async Versions](#core-async-versions)
+    - [Core (Async)](#core-async)
   - [Plugins](#plugins)
     - [Crypto Plugins](#crypto-plugins)
     - [Base32 Plugins](#base32-plugins)
   - [Presets](#presets)
-- [Notes](#notes)
+- [Appendix](#appendix)
   - [Type Definitions](#type-definitions)
   - [Async Support](#async-support)
     - [Using Async Replacements](#using-async-replacements)
@@ -50,7 +50,9 @@
     - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
     - [RFC3548 Base32](#rfc3548-base32)
     - [Displaying a QR code](#displaying-a-qr-code)
+  - [Using with Expo](#using-with-expo)
   - [Exploring with local-repl](#exploring-with-local-repl)
+- [Contributing](#contributing)
 - [License](#license)
 
 <!-- /TOC -->
@@ -72,17 +74,17 @@ and includes additional methods to allow you to work with Google Authenticator.
 
 ## Features
 
-- [x] Typescript support
-- [x] [Class][link-mdn-classes] interfaces
-- [x] [Function][link-mdn-functions] interfaces
-- [x] [Async][link-mdn-async] interfaces
-- [x] Pluggable modules (crypto / base32)
+- Typescript support
+- [Class][link-mdn-classes] interfaces
+- [Function][link-mdn-functions] interfaces
+- [Async][link-mdn-async] interfaces
+- Pluggable modules (crypto / base32)
   - `crypto (node)`
   - `crypto-js`
   - `@ronomon/crypto-async`
   - `thirty-two`
   - `base32-encode` + `base32-decode`
-- [x] Presets provided
+- Presets provided
   - `browser`
   - `default (node)`
   - `default-async (same as default, but with async methods)`
@@ -164,9 +166,11 @@ import { authenticator } from 'otplib/preset-v11';
 
 ## Getting Started
 
-This is a more in-depth setup guide which includes steps for customising your
-dependencies. Check out the [Quick Start][docs-quick-start] if you do need or want
-to select your own dependencies.
+This is a more in-depth setup guide for installing, configuring and customising
+your dependencies for the library.
+
+Check out the [Quick Start][docs-quick-start] guide if you do need / want
+to customise any dependencies from the presets.
 
 Other References:
 
@@ -178,6 +182,11 @@ Other References:
 ```bash
 npm install otplib
 ```
+
+| Release Type      | Version                               | Command                   |
+| :---------------- | :------------------------------------ | ------------------------- |
+| Current / Stable  | [![npm][badge-npm]][project-npm]      | `npm install otplib`      |
+| Release Candidate | [![npm][badge-npm-next]][project-npm] | `npm install otplib@next` |
 
 ### Choose Your Plugins
 
@@ -282,13 +291,14 @@ const token = authenticatorToken(YOUR_SECRET, authenticatorOptions({
 
 ### HOTP Options
 
-| Option        | Type     | Description                                                                               |
-| ------------- | -------- | ----------------------------------------------------------------------------------------- |
-| algorithm     | string   | The algorithm used for calculating the HMAC.                                              |
-| createDigest  | function | Creates the digest which token is derived from.                                           |
-| createHmacKey | function | Formats the secret into a HMAC key, applying transformations (like padding) where needed. |
-| digits        | integer  | The length of the token.                                                                  |
-| encoding      | string   | The encoding that was used on the secret.                                                 |
+| Option        | Type     | Description                                                                                                                     |
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| algorithm     | string   | The algorithm used for calculating the HMAC.                                                                                    |
+| createDigest  | function | Creates the digest which token is derived from.                                                                                 |
+| createHmacKey | function | Formats the secret into a HMAC key, applying transformations (like padding) where needed.                                       |
+| digest        | string   | **USE WITH CAUTION**. Same digest = same token. <br />Used in cases where digest is generated externally. (eg: async use cases) |
+| digits        | integer  | The length of the token.                                                                                                        |
+| encoding      | string   | The encoding that was used on the secret.                                                                                       |
 
 ```js
 // HOTP defaults
@@ -307,7 +317,7 @@ const token = authenticatorToken(YOUR_SECRET, authenticatorOptions({
 
 | Option | Type                             | Description                                                                                                                                                                            |
 | ------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| epoch  | integer                          | Starting time since the UNIX epoch (seconds). <br /> epoch format is javascript. i.e. `Date.now()` or `UNIX time * 1000`                                                               |
+| epoch  | integer                          | **USE WITH CAUTION**. Same epoch = same token. <br />Starting time since the UNIX epoch (seconds). <br /> Epoch is JavaScript formatted. i.e. `Date.now()` or `UNIX time * 1000`       |
 | step   | integer                          | Time step (seconds)                                                                                                                                                                    |
 | window | integer, <br /> [number, number] | Tokens in the previous and future x-windows that should be considered valid. <br /> If integer, same value will be used for both. <br /> Alternatively, define array: `[past, future]` |
 
@@ -345,8 +355,9 @@ const token = authenticatorToken(YOUR_SECRET, authenticatorOptions({
 
 ### Async Options
 
-The following options are changed for `functions` and `classes` which are marked as `Async`.
-eg: `AuthenticatorAsync`, `hotpTokenAsync` etc.
+The following options are modified for `functions` and `classes` which are postfixed with `Async`.
+
+eg: `AuthenticatorAsync`, `totpDigestAsync`, `hotpTokenAsync` etc.
 
 | Option            | Type           | Output                                              |
 | ----------------- | -------------- | --------------------------------------------------- |
@@ -373,7 +384,7 @@ available plugins.
 | otplib/authenticator | Google Authenticator functions + class               |
 | otplib/core          | Aggregates hotp/totp/authenticator functions + class |
 
-#### Core Async Versions
+#### Core (Async)
 
 | file                       | description                             |
 | -------------------------- | --------------------------------------- |
@@ -424,29 +435,28 @@ allow you to get started with the library quickly.
 
 Each presets would need the corresponding dependent npm modules to be installed.
 
-| file                        | depends on                                     | description                                          |
-| --------------------------- | ---------------------------------------------- | ---------------------------------------------------- |
-| otplib/preset-default       | `npm install thirty-two`                       |                                                      |
-| otplib/preset-default-async | `npm install thirty-two @ronomon/crypto-async` | async version of `otplib/preset-default`             |
-| otplib/preset-browser       | Buffer                                         | Webpack bundle and is self contained.                |
-| otplib/preset-v11           | `npm install thirty-two`                       | Wrapper to adapt the APIs to v11.x compatible format |
+| file                        | depends on                                             | description                                          |
+| --------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| otplib/preset-default       | `npm install thirty-two`                               |                                                      |
+| otplib/preset-default-async | `npm install thirty-two @ronomon/crypto-async`         | async version of `otplib/preset-default`             |
+| otplib/preset-browser       | [See Browser Compatibility][docs-browser-compatiblity] | Webpack bundle and is self contained.                |
+| otplib/preset-v11           | `npm install thirty-two`                               | Wrapper to adapt the APIs to v11.x compatible format |
 
-## Notes
+## Appendix
 
 ### Type Definitions
 
-`TypeScript` support was introduced in `v10.0.0`, adding type definitions over `.js` files.
+`TypeScript` support was introduced in `v10.0.0`, which added type definitions over `.js` files.
 
-As of `v12.0.0`, the library was rewritten in Typescript from the ground up, with type definition
-files and interfaces available.
+As of `v12.0.0`, the library has been re-written in Typescript from the ground up.
 
 ### Async Support
 
 `async` support was introduced in `v12.0.0`.
 
-This was added as some libraries like [expo.io][link-expo-crypto] or
-the browser API - [window.Crypto.subtle][link-mdn-subtlecrypto], providing
-only async interfaces.
+This was added as some libraries like [expo.io][link-expo-crypto] or even
+the browser API ([window.Crypto.subtle][link-mdn-subtlecrypto]) started providing
+only async methods.
 
 There are 2 was to use `async` - using async replacements, or handling digests separately.
 
@@ -496,13 +506,15 @@ const token = authenticator.generate(secret);
 
 // recommended: reset to remove the digest.
 authenticator.resetOptions();
+
+// reference test in: ./packages/tests-builds/example.test.js
 ```
 
 Check the [API Documentation][project-api] for the full list of async functions.
 
 ### Browser Compatiblity
 
-`otplib-preset-browser` is a `umd` bundle with some node modules replaced to reduce the browser size.
+`otplib/preset-browser` is a `umd` bundle with some node modules replaced to reduce the browser size.
 
 The following defaults have been used:
 
@@ -597,6 +609,17 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 > **Note**: For versions `v10.x.x` and below, `keyuri` does not URI encode
 > `user` and `service`. You'll need to do so before passing in the parameteres.
 
+### Using with Expo
+
+[Expo][link-expo-io] contains modified crypto implmentations targeted at the platform.
+While `otplib` does not provide an `expo` specified package, with the re-architecture
+of `otplib`, you can now provide an expo native `createDigest` to the library.
+
+Alternatively, you can make use of crypto provided by `otplib/plugin-crypto-js` or
+the bundled browser umd module `otplib/preset-browser`.
+
+Pull Requests are much welcomed for a native expo implementation as well.
+
 ### Exploring with local-repl
 
 If you'll like to explore the library with `local-repl` you can do so as well.
@@ -616,6 +639,12 @@ $ [otplib] > secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD'
 $ [otplib] > otplib.authenticator.generate(secret)
 ```
 
+## Contributing
+
+Check out: [CONTRIBUTING.md][link-pr-welcome]
+
+[![PRs Welcome][badge-pr-welcome]][link-pr-welcome]
+
 ## License
 
 `otplib` is [MIT licensed](./LICENSE)
@@ -626,16 +655,21 @@ $ [otplib] > otplib.authenticator.generate(secret)
 [badge-coveralls]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [badge-npm-downloads]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
 [badge-npm]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
+[badge-npm-next]: https://img.shields.io/npm/v/otplib/next.svg?style=flat-square
+[badge-pr-welcome]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&longCache=true
 [badge-type-ts]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
+[docs-browser-compatiblity]: #browser-compatiblity
 [docs-plugins-base32]: #base32-plugins
 [docs-plugins-crypto]: #crypto-plugins
 [docs-quick-start]: #quick-start
 [link-expo-crypto]: https://docs.expo.io/versions/v33.0.0/sdk/crypto/
+[link-expo-io]: https://expo.io
 [link-mdn-async]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 [link-mdn-classes]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
 [link-mdn-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions
 [link-mdn-subtlecrypto]: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto
 [link-npm-buffer]: https://www.npmjs.com/package/buffer
+[link-pr-welcome]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
 [project-api]: https://otplib.yeojz.com/api
 [project-circle]: https://circleci.com/gh/yeojz/otplib
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib

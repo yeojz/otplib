@@ -122,6 +122,9 @@ export function authenticatorOptions<
 /**
  * Encodes a given secret key into a Base32 secret
  * using a [[KeyEncoder]] method set in the options.
+ *
+ * @param secret - The [[SecretKey]] to encode into a [[Base32SecretKey]]
+ * @param options - An [[AuthenticatorOptions]] object
  */
 export function authenticatorEncoder<
   T extends AuthenticatorOptions<unknown> = AuthenticatorOptions<unknown>
@@ -137,6 +140,9 @@ export function authenticatorEncoder<
 /**
  * Decodes a given Base32 secret to a secret key
  * using a [[KeyDecoder]] method set in the options.
+ *
+ * @param secret - The [[Base32SecretKey]] to decode
+ * @param options - An [[AuthenticatorOptions]] object
  */
 export function authenticatorDecoder<
   T extends AuthenticatorOptions<unknown> = AuthenticatorOptions<unknown>
@@ -151,6 +157,11 @@ export function authenticatorDecoder<
 
 /**
  * Generates a random Base32 Secret Key.
+ *
+ * @param numberOfBytes - Number of bytes per secret key
+ * @param options.createRandomBytes
+ * @param options.encoding
+ * @param options.keyEncoder
  */
 export function authenticatorGenerateSecret<
   T extends AuthenticatorOptions = AuthenticatorOptions
@@ -171,6 +182,8 @@ export function authenticatorGenerateSecret<
  *
  * -   https://en.wikipedia.org/wiki/Google_Authenticator
  *
+ * @param secret - [[Base32SecretKey]]
+ * @param options - An [[AuthenticatorOptions]] object.
  */
 export function authenticatorToken<
   T extends AuthenticatorOptions = AuthenticatorOptions
@@ -180,6 +193,10 @@ export function authenticatorToken<
 
 /**
  * Decodes the encodedSecret and passes it to [[totpCheckWithWindow]]
+ *
+ * @param token - The token to check
+ * @param secret - The [[Base32SecretKey]]
+ * @param options - An [[AuthenticatorOptions]] object.
  */
 export function authenticatorCheckWithWindow<
   T extends AuthenticatorOptions = AuthenticatorOptions

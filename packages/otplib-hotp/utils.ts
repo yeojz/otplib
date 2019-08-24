@@ -119,6 +119,8 @@ export interface KeyURIOptions {
 /**
  * createDigest placholder function which throws an error
  * when it is not replaced with an actual implementation.
+ *
+ * @ignore
  */
 export const createDigestPlaceholder: CreateDigest = (): string => {
   throw new Error('Please provide an options.createDigest implementation.');
@@ -126,6 +128,8 @@ export const createDigestPlaceholder: CreateDigest = (): string => {
 
 /**
  * Checks if a string contains a valid token format.
+ *
+ * @param value - a number string.
  */
 export function isTokenValid(value: string): boolean {
   return /^(\d+)$/.test(value);
@@ -230,6 +234,7 @@ export function keyuri(options: KeyURIOptions): string {
 
 /**
  * Base OTP class which provides options management
+ * All OTP classes should be extended from this class.
  */
 export class OTP<T extends OTPOptions = OTPOptions> {
   /**
