@@ -6,6 +6,7 @@
   "typings": "./core/index.d.ts",
   "scripts": {
     "build": "./scripts/build.sh",
+    "build:ci": "./scripts/build-ci.sh",
     "build:site": "./scripts/build-site.sh",
     "clean": "rimraf builds coverage",
     "format": "prettier --write \"{packages,scripts,configs}/**/*.{ts,tsx,js,jsx,json,md,mdx}\"",
