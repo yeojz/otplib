@@ -81,7 +81,8 @@
       "packages/**/*.{js,ts}",
       "!**/node_modules/**",
       "!packages/tests-*/*",
-      "!packages/otplib-preset-browser/*"
+      "!packages/otplib-preset-browser/*",
+      "!packages/package-cache/*"
     ],
     "coverageDirectory": "./coverage/",
     "modulePaths": [
@@ -98,7 +99,8 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/packages/tests-data/",
-      "/packages/tests-suites/"
+      "/packages/tests-suites/",
+      "/packages/package-cache/"
     ],
     "testURL": "http://localhost",
     "transform": {

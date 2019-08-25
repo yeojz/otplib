@@ -21,7 +21,7 @@ jobs:
         OTPLIB_BUILD_CLEAN=true
         OTPLIB_BUILD_MODULE=false
         OTPLIB_BUILD_BUNDLE=true
-        OTPLIB_BUILD_DOWNLOAD_BUFFER=true
+        OTPLIB_BUILD_INCLUDE_BUFFER=true
         OTPLIB_BUILD_COPY_META=false
         npm run build
 

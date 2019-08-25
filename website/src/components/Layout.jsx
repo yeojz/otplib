@@ -11,7 +11,9 @@ const Layout = ({ children }) => (
         </Link>
 
         <nav className={styles.navlinks}>
-          <Link to="/docs/getting-started">Docs</Link>
+          <a href="https://github.com/yeojz/otplib/blob/master/README.md">
+            Docs
+          </a>
           <a href="/api">API</a>
           <a href="https://github.com/yeojz/otplib">Github</a>
         </nav>
