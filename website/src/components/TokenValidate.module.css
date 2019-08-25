@@ -1,0 +1,17 @@
+.message {
+  display: block;
+  margin-top: 0.5em;
+}
+
+.pass,
+.fail {
+  font-weight: bold;
+}
+
+.pass {
+  color: #008080;
+}
+
+.fail {
+  color: #dc1044;
+}

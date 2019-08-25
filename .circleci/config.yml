@@ -18,16 +18,20 @@ aliases:
     key: release-{{ .Environment.PROJECT_CACHE_VERSION }}-{{ checksum "package-lock.json" }}
 
   - &install_npm
+    name: install dependencies with extras
+    command: |
+      OTPLIB_SETUP_EXTRAS=testmodule npm run setup
+
+  - &install_npm_node8
     name: install dependencies
     command: |
-      npm install
-      npm install --no-save typescript
+      OTPLIB_SETUP_EXTRAS=skip npm run setup
 
   - &build_package
     name: build package
     command: |
       npm run clean
-      npm run build:modules
+      npm run build
 
   - &filter_common
     branches:
@@ -63,12 +67,12 @@ aliases:
       - run: *build_package
       - run:
           name: test
-          command: npm run test
+          command: npm run test:module
 
   - &defaults
     working_directory: ~/project
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:10
 
   - &npm_publish
     steps:
@@ -82,7 +86,7 @@ aliases:
             npm run clean
             npm run build
       - run:
-          working_directory: ~/project/dist/otplib
+          working_directory: ~/project/builds/otplib
           name: publish to npm
           command: |
             echo "npm tag = $RUNTIME_NPM_TAG"
@@ -104,6 +108,18 @@ aliases:
 version: 2
 jobs:
   node_v8:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore-cache: *restore_test_cache
+      - run: *install_npm_node8
+      - save_cache: *save_test_cache
+      - run: *build_package
+      - run:
+          name: test
+          command: npm run test:node8
+  node_v10:
     <<: *defaults
     steps:
       - checkout
@@ -113,12 +129,11 @@ jobs:
       - run: *build_package
       - run:
           name: test
-          command: npm run test
+          command: npm run test:module
       - run:
           name: lint
           command: |
-            npm run lint:js
-            npm run lint:ts
+            npm run lint
       - run:
           name: send coverage report
           command: |
@@ -133,14 +148,9 @@ jobs:
             fi
           when: on_success
 
-  node_v6:
+  node_v12:
     docker:
-      - image: circleci/node:6
-    <<: *node_tests
-
-  node_v10:
-    docker:
-      - image: circleci/node:10
+      - image: circleci/node:12
     <<: *node_tests
 
   publish_npm_stable:
@@ -184,41 +194,46 @@ workflows:
   version: 2
   dev-builds:
     jobs:
-      - node_v6:
-          filters: *filter_common
       - node_v8:
           filters: *filter_common
       - node_v10:
+          filters: *filter_common
+      - node_v12:
           filters: *filter_common
   release-builds:
     jobs:
-      - node_v6:
-          filters: *filter_tag_all
       - node_v8:
           filters: *filter_tag_all
       - node_v10:
           filters: *filter_tag_all
-      - deploy_website:
+      - node_v12:
+          filters: *filter_tag_all
+      - hold_website:
+          type: approval
           requires:
-            - node_v6
             - node_v8
             - node_v10
+            - node_v12
+          filters: *filter_tag_stable
+      - deploy_website:
+          requires:
+            - hold_website
           filters: *filter_tag_stable
       - publish_npm_beta:
           requires:
-            - node_v6
             - node_v8
             - node_v10
+            - node_v12
           filters: *filter_tag_beta
-      - hold:
+      - hold_npm:
           type: approval
           requires:
-            - node_v6
             - node_v8
             - node_v10
+            - node_v12
           filters: *filter_tag_stable
       - publish_npm_stable:
           requires:
-            - hold
+            - hold_npm
           filters: *filter_tag_stable
 
