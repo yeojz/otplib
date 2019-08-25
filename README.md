@@ -94,6 +94,11 @@ and includes additional methods to allow you to work with Google Authenticator.
 
 ## Quick Start
 
+References:
+
+- [API Documentation][project-api]
+- [Demo Website][project-web]
+
 ### In Node.js
 
 ```bash
@@ -157,7 +162,7 @@ in the [releases](https://github.com/yeojz/otplib/releases) page.
 > v12.x is a huge architectural and language rewrite. Please check out the docs if you are migrating.
 > A preset adapter is available to provide methods that behave like `v11.x` of `otplib`.
 
-Link to [v11.x README.md][project-readme-v11].
+Link to [v11.x README.md][project-v11-readme] and [v11.x API Docs][project-v11-api].
 
 ```js
 // Update
@@ -176,11 +181,6 @@ your dependencies for the library.
 
 Check out the [Quick Start][docs-quick-start] guide if you do need / want
 to customise any dependencies from the presets.
-
-Other References:
-
-- [API Documentation][project-api]
-- [Demo Website][project-web]
 
 ### Install the Package
 
@@ -733,8 +733,9 @@ Check out: [CONTRIBUTING.md][link-pr-welcome]
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib
 [project-docs]: https://otplib.yeojz.com/api
 [project-npm]: https://www.npmjs.com/package/otplib
+[project-v11-api]: https://5d4d0cc4c85e00000788a456--otplib.netlify.com/docs
+[project-v11-readme]: https://github.com/yeojz/otplib/blob/d0aedccbca8ae7ec1983f40da4d7a14c9e815e9c/README.md
 [project-web]: https://otplib.yeojz.com
-[project-readme-v11]: https://github.com/yeojz/otplib/blob/d0aedccbca8ae7ec1983f40da4d7a14c9e815e9c/README.md
 [rfc-3548]: http://tools.ietf.org/html/rfc3548
 [rfc-4648]: https://tools.ietf.org/html/rfc4648
 [rfc-4226-dataset]: https://github.com/yeojz/otplib/blob/master/packages/tests-data/rfc4226.ts
