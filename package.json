@@ -16,7 +16,8 @@
     "test:module": "./scripts/test-module.sh",
     "test:node8": "./scripts/test-node8.sh",
     "test:watch": "jest --watch",
-    "upload:coverage": "cat ./coverage/lcov.info | coveralls"
+    "update:release-notes": "npx conventional-github-releaser -p angular",
+    "upload:coverage": "cat ./coverage/lcov.info | npx coveralls"
   },
   "repository": {
     "type": "git",

@@ -86,7 +86,7 @@ aliases:
             npm run clean
             npm run build
       - run:
-          working_directory: ~/project/dist/otplib
+          working_directory: ~/project/builds/otplib
           name: publish to npm
           command: |
             echo "npm tag = $RUNTIME_NPM_TAG"
