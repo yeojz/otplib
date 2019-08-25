@@ -54,7 +54,7 @@
     - [Getting Time Remaining / Time Used](#getting-time-remaining--time-used)
   - [Using with Expo](#using-with-expo)
   - [Exploring with local-repl](#exploring-with-local-repl)
-- [Contributing](#contributing)
+- [Contributors](#contributors)
 - [License](#license)
 
 <!-- /TOC -->
@@ -697,11 +697,29 @@ $ [otplib] > secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD'
 $ [otplib] > otplib.authenticator.generate(secret)
 ```
 
-## Contributing
+## Contributors
 
-Check out: [CONTRIBUTING.md][link-pr-welcome]
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
-[![PRs Welcome][badge-pr-welcome]][link-pr-welcome]
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/yeojz"><img src="https://avatars2.githubusercontent.com/u/429598?v=4" width="80px;" alt="Gerald Yeo"/><br /><sub><b>Gerald Yeo</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=yeojz" title="Code">💻</a> <a href="https://github.com/yeojz/otplib/commits?author=yeojz" title="Documentation">📖</a> <a href="#maintenance-yeojz" title="Maintenance">🚧</a> <a href="https://github.com/yeojz/otplib/commits?author=yeojz" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://ols.io"><img src="https://avatars3.githubusercontent.com/u/6209178?v=4" width="80px;" alt="Oliver Schneider"/><br /><sub><b>Oliver Schneider</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=olsio" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://developer.mozilla.org/profiles/madarche/"><img src="https://avatars0.githubusercontent.com/u/152407?v=4" width="80px;" alt="Marc-Aurèle DARCHE"/><br /><sub><b>Marc-Aurèle DARCHE</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=madarche" title="Documentation">📖</a></td>
+    <td align="center"><a href="http://shakram02.github.io/"><img src="https://avatars3.githubusercontent.com/u/10996982?v=4" width="80px;" alt="Ahmed Hamdy (@shakram02)"/><br /><sub><b>Ahmed Hamdy (@shakram02)</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=shakram02" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://tony.brix.ninja"><img src="https://avatars3.githubusercontent.com/u/97994?v=4" width="80px;" alt="Tony Brix"/><br /><sub><b>Tony Brix</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=UziTech" title="Code">💻</a> <a href="https://github.com/yeojz/otplib/commits?author=UziTech" title="Documentation">📖</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors)
+specification. Contributions of any kind welcome!
 
 ## License
 
@@ -714,7 +732,6 @@ Check out: [CONTRIBUTING.md][link-pr-welcome]
 [badge-npm-downloads]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
 [badge-npm]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [badge-npm-next]: https://img.shields.io/npm/v/otplib/next.svg?style=flat-square
-[badge-pr-welcome]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&longCache=true
 [badge-type-ts]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
 [docs-browser-compatiblity]: #browser-compatiblity
 [docs-plugins-base32]: #base32-plugins
@@ -727,7 +744,6 @@ Check out: [CONTRIBUTING.md][link-pr-welcome]
 [link-mdn-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions
 [link-mdn-subtlecrypto]: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto
 [link-npm-buffer]: https://www.npmjs.com/package/buffer
-[link-pr-welcome]: https://github.com/yeojz/otplib/blob/master/CONTRIBUTING.md
 [project-api]: https://otplib.yeojz.com/api
 [project-circle]: https://circleci.com/gh/yeojz/otplib
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib

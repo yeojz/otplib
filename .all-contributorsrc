@@ -1,0 +1,64 @@
+{
+  "projectName": "otplib",
+  "projectOwner": "yeojz",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 80,
+  "commit": false,
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "contributors": [
+    {
+      "login": "yeojz",
+      "name": "Gerald Yeo",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/429598?v=4",
+      "profile": "https://github.com/yeojz",
+      "contributions": [
+        "code",
+        "doc",
+        "maintenance",
+        "test"
+      ]
+    },
+    {
+      "login": "olsio",
+      "name": "Oliver Schneider",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/6209178?v=4",
+      "profile": "https://ols.io",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "madarche",
+      "name": "Marc-Aurèle DARCHE",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/152407?v=4",
+      "profile": "https://developer.mozilla.org/profiles/madarche/",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "shakram02",
+      "name": "Ahmed Hamdy (@shakram02)",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/10996982?v=4",
+      "profile": "http://shakram02.github.io/",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "UziTech",
+      "name": "Tony Brix",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/97994?v=4",
+      "profile": "https://tony.brix.ninja",
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    }
+  ]
+}
