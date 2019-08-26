@@ -1,0 +1,78 @@
+name: Build and Test
+on: [push]
+
+jobs:
+  test-node-8:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - uses: actions/setup-node@v1
+      name: setup node 8
+      with:
+        node-version: 8
+    - name: setup
+      run: npm run setup
+      env:
+        OTPLIB_SETUP_EXTRAS: skip
+    - name: build
+      run: npm run build
+      env:
+        OTPLIB_BUILD_BUNDLE: false
+        OTPLIB_BUILD_INCLUDE_BUFFER: false
+        OTPLIB_BUILD_COPY_META: false
+    - name: test
+      run: npm run test:node8
+
+  test-node:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10, 12]
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - uses: actions/setup-node@v1
+      name: setup node ${{ matrix.node-version }}
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: setup
+      run: npm run setup
+      env:
+        OTPLIB_SETUP_EXTRAS: testmodule
+    - name: build
+      run: npm run build
+      env:
+        OTPLIB_BUILD_BUNDLE: false
+        OTPLIB_BUILD_INCLUDE_BUFFER: false
+        OTPLIB_BUILD_COPY_META: false
+    - name: test
+      run: npm run test:module
+
+  test-browser:
+    runs-on: ubuntu-latest
+    needs: [test-node]
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - uses: actions/setup-node@v1
+      name: setup node 10
+      with:
+        node-version: 10
+    - name: setup
+      run: npm run setup
+      env:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+        OTPLIB_SETUP_EXTRAS: testbrowser
+    - name: build
+      run: npm run build
+      env:
+        OTPLIB_BUILD_MODULE: false
+        OTPLIB_BUILD_COPY_META: false
+    - name: test
+      uses: docker://buildkite/puppeteer:v1.15.0
+      with:
+        args: npm run test:browser

@@ -19,11 +19,13 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Environment (please provide any relevant information):**
- - OS: 
- - Browser:
- - Node / Yarn:
- - Any frameworks:
+**Details (please provide any relevant information):**
+
+- otplib version:
+- os:
+- browser:
+- node / yarn:
+- frameworks (if any):
 
 **Additional context**
 Add any other context about the problem here.
