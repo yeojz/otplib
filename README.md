@@ -17,8 +17,9 @@
 - [Quick Start](#quick-start)
   - [In Node.js](#in-nodejs)
   - [In Browser](#in-browser)
-- [Migration Guide](#migration-guide)
+- [Migration and Versioning Guide](#migration-and-versioning-guide)
   - [Migrating from v11.x](#migrating-from-v11x)
+  - [Downloading Master Builds](#downloading-master-builds)
 - [Getting Started](#getting-started)
   - [Install the Package](#install-the-package)
   - [Choose Your Plugins](#choose-your-plugins)
@@ -109,7 +110,9 @@ npm install otplib thirty-two
 import { authenticator } from 'otplib/preset-default';
 
 const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
-// Alternative: const secret = authenticator.generateSecret();
+// Alternative:
+// const secret = authenticator.generateSecret();
+// Note: .generateSecret() is only available for authenticator and not totp/hotp
 
 const token = authenticator.generate(secret);
 
@@ -124,6 +127,24 @@ try {
   console.error(err);
 }
 ```
+
+Please replace "authenticator" with totp or hotp depending on your requirements.
+
+```js
+// For TOTP
+import { totp } from 'otplib/preset-default';
+const token = totp.generate(secret);
+const isValid = totp.check(token, secret);
+const isValid = totp.verify({ token, secret });
+
+// For HOTP
+import { hotp } from 'otplib/preset-default';
+const token = hotp.generate(secret, counter);
+const isValid = hotp.check(token, secret, counter);
+const isValid = hotp.verify({ token, secret, counter });
+```
+
+For all available APIs, please refer to [API Documentation][project-api].
 
 ### In Browser
 
@@ -148,7 +169,7 @@ You can also download and include the latest version via their project page.
 In the above example, we are directly using the scripts hosted by `unpkg.com`.
 You can also `npm install otplib` and get a copy from the `node_modules/otplib/preset-browser` folder.
 
-## Migration Guide
+## Migration and Versioning Guide
 
 This library follows `semver`. As such, major version bumps usually mean API changes or behavior changes.
 Please check [upgrade notes](https://github.com/yeojz/otplib/wiki/upgrade-notes) for more information,
@@ -156,6 +177,12 @@ especially before making any major upgrades.
 
 Check out the release notes associated with each tagged versions
 in the [releases](https://github.com/yeojz/otplib/releases) page.
+
+| Release Type         | Version Pattern | Command                                                          |                                       |
+| :------------------- | --------------- | ---------------------------------------------------------------- | :------------------------------------ |
+| Current / Stable     | 0.0.0           | `npm install otplib`                                             | [![npm][badge-npm]][project-npm]      |
+| Release Candidate    | 0.0.0-0         | `npm install otplib@next`                                        | [![npm][badge-npm-next]][project-npm] |
+| Master Branch Builds | 0.0.0-ci.{hash} | See: [Downloading Master Builds][docs-downloading-master-builds] |                                       |
 
 ### Migrating from v11.x
 
@@ -174,6 +201,20 @@ import { authenticator } from 'otplib/preset-v11';
 // However, deprecated or modified class methods will have console.warn.
 ```
 
+### Downloading Master Builds
+
+From 12.x onwards, pre-release builds of master is also uploaded as an artifact on GitHub Actions.
+
+To download:
+
+1. Go to otplib's [Github Actions][project-github-actions].
+2. Click on `dev-builds`.
+3. Select the latest `master` workflow run.
+4. Click on the `Artifacts` dropdown near the top-right.
+5. Download `otplib-ci-package.zip`.
+6. Unzip the zip file, you should see a `otplib-ci-{hash}.tar.gz` file.
+7. You can now run `npm install ./otplib-ci-{hash}.tar.gz` to install it into your project.
+
 ## Getting Started
 
 This is a more in-depth setup guide for installing, configuring and customising
@@ -187,11 +228,6 @@ to customise any dependencies from the presets.
 ```bash
 npm install otplib
 ```
-
-| Release Type      | Version                               | Command                   |
-| :---------------- | :------------------------------------ | ------------------------- |
-| Current / Stable  | [![npm][badge-npm]][project-npm]      | `npm install otplib`      |
-| Release Candidate | [![npm][badge-npm-next]][project-npm] | `npm install otplib@next` |
 
 ### Choose Your Plugins
 
@@ -303,23 +339,28 @@ All OTP classes have an object setter and getter method to override these defaul
 For example,
 
 ```js
-import { authenticator } from 'otplib/preset-default';
+import { authenticator, totp, hotp } from 'otplib/preset-default';
 
 // setting
-authenticator.options = {
-  step: 30,
-  window: 1
-};
+authenticator.options = { digits: 6 };
+totp.options = { digits: 6 };
+hotp.options = { digits: 6 };
 
 // getting
 const opts = authenticator.options;
+const opts = totp.options;
+const opts = hotp.options;
 
 // reset to default
 authenticator.resetOptions();
+totp.resetOptions();
+hotp.resetOptions();
 
 // getting all options, with validation
 // and backfilled with library defaults
 const opts = authenticator.allOptions();
+const opts = totp.allOptions();
+const opts = hotp.allOptions();
 ```
 
 ### HOTP Options
@@ -388,7 +429,7 @@ const opts = authenticator.allOptions();
 
 ### Async Options
 
-The following options are modified for `functions` and `classes` which are postfixed with `Async`.
+The following options are modified for `functions` and `classes` which are suffixed with `Async`.
 
 eg: `AuthenticatorAsync`, `totpDigestAsync`, `hotpTokenAsync` etc.
 
@@ -542,6 +583,7 @@ authenticator.resetOptions();
 ```
 
 Check the [API Documentation][project-api] for the full list of async functions.
+All async functions are suffixed with `Async` except for class methods.
 
 ### Browser Compatiblity
 
@@ -716,6 +758,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors)
@@ -734,6 +777,7 @@ specification. Contributions of any kind welcome!
 [badge-npm-next]: https://img.shields.io/npm/v/otplib/next.svg?style=flat-square
 [badge-type-ts]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
 [docs-browser-compatiblity]: #browser-compatiblity
+[docs-downloading-master-builds]: #downloading-master-builds
 [docs-plugins-base32]: #base32-plugins
 [docs-plugins-crypto]: #crypto-plugins
 [docs-quick-start]: #quick-start
@@ -748,6 +792,7 @@ specification. Contributions of any kind welcome!
 [project-circle]: https://circleci.com/gh/yeojz/otplib
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib
 [project-docs]: https://otplib.yeojz.com/api
+[project-github-actions]: https://github.com/yeojz/otplib/actions
 [project-npm]: https://www.npmjs.com/package/otplib
 [project-v11-api]: https://5d4d0cc4c85e00000788a456--otplib.netlify.com/docs
 [project-v11-readme]: https://github.com/yeojz/otplib/blob/d0aedccbca8ae7ec1983f40da4d7a14c9e815e9c/README.md
