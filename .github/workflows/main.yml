@@ -78,5 +78,5 @@ jobs:
     - uses: actions/upload-artifact@master
       if: github.ref == 'refs/heads/master'
       with:
-        name: otplib-ci-master
-        path: builds/otplib
+        name: otplib-ci-package
+        path: builds/artifacts
