@@ -110,7 +110,7 @@
   "repl": [
     {
       "name": "otplib",
-      "module": "./builds/otplib/node"
+      "module": "./builds/otplib/preset-default"
     }
   ]
 }
