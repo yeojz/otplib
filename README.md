@@ -725,7 +725,7 @@ Pull Requests are much welcomed for a native expo implementation as well.
 If you'll like to explore the library with `local-repl` you can do so as well.
 
 ```bash
-$ npm install
+$ npm run setup
 $ npm run build
 
 $ npx local-repl
