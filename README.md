@@ -102,11 +102,11 @@ References:
 ### In Node.js
 
 ```bash
-npm install otplib thirty-two
+npm install otplib
 ```
 
 ```js
-import { authenticator } from 'otplib/preset-default';
+import { authenticator } from 'otplib';
 
 const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
 // Alternative:
@@ -131,13 +131,13 @@ Please replace "authenticator" with totp or hotp depending on your requirements.
 
 ```js
 // For TOTP
-import { totp } from 'otplib/preset-default';
+import { totp } from 'otplib';
 const token = totp.generate(secret);
 const isValid = totp.check(token, secret);
 const isValid = totp.verify({ token, secret });
 
 // For HOTP
-import { hotp } from 'otplib/preset-default';
+import { hotp } from 'otplib';
 const token = hotp.generate(secret, counter);
 const isValid = hotp.check(token, secret, counter);
 const isValid = hotp.verify({ token, secret, counter });
@@ -151,8 +151,8 @@ The browser preset is a self contained `umd` module with `Buffer` split out as a
 As such, there are 2 scripts required: `preset-browser/index.js` and `preset-browser/buffer.js`.
 
 ```html
-<script src="https://unpkg.com/otplib@^12.0.0/preset-browser/buffer.js"></script>
-<script src="https://unpkg.com/otplib@^12.0.0/preset-browser/index.js"></script>
+<script src="https://unpkg.com/@otplib/preset-browser@^12.0.0/buffer.js"></script>
+<script src="https://unpkg.com/@otplib/preset-browser@^12.0.0/index.js"></script>
 
 <script type="text/javascript">
   // window.otplib.authenticator
@@ -166,7 +166,7 @@ from [https://www.npmjs.com/package/buffer][link-npm-buffer].
 You can also download and include the latest version via their project page.
 
 In the above example, we are directly using the scripts hosted by `unpkg.com`.
-You can also `npm install otplib` and get a copy from the `node_modules/otplib/preset-browser` folder.
+You can also `npm install otplib` and get a copy from the `node_modules/@otplib/preset-browser` folder.
 
 ## Migration and Versioning Guide
 
@@ -211,8 +211,8 @@ To download:
 3. Select the latest `master` workflow run.
 4. Click on the `Artifacts` dropdown near the top-right.
 5. Download `otplib-ci-package.zip`.
-6. Unzip the zip file, you should see a `otplib-ci-{hash}.tar.gz` file.
-7. You can now run `npm install ./otplib-ci-{hash}.tar.gz` to install it into your project.
+6. Unzip the zip file, you should see a list of `ci-{hash}-otplib-*.tar.gz` files.
+7. Choose the desired package and `npm install ./ci-{hash}-otplib-*.tar.gz` to install it into your project.
 
 ## Getting Started
 
@@ -225,7 +225,7 @@ to customise any dependencies from the presets.
 ### Install the Package
 
 ```bash
-npm install otplib
+npm install @otplib/core
 ```
 
 ### Choose Your Plugins
@@ -236,15 +236,12 @@ The crypto modules are used to generate the digest used to derive the OTP tokens
 By default, Node.js has inbuilt `crypto` functionality, but you might want to replace it
 for certain environments that do not support it.
 
-Currently out-of-the-box, there are some [Crypto Plugins][docs-plugins-crypto] included.
-Install the dependencies for one of them.
+Currently there are a few [Crypto Plugins][docs-plugins-crypto] supported.
+Install one of them:
 
 ```bash
-# Choose either
-# Node.js crypto (you don't need to install anything else - http://nodejs.org/api/crypto.html)
-
-# or
-npm install crypto-js
+npm install @otplib/plugin-crypto # node crypto
+npm install @otplib/plugin-crypto-js # crypto-js
 ```
 
 #### Adding Base32
@@ -252,15 +249,12 @@ npm install crypto-js
 If you're using Google Authenticator, you'll need a base32 module for
 encoding and decoding your secrets.
 
-Currently out-of-the-box, there are some [Base32 Plugins][docs-plugins-base32] included.
-Install the dependencies for one of them.
+Currently, there are a few [Base32 Plugins][docs-plugins-base32] supported.
+Install one of them:
 
 ```bash
-# Choose either
-npm install thirty-two
-
-# or
-npm install base32-encode base32-decode
+npm install @otplib/plugin-thirty-two # for thirty-two
+npm install @otplib/plugin-base32-enc-dec # for base32-encode and base32-decode
 ```
 
 ### Initialise your Instance
@@ -268,19 +262,12 @@ npm install base32-encode base32-decode
 #### Using Classes
 
 ```js
-import { HOTP, TOTP, Authenticator } from 'otplib';
+import { HOTP, TOTP, Authenticator } from '@otplib/core';
 
 // Base32 Plugin
-// for thirty-two
-import { keyDecoder, keyEncoder } from 'otplib/plugin-thirty-two';
-// for base32-encode and base32-decode
-import { keyDecoder, keyEncoder } from 'otplib/plugin-base32-enc-dec';
-
+import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two'; // swap with your chosen install
 // Crypto Plugin
-// for node crypto
-import { createDigest, createRandomBytes } from 'otplib/plugin-crypto';
-// for crypto-js
-import { createDigest, createRandomBytes } from 'otplib/plugin-crypto-js';
+import { createDigest, createRandomBytes } from '@otplib/plugin-crypto'; // swap with your chosen install
 
 // Setup an OTP instance which you need
 const hotp = new HOTP({ createDigest });
@@ -311,7 +298,7 @@ import {
   totpToken,
   authenticatorOptions,
   authenticatorToken
-} from 'otplib/core';
+} from '@otplib/core';
 
 // As with classes, import your desired Base32 Plugin and Crypto Plugin.
 // import ...
@@ -338,7 +325,7 @@ All OTP classes have an object setter and getter method to override these defaul
 For example,
 
 ```js
-import { authenticator, totp, hotp } from 'otplib/preset-default';
+import { authenticator, totp, hotp } from 'otplib';
 
 // setting
 authenticator.options = { digits: 6 };
@@ -442,7 +429,23 @@ eg: `AuthenticatorAsync`, `totpDigestAsync`, `hotpTokenAsync` etc.
 
 ## Available Packages
 
-This library has been split into 3 categories: `core`, `plugin` and `preset`.
+The main package for this project still remains as `otplib`, which contains all
+the necessary code to get started quickly. However, internally, the library has
+been split into 3 categories: `core`, `plugin` and `preset`, and have been parked
+under the `@otplib` scope in `npm`.
+
+> If you use quick start, i.e. npm install otplib, you already have
+> a few of the packages installed and available to you.
+
+Mapping for `otplib` contents:
+
+```txt
+/core -> @otplib/core
+/core-async -> @otplib/core-async
+/preset-default -> @otplib/preset-default
+/preset-browser -> @otplib/preset-browser
+/preset-v11 -> @otplib/preset-v11
+```
 
 ### Core
 
@@ -450,25 +453,25 @@ Provides the core functionality of the library. Parts of the logic
 has been separated out in order to provide flexibility to the library via
 available plugins.
 
-| file              | description                                            |
-| ----------------- | ------------------------------------------------------ |
-| otplib/core       | Aggregates hotp/totp/authenticator functions + classes |
-| otplib/core-async | provides async versions of `otplib/core`               |
+| npm install        | description                                            |
+| ------------------ | ------------------------------------------------------ |
+| @otplib/core       | Aggregates hotp/totp/authenticator functions + classes |
+| @otplib/core-async | provides async versions of `@otplib/core`               |
 
 ```js
-import { HOTP, TOTP, Authenticator } from 'otplib/core';
-import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from 'otplib/core-async';
+import { HOTP, TOTP, Authenticator } from '@otplib/core';
+import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from '@otplib/core-async';
 ```
 
 ### Plugins
 
 #### Crypto Plugins
 
-| plugin                             | type  | depends on                          |
-| ---------------------------------- | ----- | ----------------------------------- |
-| otplib/plugin-crypto               | sync  | crypto (included in Node.js)        |
-| otplib/plugin-crypto-js            | sync  | `npm install crypto-js`             |
-| otplib/plugin-crypto-async-ronomon | async | `npm install @ronomon/crypto-async` |
+| npm install                         | type  | uses                         |
+| ----------------------------------- | ----- | ---------------------------- |
+| @otplib/plugin-crypto               | sync  | crypto (included in Node.js) |
+| @otplib/plugin-crypto-js            | sync  | `crypto-js`                  |
+| @otplib/plugin-crypto-async-ronomon | async | `@ronomon/crypto-async`      |
 
 These crypto plugins provides:
 
@@ -481,10 +484,10 @@ These crypto plugins provides:
 
 #### Base32 Plugins
 
-| plugin                       | type | depends on                                |
-| ---------------------------- | ---- | ----------------------------------------- |
-| otplib/plugin-thirty-two     | sync | `npm install thirty-two`                  |
-| otplib/plugin-base32-enc-dec | sync | `npm install base32-encode base32-decode` |
+| npm install                   | type | uses                                |
+| ----------------------------- | ---- | ----------------------------------- |
+| @otplib/plugin-thirty-two     | sync | `thirty-two`                        |
+| @otplib/plugin-base32-enc-dec | sync | `base32-encode` and `base32-decode` |
 
 These Base32 plugins provides:
 
@@ -502,12 +505,12 @@ allow you to get started with the library quickly.
 
 Each presets would need the corresponding dependent npm modules to be installed.
 
-| file                        | depends on                                             | description                                          |
-| --------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
-| otplib/preset-default       | `npm install thirty-two`                               |                                                      |
-| otplib/preset-default-async | `npm install thirty-two @ronomon/crypto-async`         | async version of `otplib/preset-default`             |
-| otplib/preset-browser       | [See Browser Compatibility][docs-browser-compatiblity] | Webpack bundle and is self contained.                |
-| otplib/preset-v11           | `npm install thirty-two`                               | Wrapper to adapt the APIs to v11.x compatible format |
+| npm install                  | description                                                                                        |
+| ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| @otplib/preset-default       |                                                                                                    |
+| @otplib/preset-default-async | async version of `@otplib/preset-default`                                                          |
+| @otplib/preset-browser       | Webpack bundle and is self contained.<br /> [See Browser Compatibility][docs-browser-compatiblity] |
+| @otplib/preset-v11           | Wrapper to adapt the APIs to v11.x compatible format                                               |
 
 ## Appendix
 
@@ -534,7 +537,7 @@ all other methods are converted to async and thus needs to be `Promise.resolve` 
 eg: `await .generate(...)`, `await .check(...)`
 
 ```js
-import { AuthenticatorAsync } from 'otplib/core-async';
+import { AuthenticatorAsync } from '@otplib/core-async';
 
 const authenticator = new AuthenticatorAsync({
   // ...options
@@ -552,8 +555,8 @@ In this method, you would essentially take over the digest generation, leaving
 the library to handle the digest to token conversion.
 
 ```js
-import { Authenticator } from 'otplib/core';
-import { authenticatorDigestAsync } from 'otplib/core-async';
+import { Authenticator } from '@otplib/core';
+import { authenticatorDigestAsync } from '@otplib/core-async';
 
 // This is a synchronous Authenticator class.
 const authenticator = new Authenticator({
@@ -580,7 +583,7 @@ All async functions are suffixed with `Async` except for class methods.
 
 ### Browser Compatiblity
 
-`otplib/preset-browser` is a `umd` bundle with some node modules replaced to reduce the browser size.
+`@otplib/preset-browser` is a `umd` bundle with some node modules replaced to reduce the browser size.
 
 The following defaults have been used:
 
@@ -588,7 +591,7 @@ The following defaults have been used:
 - **encoder**: `base32-encode`
 - **decoder**: `base32-decode`
 
-To see what is included, you can take a look at `packages/otplib-browser/index.ts`.
+For more details, you can take a look at `packages/otplib-browser/index.ts`.
 
 #### Browser bundle size
 
@@ -661,7 +664,7 @@ An example is shown below:
 ```js
 // npm install qrcode
 import qrcode from 'qrcode';
-import { authenticator } from 'otplib/preset-default';
+import { authenticator } from '@otplib/preset-default';
 
 const user = 'A user name, possibly an email';
 const service = 'A service name';
@@ -708,8 +711,8 @@ authenticator.timeRemaining(); // or totp.timeRemaining();
 While `otplib` does not provide an `expo` specified package, with the re-architecture
 of `otplib`, you can now provide an expo native `createDigest` to the library.
 
-Alternatively, you can make use of crypto provided by `otplib/plugin-crypto-js` or
-the bundled browser umd module `otplib/preset-browser`.
+Alternatively, you can make use of crypto provided by `@otplib/plugin-crypto-js` or
+the bundled browser umd module `@otplib/preset-browser`.
 
 Pull Requests are much welcomed for a native expo implementation as well.
 

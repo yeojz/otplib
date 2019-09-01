@@ -1,7 +1,7 @@
 {
   "name": "@otplib/plugin-crypto-js",
   "version": "12.0.0-1",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "dependencies": {
     "@otplib/core": "^12.0.0-1",
     "crypto-js": "^3.1.9-1"
