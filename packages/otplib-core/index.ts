@@ -1,3 +1,4 @@
-export * from 'otplib-hotp';
-export * from 'otplib-totp';
-export * from 'otplib-authenticator';
+export * from './utils';
+export * from './hotp';
+export * from './totp';
+export * from './authenticator';

@@ -1,5 +1,6 @@
-import { HexString, SecretKey } from 'otplib-hotp';
 import {
+  HexString,
+  SecretKey,
   TOTPOptions,
   totpCheck,
   totpCounter,
@@ -9,8 +10,8 @@ import {
   totpTimeRemaining,
   totpTimeUsed,
   totpToken
-} from 'otplib-totp';
-import { HOTPAsync, hotpDigestAsync } from 'otplib-hotp-async';
+} from 'otplib-core';
+import { HOTPAsync, hotpDigestAsync } from './hotp';
 
 /**
  * Allow TOTPOptions to accept async method options.

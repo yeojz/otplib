@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import { secret } from 'tests-data/rfc4226';
-import { OTP, HashAlgorithms, OTPOptions } from 'otplib-hotp';
+import { OTP, HashAlgorithms, OTPOptions } from 'otplib-core';
 import { GenericFunction } from './helpers';
 
 const dataset: {

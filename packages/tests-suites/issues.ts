@@ -1,4 +1,5 @@
-import { Authenticator } from 'otplib-authenticator';
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
+import { Authenticator } from 'otplib-core';
 import { keyDecoder, keyEncoder } from 'otplib-plugin-thirty-two';
 import { AuthenticatorAsync } from 'otplib-core-async';
 

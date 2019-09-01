@@ -1,4 +1,4 @@
-import { Authenticator } from 'otplib-authenticator';
+import { Authenticator } from 'otplib-core';
 import { testSuiteAuthenticator } from 'tests-suites/core-authenticator';
 import { testClassPropertiesEqual } from 'tests-suites/helpers';
 import { AuthenticatorAsync } from './authenticator';

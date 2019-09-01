@@ -1,7 +1,13 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 // @ts-ignore
 import thirtyTwo from 'thirty-two';
-import { Base32SecretKey, KeyDecoder, KeyEncoder } from 'otplib-authenticator';
-import { KeyEncodings, SecretKey } from 'otplib-core';
+import {
+  Base32SecretKey,
+  KeyDecoder,
+  KeyEncoder,
+  KeyEncodings,
+  SecretKey
+} from 'otplib-core';
 
 /**
  * - Key decoder using npm `thirty-two`

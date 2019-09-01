@@ -1,4 +1,4 @@
-import { OTPOptions, OTP, HashAlgorithms } from 'otplib-hotp';
+import { OTPOptions, OTP, HashAlgorithms } from 'otplib-core';
 import { GenericFunction } from './helpers';
 
 const secret = 'i6im0gc96j0mn00c';

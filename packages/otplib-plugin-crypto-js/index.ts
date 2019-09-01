@@ -6,12 +6,12 @@ import SHA512 from 'crypto-js/hmac-sha512';
 import Hex from 'crypto-js/enc-hex';
 import {
   CreateDigest,
+  CreateRandomBytes,
   HASH_ALGORITHMS,
   HashAlgorithms,
   HexString,
   KeyEncodings
 } from 'otplib-core';
-import { CreateRandomBytes } from 'otplib-authenticator';
 
 const { WordArray } = cryptoJsCore.lib;
 

@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
+import { HashAlgorithms } from 'otplib-core';
+import { testSuiteCryptoPlugin } from 'tests-suites/plugin-crypto';
 // @ts-ignore
 import cryptoAsync from '@ronomon/crypto-async';
-import { testSuiteCryptoPlugin } from 'tests-suites/plugin-crypto';
 import * as plugin from './index';
-import { HashAlgorithms } from 'otplib-hotp';
 
 testSuiteCryptoPlugin('plugin-crypto-async-ronomon', plugin);
 

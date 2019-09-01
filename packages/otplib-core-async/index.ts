@@ -3,9 +3,9 @@
  * in addition to the normal otplib-core methods and classes
  */
 export * from 'otplib-core';
-export * from 'otplib-hotp-async';
-export * from 'otplib-totp-async';
-export * from 'otplib-authenticator-async';
+export * from './hotp';
+export * from './totp';
+export * from './authenticator';
 
 /**
  * Generates Class Placeholders which redirect users

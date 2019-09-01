@@ -2,9 +2,7 @@ import { HOTP, TOTP, Authenticator } from 'otplib-core';
 import * as rfc6238 from 'tests-data/rfc6238';
 import * as rfc4226 from 'tests-data/rfc4226';
 import * as dataAuthenticator from 'tests-data/authenticator';
-import { HOTPAsync } from 'otplib-hotp-async';
-import { TOTPAsync } from 'otplib-totp-async';
-import { AuthenticatorAsync } from 'otplib-core-async';
+import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from 'otplib-core-async';
 
 export function rfcTestSuiteHOTP(name: string, hotp: HOTP | HOTPAsync): void {
   const { tokens, secret, digests } = rfc4226;

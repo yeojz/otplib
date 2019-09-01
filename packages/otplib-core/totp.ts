@@ -1,19 +1,16 @@
 import {
   CreateHmacKey,
   HASH_ALGORITHMS,
-  HOTP,
-  HOTPOptions,
   HashAlgorithms,
   HexString,
   KeyEncodings,
   SecretKey,
   Strategy,
   createDigestPlaceholder,
-  hotpOptionsValidator,
-  hotpToken,
   isTokenValid,
   keyuri
-} from 'otplib-hotp';
+} from './utils';
+import { HOTP, HOTPOptions, hotpOptionsValidator, hotpToken } from './hotp';
 
 /**
  * Interface for options used in TOTP.

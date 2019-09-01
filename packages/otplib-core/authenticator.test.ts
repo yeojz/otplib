@@ -1,6 +1,7 @@
-import * as totp from 'otplib-totp/totp';
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import { testSuiteAuthenticator } from 'tests-suites/core-authenticator';
 import { runOptionValidator } from 'tests-suites/helpers';
+import * as totp from './totp';
 import {
   AuthenticatorOptions,
   authenticatorOptionValidator,

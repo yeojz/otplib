@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import crypto from 'crypto';
 // @ts-ignore
 import cryptoAsync from '@ronomon/crypto-async';
 import {
   CreateDigest,
+  CreateRandomBytes,
   HashAlgorithms,
   HexString,
   KeyEncodings
-} from 'otplib-hotp';
-import { CreateRandomBytes } from 'otplib-authenticator';
+} from 'otplib-core';
 
 export const createDigest: CreateDigest<Promise<string>> = async (
   algorithm: HashAlgorithms,
