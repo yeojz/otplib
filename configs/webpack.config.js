@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/explicit-function-return-type */
 const webpack = require('webpack');
 const createBundleType = require('./createBundleType');
 
@@ -28,6 +28,7 @@ function webpackConfig(config, helpers) {
             loader: 'babel-loader',
             options: {
               babelrc: false,
+              configFile: false,
               presets: [
                 ['@babel/preset-env', { modules: false, ...config.presetEnv }],
                 '@babel/preset-typescript'

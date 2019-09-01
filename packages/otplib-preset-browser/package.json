@@ -1,0 +1,10 @@
+{
+  "name": "@otplib/preset-browser",
+  "version": "12.0.0-1",
+  "main": "index.ts",
+  "dependencies": {
+    "@otplib/core": "^12.0.0-1",
+    "@otplib/plugin-base32-enc-dec": "^12.0.0-1",
+    "@otplib/plugin-crypto-js": "^12.0.0-1"
+  }
+}

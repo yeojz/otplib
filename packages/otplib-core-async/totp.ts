@@ -10,7 +10,7 @@ import {
   totpTimeRemaining,
   totpTimeUsed,
   totpToken
-} from 'otplib-core';
+} from '@otplib/core';
 import { HOTPAsync, hotpDigestAsync } from './hotp';
 
 /**

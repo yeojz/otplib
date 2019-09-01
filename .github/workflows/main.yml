@@ -20,7 +20,8 @@ jobs:
         npm run build
         npm run test:node8
       env:
-        OTPLIB_SETUP_EXTRAS: skip
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+        OTPLIB_SETUP_TYPE: node8
         OTPLIB_BUILD_BUNDLE: false
         OTPLIB_BUILD_INCLUDE_BUFFER: false
         OTPLIB_BUILD_COPY_META: false
@@ -30,7 +31,7 @@ jobs:
         npm run build
         npm run test:module
       env:
-        OTPLIB_SETUP_EXTRAS: testmodule
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
         OTPLIB_BUILD_BUNDLE: false
         OTPLIB_BUILD_INCLUDE_BUFFER: false
         OTPLIB_BUILD_COPY_META: false
@@ -50,7 +51,6 @@ jobs:
         npm run build
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
-        OTPLIB_SETUP_EXTRAS: testbrowser
         OTPLIB_BUILD_MODULE: false
         OTPLIB_BUILD_COPY_META: false
     - uses: docker://buildkite/puppeteer:v1.15.0
