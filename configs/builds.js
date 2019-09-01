@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 const defaultPresetEnv = {
   targets: 'node 8'
 };
@@ -13,14 +14,7 @@ const standard = alias => ({
 
 module.exports = {
   // core
-  'otplib-hotp': standard('hotp'),
-  'otplib-totp': standard('totp'),
-  'otplib-authenticator': standard('authenticator'),
   'otplib-core': standard('core'),
-
-  'otplib-hotp-async': standard('hotp-async'),
-  'otplib-totp-async': standard('totp-async'),
-  'otplib-authenticator-async': standard('authenticator-async'),
   'otplib-core-async': standard('core-async'),
 
   // base32

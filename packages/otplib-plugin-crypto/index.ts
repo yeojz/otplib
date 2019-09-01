@@ -1,11 +1,11 @@
 import crypto from 'crypto';
 import {
-  KeyEncodings,
+  CreateDigest,
+  CreateRandomBytes,
   HashAlgorithms,
   HexString,
-  CreateDigest
-} from 'otplib-hotp';
-import { CreateRandomBytes } from 'otplib-authenticator';
+  KeyEncodings
+} from 'otplib-core';
 
 export const createDigest: CreateDigest = (
   algorithm: HashAlgorithms,

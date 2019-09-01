@@ -3,7 +3,7 @@ import {
   KeyEncodings,
   SecretKey,
   createDigestPlaceholder
-} from 'otplib-hotp';
+} from './utils';
 import {
   TOTP,
   TOTPOptions,
@@ -11,7 +11,7 @@ import {
   totpCreateHmacKey,
   totpOptionsValidator,
   totpToken
-} from 'otplib-totp';
+} from './totp';
 
 /**
  * RFC4648 / RFC3548 Base32 String.
@@ -262,7 +262,7 @@ export class Authenticator<
   /**
    * Reference: [[authenticatorGenerateSecret]]
    */
-  public generateSecret(numberOfBytes: number = 10): Base32SecretKey {
+  public generateSecret(numberOfBytes = 10): Base32SecretKey {
     return authenticatorGenerateSecret<T>(numberOfBytes, this.allOptions());
   }
 }

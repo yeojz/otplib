@@ -1,6 +1,7 @@
-import { KeyEncodings } from 'otplib-hotp';
-import * as hotp from 'otplib-hotp/hotp';
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import * as rfc6238 from 'tests-data/rfc6238';
+import { KeyEncodings } from './utils';
+import * as hotp from './hotp';
 import {
   TOTPOptions,
   totpOptionsValidator,

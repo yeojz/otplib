@@ -35,7 +35,6 @@
   - [Async Options](#async-options)
 - [Available Packages](#available-packages)
   - [Core](#core)
-    - [Core (Async)](#core-async)
   - [Plugins](#plugins)
     - [Crypto Plugins](#crypto-plugins)
     - [Base32 Plugins](#base32-plugins)
@@ -52,7 +51,7 @@
     - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
     - [RFC3548 Base32](#rfc3548-base32)
     - [Displaying a QR code](#displaying-a-qr-code)
-    - [Getting Time Remaining / Time Used](#getting-time-remaining--time-used)
+  - [Getting Time Remaining / Time Used](#getting-time-remaining--time-used)
   - [Using with Expo](#using-with-expo)
   - [Exploring with local-repl](#exploring-with-local-repl)
 - [Contributors](#contributors)
@@ -451,21 +450,15 @@ Provides the core functionality of the library. Parts of the logic
 has been separated out in order to provide flexibility to the library via
 available plugins.
 
-| file                 | description                                          |
-| -------------------- | ---------------------------------------------------- |
-| otplib/hotp          | HOTP functions + class                               |
-| otplib/hotp          | TOTP functions + class                               |
-| otplib/authenticator | Google Authenticator functions + class               |
-| otplib/core          | Aggregates hotp/totp/authenticator functions + class |
+| file              | description                                            |
+| ----------------- | ------------------------------------------------------ |
+| otplib/core       | Aggregates hotp/totp/authenticator functions + classes |
+| otplib/core-async | provides async versions of `otplib/core`               |
 
-#### Core (Async)
-
-| file                       | description                             |
-| -------------------------- | --------------------------------------- |
-| otplib/hotp-async          | async version of `otplib/hotp`          |
-| otplib/hotp-async          | async version of `otplib/hotp`          |
-| otplib/authenticator-async | async version of `otplib/authenticator` |
-| otplib/core-async          | async version of `otplib/core`          |
+```js
+import { HOTP, TOTP, Authenticator } from 'otplib/core';
+import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from 'otplib/core-async';
+```
 
 ### Plugins
 
@@ -560,7 +553,7 @@ the library to handle the digest to token conversion.
 
 ```js
 import { Authenticator } from 'otplib/core';
-import { authenticatorDigestAsync } from 'otplib/authenticator-async';
+import { authenticatorDigestAsync } from 'otplib/core-async';
 
 // This is a synchronous Authenticator class.
 const authenticator = new Authenticator({
@@ -695,7 +688,7 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 > **Note**: For versions `v10.x.x` and below, `keyuri` does not URI encode
 > `user` and `service`. You'll need to do so before passing in the parameteres.
 
-#### Getting Time Remaining / Time Used
+### Getting Time Remaining / Time Used
 
 Helper methods for getting the remaining time and used time within a validity period
 of a `totp` or `authenticator` token were introduced in `v10.0.0`.

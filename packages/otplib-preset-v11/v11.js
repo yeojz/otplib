@@ -1,5 +1,9 @@
-import { HOTP as HOTPNext, TOTP as TOTPNext } from 'otplib-core';
-import { Authenticator as AuthenticatorNext } from 'otplib-authenticator';
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+import {
+  HOTP as HOTPNext,
+  TOTP as TOTPNext,
+  Authenticator as AuthenticatorNext
+} from 'otplib-core';
 
 export function epochUnixToJS(opt = {}) {
   if (!opt || typeof opt !== 'object') {

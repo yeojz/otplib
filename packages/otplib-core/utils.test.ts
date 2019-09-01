@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import { KeyURIOptions, Strategy, keyuri, HashAlgorithms, OTP } from './utils';
 
 describe('keyuri', (): void => {

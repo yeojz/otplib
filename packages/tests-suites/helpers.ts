@@ -1,4 +1,5 @@
-import { OTP } from 'otplib-hotp';
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
+import { OTP } from 'otplib-core';
 
 export interface GenericFunction {
   (...args: unknown[]): unknown;

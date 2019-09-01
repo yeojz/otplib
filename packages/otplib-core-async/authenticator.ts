@@ -1,16 +1,14 @@
-import { HexString, SecretKey } from 'otplib-hotp';
 import {
   AuthenticatorOptions,
   Base32SecretKey,
+  HexString,
+  SecretKey,
   authenticatorDecoder,
-  authenticatorEncoder
-} from 'otplib-authenticator';
-import {
-  TOTPAsync,
-  totpCheckWithWindowAsync,
-  totpDigestAsync
-} from 'otplib-totp-async';
-import { authenticatorOptions, totpToken } from 'otplib-core';
+  authenticatorEncoder,
+  authenticatorOptions,
+  totpToken
+} from 'otplib-core';
+import { TOTPAsync, totpCheckWithWindowAsync, totpDigestAsync } from './totp';
 
 /**
  * Allow AuthenticatorOptions to accept async method options.
@@ -96,9 +94,7 @@ export class AuthenticatorAsync<
     return authenticatorDecoder<T>(secret, this.allOptions());
   }
 
-  public async generateSecret(
-    numberOfBytes: number = 10
-  ): Promise<Base32SecretKey> {
+  public async generateSecret(numberOfBytes = 10): Promise<Base32SecretKey> {
     return authenticatorGenerateSecretAsync<T>(
       numberOfBytes,
       this.allOptions()
