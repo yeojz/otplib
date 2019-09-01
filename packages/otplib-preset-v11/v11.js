@@ -3,7 +3,7 @@ import {
   HOTP as HOTPNext,
   TOTP as TOTPNext,
   Authenticator as AuthenticatorNext
-} from 'otplib-core';
+} from '@otplib/core';
 
 export function epochUnixToJS(opt = {}) {
   if (!opt || typeof opt !== 'object') {

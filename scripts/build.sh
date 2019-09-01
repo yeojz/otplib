@@ -31,7 +31,7 @@ fi
 
 if [ -z "$OTPLIB_BUILD_INCLUDE_BUFFER" ] || [ "$OTPLIB_BUILD_INCLUDE_BUFFER" == "true" ]; then
   echo "--- copying buffer module ---"
-  cp ./packages/package-cache/buffer.js ./builds/otplib/preset-browser/buffer.js
+  cp ./packages/package-extras/buffer.js ./builds/otplib/preset-browser/buffer.js
 fi
 
 if [ -z "$OTPLIB_BUILD_COPY_META" ] || [ "$OTPLIB_BUILD_COPY_META" == "true" ]; then

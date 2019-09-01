@@ -1,0 +1,10 @@
+{
+  "name": "@otplib/preset-default-async",
+  "version": "12.0.0-1",
+  "main": "index.ts",
+  "dependencies": {
+    "@otplib/core-async": "^12.0.0-1",
+    "@otplib/plugin-crypto-async-ronomon": "^12.0.0-1",
+    "@otplib/plugin-thirty-two": "^12.0.0-1"
+  }
+}

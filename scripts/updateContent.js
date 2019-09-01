@@ -6,7 +6,7 @@ const cwd = process.cwd();
 const [mode, ...files] = process.argv.slice(2);
 
 const modes = {
-  typedef: [[/..\/otplib-/g, '../'], [/otplib-/g, '../']]
+  typedef: [[/..\/@otplib\//g, '../'], [/@otplib\//g, '../']]
 };
 
 const patterns = modes[mode];

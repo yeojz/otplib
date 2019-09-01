@@ -2,7 +2,7 @@
  * Provides async methods and classes
  * in addition to the normal otplib-core methods and classes
  */
-export * from 'otplib-core';
+export * from '@otplib/core';
 export * from './hotp';
 export * from './totp';
 export * from './authenticator';

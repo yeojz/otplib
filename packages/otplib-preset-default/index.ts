@@ -14,9 +14,9 @@
  * - Base32: 'plugin-thirty-two'
  * - Crypto: 'plugin-crypto'
  */
-import { createDigest, createRandomBytes } from 'otplib-plugin-crypto';
-import { keyDecoder, keyEncoder } from 'otplib-plugin-thirty-two';
-import { HOTP, TOTP, Authenticator } from 'otplib-core';
+import { createDigest, createRandomBytes } from '@otplib/plugin-crypto';
+import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two';
+import { HOTP, TOTP, Authenticator } from '@otplib/core';
 
 export const hotp = new HOTP({
   createDigest

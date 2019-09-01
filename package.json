@@ -48,41 +48,35 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-typescript": "^7.3.3",
     "@babel/runtime": "^7.5.5",
-    "@types/crypto-js": "^3.1.43",
     "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.2",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
-    "base32-decode": "^1.0.0",
-    "base32-encode": "^1.1.1",
-    "create-hmac": "^1.1.7",
-    "crypto-js": "^3.1.9-1",
     "eslint": "^6.2.2",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-prettier": "^3.1.0",
     "jest": "^24.9.0",
+    "lerna": "^3.16.4",
     "prettier": "^1.18.2",
+    "puppeteer": "^1.19.0",
     "rimraf": "^3.0.0",
     "rollup": "^1.20.1",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-cleanup": "^3.1.1",
     "rollup-plugin-commonjs": "^10.0.2",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "thirty-two": "^1.0.2",
     "typescript": "^3.5.3",
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.7"
   },
-  "dependencies": {},
   "jest": {
     "collectCoverageFrom": [
       "packages/**/*.{js,ts}",
       "!**/node_modules/**",
       "!packages/tests-*/*",
       "!packages/otplib-preset-browser/*",
-      "!packages/package-cache/*"
+      "!packages/package-*/*"
     ],
     "coverageDirectory": "./coverage/",
     "modulePaths": [
@@ -100,11 +94,16 @@
       "/node_modules/",
       "/packages/tests-data/",
       "/packages/tests-suites/",
-      "/packages/package-cache/"
+      "/packages/package-extras/"
     ],
     "testURL": "http://localhost",
     "transform": {
-      "^.+\\.(js|ts)$": "babel-jest"
+      "^.+\\.(js|ts)$": [
+        "babel-jest",
+        {
+          "rootMode": "upward"
+        }
+      ]
     }
   },
   "repl": [

@@ -17,15 +17,15 @@
 import {
   createDigest,
   createRandomBytes
-} from 'otplib-plugin-crypto-async-ronomon';
-import { keyDecoder, keyEncoder } from 'otplib-plugin-thirty-two';
+} from '@otplib/plugin-crypto-async-ronomon';
+import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two';
 import {
   HOTPAsync,
   TOTPAsync,
   AuthenticatorAsync,
   KeyEncoder,
   KeyDecoder
-} from 'otplib-core-async';
+} from '@otplib/core-async';
 
 export const hotp = new HOTPAsync({
   createDigest

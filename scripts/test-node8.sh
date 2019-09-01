@@ -1,7 +1,6 @@
 #!/bin/bash
 
 npm run test -- \
-  --testPathIgnorePatterns="packages/tests-builds" \
+  --testPathIgnorePatterns="packages/package-tests" \
   --testPathIgnorePatterns="packages/otplib-plugin-crypto-async-ronomon" \
-  --testPathIgnorePatterns="packages/otplib-preset-default-async" \
-  --testPathIgnorePatterns="packages/tests-builds/example"
+  --testPathIgnorePatterns="packages/otplib-preset-default-async"

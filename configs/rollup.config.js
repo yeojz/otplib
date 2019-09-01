@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/explicit-function-return-type */
 const babel = require('rollup-plugin-babel');
 const cleanup = require('rollup-plugin-cleanup');
 const commonjs = require('rollup-plugin-commonjs');
@@ -30,9 +30,10 @@ function rollupConfig(config, helpers) {
       babel({
         extensions: helpers.EXTENSIONS,
         babelrc: false,
+        configFile: false,
         presets: [
-          '@babel/preset-typescript',
-          ['@babel/preset-env', { modules: false, ...config.presetEnv }]
+          ['@babel/preset-env', { modules: false, ...config.presetEnv }],
+          '@babel/preset-typescript'
         ]
       }),
       nodeResolve({

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import puppeteer from 'puppeteer';
 import path from 'path';
 import { testSuitePreset } from 'tests-suites/preset';

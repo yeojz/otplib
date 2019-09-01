@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/explicit-function-return-type */
 const path = require('path');
 const pkg = require('../package.json');
 const buildConfig = require('./builds');
@@ -91,7 +91,8 @@ function createBanner(name) {
 function createRenameImports(pkgs) {
   return type => {
     return Object.values(pkgs).reduce((accum, config) => {
-      accum[config.sourceImport] = path.join('..', config[type]);
+      const src = config.sourceImport.replace('otplib-', '@otplib/');
+      accum[src] = path.join('..', config[type]);
 
       return accum;
     }, {});

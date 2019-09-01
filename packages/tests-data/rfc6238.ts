@@ -1,4 +1,4 @@
-import { HashAlgorithms } from 'otplib-core';
+import { formatRFC6238Table } from 'tests-suites/helpers';
 
 /*
 Source: https://tools.ietf.org/html/rfc6238
@@ -60,7 +60,7 @@ RFC 6238                      HOTPepochBased                     May 2011
 M'Raihi, et al.               Informational                    [Page 15]
 */
 
-export const table = [
+export const table = formatRFC6238Table([
   {
     epoch: 59,
     counter: '0000000000000001',
@@ -169,33 +169,7 @@ export const table = [
     token: '47863826',
     algorithm: 'SHA512'
   }
-].map((row): {
-  epoch: number;
-  counter: string;
-  token: string;
-  algorithm: HashAlgorithms;
-} => {
-  let algorithm: HashAlgorithms;
-
-  switch (row.algorithm) {
-    case 'SHA1':
-      algorithm = HashAlgorithms.SHA1;
-      break;
-    case 'SHA256':
-      algorithm = HashAlgorithms.SHA256;
-      break;
-    case 'SHA512':
-      algorithm = HashAlgorithms.SHA512;
-      break;
-    default:
-      throw new Error('Unsupported Algorithm in tests');
-  }
-
-  return {
-    ...row,
-    algorithm
-  };
-});
+]);
 
 export const secret = '12345678901234567890';
 export const step = 30;

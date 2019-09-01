@@ -20,12 +20,12 @@ aliases:
   - &install_npm
     name: install dependencies with extras
     command: |
-      OTPLIB_SETUP_EXTRAS=testmodule npm run setup
+      npm run setup
 
   - &install_npm_node8
     name: install dependencies
     command: |
-      OTPLIB_SETUP_EXTRAS=skip npm run setup
+      OTPLIB_SETUP_TYPE=node8 npm run setup
 
   - &build_package
     name: build package

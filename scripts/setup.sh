@@ -1,29 +1,15 @@
 #!/bin/bash
 
-if [ -z "$OTPLIB_SETUP_COMMON" ] || [ "$OTPLIB_SETUP_COMMON" == "true" ]; then
-  echo "Installing node_modules..."
-  npm ci
-fi
+echo "Setting up dependencies"
 
-if [ "$OTPLIB_SETUP_EXTRAS" = "skip" ]; then
-  echo "Skipping install of extra dependencies..."
+if [ "$OTPLIB_SETUP_TYPE" = "node8" ]; then
+  echo "Skipping some node 8 incompatible modules..."
 
-elif [ "$OTPLIB_SETUP_EXTRAS" = "testbrowser" ]; then
-  echo "Installing browser testing extras..."
-
-  npm i --no-save \
-    puppeteer
-
-elif [ "$OTPLIB_SETUP_EXTRAS" = "testmodule" ]; then
-  echo "Installing module testing extras..."
-
-  npm i --no-save \
-    @ronomon/crypto-async
+  npx lerna bootstrap --ci --hoist \
+    --ignore @otplib/plugin-crypto-async-ronomon \
+    --ignore @otplib/preset-default-async
 
 else
-  echo "Installing all extra dependencies..."
-
-  npm i --no-save \
-    puppeteer \
-    @ronomon/crypto-async
+  echo "Installing all..."
+  npx lerna bootstrap --ci --hoist
 fi
