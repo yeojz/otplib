@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer';
 import path from 'path';
 import { testSuitePreset } from 'tests-suites/preset';
 import * as dataAuthenticator from 'tests-data/authenticator';
-import * as otplib from '../../builds/otplib/preset-browser';
+import * as otplib from '../../builds/packages/otplib-preset-browser';
 
 testSuitePreset('[builds] preset-browser', otplib);
 

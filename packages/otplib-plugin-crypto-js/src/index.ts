@@ -11,7 +11,7 @@ import {
   HashAlgorithms,
   HexString,
   KeyEncodings
-} from '@otplib/core';
+} from 'otplib-core';
 
 const { WordArray } = cryptoJsCore.lib;
 

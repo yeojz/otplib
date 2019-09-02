@@ -2,18 +2,11 @@
   "name": "otplib",
   "version": "12.0.0-1",
   "main": "src/index.ts",
-  "files": [
-    "src/core.ts",
-    "src/core-async.ts",
-    "src/preset-browser.ts",
-    "src/preset-default.ts",
-    "src/preset-v11.ts"
-  ],
   "dependencies": {
-    "@otplib/core": "^12.0.0-1",
-    "@otplib/core-async": "^12.0.0-1",
-    "@otplib/preset-browser": "^12.0.0-1",
-    "@otplib/preset-default": "^12.0.0-1",
-    "@otplib/preset-v11": "^12.0.0-1"
+    "otplib-core": "^12.0.0-1",
+    "otplib-core-async": "^12.0.0-1",
+    "otplib-preset-browser": "^12.0.0-1",
+    "otplib-preset-default": "^12.0.0-1",
+    "otplib-preset-v11": "^12.0.0-1"
   }
 }

@@ -1,1 +1,1 @@
-export * from '@otplib/preset-default';
+export * from 'otplib-preset-default';

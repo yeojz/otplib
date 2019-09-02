@@ -7,7 +7,7 @@ import {
   authenticatorEncoder,
   authenticatorOptions,
   totpToken
-} from '@otplib/core';
+} from 'otplib-core';
 import { TOTPAsync, totpCheckWithWindowAsync, totpDigestAsync } from './totp';
 
 /**

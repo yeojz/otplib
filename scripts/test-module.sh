@@ -1,4 +1,4 @@
 #!/bin/bash
 
 npm run test -- \
-  --testPathIgnorePatterns="packages/package-tests/browser.test" \
+  --testPathIgnorePatterns="packages/pkg-tests/browser.test" \

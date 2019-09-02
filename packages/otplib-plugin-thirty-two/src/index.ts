@@ -7,7 +7,7 @@ import {
   KeyEncoder,
   KeyEncodings,
   SecretKey
-} from '@otplib/core';
+} from 'otplib-core';
 
 /**
  * - Key decoder using npm `thirty-two`

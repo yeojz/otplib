@@ -1,4 +1,4 @@
 #!/bin/bash
 
 npm run test -- \
-  packages/package-tests/browser.test
+  packages/pkg-tests/browser.test

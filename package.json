@@ -2,8 +2,6 @@
   "name": "otplib",
   "version": "12.0.0-1",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "main": "./core/index.js",
-  "typings": "./core/index.d.ts",
   "scripts": {
     "build": "./scripts/build.sh",
     "build:site": "./scripts/build-site.sh",
@@ -75,8 +73,8 @@
       "packages/**/*.{js,ts}",
       "!**/node_modules/**",
       "!packages/tests-*/*",
-      "!packages/otplib-preset-browser/*",
-      "!packages/package-*/*"
+      "!packages/otplib-preset-browser/**",
+      "!packages/pkg-*/*"
     ],
     "coverageDirectory": "./coverage/",
     "modulePaths": [
@@ -94,7 +92,7 @@
       "/node_modules/",
       "/packages/tests-data/",
       "/packages/tests-suites/",
-      "/packages/package-extras/"
+      "/packages/pkg-extras/"
     ],
     "testURL": "http://localhost",
     "transform": {

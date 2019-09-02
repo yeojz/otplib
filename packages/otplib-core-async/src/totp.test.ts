@@ -1,4 +1,4 @@
-import { TOTP } from '@otplib/core';
+import { TOTP } from 'otplib-core';
 import { testClassPropertiesEqual } from 'tests-suites/helpers';
 import { testSuiteTOTP } from 'tests-suites/core-totp';
 import { TOTPAsync } from './totp';

@@ -3,7 +3,7 @@ const babel = require('rollup-plugin-babel');
 const cleanup = require('rollup-plugin-cleanup');
 const commonjs = require('rollup-plugin-commonjs');
 const nodeResolve = require('rollup-plugin-node-resolve');
-const createBundleType = require('./createBundleType');
+const createBundleType = require('./helpers').createBundleType;
 
 /**
  * Builds module for node consumption
@@ -12,23 +12,20 @@ const createBundleType = require('./createBundleType');
  * @param {object} config build config
  * @param {string} file eg: index.ts
  */
-function rollupConfig(config, helpers) {
+function rollupConfig(config) {
   console.log(['build:', config.sourceFile, '=>', config.buildFile].join(' '));
-
-  const pkgs = helpers.renameImports('buildImport');
 
   return {
     input: config.sourceFilePath,
     output: {
-      banner: helpers.createBanner(config.sourceImport),
+      banner: config.banner,
       file: config.buildFilePath,
-      format: config.format,
-      paths: pkgs
+      format: config.format
     },
-    external: [...config.external, ...Object.keys(pkgs)],
+    external: config.external,
     plugins: [
       babel({
-        extensions: helpers.EXTENSIONS,
+        extensions: config.extensions,
         babelrc: false,
         configFile: false,
         presets: [
@@ -37,7 +34,7 @@ function rollupConfig(config, helpers) {
         ]
       }),
       nodeResolve({
-        extensions: helpers.EXTENSIONS,
+        extensions: config.extensions,
         preferBuiltins: true
       }),
       commonjs({
@@ -45,7 +42,7 @@ function rollupConfig(config, helpers) {
       }),
       cleanup({
         comments: 'none',
-        extensions: helpers.EXTENSIONS.map(v => v.slice(1))
+        extensions: config.extensions.map(v => v.slice(1))
       })
     ]
   };

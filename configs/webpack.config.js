@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/explicit-function-return-type */
+const path = require('path');
 const webpack = require('webpack');
-const createBundleType = require('./createBundleType');
+const createBundleType = require('./helpers').createBundleType;
 
 const ENV = (process.env.NODE_ENV || 'development').toLowerCase();
 
-function webpackConfig(config, helpers) {
+function webpackConfig(config) {
+  const output = config.buildFilePath.split(path.sep);
+
   return {
     mode: ENV === 'production' ? ENV : 'development',
     entry: {
@@ -13,8 +16,8 @@ function webpackConfig(config, helpers) {
     output: {
       library: '[name]',
       libraryTarget: config.format,
-      path: config.buildFolderPath,
-      filename: config.buildFileName
+      path: path.sep + path.join(...output.slice(0, -1)),
+      filename: output.slice(-1)[0]
     },
     node: {
       Buffer: false
@@ -39,15 +42,14 @@ function webpackConfig(config, helpers) {
       ]
     },
     resolve: {
-      alias: helpers.renameImports('sourceImport'),
-      extensions: helpers.EXTENSIONS
+      extensions: config.extensions
     },
     plugins: [
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(ENV)
       }),
       new webpack.BannerPlugin({
-        banner: helpers.createBanner(config.sourceImport),
+        banner: config.banner,
         raw: true
       })
     ],

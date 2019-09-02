@@ -1,1 +1,1 @@
-export * from '@otplib/core-async';
+export * from 'otplib-core-async';

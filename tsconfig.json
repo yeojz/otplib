@@ -4,7 +4,7 @@
     "target": "es2017",
     "module": "commonjs",
     "declaration": true,
-    "outDir": "builds/otplib",
+    "outDir": "builds/packages",
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
