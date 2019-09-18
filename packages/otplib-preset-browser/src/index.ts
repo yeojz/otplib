@@ -12,7 +12,14 @@
  */
 import { createDigest, createRandomBytes } from 'otplib-plugin-crypto-js';
 import { keyDecoder, keyEncoder } from 'otplib-plugin-base32-enc-dec';
-import { HOTP, TOTP, Authenticator } from 'otplib-core';
+import {
+  Authenticator,
+  AuthenticatorOptions,
+  HOTP,
+  HOTPOptions,
+  TOTP,
+  TOTPOptions
+} from 'otplib-core';
 
 // @ts-ignore
 if (typeof window === 'object' && typeof window.Buffer === 'undefined') {
@@ -20,15 +27,15 @@ if (typeof window === 'object' && typeof window.Buffer === 'undefined') {
   window.Buffer = buffer.Buffer; /* globals buffer */
 }
 
-export const hotp = new HOTP({
+export const hotp = new HOTP<HOTPOptions>({
   createDigest
 });
 
-export const totp = new TOTP({
+export const totp = new TOTP<TOTPOptions>({
   createDigest
 });
 
-export const authenticator = new Authenticator({
+export const authenticator = new Authenticator<AuthenticatorOptions>({
   createDigest,
   createRandomBytes,
   keyDecoder,

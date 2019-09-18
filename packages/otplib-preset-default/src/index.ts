@@ -16,17 +16,24 @@
  */
 import { createDigest, createRandomBytes } from 'otplib-plugin-crypto';
 import { keyDecoder, keyEncoder } from 'otplib-plugin-thirty-two';
-import { HOTP, TOTP, Authenticator } from 'otplib-core';
+import {
+  Authenticator,
+  AuthenticatorOptions,
+  HOTP,
+  HOTPOptions,
+  TOTP,
+  TOTPOptions
+} from 'otplib-core';
 
-export const hotp = new HOTP({
+export const hotp = new HOTP<HOTPOptions>({
   createDigest
 });
 
-export const totp = new TOTP({
+export const totp = new TOTP<TOTPOptions>({
   createDigest
 });
 
-export const authenticator = new Authenticator({
+export const authenticator = new Authenticator<AuthenticatorOptions>({
   createDigest,
   createRandomBytes,
   keyDecoder,

@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-const pkgDefaults = {
-  main: 'index.js',
-  typings: 'index.d.ts'
-};
+/* eslint-disable @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-var-requires */
+const contents = require('./contents');
 
 const buildModule = (custom = {}) => ({
   bundler: 'rollup',
@@ -11,7 +8,8 @@ const buildModule = (custom = {}) => ({
   presetEnv: {
     targets: 'node 8'
   },
-  pkg: pkgDefaults,
+  pkg: {},
+  readme: '',
   ...custom
 });
 
@@ -22,7 +20,8 @@ const buildBundle = (custom = {}) => ({
   presetEnv: {
     targets: 'cover 99.5%'
   },
-  pkg: pkgDefaults,
+  pkg: {},
+  readme: '',
   ...custom
 });
 
@@ -34,19 +33,74 @@ module.exports = {
       'src/core-async.ts',
       'src/preset-default.ts',
       'src/preset-v11.ts'
-    ]
+    ],
+    pkg: contents.pkg({
+      keywords: [
+        'one time password',
+        'google authenticator',
+        'authentication',
+        '2FA',
+        '2 factor',
+        'node',
+        'browser'
+      ]
+    }),
+    readme: contents.file('README.md')
   }),
-  'otplib-core': buildModule(),
-  'otplib-core-async': buildModule(),
-  'otplib-plugin-base32-enc-dec': buildModule(),
-  'otplib-plugin-thirty-two': buildModule(),
-  'otplib-plugin-crypto': buildModule(),
-  'otplib-plugin-crypto-js': buildModule(),
-  'otplib-plugin-crypto-async-ronomon': buildModule(),
-  'otplib-preset-browser': buildBundle(),
-  'otplib-preset-default': buildModule(),
-  'otplib-preset-default-async': buildModule(),
+  'otplib-core': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-core']
+    })
+  }),
+  'otplib-core-async': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-core']
+    })
+  }),
+  'otplib-plugin-base32-enc-dec': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-plugin', 'otplib-base32']
+    })
+  }),
+  'otplib-plugin-thirty-two': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-plugin', 'otplib-base32']
+    })
+  }),
+  'otplib-plugin-crypto': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-plugin', 'otplib-crypto']
+    })
+  }),
+  'otplib-plugin-crypto-js': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-plugin', 'otplib-crypto']
+    })
+  }),
+  'otplib-plugin-crypto-async-ronomon': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-plugin', 'otplib-crypto']
+    })
+  }),
+  'otplib-preset-browser': buildBundle({
+    pkg: contents.pkg({
+      keywords: ['otplib-preset', 'browser']
+    })
+  }),
+  'otplib-preset-default': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-preset', 'node']
+    })
+  }),
+  'otplib-preset-default-async': buildModule({
+    pkg: contents.pkg({
+      keywords: ['otplib-preset', 'node']
+    })
+  }),
   'otplib-preset-v11': buildModule({
-    files: ['src/index.js']
+    files: ['src/index.js'],
+    pkg: contents.pkg({
+      keywords: ['otplib-preset', 'otplib-compat']
+    })
   })
 };

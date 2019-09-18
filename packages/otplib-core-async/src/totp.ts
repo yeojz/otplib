@@ -16,7 +16,8 @@ import { HOTPAsync, hotpDigestAsync } from './hotp';
 /**
  * Allow TOTPOptions to accept async method options.
  */
-export type TOTPAsyncOptions = TOTPOptions<Promise<string>>;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface TOTPAsyncOptions<T = Promise<string>> extends TOTPOptions<T> {}
 
 /**
  * Generates the digest for TOTP based tokens.

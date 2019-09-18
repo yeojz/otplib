@@ -20,22 +20,25 @@ import {
 } from 'otplib-plugin-crypto-async-ronomon';
 import { keyDecoder, keyEncoder } from 'otplib-plugin-thirty-two';
 import {
-  HOTPAsync,
-  TOTPAsync,
   AuthenticatorAsync,
+  AuthenticatorAsyncOptions,
+  HOTPAsync,
+  HOTPAsyncOptions,
+  KeyDecoder,
   KeyEncoder,
-  KeyDecoder
+  TOTPAsync,
+  TOTPAsyncOptions
 } from 'otplib-core-async';
 
-export const hotp = new HOTPAsync({
+export const hotp = new HOTPAsync<HOTPAsyncOptions>({
   createDigest
 });
 
-export const totp = new TOTPAsync({
+export const totp = new TOTPAsync<TOTPAsyncOptions>({
   createDigest
 });
 
-export const authenticator = new AuthenticatorAsync({
+export const authenticator = new AuthenticatorAsync<AuthenticatorAsyncOptions>({
   createDigest,
   createRandomBytes,
   keyDecoder: (keyDecoder as unknown) as KeyDecoder<Promise<string>>,

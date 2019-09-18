@@ -13,7 +13,9 @@ import { TOTPAsync, totpCheckWithWindowAsync, totpDigestAsync } from './totp';
 /**
  * Allow AuthenticatorOptions to accept async method options.
  */
-export type AuthenticatorAsyncOptions = AuthenticatorOptions<Promise<string>>;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AuthenticatorAsyncOptions<T = Promise<string>>
+  extends AuthenticatorOptions<T> {}
 
 /**
  * Generates the digest for Authenticator based tokens.

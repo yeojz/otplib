@@ -13,7 +13,8 @@ import {
 /**
  * Allow HOTPOptions to accept async method options
  */
-export type HOTPAsyncOptions = HOTPOptions<Promise<string>>;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface HOTPAsyncOptions<T = Promise<string>> extends HOTPOptions<T> {}
 
 /**
  * Generates the digest for HOTP based tokens.
