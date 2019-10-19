@@ -1,9 +1,0 @@
-export const hexToInt = jest.fn();
-export const intToHex = jest.fn();
-export const isSameToken = jest.fn();
-export const leftPad = jest.fn();
-export const padSecret = jest.fn();
-export const removeSpaces = jest.fn();
-export const secretKey = jest.fn();
-export const setsOf = jest.fn();
-export const stringToHe = jest.fn();

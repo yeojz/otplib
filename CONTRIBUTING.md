@@ -18,10 +18,16 @@ but it is mostly for emergencies. All automations are wired to the GitHub projec
 
 When a change lands on GitHub, it will be checked by the continuous integration system.
 
+## Getting Started
+
+```bash
+git clone <REPO ADDRESS>
+npm run setup
+```
+
 ### Code organization
 
-- This project uses 2 primary branches: `master` and `gh-pages`.
-  - Publishing to `gh-pages` is mostly handled by the CI system.
+- This project's primary branch is `master`.
 - Releases are managed by tags.
   - `v0.0.0` represents **stable builds**
   - `v0.0.0-0` represents **pre-releases**
@@ -35,7 +41,7 @@ When a change lands on GitHub, it will be checked by the continuous integration 
 
 ### Releases
 
-This project is published on `npm`, under 2 tags: `latest` and `next`.
+This project is published on `npm`, mostly under 2 tags: `latest` and `next`.
 
 `latest` contains **stable builds** while `next` contains **pre-release**.
 End-users can install latest stable using `npm install otplib` and
@@ -49,17 +55,16 @@ By contributing to `otplib`, you agree that your contributions will be licensed 
 
 ### Pull Request Checklist
 
-- is the code linted?
-  - `npm run lint:js`
-- is the code formatted nicely?
-  - `npm run lint:format`
 - is the code tested?
   - `npm run test`
   - `npm run test:watch` if you want to continuously watch and run test on file change.
-- are there any changes in method signature?
-  - `.d.ts` files were introduced in `v10.0.0`, and can be found in `packages/types-ts`.
-  - updating these type definition files is highly recommended, but can be in separate PRs
-  - `npm run build && npm run lint:ts`
+- is the code linted?
+  - `npm run lint`
+- is the code formatted?
+  - `npm run format`
+- is it a new package?
+  - if yes, you'll need to add it to `configs/builds.js` in order for it to be bundled.
+  - you can choose between `rollup` (node modules) and `webpack` (umd, browser).
 
 Please **do not** bump the version and tag your pull request
 with a v\[number\] as it corresponds to a release.

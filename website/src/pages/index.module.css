@@ -1,0 +1,17 @@
+.container {
+  margin: 0 auto;
+  max-width: 1040px;
+}
+
+.hero {
+  padding: 1em;
+}
+
+@media (min-width: 600px) {
+  .hero {
+    font-size: 1.8rem;
+    line-height: 1.5em;
+    padding: 2em 3em;
+    position: relative;
+  }
+}

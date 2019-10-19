@@ -1,4 +1,5 @@
 {
+  "parser": "@typescript-eslint/parser",
   "env": {
     "browser": true,
     "commonjs": true,
@@ -9,10 +10,10 @@
   "parserOptions": {
     "sourceType": "module"
   },
-  "plugins": [
-    "prettier"
-  ],
+  "plugins": ["prettier", "@typescript-eslint"],
   "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
     "eslint:recommended",
     "plugin:prettier/recommended"
   ]

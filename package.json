@@ -1,24 +1,23 @@
 {
   "name": "otplib",
-  "version": "11.1.0-0",
+  "version": "12.0.0-1",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "main": "./index.js",
-  "typings": "./index.d.ts",
+  "main": "./core/index.js",
+  "typings": "./core/index.d.ts",
   "scripts": {
     "build": "./scripts/build.sh",
-    "build:bundles": "webpack --config ./scripts/webpack.config.js",
-    "build:docs": "jsdoc --configure jsdoc.json",
-    "build:modules": "rollup -c scripts/rollup.config.js",
     "build:site": "./scripts/build-site.sh",
-    "clean": "rimraf dist coverage docs",
-    "lint:js": "eslint \"packages/**/**?(.spec|).js\"",
-    "lint:format": "prettier --write \"{packages,scripts,site/scripts,site/public}/**/**.js\"",
-    "lint:ts": "dtslint ./packages/types-ts",
+    "clean": "rimraf builds coverage",
+    "format": "prettier --write \"{packages,scripts,configs}/**/*.{ts,tsx,js,jsx,json,md,mdx}\"",
+    "lint": "tsc --noEmit",
+    "setup": "./scripts/setup.sh",
     "test": "jest --coverage --runInBand",
-    "test:nocover": "jest",
-    "test:watch": "jest --coverage --watch",
+    "test:browser": "./scripts/test-browser.sh",
+    "test:module": "./scripts/test-module.sh",
+    "test:node8": "./scripts/test-node8.sh",
+    "test:watch": "jest --watch",
     "update:release-notes": "npx conventional-github-releaser -p angular",
-    "upload:coverage": "cat ./coverage/lcov.info | coveralls"
+    "upload:coverage": "cat ./coverage/lcov.info | npx coveralls"
   },
   "repository": {
     "type": "git",
@@ -44,34 +43,42 @@
   },
   "homepage": "https://yeojz.github.io/otplib",
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "babel-loader": "^8.0.0",
-    "babel-plugin-module-resolver": "^3.1.0",
-    "coveralls": "^3.0.0",
-    "create-hmac": "^1.1.4",
-    "dtslint": "^0.3.0",
-    "eslint": "^5.0.0",
-    "eslint-config-prettier": "^3.0.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "jest": "^24.0.0",
-    "jsdoc": "^3.4.3",
-    "minami": "^1.1.1",
-    "prettier": "1.16.1",
-    "rimraf": "^2.6.1",
-    "rollup": "^1.0.0",
-    "rollup-plugin-cleanup": "^3.0.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3"
-  },
-  "dependencies": {
-    "thirty-two": "1.0.2"
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-typescript": "^7.3.3",
+    "@babel/runtime": "^7.5.5",
+    "@types/jest": "^24.0.18",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "babel-jest": "^24.9.0",
+    "babel-loader": "^8.0.6",
+    "eslint": "^6.2.2",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "jest": "^24.9.0",
+    "lerna": "^3.16.4",
+    "prettier": "^1.18.2",
+    "puppeteer": "^1.19.0",
+    "rimraf": "^3.0.0",
+    "rollup": "^1.20.1",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-cleanup": "^3.1.1",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7"
   },
   "jest": {
+    "collectCoverageFrom": [
+      "packages/**/*.{js,ts}",
+      "!**/node_modules/**",
+      "!packages/tests-*/*",
+      "!packages/otplib-preset-browser/*",
+      "!packages/package-*/*"
+    ],
     "coverageDirectory": "./coverage/",
-    "coveragePathIgnorePatterns": [],
     "modulePaths": [
       "<rootDir>/packages/"
     ],
@@ -85,14 +92,24 @@
     "setupFiles": [],
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/packages/types-ts/"
+      "/packages/tests-data/",
+      "/packages/tests-suites/",
+      "/packages/package-extras/"
     ],
-    "testURL": "http://localhost"
+    "testURL": "http://localhost",
+    "transform": {
+      "^.+\\.(js|ts)$": [
+        "babel-jest",
+        {
+          "rootMode": "upward"
+        }
+      ]
+    }
   },
   "repl": [
     {
       "name": "otplib",
-      "module": "./dist/otplib/index"
+      "module": "./builds/otplib/preset-default"
     }
   ]
 }
