@@ -69,6 +69,13 @@ By contributing to `otplib`, you agree that your contributions will be licensed 
 Please **do not** bump the version and tag your pull request
 with a v\[number\] as it corresponds to a release.
 
+### Troubleshooting
+
+- I run the `npm run setup` and got `No Xcode or CLT version detected!`
+  - Make sure you have Xcode or atleast Xcode build tools installed using `xcode-select --install`
+  - Or it might be because the current developer path is incorrectly configured by default
+  - to change that: `sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer/`
+
 ### Thank You
 
 Thank you for any contributions!
