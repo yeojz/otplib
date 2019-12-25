@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import { OTP, HashAlgorithms } from '../otplib-core';
+import { OTP, HashAlgorithms } from '../src';
 
 export interface GenericFunction {
   (...args: unknown[]): unknown;

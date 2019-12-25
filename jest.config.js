@@ -2,9 +2,10 @@ module.exports = {
   collectCoverageFrom: [
     'packages/**/*.{js,ts}',
     '!**/node_modules/**',
-    '!packages/tests-*/*',
     '!packages/otplib-preset-browser/**',
-    '!packages/pkg-*/*'
+    '!build/*',
+    '!external/*',
+    '!tests/*'
   ],
   coverageDirectory: './coverage/',
   modulePaths: ['<rootDir>/packages/'],
@@ -12,12 +13,7 @@ module.exports = {
   roots: ['<rootDir>/packages/'],
   resetMocks: true,
   setupFiles: [],
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/packages/tests-data/',
-    '/packages/tests-suites/',
-    '/packages/pkg-extras/'
-  ],
+  testPathIgnorePatterns: ['/node_modules/'],
   testURL: 'http://localhost',
   transform: {
     '^.+\\.(js|ts)$': [

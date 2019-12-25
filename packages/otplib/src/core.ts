@@ -1,1 +1,1 @@
-export * from 'otplib-core';
+export * from '@otplib/core';

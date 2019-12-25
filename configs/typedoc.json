@@ -1,7 +1,7 @@
 {
   "exclude": [
     "website",
-    "packages/tests-*/*",
+    "tests",
     "packages/**/*.test.ts",
     "packages/**/*.js",
     "packages/**/*.test.js"

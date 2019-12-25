@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import * as rfc6238 from 'tests-data/rfc6238';
+import * as rfc6238 from '../test/data-rfc6238';
+import { runOptionValidator } from '../test/utils';
+import { testSuiteTOTP } from '../test/suite-totp';
 import { KeyEncodings } from './utils';
 import * as hotp from './hotp';
 import {
@@ -10,8 +12,6 @@ import {
   totpCheckWithWindow,
   totpCounter
 } from './totp';
-import { runOptionValidator } from 'tests-suites/helpers';
-import { testSuiteTOTP } from 'tests-suites/core-totp';
 
 const secret = 'i6im0gc96j0mn00c';
 

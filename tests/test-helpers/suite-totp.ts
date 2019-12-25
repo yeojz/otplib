@@ -1,5 +1,5 @@
-import { OTPOptions, OTP, HashAlgorithms } from 'otplib-core';
-import { GenericFunction } from './helpers';
+import { OTPOptions, OTP, HashAlgorithms } from '../src';
+import { GenericFunction } from './utils';
 
 const secret = 'i6im0gc96j0mn00c';
 const wrongDigest = '51ca22e6cefa3c035535987fb0b2599ef239111e';

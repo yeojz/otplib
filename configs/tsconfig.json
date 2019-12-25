@@ -1,9 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "exclude": [
-    "node_modules",
-    "../packages/tests-*/*",
-    "../packages/**/*.test.ts",
-    "../packages/otplib-browser"
-  ]
-}

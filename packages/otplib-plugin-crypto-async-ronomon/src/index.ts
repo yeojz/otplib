@@ -8,7 +8,7 @@ import {
   HashAlgorithms,
   HexString,
   KeyEncodings
-} from 'otplib-core';
+} from '@otplib/core';
 
 export const createDigest: CreateDigest<Promise<string>> = async (
   algorithm: HashAlgorithms,

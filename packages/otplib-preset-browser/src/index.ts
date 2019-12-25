@@ -10,8 +10,8 @@
  * - Base32: 'plugin-base32-enc-dec'
  * - Crypto: 'plugin-crypto-js'
  */
-import { createDigest, createRandomBytes } from 'otplib-plugin-crypto-js';
-import { keyDecoder, keyEncoder } from 'otplib-plugin-base32-enc-dec';
+import { createDigest, createRandomBytes } from '@otplib/plugin-crypto-js';
+import { keyDecoder, keyEncoder } from '@otplib/plugin-base32-enc-dec';
 import {
   Authenticator,
   AuthenticatorOptions,
@@ -19,7 +19,7 @@ import {
   HOTPOptions,
   TOTP,
   TOTPOptions
-} from 'otplib-core';
+} from '@otplib/core';
 
 // @ts-ignore
 if (typeof window === 'object' && typeof window.Buffer === 'undefined') {

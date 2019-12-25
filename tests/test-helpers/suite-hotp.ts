@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import { secret } from 'tests-data/rfc4226';
+import { secret } from './data-rfc4226';
 import { OTP, HashAlgorithms, OTPOptions } from 'otplib-core';
-import { GenericFunction } from './helpers';
+import { GenericFunction } from './utils';
 
 const dataset: {
   token: string;

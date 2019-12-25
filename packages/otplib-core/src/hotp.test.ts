@@ -1,7 +1,7 @@
-import { testSuiteHOTP } from 'tests-suites/core-hotp';
+import { testSuiteHOTP } from '../test/suite-hotp';
+import { runOptionValidator } from '../test/utils';
 import { HashAlgorithms } from './utils';
 import { HOTPOptions, hotpOptionsValidator, HOTP } from './hotp';
-import { runOptionValidator } from 'tests-suites/helpers';
 
 testSuiteHOTP<HOTP>('hotp', HOTP);
 

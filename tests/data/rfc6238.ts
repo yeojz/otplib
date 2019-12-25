@@ -1,4 +1,4 @@
-import { formatRFC6238Table } from 'tests-suites/helpers';
+import { formatRFC6238Table } from './utils';
 
 /*
 Source: https://tools.ietf.org/html/rfc6238

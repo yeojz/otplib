@@ -8,7 +8,7 @@ import {
   hotpKeyuri,
   hotpOptions,
   hotpToken
-} from 'otplib-core';
+} from '@otplib/core';
 
 /**
  * Allow HOTPOptions to accept async method options

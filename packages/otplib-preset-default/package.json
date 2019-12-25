@@ -2,6 +2,12 @@
   "name": "@otplib/preset-default",
   "version": "12.0.0-1",
   "main": "src/index.ts",
+  "author": "Gerald Yeo <contact@fusedthought.com>",
+  "license": "MIT",
+  "scripts": {
+    "build:lib": "rollup -c ../../configs/rollup.config.js",
+    "build:type": "tsc --emitDeclarationOnly"
+  },
   "dependencies": {
     "@otplib/core": "^12.0.0-1",
     "@otplib/plugin-crypto": "^12.0.0-1",
