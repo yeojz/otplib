@@ -6,7 +6,7 @@
 [![Build Status][badge-circle]][project-circle]
 [![Coverage Status][badge-coveralls]][project-coveralls]
 [![npm downloads][badge-npm-downloads]][project-npm]
-[![TypeScript Support][badge-type-ts]][project-docs]
+[![TypeScript Support][badge-type-ts]][project-v-api]
 
 ---
 
@@ -17,7 +17,8 @@
 - [Quick Start](#quick-start)
   - [In Node.js](#in-nodejs)
   - [In Browser](#in-browser)
-- [API References / Demo](#api-references--demo)
+- [References](#references)
+  - [API Docs / Demo](#api-docs--demo)
   - [Versioning](#versioning)
   - [Migrating from v11.x](#migrating-from-v11x)
 - [Getting Started](#getting-started)
@@ -36,8 +37,8 @@
 - [Available Packages](#available-packages)
   - [Core](#core)
   - [Plugins](#plugins)
-    - [Crypto Plugins](#crypto-plugins)
-    - [Base32 Plugins](#base32-plugins)
+    - [Plugins - Crypto](#plugins---crypto)
+    - [Plugins - Base32](#plugins---base32)
   - [Presets](#presets)
 - [Appendix](#appendix)
   - [Type Definitions](#type-definitions)
@@ -142,7 +143,7 @@ const isValid = hotp.check(token, secret, counter);
 const isValid = hotp.verify({ token, secret, counter });
 ```
 
-For all available APIs, please refer to [API Documentation][project-docs-latest].
+For all available APIs, please refer to [API Documentation][project-v-api].
 
 ### In Browser
 
@@ -167,12 +168,14 @@ You can also download and include the latest version via their project page.
 In the above example, we are directly using the scripts hosted by `unpkg.com`.
 You can also `npm install otplib` and get a copy from the `node_modules/@otplib/preset-browser` folder.
 
-## API References / Demo
+## References
 
-| Version | Links                                                                                 |
-| ------- | ------------------------------------------------------------------------------------- |
-| v12.x   | [Website][project-latest-site] / [API][project-latest-api] / [Readme][project-github] |
-| v11.x   | [Website][project-v11-site] / [API][project-v11-api] / [Readme][project-v11-readme]   |
+### API Docs / Demo
+
+| Version | Links                                                                                        |
+| ------- | -------------------------------------------------------------------------------------------- |
+| v12.x   | [Website][project-v-site] / [API][project-v-api] / [Readme][project-v-readme] |
+| v11.x   | [Website][project-v11-site] / [API][project-v11-api] / [Readme][project-v11-readme]          |
 
 ### Versioning
 
@@ -226,12 +229,7 @@ By default, Node.js has inbuilt `crypto` functionality, but you might want to re
 for certain environments that do not support it.
 
 Currently there are a few [Crypto Plugins][docs-plugins-crypto] supported.
-Install one of them:
-
-```bash
-npm install @otplib/plugin-crypto # node crypto
-npm install @otplib/plugin-crypto-js # crypto-js
-```
+Install one of them. eg: `npm install @otplib/plugin-crypto`
 
 #### Adding Base32
 
@@ -239,12 +237,7 @@ If you're using Google Authenticator, you'll need a base32 module for
 encoding and decoding your secrets.
 
 Currently, there are a few [Base32 Plugins][docs-plugins-base32] supported.
-Install one of them:
-
-```bash
-npm install @otplib/plugin-thirty-two # for thirty-two
-npm install @otplib/plugin-base32-enc-dec # for base32-encode and base32-decode
-```
+Install one of them. eg: `npm install @otplib/plugin-thirty-two`
 
 ### Initialise your Instance
 
@@ -253,10 +246,8 @@ npm install @otplib/plugin-base32-enc-dec # for base32-encode and base32-decode
 ```js
 import { HOTP, TOTP, Authenticator } from '@otplib/core';
 
-// Base32 Plugin
-import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two'; // swap with your chosen install
-// Crypto Plugin
-import { createDigest, createRandomBytes } from '@otplib/plugin-crypto'; // swap with your chosen install
+import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two'; // use your chosen base32 plugin
+import { createDigest, createRandomBytes } from '@otplib/plugin-crypto'; // use your chosen crypto plugin
 
 // Setup an OTP instance which you need
 const hotp = new HOTP({ createDigest });
@@ -293,14 +284,17 @@ import {
 // import ...
 
 // Go forth and generate tokens
-const token = hotpToken(YOUR_SECRET, 0, hotpOptions({ createDigest));
-const token = totpToken(YOUR_SECRET, totpOptions({ createDigest));
-const token = authenticatorToken(YOUR_SECRET, authenticatorOptions({
-  createDigest,
-  createRandomBytes,
-  keyDecoder,
-  keyEncoder
-));
+const token = hotpToken(YOUR_SECRET, 0, hotpOptions({ createDigest }));
+const token = totpToken(YOUR_SECRET, totpOptions({ createDigest }));
+const token = authenticatorToken(
+  YOUR_SECRET,
+  authenticatorOptions({
+    createDigest,
+    createRandomBytes,
+    keyDecoder,
+    keyEncoder
+  })
+);
 ```
 
 ## Available Options
@@ -441,7 +435,7 @@ import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from '@otplib/core-async';
 
 ### Plugins
 
-#### Crypto Plugins
+#### Plugins - Crypto
 
 | npm install                         | type  | uses                         |
 | ----------------------------------- | ----- | ---------------------------- |
@@ -458,7 +452,7 @@ These crypto plugins provides:
 }
 ```
 
-#### Base32 Plugins
+#### Plugins - Base32
 
 | npm install                   | type | uses                                |
 | ----------------------------- | ---- | ----------------------------------- |
@@ -483,7 +477,7 @@ Each presets would need the corresponding dependent npm modules to be installed.
 
 | npm install                  | description                                                                                        |
 | ---------------------------- | -------------------------------------------------------------------------------------------------- |
-| @otplib/preset-default       |                                                                                                    |
+| @otplib/preset-default       | A preset with the base32 and crypto plugins already setup.                                         |
 | @otplib/preset-default-async | async version of `@otplib/preset-default`                                                          |
 | @otplib/preset-browser       | Webpack bundle and is self contained.<br /> [See Browser Compatibility][docs-browser-compatiblity] |
 | @otplib/preset-v11           | Wrapper to adapt the APIs to v11.x compatible format                                               |
@@ -554,7 +548,7 @@ authenticator.resetOptions();
 // reference test in: ./packages/tests-builds/example.test.js
 ```
 
-Check the [API Documentation][project-api] for the full list of async functions.
+Check the [API Documentation][project-v-api] for the full list of async functions.
 All async functions are suffixed with `Async` except for class methods.
 
 ### Browser Compatiblity
@@ -738,7 +732,7 @@ specification. Contributions of any kind welcome!
 
 ## License
 
-`otplib` is [MIT licensed](./LICENSE)
+`otplib` is [MIT licensed][project-license]
 
 <img width="150" src="https://otplib.yeojz.com/otplib.png" />
 
@@ -747,20 +741,12 @@ specification. Contributions of any kind welcome!
 [badge-circle]: https://img.shields.io/circleci/project/github/yeojz/otplib/master.svg?style=flat-square
 [badge-coveralls]: https://img.shields.io/coveralls/yeojz/otplib/master.svg?style=flat-square
 [badge-npm-downloads]: https://img.shields.io/npm/dt/otplib.svg?style=flat-square
-[badge-npm]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [badge-npm-next]: https://img.shields.io/npm/v/otplib/next.svg?style=flat-square
+[badge-npm]: https://img.shields.io/npm/v/otplib.svg?style=flat-square
 [badge-type-ts]: https://img.shields.io/badge/typedef-.d.ts-blue.svg?style=flat-square&longCache=true
 
 <!-- External Links -->
 
-[rfc-3548]: http://tools.ietf.org/html/rfc3548
-[rfc-4648]: https://tools.ietf.org/html/rfc4648
-[rfc-4226-dataset]: https://github.com/yeojz/otplib/blob/master/tests/data/rfc4226.ts
-[rfc-4226-wiki]: http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
-[rfc-4226]: http://tools.ietf.org/html/rfc4226
-[rfc-6238-dataset]: https://github.com/yeojz/otplib/blob/master/tests/data/rfc6238.ts
-[rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
-[rfc-6238]: http://tools.ietf.org/html/rfc6238
 [link-expo-crypto]: https://docs.expo.io/versions/v33.0.0/sdk/crypto/
 [link-expo-io]: https://expo.io
 [link-mdn-async]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
@@ -768,19 +754,29 @@ specification. Contributions of any kind welcome!
 [link-mdn-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions
 [link-mdn-subtlecrypto]: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto
 [link-npm-buffer]: https://www.npmjs.com/package/buffer
+[rfc-3548]: http://tools.ietf.org/html/rfc3548
+[rfc-4226-dataset]: https://github.com/yeojz/otplib/blob/master/tests/data/rfc4226.ts
+[rfc-4226-wiki]: http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
+[rfc-4226]: http://tools.ietf.org/html/rfc4226
+[rfc-4648]: https://tools.ietf.org/html/rfc4648
+[rfc-6238-dataset]: https://github.com/yeojz/otplib/blob/master/tests/data/rfc6238.ts
+[rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
+[rfc-6238]: http://tools.ietf.org/html/rfc6238
 
 <!-- Project Links -->
 
 [docs-browser-compatiblity]: #browser-compatiblity
-[docs-plugins-base32]: #base32-plugins
-[docs-plugins-crypto]: #crypto-plugins
+[docs-plugins-base32]: #plugins---base32
+[docs-plugins-crypto]: #plugins---crypto
 [docs-quick-start]: #quick-start
 [project-circle]: https://circleci.com/gh/yeojz/otplib
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib
+[project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE
 [project-npm]: https://www.npmjs.com/package/otplib
 [project-repo]: https://github.com/yeojz/otplib
-[project-latest-api]: https://otplib.yeojz.com/api
-[project-latest-site]: https://otplib.yeojz.com
+[project-v-api]: https://otplib.yeojz.com/api
+[project-v-readme]: https://github.com/yeojz/otplib/blob/master/README.md
+[project-v-site]: https://otplib.yeojz.com
 [project-v11-api]: https://5d4d0cc4c85e00000788a456--otplib.netlify.com/docs
 [project-v11-readme]: https://github.com/yeojz/otplib/blob/d0aedccbca8ae7ec1983f40da4d7a14c9e815e9c/README.md
 [project-v11-site]: https://5d4d0cc4c85e00000788a456--otplib.netlify.com
