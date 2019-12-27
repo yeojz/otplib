@@ -3,18 +3,20 @@ module.exports = {
     'packages/**/*.{js,ts}',
     '!**/node_modules/**',
     '!packages/otplib-preset-browser/**',
-    '!build/*',
-    '!external/*',
-    '!tests/*'
+    '!**/build/*',
+    '!**/external/*',
+    '!**/test/*'
   ],
   coverageDirectory: './coverage/',
-  modulePaths: ['<rootDir>/packages/'],
   modulePathIgnorePatterns: ['<rootDir>/.*/__mocks__'],
-  roots: ['<rootDir>/packages/'],
   resetMocks: true,
   setupFiles: [],
   testPathIgnorePatterns: ['/node_modules/'],
   testURL: 'http://localhost',
+  moduleNameMapper: {
+    '@otplib/(.*)$': '<rootDir>/packages/otplib-$1',
+    'tests/(.*)$': '<rootDir>/tests/$1'
+  },
   transform: {
     '^.+\\.(js|ts)$': [
       'babel-jest',

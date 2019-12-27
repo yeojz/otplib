@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import { testSuiteAuthenticator } from '../test/core-authenticator';
-import { runOptionValidator } from '../test/utils';
+import { testSuiteAuthenticator } from 'tests/suite/authenticator';
+import { runOptionValidator } from 'tests/utils';
 import * as totp from './totp';
 import {
   AuthenticatorOptions,

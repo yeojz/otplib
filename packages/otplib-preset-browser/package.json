@@ -2,11 +2,17 @@
   "name": "@otplib/preset-browser",
   "version": "12.0.0-1",
   "main": "src/index.ts",
-  "author": "Gerald Yeo <contact@fusedthought.com>",
-  "license": "MIT",
-  "scripts": {
-    "build:lib": "webpack --config ../../configs/webpack.config.js"
+  "publishConfig": {
+    "access": "public"
   },
+  "scripts": {
+    "build:lib": "webpack --config ../../configs/webpack.config.js",
+    "postbuild:lib": "cp ./external/buffer.js ./build/buffer.js"
+  },
+  "keywords": [
+    "otplib-preset",
+    "browser"
+  ],
   "devDependencies": {
     "@otplib/core": "^12.0.0-1",
     "@otplib/plugin-base32-enc-dec": "^12.0.0-1",

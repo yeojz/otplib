@@ -1,5 +1,5 @@
 /**
- * otplib-preset-legacy
+ * otplib-preset-v11
  *
  * Target: otplib@v11.x
  *

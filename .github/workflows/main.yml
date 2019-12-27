@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [8, 10, 12]
+        node-version: [10, 12]
     steps:
     - uses: actions/checkout@v1
       with:
@@ -22,19 +22,13 @@ jobs:
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
         OTPLIB_SETUP_TYPE: node8
-        OTPLIB_BUILD_BUNDLE: false
-        OTPLIB_BUILD_INCLUDE_BUFFER: false
-        OTPLIB_BUILD_COPY_META: false
     - if: matrix.node-version > 8
       run: |
         npm run setup
         npm run build
-        npm run test:module
+        npm run test:node
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
-        OTPLIB_BUILD_BUNDLE: false
-        OTPLIB_BUILD_INCLUDE_BUFFER: false
-        OTPLIB_BUILD_COPY_META: false
 
   test-browser:
     runs-on: ubuntu-latest
@@ -51,32 +45,6 @@ jobs:
         npm run build
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
-        OTPLIB_BUILD_MODULE: false
-        OTPLIB_BUILD_COPY_META: false
     - uses: docker://buildkite/puppeteer:v1.15.0
       with:
         args: npm run test:browser
-
-  master-builds:
-    runs-on: ubuntu-latest
-    needs: [test-node, test-browser]
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - uses: actions/setup-node@v1
-      if: github.ref == 'refs/heads/master'
-      with:
-        node-version: 10
-    - name: setup and build artifact
-      if: github.ref == 'refs/heads/master'
-      run: |
-        npm run setup
-        ./scripts/build-artifact.sh
-      env:
-        OTPLIB_SETUP_EXTRAS: skip
-    - uses: actions/upload-artifact@master
-      if: github.ref == 'refs/heads/master'
-      with:
-        name: otplib-master
-        path: builds/artifacts

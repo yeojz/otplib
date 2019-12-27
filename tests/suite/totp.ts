@@ -1,50 +1,14 @@
-import { OTPOptions, OTP, HashAlgorithms } from '../src';
-import { GenericFunction } from './utils';
+import { OTPOptions, OTP, HashAlgorithms } from '@otplib/core';
+import { table } from 'tests/data/sample-totp';
+import { GenericFunction } from 'tests/utils';
 
-const secret = 'i6im0gc96j0mn00c';
-const wrongDigest = '51ca22e6cefa3c035535987fb0b2599ef239111e';
-const dataset: {
-  delta: number;
-  digest: string;
-  digestIndex: number;
-  epoch: number;
-  token: string;
-}[] = [
-  {
-    delta: -1,
-    digest: '7fb0b2599ef239111e51ca22e6cefa3c03553598',
-    digestIndex: 1,
-    epoch: 1565017294387,
-    token: '676642'
-  },
-  {
-    delta: 0,
-    digest: '0d8101dd177590411484e19e66be43d84fd71085',
-    digestIndex: 0,
-    epoch: 1565017329607,
-    token: '388116'
-  },
-  {
-    delta: 1,
-    digest: '8f822b26873985c9f0268eca7811dc92210780f6',
-    digestIndex: 2,
-    epoch: 1565017364743,
-    token: '120294'
-  },
-  {
-    delta: 2,
-    digest: '46bc50a61afa32cbcc28bc5b7149050e40421e54',
-    digestIndex: 3,
-    epoch: 1565017387837,
-    token: '604619'
-  }
-];
+const WRONG_DIGEST = '51ca22e6cefa3c035535987fb0b2599ef239111e';
 
 const digestOnIndex = (num: number, digest: string): (() => string) => {
   let idx = -1;
   return (): string => {
     idx = idx + 1;
-    return idx === num ? digest : wrongDigest;
+    return idx === num ? digest : WRONG_DIGEST;
   };
 };
 
@@ -67,10 +31,10 @@ export function testSuiteTOTP<T extends OTP<OTPOptions>>(
   };
 
   describe(`(${name}) TOTP`, (): void => {
-    dataset.forEach((entry): void => {
+    table.forEach((entry): void => {
       describe(`check window ${entry.delta}`, (): void => {
         const instance = new TOTP({
-          epoch: dataset[1].epoch,
+          epoch: table[1].epoch,
           window: [1, 2]
         });
 
@@ -81,20 +45,20 @@ export function testSuiteTOTP<T extends OTP<OTPOptions>>(
         });
 
         test(`check`, async (): Promise<void> => {
-          const result = await instance.check(entry.token, secret);
+          const result = await instance.check(entry.token, entry.secret);
           expect(result).toBe(true);
         });
 
         test(`verify`, async (): Promise<void> => {
           const result = await instance.verify({
             token: entry.token,
-            secret
+            secret: entry.secret
           });
           expect(result).toBe(true);
         });
 
         test(`checkDelta`, async (): Promise<void> => {
-          const result = await instance.checkDelta(entry.token, secret);
+          const result = await instance.checkDelta(entry.token, entry.secret);
           expect(result).toBe(entry.delta);
         });
       });
@@ -104,19 +68,19 @@ export function testSuiteTOTP<T extends OTP<OTPOptions>>(
       void
     > => {
       const instance = new TOTP({ createDigest: (): string => '' });
-      const result = await instance.check('not-a-number', secret);
+      const result = await instance.check('not-a-number', table[0].secret);
       expect(result).toBe(false);
     });
 
     test('should generate expected token', async (): Promise<void> => {
-      const entry = dataset[0];
+      const entry = table[0];
 
       const instance = new TOTP({
         createDigest: (): string => entry.digest,
         epoch: entry.epoch
       });
 
-      const result = await instance.generate(secret);
+      const result = await instance.generate(entry.secret);
       expect(result).toBe(entry.token);
     });
 

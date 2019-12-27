@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import { Authenticator } from '../otplib-core';
-import { keyDecoder, keyEncoder } from '../otplib-plugin-thirty-two';
-import { AuthenticatorAsync } from '../otplib-core-async';
+import { Authenticator } from '@otplib/core';
+import { AuthenticatorAsync } from '@otplib/core-async';
+import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two';
 
 function issue7Test(
   name: string,

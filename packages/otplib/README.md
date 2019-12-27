@@ -18,5 +18,3 @@ npm install --save otplib
 [project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE
 [project-v-readme]: https://github.com/yeojz/otplib/blob/master/README.md
 [project-v-site]: https://otplib.yeojz.com
-
-

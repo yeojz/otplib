@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import * as rfc4226 from 'tests-data/rfc4226';
 import {
   KeyEncodings,
   CreateRandomBytes,
@@ -7,7 +6,8 @@ import {
   hotpCreateHmacKey,
   hotpCounter,
   HashAlgorithms
-} from '../otplib-core';
+} from '@otplib/core';
+import * as rfc4226 from 'tests/data/rfc-4226';
 
 const { secret, digests } = rfc4226;
 

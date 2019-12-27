@@ -16,6 +16,5 @@
     "prettier/@typescript-eslint",
     "eslint:recommended",
     "plugin:prettier/recommended"
-  ],
-  "ignorePatterns": ["build/", "node_modules/"],
+  ]
 }

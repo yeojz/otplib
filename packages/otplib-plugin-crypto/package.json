@@ -2,12 +2,17 @@
   "name": "@otplib/plugin-crypto",
   "version": "12.0.0-1",
   "main": "src/index.ts",
-  "author": "Gerald Yeo <contact@fusedthought.com>",
-  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build:lib": "rollup -c ../../configs/rollup.config.js",
-    "build:type": "tsc --emitDeclarationOnly"
+    "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
   },
+  "keywords": [
+    "otplib-plugin",
+    "crypto"
+  ],
   "dependencies": {
     "@otplib/core": "^12.0.0-1"
   },

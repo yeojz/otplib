@@ -1,6 +1,6 @@
-import { HOTP } from 'otplib-core';
-import { testClassPropertiesEqual } from 'tests-suites/helpers';
-import { testSuiteHOTP } from 'tests-suites/core-hotp';
+import { HOTP } from '@otplib/core';
+import { testClassPropertiesEqual } from 'tests/utils';
+import { testSuiteHOTP } from 'tests/suite/hotp';
 import { HOTPAsync } from './hotp';
 
 testClassPropertiesEqual<HOTP, HOTPAsync>(

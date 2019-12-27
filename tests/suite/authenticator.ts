@@ -1,6 +1,6 @@
-import { decodedTable } from './data-authenticator';
-import { OTPOptions, OTP, HashAlgorithms } from '../src';
-import { GenericFunction } from './utils';
+import { OTPOptions, OTP, HashAlgorithms } from '@otplib/core';
+import { table } from 'tests/data/sample-authenticator';
+import { GenericFunction } from 'tests/utils';
 
 export function testSuiteAuthenticator<T extends OTP<OTPOptions>>(
   name: string,
@@ -24,7 +24,7 @@ export function testSuiteAuthenticator<T extends OTP<OTPOptions>>(
       createRandomBytes: jest.fn((): string => '')
     };
 
-    decodedTable.forEach((entry): void => {
+    table.forEach((entry): void => {
       const instance = new Authenticator({
         createDigest: (): string => entry.digest,
         epoch: entry.epoch,

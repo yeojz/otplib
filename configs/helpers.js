@@ -15,8 +15,12 @@ function packageJSON(cwd) {
   }
 }
 
+function buildConfig(pkg) {
+  return pkg.otplib || {};
+}
+
 function packageFiles(pkg) {
-  return pkg.files || [pkg.main];
+  return buildConfig(pkg).files || [pkg.main];
 }
 
 function banner(pkg) {
@@ -32,8 +36,9 @@ function banner(pkg) {
 exports.RWD = path.join(__dirname, '..');
 exports.EXTENSIONS = ['.js', '.ts'];
 
-exports.outputDirectory = cwd => path.join(cwd, 'build');
-exports.fileNameNoExt = fileNameNoExt;
-exports.packageJSON = packageJSON;
-exports.packageFiles = packageFiles;
 exports.banner = banner;
+exports.buildConfig = buildConfig;
+exports.fileNameNoExt = fileNameNoExt;
+exports.outputDirectory = cwd => path.join(cwd, 'build');
+exports.packageFiles = packageFiles;
+exports.packageJSON = packageJSON;

@@ -1,6 +1,6 @@
 # @otplib/preset-v11
 
-> v11 compatibility preset for otplib@v12.x
+> Preset with v11.x compatibility adapter for otplib@v12.x
 
 See our [project readme][project-v-readme] for more information
 or visit the [demo website][project-v-site].

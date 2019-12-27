@@ -2,11 +2,12 @@
   "name": "otplib",
   "version": "12.0.0-1",
   "main": "src/index.ts",
-  "author": "Gerald Yeo <contact@fusedthought.com>",
-  "license": "MIT",
-  "homepage": "https://yeojz.github.io/otplib",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build:lib": "rollup -c ../../configs/rollup.config.js"
+    "build:lib": "rollup -c ../../configs/rollup.config.js",
+    "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
   },
   "dependencies": {
     "@otplib/core": "^12.0.0-1",
@@ -14,9 +15,23 @@
     "@otplib/preset-default": "^12.0.0-1",
     "@otplib/preset-v11": "^12.0.0-1"
   },
-  "files": [
-    "src/core.ts",
-    "src/index.ts",
-    "src/v11.ts"
+  "otplib": {
+    "files":[
+      "src/core.ts",
+      "src/index.ts"
+    ]
+  },
+  "keywords": [
+    "totp",
+    "hotp",
+    "otp",
+    "authenticator",
+    "one time password",
+    "google authenticator",
+    "authentication",
+    "2FA",
+    "2 factor",
+    "node",
+    "browser"
   ]
 }

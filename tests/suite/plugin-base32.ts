@@ -1,4 +1,4 @@
-import { KeyEncodings, KeyDecoder, KeyEncoder } from 'otplib-core';
+import { KeyEncodings, KeyDecoder, KeyEncoder } from '@otplib/core';
 
 interface TestKeys {
   encoded: string;

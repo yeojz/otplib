@@ -24,6 +24,7 @@ function rollupConfig(file) {
     },
     external: [
       'crypto',
+      ...(helpers.buildConfig(pkg).externals || []),
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.devDependencies || {}),
       ...Object.keys(pkg.peerDependencies || {})
@@ -41,7 +42,7 @@ function rollupConfig(file) {
       resolve({
         extensions: helpers.EXTENSIONS,
         preferBuiltins: true,
-        rootDir: helpers.RWD
+        rootDir: path.join(__dirname, '..')
       }),
       commonjs({
         include: 'node_modules/**'

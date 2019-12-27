@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import puppeteer from 'puppeteer';
 import path from 'path';
-import { testSuitePreset } from 'tests-suites/preset';
-import * as dataAuthenticator from 'tests-data/authenticator';
-import * as otplib from '../../builds/packages/otplib-preset-browser';
+import { testSuitePreset } from 'tests/suite/preset';
+import { table } from 'tests/data/sample-authenticator';
+import * as otplib from '../build';
 
 testSuitePreset('[builds] preset-browser', otplib);
 
@@ -47,7 +47,7 @@ describe('browser console', () => {
     await page.goto(`file:${path.join(__dirname, 'browser.html')}`);
   });
 
-  dataAuthenticator.table.forEach(entry => {
+  table.forEach(entry => {
     test(`given same secret, epoch ${entry.epoch}, receive same token (${entry.token})`, async () => {
       const result = await page.evaluate(
         (epoch, secret) => {

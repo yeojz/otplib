@@ -5,7 +5,13 @@
     "declaration": true,
     "strict": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowJs": true,
+    "baseUrl": "./",
+    "paths": {
+      "@otplib/*": ["packages/otplib-*"],
+      "tests/*": ["tests/*"]
+    }
   },
   "exclude": ["node_modules"]
 }

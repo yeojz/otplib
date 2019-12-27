@@ -2,17 +2,31 @@
   "name": "@otplib/plugin-crypto-js",
   "version": "12.0.0-1",
   "main": "src/index.ts",
-  "author": "Gerald Yeo <contact@fusedthought.com>",
-  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build:lib": "rollup -c ../../configs/rollup.config.js",
-    "build:type": "tsc --emitDeclarationOnly"
+    "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
   },
+  "keywords": [
+    "otplib-plugin",
+    "crypto"
+  ],
   "dependencies": {
     "@otplib/core": "^12.0.0-1",
     "crypto-js": "^3.1.9-1"
   },
   "devDependencies": {
     "@types/crypto-js": "^3.1.43"
+  },
+  "otplib": {
+    "externals": [
+      "crypto-js/core",
+      "crypto-js/hmac-sha1",
+      "crypto-js/hmac-sha256",
+      "crypto-js/hmac-sha512",
+      "crypto-js/enc-hex"
+    ]
   }
 }

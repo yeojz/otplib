@@ -2,11 +2,17 @@
   "name": "@otplib/preset-v11",
   "version": "12.0.0-1",
   "main": "src/index.js",
-  "author": "Gerald Yeo <contact@fusedthought.com>",
-  "license": "MIT",
-  "scripts": {
-    "build:lib": "rollup -c ../../configs/rollup.config.js"
+  "publishConfig": {
+    "access": "public"
   },
+  "scripts": {
+    "build:lib": "rollup -c ../../configs/rollup.config.js",
+    "build:typedef": "cp ./external/index.d.ts ./build/index.d.ts"
+  },
+  "keywords": [
+    "otplib-preset",
+    "node"
+  ],
   "dependencies": {
     "@otplib/core": "^12.0.0-1",
     "@otplib/plugin-crypto": "^12.0.0-1",

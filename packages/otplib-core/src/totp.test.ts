@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import * as rfc6238 from '../test/data-rfc6238';
-import { runOptionValidator } from '../test/utils';
-import { testSuiteTOTP } from '../test/suite-totp';
+import * as rfc6238 from 'tests/data/rfc-6238';
+import { runOptionValidator } from 'tests/utils';
+import { testSuiteTOTP } from 'tests/suite/totp';
 import { KeyEncodings } from './utils';
 import * as hotp from './hotp';
 import {

@@ -1,11 +1,11 @@
-import { Authenticator, TOTP, HOTP } from 'otplib-core';
-import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from 'otplib-core-async';
+import { Authenticator, TOTP, HOTP } from '@otplib/core';
+import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from '@otplib/core-async';
 import {
   rfcTestSuiteHOTP,
   rfcTestSuiteTOTP,
   dataTestSuiteAuthenticator
-} from './dataset';
-import { testSuiteIssues } from './issues';
+} from 'tests/suite/rfcs';
+import { testSuiteIssues } from 'tests/suite/issues';
 
 interface Presets {
   hotp: HOTP | HOTPAsync;

@@ -1,5 +1,5 @@
-import * as rfc4226 from 'tests-data/rfc4226';
-import * as rfc6238 from 'tests-data/rfc6238';
+import * as rfc4226 from 'tests/data/rfc-4226';
+import * as rfc6238 from 'tests/data/rfc-6238';
 import { hotp, totp, authenticator } from './index';
 import { HOTP, TOTP, Authenticator } from './v11';
 
