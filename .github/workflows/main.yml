@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10, 12]
+        node-version: [8, 10, 12]
     steps:
     - uses: actions/checkout@v1
       with:
@@ -15,6 +15,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - if: matrix.node-version <= 8
+      name: setup, build, test (node <= 8)
       run: |
         npm run setup
         npm run build
@@ -23,6 +24,7 @@ jobs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
         OTPLIB_SETUP_TYPE: node8
     - if: matrix.node-version > 8
+      name: setup, build, test (node > 8)
       run: |
         npm run setup
         npm run build
@@ -40,7 +42,8 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: 10
-    - run: |
+    - name: setup, build
+      run: |
         npm run setup
         npm run build
       env:

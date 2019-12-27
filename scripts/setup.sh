@@ -11,5 +11,6 @@ if [ "$OTPLIB_SETUP_TYPE" = "node8" ]; then
 
 else
   echo "\n[[ Installing all ]]"
+
   npx lerna bootstrap --ci --hoist
 fi
