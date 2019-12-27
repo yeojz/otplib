@@ -9,9 +9,10 @@
     "allowJs": true,
     "baseUrl": "./",
     "paths": {
+      "@build/*": ["packages/otplib-*/build"],
       "@otplib/*": ["packages/otplib-*"],
-      "tests/*": ["tests/*"]
+      "@tests/*": ["tests/*"]
     }
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "build"]
 }

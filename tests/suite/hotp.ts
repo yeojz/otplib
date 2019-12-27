@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 import { OTP, HashAlgorithms, OTPOptions } from '@otplib/core';
-import { secret } from 'tests/data/rfc-4226';
-import { table } from 'tests/data/sample-hotp';
-import { GenericFunction } from 'tests/utils';
+import { secret } from '@tests/data/rfc-4226';
+import { table } from '@tests/data/sample-hotp';
+import { GenericFunction } from '@tests/utils';
 
 export function testSuiteHOTP<T extends OTP<OTPOptions>>(
   name: string,

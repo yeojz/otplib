@@ -14,21 +14,20 @@
  * - Base32: 'plugin-thirty-two'
  * - Crypto: 'plugin-crypto'
  */
-import {
-  createDigest,
-  createRandomBytes
-} from '@otplib/plugin-crypto-async-ronomon';
-import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two';
+import { KeyDecoder, KeyEncoder } from '@otplib/core';
 import {
   AuthenticatorAsync,
   AuthenticatorAsyncOptions,
   HOTPAsync,
   HOTPAsyncOptions,
-  KeyDecoder,
-  KeyEncoder,
   TOTPAsync,
   TOTPAsyncOptions
 } from '@otplib/core-async';
+import {
+  createDigest,
+  createRandomBytes
+} from '@otplib/plugin-crypto-async-ronomon';
+import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two';
 
 export const hotp = new HOTPAsync<HOTPAsyncOptions>({
   createDigest

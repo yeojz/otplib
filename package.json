@@ -9,17 +9,16 @@
   "bugs": "https://github.com/yeojz/otplib/issues",
   "homepage": "https://yeojz.github.io/otplib",
   "scripts": {
-    "build": "./scripts/build.sh",
+    "ci:node8": "./scripts/ci-node8.sh",
     "build:site": "./scripts/build-site.sh",
+    "build": "./scripts/build.sh",
     "clean": "rimraf coverage packages/**/build",
     "format": "prettier --write \"{packages,scripts,configs}/**/*.{ts,tsx,js,jsx,json,md,mdx}\"",
     "lint": "tsc --noEmit",
     "setup": "./scripts/setup.sh",
-    "test": "jest --coverage --runInBand",
-    "test:browser": "./scripts/test-browser.sh",
-    "test:node": "./scripts/test-node.sh",
-    "test:node8": "./scripts/test-node8.sh",
-    "test:watch": "jest --watch",
+    "test:extras": "./scripts/test-extras.sh",
+    "test:runner": "jest --runInBand",
+    "test": "./scripts/test.sh",
     "update:release-notes": "npx conventional-github-releaser -p angular",
     "upload:coverage": "cat ./coverage/lcov.info | npx coveralls"
   },
@@ -63,5 +62,41 @@
     "typescript": "^3.7.4",
     "webpack": "^4.41.4",
     "webpack-cli": "^3.3.10"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "packages/**/*.{js,ts}",
+      "!**/node_modules/**",
+      "!packages/otplib-preset-browser/**",
+      "!**/build/*",
+      "!**/external/*",
+      "!**/test/*"
+    ],
+    "coverageDirectory": "./coverage/",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.*/__mocks__"
+    ],
+    "resetMocks": true,
+    "setupFiles": [],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testURL": "http://localhost",
+    "moduleNameMapper": {
+      "@build/(.*)$": "<rootDir>/packages/otplib-$1/build",
+      "@otplib/(.*)$": "<rootDir>/packages/otplib-$1",
+      "@tests/(.*)$": "<rootDir>/tests/$1"
+    },
+    "transform": {
+      "^.+\\.(js|ts)$": [
+        "babel-jest",
+        {
+          "rootMode": "upward"
+        }
+      ]
+    }
+  },
+  "prettier": {
+    "singleQuote": true
   }
 }

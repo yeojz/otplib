@@ -1,6 +1,6 @@
 import { OTPOptions, OTP, HashAlgorithms } from '@otplib/core';
-import { table } from 'tests/data/sample-totp';
-import { GenericFunction } from 'tests/utils';
+import { table } from '@tests/data/sample-totp';
+import { GenericFunction } from '@tests/utils';
 
 const WRONG_DIGEST = '51ca22e6cefa3c035535987fb0b2599ef239111e';
 

@@ -1,7 +1,7 @@
-import { authenticator } from '@otplib/preset-default';
-import { createDigest } from '@otplib/plugin-crypto-async-ronomon';
-import { authenticatorDigestAsync } from '@otplib/core-async';
-import { table } from 'tests/data/sample-authenticator';
+import { authenticator } from '@build/preset-default';
+import { createDigest } from '@build/plugin-crypto-async-ronomon';
+import { authenticatorDigestAsync } from '@build/core-async';
+import { table } from '@tests/data/sample-authenticator';
 
 test('Async Support - Async over Sync methods', async () => {
   const sample = table[0];

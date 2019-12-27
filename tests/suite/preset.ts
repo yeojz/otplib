@@ -4,8 +4,8 @@ import {
   rfcTestSuiteHOTP,
   rfcTestSuiteTOTP,
   dataTestSuiteAuthenticator
-} from 'tests/suite/rfcs';
-import { testSuiteIssues } from 'tests/suite/issues';
+} from '@tests/suite/rfcs';
+import { testSuiteIssues } from '@tests/suite/issues';
 
 interface Presets {
   hotp: HOTP | HOTPAsync;

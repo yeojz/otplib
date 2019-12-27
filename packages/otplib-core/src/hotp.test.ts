@@ -1,5 +1,5 @@
-import { testSuiteHOTP } from 'tests/suite/hotp';
-import { runOptionValidator } from 'tests/utils';
+import { testSuiteHOTP } from '@tests/suite/hotp';
+import { runOptionValidator } from '@tests/utils';
 import { HashAlgorithms } from './utils';
 import { HOTPOptions, hotpOptionsValidator, HOTP } from './hotp';
 

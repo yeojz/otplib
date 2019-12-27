@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import puppeteer from 'puppeteer';
 import path from 'path';
-import { testSuitePreset } from 'tests/suite/preset';
-import { table } from 'tests/data/sample-authenticator';
-import * as otplib from '../build';
+import { testSuitePreset } from '@tests/suite/preset';
+import { table } from '@tests/data/sample-authenticator';
+import * as otplib from '@build/otplib-preset-browser';
 
 testSuitePreset('[builds] preset-browser', otplib);
 

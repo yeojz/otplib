@@ -1,6 +1,6 @@
 import { OTPOptions, OTP, HashAlgorithms } from '@otplib/core';
-import { table } from 'tests/data/sample-authenticator';
-import { GenericFunction } from 'tests/utils';
+import { table } from '@tests/data/sample-authenticator';
+import { GenericFunction } from '@tests/utils';
 
 export function testSuiteAuthenticator<T extends OTP<OTPOptions>>(
   name: string,

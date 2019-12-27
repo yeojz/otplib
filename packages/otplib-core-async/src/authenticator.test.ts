@@ -1,6 +1,6 @@
 import { Authenticator } from '@otplib/core';
-import { testSuiteAuthenticator } from 'tests/suite/authenticator';
-import { testClassPropertiesEqual } from 'tests/utils';
+import { testSuiteAuthenticator } from '@tests/suite/authenticator';
+import { testClassPropertiesEqual } from '@tests/utils';
 import { AuthenticatorAsync } from './authenticator';
 
 testClassPropertiesEqual<Authenticator, AuthenticatorAsync>(

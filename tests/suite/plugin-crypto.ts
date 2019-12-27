@@ -7,7 +7,7 @@ import {
   hotpCounter,
   HashAlgorithms
 } from '@otplib/core';
-import * as rfc4226 from 'tests/data/rfc-4226';
+import * as rfc4226 from '@tests/data/rfc-4226';
 
 const { secret, digests } = rfc4226;
 
