@@ -1,5 +1,5 @@
 #!/bin/bash
 
-echo "\n[[ Setting up dependencies ]]"
+echo "[[ Setting up dependencies ]]"
 npx lerna bootstrap --ci --hoist
 

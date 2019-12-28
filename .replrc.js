@@ -1,6 +1,6 @@
-const cryptojs = require('./packages/otplib-plugin-crypto/build');
-const base32 = require('./packages/otplib-plugin-thirty-two/build');
-const core = require('./packages/otplib-core/build');
+const cryptojs = require('./packages/otplib-plugin-crypto/builds');
+const base32 = require('./packages/otplib-plugin-thirty-two/builds');
+const core = require('./packages/otplib-core/builds');
 
 module.exports = {
   context: {

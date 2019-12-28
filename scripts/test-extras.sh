@@ -13,5 +13,5 @@ case $i in
 esac
 done
 
-echo "\nrunning tests for $TYPE..."
-npm run test:runner -- tests/builds/$TYPE
+echo "[[ running tests for $TYPE ]]"
+npm run test:runner -- tests/extras/$TYPE

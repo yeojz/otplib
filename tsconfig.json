@@ -9,7 +9,7 @@
     "allowJs": true,
     "baseUrl": "./",
     "paths": {
-      "@build/*": ["packages/otplib-*/build"],
+      "@builds/*": ["packages/otplib-*/builds"],
       "@otplib/*": ["packages/otplib-*"],
       "@tests/*": ["tests/*"]
     }

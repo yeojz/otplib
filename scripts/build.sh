@@ -1,10 +1,9 @@
 #!/bin/bash
-echo "\n[[ cleaning prev builds ]]"
+echo "[[ cleaning prev builds ]]"
 npm run clean
 
-echo "\n[[ building library ]]"
+echo "[[ building library ]]"
 npx lerna run build:lib
 
-echo "\n[[ building typedef ]]"
+echo "[[ building typedef ]]"
 npx lerna run build:typedef
-

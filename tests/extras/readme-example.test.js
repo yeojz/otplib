@@ -1,6 +1,6 @@
-import { authenticator } from '@build/preset-default';
-import { createDigest } from '@build/plugin-crypto-async-ronomon';
-import { authenticatorDigestAsync } from '@build/core-async';
+import { authenticator } from '@builds/preset-default';
+import { createDigest } from '@builds/plugin-crypto-async-ronomon';
+import { authenticatorDigestAsync } from '@builds/core-async';
 import { table } from '@tests/data/sample-authenticator';
 
 test('Async Support - Async over Sync methods', async () => {

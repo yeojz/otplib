@@ -39,6 +39,6 @@ exports.EXTENSIONS = ['.js', '.ts'];
 exports.banner = banner;
 exports.buildConfig = buildConfig;
 exports.fileNameNoExt = fileNameNoExt;
-exports.outputDirectory = cwd => path.join(cwd, 'build');
+exports.outputDirectory = cwd => path.join(cwd, 'builds');
 exports.packageFiles = packageFiles;
 exports.packageJSON = packageJSON;
