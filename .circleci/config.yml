@@ -143,11 +143,16 @@ workflows:
           filters: *filter_tag_all
       - node_v12:
           filters: *filter_tag_all
-      - publish_npm_beta:
+      - hold_npm_beta:
+          type: approval
           requires:
             - node_v8
             - node_v10
             - node_v12
+          filters: *filter_tag_beta
+      - publish_npm_beta:
+          requires:
+            - hold_npm_beta
           filters: *filter_tag_beta
       - hold_npm:
           type: approval

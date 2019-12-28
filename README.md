@@ -18,32 +18,16 @@
   - [In Node.js](#in-nodejs)
   - [In Browser](#in-browser)
 - [References](#references)
-  - [API Docs / Demo / Versions](#api-docs--demo--versions)
+  - [API / Demo Website](#api--demo-website)
+  - [Versioning](#versioning)
   - [Migrating from v11.x](#migrating-from-v11x)
-- [Getting Started](#getting-started)
-  - [Install the Package](#install-the-package)
-  - [Choose Your Plugins](#choose-your-plugins)
-    - [Adding Crypto](#adding-crypto)
-    - [Adding Base32](#adding-base32)
-  - [Initialise your Instance](#initialise-your-instance)
-    - [Using Classes](#using-classes)
-    - [Using Functions](#using-functions)
-- [Available Options](#available-options)
-  - [HOTP Options](#hotp-options)
-  - [TOTP Options](#totp-options)
-  - [Authenticator Options](#authenticator-options)
-- [Available Packages](#available-packages)
-  - [Core](#core)
-  - [Plugins](#plugins)
-    - [Plugins - Crypto](#plugins---crypto)
-    - [Plugins - Base32](#plugins---base32)
-  - [Presets](#presets)
+  - [Available Options](#available-options)
+    - [HOTP Options](#hotp-options)
+    - [TOTP Options](#totp-options)
+    - [Authenticator Options](#authenticator-options)
 - [Appendix](#appendix)
   - [Type Definitions](#type-definitions)
   - [Async Support](#async-support)
-    - [Using Async Replacements](#using-async-replacements)
-    - [Async over Sync Methods](#async-over-sync-methods)
-    - [Async Options](#async-options)
   - [Browser Compatiblity](#browser-compatiblity)
     - [Browser bundle size](#browser-bundle-size)
   - [Length of Secrets](#length-of-secrets)
@@ -94,6 +78,9 @@ and includes additional methods to allow you to work with Google Authenticator.
   - `v11 (adapter for previous version)`
 
 ## Quick Start
+
+> If you need to customise your base32 or crypto libraries,
+> check out the [In-Depth Guide][docs-in-depth]
 
 ### In Node.js
 
@@ -170,17 +157,22 @@ You can also `npm install otplib` and get a copy from the `node_modules/@otplib/
 
 ## References
 
-### API Docs / Demo / Versions
+### API / Demo Website
 
 | Version         | Links                                                                               |
 | --------------- | ----------------------------------------------------------------------------------- |
 | v12.x           | [Website][project-v-site] / [API][project-v-api] / [Readme][project-v-readme]       |
 | v11.x           | [Website][project-v11-site] / [API][project-v11-api] / [Readme][project-v11-readme] |
-| v10.x and below | Check git history                                                                   |
+| v10.x and below | Available via git history                                                           |
+
+### Versioning
 
 This library follows `semver`. As such, major version bumps usually mean API changes or behavior changes.
 Please check [upgrade notes](https://github.com/yeojz/otplib/wiki/upgrade-notes) for more information,
 especially before making any major upgrades.
+
+To simplify releases, all packages within this repository have their versions synced.
+Therefore, if there are any releases or updates to a package, we will bump all packages.
 
 Check out the release notes associated with each tagged versions
 in the [releases](https://github.com/yeojz/otplib/releases) page.
@@ -205,98 +197,7 @@ import { authenticator } from '@otplib/preset-v11';
 // However, deprecated or modified class methods will have console.warn.
 ```
 
-## Getting Started
-
-This is the full setup guide for installing, configuring and customising
-your dependencies for the library.
-
-> Check out the [Quick Start][docs-quick-start] guide if you do need / want
-> to customise any dependencies from the presets.
-
-### Install the Package
-
-```bash
-npm install @otplib/core
-```
-
-### Choose Your Plugins
-
-#### Adding Crypto
-
-The crypto modules are used to generate the digest used to derive the OTP tokens from.
-By default, Node.js has inbuilt `crypto` functionality, but you might want to replace it
-for certain environments that do not support it.
-
-Currently there are a few [Crypto Plugins][docs-plugins-crypto] supported.
-Install one of them. eg: `npm install @otplib/plugin-crypto`
-
-#### Adding Base32
-
-If you're using `Google Authenticator`, you'll need a base32 module for
-encoding and decoding your secrets.
-
-Currently, there are a few [Base32 Plugins][docs-plugins-base32] supported.
-Install one of them. eg: `npm install @otplib/plugin-thirty-two`
-
-### Initialise your Instance
-
-#### Using Classes
-
-```js
-import { HOTP, TOTP, Authenticator } from '@otplib/core';
-
-import { keyDecoder, keyEncoder } from '@otplib/plugin-thirty-two'; // use your chosen base32 plugin
-import { createDigest, createRandomBytes } from '@otplib/plugin-crypto'; // use your chosen crypto plugin
-
-// Setup an OTP instance which you need
-const hotp = new HOTP({ createDigest });
-const totp = new TOTP({ createDigest });
-const authenticator = new Authenticator({
-  createDigest,
-  createRandomBytes,
-  keyDecoder,
-  keyEncoder
-});
-
-// Go forth and generate tokens
-const token = hotp.generate(YOUR_SECRET, 0);
-const token = totp.generate(YOUR_SECRET);
-const token = authenticator.generate(YOUR_SECRET);
-```
-
-#### Using Functions
-
-Alternatively, if you are using the functions directly instead of the classes,
-pass these as options into the functions.
-
-```js
-import {
-  hotpOptions,
-  hotpToken,
-  totpOptions,
-  totpToken,
-  authenticatorOptions,
-  authenticatorToken
-} from 'otplib/core';
-
-// As with classes, import your desired Base32 Plugin and Crypto Plugin.
-// import ...
-
-// Go forth and generate tokens
-const token = hotpToken(YOUR_SECRET, 0, hotpOptions({ createDigest }));
-const token = totpToken(YOUR_SECRET, totpOptions({ createDigest }));
-const token = authenticatorToken(
-  YOUR_SECRET,
-  authenticatorOptions({
-    createDigest,
-    createRandomBytes,
-    keyDecoder,
-    keyEncoder
-  })
-);
-```
-
-## Available Options
+### Available Options
 
 All instantiated classes will have their options inherited from their respective options
 generator. i.e. HOTP from `hotpOptions`, TOTP from `totpOptions`
@@ -331,7 +232,7 @@ const opts = totp.allOptions();
 const opts = hotp.allOptions();
 ```
 
-### HOTP Options
+#### HOTP Options
 
 | Option        | Type     | Description                                                                                                                     |
 | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -353,7 +254,7 @@ const opts = hotp.allOptions();
 }
 ```
 
-### TOTP Options
+#### TOTP Options
 
 > Note: Includes all HOTP Options
 
@@ -374,7 +275,7 @@ const opts = hotp.allOptions();
 }
 ```
 
-### Authenticator Options
+#### Authenticator Options
 
 > Note: Includes all HOTP + TOTP Options
 
@@ -395,79 +296,6 @@ const opts = hotp.allOptions();
 }
 ```
 
-## Available Packages
-
-The main package for this project still remains as `otplib`, which contains all
-the necessary code to get started quickly.
-
-Internally, the library has neen split into 3 categories: `core`, `plugin` and `preset`,
-and have been parked under the `@otplib` scope in `npm`.
-
-### Core
-
-Provides the core functionality of the library. Parts of the logic
-has been separated out in order to provide flexibility to the library via
-available plugins.
-
-| npm install        | description                                          |
-| ------------------ | ---------------------------------------------------- |
-| @otplib/core       | Core hotp/totp/authenticator functions + classes     |
-| @otplib/core-async | Provides async helpers in addition to `@otplib/core` |
-
-```js
-import { HOTP, TOTP, Authenticator } from '@otplib/core';
-import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from '@otplib/core-async';
-```
-
-### Plugins
-
-#### Plugins - Crypto
-
-| npm install                         | type  | uses                           |
-| ----------------------------------- | ----- | ------------------------------ |
-| @otplib/plugin-crypto               | sync  | `crypto` (included in Node.js) |
-| @otplib/plugin-crypto-js            | sync  | `crypto-js`                    |
-| @otplib/plugin-crypto-async-ronomon | async | `@ronomon/crypto-async`        |
-
-These crypto plugins provides:
-
-```js
-{
-  createDigest, // used for token derivation
-  createRandomBytes, //used to generate random keys for Google Authenticator
-}
-```
-
-#### Plugins - Base32
-
-| npm install                   | type | uses                                |
-| ----------------------------- | ---- | ----------------------------------- |
-| @otplib/plugin-thirty-two     | sync | `thirty-two`                        |
-| @otplib/plugin-base32-enc-dec | sync | `base32-encode` and `base32-decode` |
-
-These Base32 plugins provides:
-
-```js
-{
-  keyDecoder, //for decoding Google Authenticator secrets
-  keyEncoder, // for encoding Google Authenticator secrets.
-}
-```
-
-### Presets
-
-Presets are preconfigured HOTP, TOTP, Authenticator instances to
-allow you to get started with the library quickly.
-
-Each presets would need the corresponding dependent npm modules to be installed.
-
-| npm install                  | description                                                                                        |
-| ---------------------------- | -------------------------------------------------------------------------------------------------- |
-| @otplib/preset-default       | A preset with the base32 and crypto plugins already setup.                                         |
-| @otplib/preset-default-async | Async version of `@otplib/preset-default`                                                          |
-| @otplib/preset-browser       | Webpack bundle and is self contained.<br /> [See Browser Compatibility][docs-browser-compatiblity] |
-| @otplib/preset-v11           | Wrapper to adapt the APIs to v11.x compatible format                                               |
-
 ## Appendix
 
 ### Type Definitions
@@ -478,78 +306,13 @@ As of `v12.0.0`, the library has been re-written in Typescript from the ground u
 
 ### Async Support
 
-`async` support was introduced in `v12.0.0`.
+`async` support was introduced in `v12.0.0` as an additional core library.
 
 This was added as some libraries like [expo.io][link-expo-crypto] or even
 the browser API ([window.Crypto.subtle][link-mdn-subtlecrypto]) started providing
 only async methods.
 
-There are 2 was to use `async` - using async replacements, or handling digests separately.
-
-#### Using Async Replacements
-
-This is the simplest way to get started. Other than `allOptions()` and `resetOptions`,
-all other methods are converted to async and thus needs to be `Promise.resolve` or `await`.
-eg: `await .generate(...)`, `await .check(...)`
-
-```js
-import { AuthenticatorAsync } from '@otplib/core-async';
-
-const authenticator = new AuthenticatorAsync({
-  // ...options
-  // make sure you use async versions of
-  // required functions like createDigest.
-});
-
-// Note: await needed as all methods are async
-const token = await authenticator.generate(secret);
-```
-
-#### Async over Sync Methods
-
-In this method, you would essentially take over the digest generation, leaving
-the library to handle the digest to token conversion.
-
-```js
-import { Authenticator } from '@otplib/core';
-import { authenticatorDigestAsync } from '@otplib/core-async';
-
-// This is a synchronous Authenticator class.
-const authenticator = new Authenticator({
-  // ...options
-});
-
-// Override the digest generation.
-const digest = await authenticatorDigestAsync(secret, {
-  ...authenticator.allOptions(),
-  createDigest: async (algorithm, hmacKey, counter) => 'string'; // put your async implementation
-});
-
-authenticator.options = { digest };
-const token = authenticator.generate(secret);
-
-// recommended: reset to remove the digest.
-authenticator.resetOptions();
-
-// reference test in: ./packages/tests-builds/example.test.js
-```
-
-Check the [API Documentation][project-v-api] for the full list of async functions.
-All async functions are suffixed with `Async` except for class methods.
-
-#### Async Options
-
-The following options are modified for `functions` and `classes` which are suffixed with `Async`.
-
-eg: `AuthenticatorAsync`, `totpDigestAsync`, `hotpTokenAsync` etc.
-
-| Option            | Type           | Output                                              |
-| ----------------- | -------------- | --------------------------------------------------- |
-| createDigest      | async function | function returns Promise<string\> instead of string |
-| createHmacKey     | async function | function returns Promise<string\> instead of string |
-| createRandomBytes | async function | function returns Promise<string\> instead of string |
-| keyEncoder        | async function | function returns Promise<string\> instead of string |
-| keyDecoder        | async function | function returns Promise<string\> instead of string |
+You to find more details in the [core-async][docs-core-async] folder.
 
 ### Browser Compatiblity
 
@@ -639,10 +402,10 @@ import { authenticator } from '@otplib/preset-default';
 const user = 'A user name, possibly an email';
 const service = 'A service name';
 
-// v11.x.x and above
+// v11.x and above
 const otpauth = authenticator.keyuri(user, service, secret);
 
-// v10.x.x and below
+// v10.x and below
 const otpauth = authenticator.keyuri(
   encodeURIComponent(user),
   encodeURIComponent(service),
@@ -658,7 +421,7 @@ qrcode.toDataURL(otpauth, (err, imageUrl) => {
 });
 ```
 
-> **Note**: For versions `v10.x.x` and below, `keyuri` does not URI encode
+> **Note**: For versions `v10.x` and below, `keyuri` does not URI encode
 > `user` and `service`. You'll need to do so before passing in the parameteres.
 
 ### Getting Time Remaining / Time Used
@@ -707,12 +470,13 @@ npx local-repl
 
 ### OTP Backup Codes
 
-It is common practice for services to also provide a set of backup codes to authenticate
-and bypass the OTP step in the event that you are not able to access your OTP generating
+It is common for services to also provide a set of backup codes to authenticate
+and bypass the OTP step in the event that you are not able to access your 2FA
 device or have misplaced the device.
 
 As this process is separate from the specifications for OTP, this library does not
-provide any backup code process related verification logic.
+provide any backup code related verification logic, and thus would have to be
+implemented separately.
 
 ## Contributors
 
@@ -774,10 +538,8 @@ specification. Contributions of any kind welcome!
 
 <!-- Project Links -->
 
-[docs-browser-compatiblity]: #browser-compatiblity
-[docs-plugins-base32]: #plugins---base32
-[docs-plugins-crypto]: #plugins---crypto
-[docs-quick-start]: #quick-start
+[docs-core-async]: https://github.com/yeojz/otplib/blob/master/packages/otplib-core-async/README.md
+[docs-in-depth]: https://github.com/yeojz/otplib/blob/master/packages/otplib-core/README.md#getting-started
 [project-circle]: https://circleci.com/gh/yeojz/otplib
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib
 [project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE

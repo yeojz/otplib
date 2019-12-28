@@ -18,4 +18,4 @@ echo "[[ testing library ]]"
 npm run test:runner -- \
   --testPathIgnorePatterns="packages/otplib-plugin-crypto-async-ronomon" \
   --testPathIgnorePatterns="packages/otplib-preset-default-async" \
-  --testPathIgnorePatterns="tests/builds"
+  --testPathIgnorePatterns="tests/" \
