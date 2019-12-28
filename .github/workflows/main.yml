@@ -20,7 +20,6 @@ jobs:
         npm run ci:node8
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
-        OTPLIB_SETUP_TYPE: node8
     - if: matrix.node-version > 8
       name: setup, build, test (node > 8)
       run: |
@@ -48,14 +47,8 @@ jobs:
     - name: tests for browser bundles
       uses: docker://buildkite/puppeteer:v1.15.0
       with:
-        args: |
-          OTPLIB_TEST_BROWSER=true \
-            npm run test:extras
+        args: npm run test:extras -- --type=browser
     - name: tests for readme examples
-      run: |
-        OTPLIB_TEST_README=true \
-          npm run test:extras
+      run: npm run test:extras -- --type=readme
     - name: tests for compiled code
-      run: |
-        OTPLIB_TEST_COMPILED=true \
-          npm run test:extras
+      run: npm run test:extras -- --type=compiled

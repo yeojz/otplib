@@ -1,5 +1,3 @@
 #!/bin/bash
 
-npm run test:runner -- \
-  --coverage \
-  packages
+npm run test:runner -- --coverage packages

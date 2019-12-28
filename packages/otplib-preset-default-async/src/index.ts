@@ -14,12 +14,13 @@
  * - Base32: 'plugin-thirty-two'
  * - Crypto: 'plugin-crypto'
  */
-import { KeyDecoder, KeyEncoder } from '@otplib/core';
 import {
   AuthenticatorAsync,
   AuthenticatorAsyncOptions,
   HOTPAsync,
   HOTPAsyncOptions,
+  KeyDecoder,
+  KeyEncoder,
   TOTPAsync,
   TOTPAsyncOptions
 } from '@otplib/core-async';

@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer';
 import path from 'path';
 import { testSuitePreset } from '@tests/suite/preset';
 import { table } from '@tests/data/sample-authenticator';
-import * as otplib from '@build/otplib-preset-browser';
+import * as otplib from '@build/preset-browser';
 
 testSuitePreset('[builds] preset-browser', otplib);
 
@@ -44,7 +44,7 @@ describe('browser console', () => {
   });
 
   beforeEach(async () => {
-    await page.goto(`file:${path.join(__dirname, 'browser.html')}`);
+    await page.goto(`file:${path.join(__dirname, '..', 'browser.html')}`);
   });
 
   table.forEach(entry => {
