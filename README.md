@@ -18,8 +18,7 @@
   - [In Node.js](#in-nodejs)
   - [In Browser](#in-browser)
 - [References](#references)
-  - [API Docs / Demo](#api-docs--demo)
-  - [Versioning](#versioning)
+  - [API Docs / Demo / Versions](#api-docs--demo--versions)
   - [Migrating from v11.x](#migrating-from-v11x)
 - [Getting Started](#getting-started)
   - [Install the Package](#install-the-package)
@@ -33,7 +32,6 @@
   - [HOTP Options](#hotp-options)
   - [TOTP Options](#totp-options)
   - [Authenticator Options](#authenticator-options)
-  - [Async Options](#async-options)
 - [Available Packages](#available-packages)
   - [Core](#core)
   - [Plugins](#plugins)
@@ -45,6 +43,7 @@
   - [Async Support](#async-support)
     - [Using Async Replacements](#using-async-replacements)
     - [Async over Sync Methods](#async-over-sync-methods)
+    - [Async Options](#async-options)
   - [Browser Compatiblity](#browser-compatiblity)
     - [Browser bundle size](#browser-bundle-size)
   - [Length of Secrets](#length-of-secrets)
@@ -55,6 +54,7 @@
   - [Getting Time Remaining / Time Used](#getting-time-remaining--time-used)
   - [Using with Expo](#using-with-expo)
   - [Exploring with local-repl](#exploring-with-local-repl)
+  - [OTP Backup Codes](#otp-backup-codes)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -127,7 +127,7 @@ try {
 }
 ```
 
-Please replace "authenticator" with totp or hotp depending on your requirements.
+Please replace "authenticator" with "totp" or "hotp" depending on your requirements.
 
 ```js
 // For TOTP
@@ -170,14 +170,13 @@ You can also `npm install otplib` and get a copy from the `node_modules/@otplib/
 
 ## References
 
-### API Docs / Demo
+### API Docs / Demo / Versions
 
-| Version | Links                                                                                        |
-| ------- | -------------------------------------------------------------------------------------------- |
-| v12.x   | [Website][project-v-site] / [API][project-v-api] / [Readme][project-v-readme] |
-| v11.x   | [Website][project-v11-site] / [API][project-v11-api] / [Readme][project-v11-readme]          |
-
-### Versioning
+| Version         | Links                                                                               |
+| --------------- | ----------------------------------------------------------------------------------- |
+| v12.x           | [Website][project-v-site] / [API][project-v-api] / [Readme][project-v-readme]       |
+| v11.x           | [Website][project-v11-site] / [API][project-v11-api] / [Readme][project-v11-readme] |
+| v10.x and below | Check git history                                                                   |
 
 This library follows `semver`. As such, major version bumps usually mean API changes or behavior changes.
 Please check [upgrade notes](https://github.com/yeojz/otplib/wiki/upgrade-notes) for more information,
@@ -208,11 +207,11 @@ import { authenticator } from '@otplib/preset-v11';
 
 ## Getting Started
 
-This is a more in-depth setup guide for installing, configuring and customising
+This is the full setup guide for installing, configuring and customising
 your dependencies for the library.
 
-Check out the [Quick Start][docs-quick-start] guide if you do need / want
-to customise any dependencies from the presets.
+> Check out the [Quick Start][docs-quick-start] guide if you do need / want
+> to customise any dependencies from the presets.
 
 ### Install the Package
 
@@ -233,7 +232,7 @@ Install one of them. eg: `npm install @otplib/plugin-crypto`
 
 #### Adding Base32
 
-If you're using Google Authenticator, you'll need a base32 module for
+If you're using `Google Authenticator`, you'll need a base32 module for
 encoding and decoding your secrets.
 
 Currently, there are a few [Base32 Plugins][docs-plugins-base32] supported.
@@ -347,7 +346,7 @@ const opts = hotp.allOptions();
 // HOTP defaults
 {
   algorithm: 'sha1'
-  createDigest: undefined, // to be provided via a @otplib/plugin
+  createDigest: undefined, // to be provided via a @otplib/plugin-*
   createHmacKey: hotpCreateHmacKey,
   digits: 6,
   encoding: 'ascii',
@@ -390,32 +389,19 @@ const opts = hotp.allOptions();
 {
   // ...includes all HOTP + TOTP defaults
   encoding: 'hex',
-  createRandomBytes: undefined, // to be provided via a @otplib/plugin
-  keyEncoder: undefined, // to be provided via a @otplib/plugin
-  keyDecoder: undefined, // to be provided via a @otplib/plugin
+  createRandomBytes: undefined, // to be provided via a @otplib/plugin-*
+  keyEncoder: undefined, // to be provided via a @otplib/plugin-*
+  keyDecoder: undefined, // to be provided via a @otplib/plugin-*
 }
 ```
-
-### Async Options
-
-The following options are modified for `functions` and `classes` which are suffixed with `Async`.
-
-eg: `AuthenticatorAsync`, `totpDigestAsync`, `hotpTokenAsync` etc.
-
-| Option            | Type           | Output                                              |
-| ----------------- | -------------- | --------------------------------------------------- |
-| createDigest      | async function | function returns Promise<string\> instead of string |
-| createHmacKey     | async function | function returns Promise<string\> instead of string |
-| createRandomBytes | async function | function returns Promise<string\> instead of string |
-| keyEncoder        | async function | function returns Promise<string\> instead of string |
-| keyDecoder        | async function | function returns Promise<string\> instead of string |
 
 ## Available Packages
 
 The main package for this project still remains as `otplib`, which contains all
-the necessary code to get started quickly. However, internally, the library has
-been split into 3 categories: `core`, `plugin` and `preset`, and have been parked
-under the `@otplib` scope in `npm`.
+the necessary code to get started quickly.
+
+Internally, the library has neen split into 3 categories: `core`, `plugin` and `preset`,
+and have been parked under the `@otplib` scope in `npm`.
 
 ### Core
 
@@ -423,10 +409,10 @@ Provides the core functionality of the library. Parts of the logic
 has been separated out in order to provide flexibility to the library via
 available plugins.
 
-| npm install        | description                                            |
-| ------------------ | ------------------------------------------------------ |
-| @otplib/core       | Aggregates hotp/totp/authenticator functions + classes |
-| @otplib/core-async | provides async versions of `@otplib/core`              |
+| npm install        | description                                          |
+| ------------------ | ---------------------------------------------------- |
+| @otplib/core       | Core hotp/totp/authenticator functions + classes     |
+| @otplib/core-async | Provides async helpers in addition to `@otplib/core` |
 
 ```js
 import { HOTP, TOTP, Authenticator } from '@otplib/core';
@@ -437,11 +423,11 @@ import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from '@otplib/core-async';
 
 #### Plugins - Crypto
 
-| npm install                         | type  | uses                         |
-| ----------------------------------- | ----- | ---------------------------- |
-| @otplib/plugin-crypto               | sync  | crypto (included in Node.js) |
-| @otplib/plugin-crypto-js            | sync  | `crypto-js`                  |
-| @otplib/plugin-crypto-async-ronomon | async | `@ronomon/crypto-async`      |
+| npm install                         | type  | uses                           |
+| ----------------------------------- | ----- | ------------------------------ |
+| @otplib/plugin-crypto               | sync  | `crypto` (included in Node.js) |
+| @otplib/plugin-crypto-js            | sync  | `crypto-js`                    |
+| @otplib/plugin-crypto-async-ronomon | async | `@ronomon/crypto-async`        |
 
 These crypto plugins provides:
 
@@ -478,7 +464,7 @@ Each presets would need the corresponding dependent npm modules to be installed.
 | npm install                  | description                                                                                        |
 | ---------------------------- | -------------------------------------------------------------------------------------------------- |
 | @otplib/preset-default       | A preset with the base32 and crypto plugins already setup.                                         |
-| @otplib/preset-default-async | async version of `@otplib/preset-default`                                                          |
+| @otplib/preset-default-async | Async version of `@otplib/preset-default`                                                          |
 | @otplib/preset-browser       | Webpack bundle and is self contained.<br /> [See Browser Compatibility][docs-browser-compatiblity] |
 | @otplib/preset-v11           | Wrapper to adapt the APIs to v11.x compatible format                                               |
 
@@ -551,6 +537,20 @@ authenticator.resetOptions();
 Check the [API Documentation][project-v-api] for the full list of async functions.
 All async functions are suffixed with `Async` except for class methods.
 
+#### Async Options
+
+The following options are modified for `functions` and `classes` which are suffixed with `Async`.
+
+eg: `AuthenticatorAsync`, `totpDigestAsync`, `hotpTokenAsync` etc.
+
+| Option            | Type           | Output                                              |
+| ----------------- | -------------- | --------------------------------------------------- |
+| createDigest      | async function | function returns Promise<string\> instead of string |
+| createHmacKey     | async function | function returns Promise<string\> instead of string |
+| createRandomBytes | async function | function returns Promise<string\> instead of string |
+| keyEncoder        | async function | function returns Promise<string\> instead of string |
+| keyDecoder        | async function | function returns Promise<string\> instead of string |
+
 ### Browser Compatiblity
 
 `@otplib/preset-browser` is a `umd` bundle with some node modules replaced to reduce the browser size.
@@ -561,7 +561,7 @@ The following defaults have been used:
 - **encoder**: `base32-encode`
 - **decoder**: `base32-decode`
 
-For more details, you can take a look at `packages/otplib-browser/index.ts`.
+For more details, you can take a look at `packages/otplib-browser/src/index.ts`.
 
 #### Browser bundle size
 
@@ -705,6 +705,15 @@ npx local-repl
 [otplib] > otplib.authenticator.generate(secret)
 ```
 
+### OTP Backup Codes
+
+It is common practice for services to also provide a set of backup codes to authenticate
+and bypass the OTP step in the event that you are not able to access your OTP generating
+device or have misplaced the device.
+
+As this process is separate from the specifications for OTP, this library does not
+provide any backup code process related verification logic.
+
 ## Contributors
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -734,7 +743,7 @@ specification. Contributions of any kind welcome!
 
 `otplib` is [MIT licensed][project-license]
 
-<img width="150" src="https://otplib.yeojz.com/otplib.png" />
+<img width="150" src="https://otplib.yeojz.dev/otplib.png" />
 
 <!-- Badges -->
 
@@ -755,11 +764,11 @@ specification. Contributions of any kind welcome!
 [link-mdn-subtlecrypto]: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto
 [link-npm-buffer]: https://www.npmjs.com/package/buffer
 [rfc-3548]: http://tools.ietf.org/html/rfc3548
-[rfc-4226-dataset]: https://github.com/yeojz/otplib/blob/master/tests/data/rfc4226.ts
+[rfc-4226-dataset]: https://github.com/yeojz/otplib/blob/master/tests/data/rfc-4226.ts
 [rfc-4226-wiki]: http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm
 [rfc-4226]: http://tools.ietf.org/html/rfc4226
 [rfc-4648]: https://tools.ietf.org/html/rfc4648
-[rfc-6238-dataset]: https://github.com/yeojz/otplib/blob/master/tests/data/rfc6238.ts
+[rfc-6238-dataset]: https://github.com/yeojz/otplib/blob/master/tests/data/rfc-6238.ts
 [rfc-6238-wiki]: http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm
 [rfc-6238]: http://tools.ietf.org/html/rfc6238
 
