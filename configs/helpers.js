@@ -33,7 +33,7 @@ function banner(pkg) {
  **/`;
 }
 
-exports.RWD = path.join(__dirname, '..');
+exports.ROOT_DIR = path.join(__dirname, '..');
 exports.EXTENSIONS = ['.js', '.ts'];
 
 exports.banner = banner;

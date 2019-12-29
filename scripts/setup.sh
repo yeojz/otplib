@@ -1,5 +1,6 @@
 #!/bin/bash
 
-echo "[[ Setting up dependencies ]]"
+echo "[[ setting up dependencies ]]"
 npx lerna bootstrap --ci --hoist
 
+./scripts/download-buffer.sh

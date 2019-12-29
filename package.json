@@ -3,7 +3,7 @@
   "version": "12.0.0-1",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
   "private": true,
-  "repository": "yeojz/otplib",
+  "repository": "https://github.com/yeojz/otplib",
   "author": "Gerald Yeo <contact@fusedthought.com>",
   "license": "MIT",
   "bugs": "https://github.com/yeojz/otplib/issues",
@@ -69,17 +69,20 @@
       "!**/node_modules/**",
       "!packages/otplib-preset-browser/**",
       "!**/builds/*",
-      "!**/external/*",
+      "!**/externals/*",
+      "!**/extras/*",
       "!**/tests/*"
     ],
     "coverageDirectory": "./coverage/",
     "modulePathIgnorePatterns": [
-      "<rootDir>/.*/__mocks__"
+      "<rootDir>/.*/__mocks__",
+      "<rootDir>/packages/.*/builds"
     ],
     "resetMocks": true,
     "setupFiles": [],
     "testPathIgnorePatterns": [
-      "/node_modules/"
+      "/node_modules/",
+      "/builds/"
     ],
     "testURL": "http://localhost",
     "moduleNameMapper": {

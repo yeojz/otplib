@@ -16,5 +16,13 @@
     "prettier/@typescript-eslint",
     "eslint:recommended",
     "plugin:prettier/recommended"
+  ],
+  "ignorePatterns": [
+    "builds",
+    "externals",
+    "extras",
+    "node_modules",
+    "package-lock.json",
+    "public"
   ]
 }

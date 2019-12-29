@@ -31,7 +31,7 @@ npx rimraf \
   ./website/public
 
 echo "[[ copying bundle to website ]]"
-cp -r ./packages/otplib-preset-browser/build/. ./website/static/otplib-browser
+cp -r ./packages/otplib-preset-browser/builds/. ./website/static/otplib-browser
 
 echo "[[ building api docs ]]"
 npx typedoc \

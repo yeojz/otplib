@@ -85,11 +85,7 @@ and includes additional methods to allow you to work with Google Authenticator.
 ### In Node.js
 
 ```bash
-npm install otplib
-
-# Note:
-# Starting from v12.x, this is actually a bundle containing a
-# few @otplib/* presets and dependencies to help you get started quickly.
+npm install otplib --save
 ```
 
 ```js
@@ -324,7 +320,7 @@ The following defaults have been used:
 - **encoder**: `base32-encode`
 - **decoder**: `base32-decode`
 
-For more details, you can take a look at `packages/otplib-browser/src/index.ts`.
+For more details, you can take a look at `packages/otplib-preset-browser/src/index.ts`.
 
 #### Browser bundle size
 

@@ -41,7 +41,7 @@ jobs:
     - name: setup, build
       run: |
         npm run setup
-        npm run build
+        NODE_ENV=production npm run build
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
     - name: tests for browser bundles

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build:lib": "rollup -c ../../configs/rollup.config.js",
-    "build:typedef": "cp ./external/index.d.ts ./builds/index.d.ts"
+    "build:typedef": "cp ./src/index.d.ts ./builds/index.d.ts"
   },
   "keywords": [
     "otplib-preset",

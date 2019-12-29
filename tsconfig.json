@@ -14,5 +14,13 @@
       "@tests/*": ["tests/*"]
     }
   },
-  "exclude": ["node_modules", "packages/**/build", "configs", "website"]
+  "exclude": [
+    "configs",
+    "node_modules",
+    "packages/**/builds",
+    "packages/**/externals",
+    "packages/**/extras",
+    "scripts",
+    "website"
+  ]
 }

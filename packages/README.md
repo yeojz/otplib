@@ -1,4 +1,4 @@
-# Packages
+# otplib packages
 
 This library adopts a monorepo design, and is responsible for `@otplib/*` packages.
 The only other package that is not under this scope is the quick-start package `otplib`.

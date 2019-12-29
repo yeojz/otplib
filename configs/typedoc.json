@@ -1,12 +1,11 @@
 {
   "exclude": [
-    "build",
+    "builds",
     "configs",
     "packages/**/*.js",
     "packages/**/*.test.js",
     "packages/**/*.test.ts",
     "scripts",
-    "test",
     "tests",
     "website"
   ],

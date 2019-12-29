@@ -46,7 +46,7 @@ function webpackConfig(file) {
     },
     resolve: {
       extensions: helpers.EXTENSIONS,
-      modules: [path.join(helpers.RWD, 'node_modules'), 'node_modules']
+      modules: [path.join(helpers.ROOT_DIR, 'node_modules'), 'node_modules']
     },
     plugins: [
       new webpack.DefinePlugin({

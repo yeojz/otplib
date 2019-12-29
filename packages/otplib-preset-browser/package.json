@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build:lib": "webpack --config ../../configs/webpack.config.js",
-    "postbuild:lib": "cp ./external/buffer.js ./builds/buffer.js"
+    "postbuild:lib": "cp ./externals/buffer.js ./builds/buffer.js"
   },
   "keywords": [
     "otplib-preset",

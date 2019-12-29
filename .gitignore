@@ -73,5 +73,5 @@ yarn-error.log
 .rpt2_cache/
 audit.txt
 builds
-build
+externals
 lib.test.*
