@@ -1,19 +1,28 @@
 #!/bin/bash
 
-if [ "$OTPLIB_BUILD_SITE_PACKAGE" == "true" ]; then
-  echo "--- installing and build npm package ---"
-  OTPLIB_SETUP_EXTRAS=skip \
+for i in "$@"
+do
+case $i in
+    --skip-install=*)
+    SKIP_INSTALL="${i#*=}"
+    shift # past argument=value
+    ;;
+    *)
+          # unknown option
+    ;;
+esac
+done
+
+if [ "$SKIP_INSTALL" == "true" ]; then
+  echo "[[ installing and build npm package ]] - skip"
+else
+  echo "[[ installing and build npm package ]]"
   npm run setup
 
-  OTPLIB_BUILD_CLEAN=true \
-  OTPLIB_BUILD_MODULE=false \
-  OTPLIB_BUILD_BUNDLE=true \
-  OTPLIB_BUILD_INCLUDE_BUFFER=true \
-  OTPLIB_BUILD_COPY_META=false \
-  npm run build
+  NODE_ENV=production npm run build
 fi
 
-echo "--- cleaning prev site builds ---"
+echo "[[ cleaning prev site builds ]]"
 npx rimraf \
   ./builds/typedocs \
   ./website/static/otplib-browser \
@@ -21,23 +30,25 @@ npx rimraf \
   ./website/static/api \
   ./website/public
 
-echo "--- copying bundle to website ---"
-cp -r ./builds/otplib/preset-browser/. ./website/static/otplib-browser
+echo "[[ copying bundle to website ]]"
+cp -r ./packages/otplib-preset-browser/builds/. ./website/static/otplib-browser
 
-echo "--- building api docs ---"
+echo "[[ building api docs ]]"
 npx typedoc \
   --hideGenerator \
   --options ./configs/typedoc.json \
   --out ./builds/typedocs
 
-echo "--- copying api docs to website ---"
+echo "[[ copying api docs to website ]]"
 cp -r ./builds/typedocs/. ./website/static/api
 
-echo "--- changing to website folder ---"
+echo "[[ changing to website folder ]]"
 cd website
 
-if [ "$OTPLIB_BUILD_SITE_REINSTALL" == "true" ]; then
-  echo "--- install website node_modules ---"
+if [ "$SKIP_INSTALL" == "true" ]; then
+  echo "[[ installing website node_modules ]] - skip"
+else
+  echo "[[ installing website node_modules ]]"
   npm ci;
 fi
 

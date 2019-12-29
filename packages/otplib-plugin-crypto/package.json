@@ -1,7 +1,18 @@
 {
   "name": "@otplib/plugin-crypto",
   "version": "12.0.0-1",
-  "main": "index.ts",
+  "main": "src/index.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:lib": "rollup -c ../../configs/rollup.config.js",
+    "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
+  },
+  "keywords": [
+    "otplib-plugin",
+    "crypto"
+  ],
   "dependencies": {
     "@otplib/core": "^12.0.0-1"
   },

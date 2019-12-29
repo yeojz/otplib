@@ -57,16 +57,15 @@ By contributing to `otplib`, you agree that your contributions will be licensed 
 
 - is the code tested?
   - `npm run test`
-  - `npm run test:watch` if you want to continuously watch and run test on file change.
 - is the code linted?
   - `npm run lint`
 - is the code formatted?
   - `npm run format`
 - is it a new package?
-  - if yes, you'll need to add it to `configs/builds.js` in order for it to be bundled.
-  - you can choose between `rollup` (node modules) and `webpack` (umd, browser).
+  - if yes, make sure you add a package.json in your folder.
+  - configure the build steps. You can choose between `rollup` (node modules) and `webpack` (umd, browser).
 
-Please **do not** bump the version and tag your pull request
+Please **do not** bump the version or tag your pull request
 with a v\[number\] as it corresponds to a release.
 
 ### Troubleshooting

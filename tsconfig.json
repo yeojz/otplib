@@ -1,14 +1,26 @@
 {
   "compilerOptions": {
-    "baseUrl": "./packages",
     "target": "es2017",
     "module": "commonjs",
     "declaration": true,
-    "outDir": "builds/otplib",
     "strict": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowJs": true,
+    "baseUrl": "./",
+    "paths": {
+      "@builds/*": ["packages/otplib-*/builds"],
+      "@otplib/*": ["packages/otplib-*"],
+      "@tests/*": ["tests/*"]
+    }
   },
-  "include": ["packages/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "configs",
+    "node_modules",
+    "packages/**/builds",
+    "packages/**/externals",
+    "packages/**/extras",
+    "scripts",
+    "website"
+  ]
 }

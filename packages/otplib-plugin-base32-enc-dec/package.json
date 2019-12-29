@@ -1,7 +1,18 @@
 {
   "name": "@otplib/plugin-base32-enc-dec",
   "version": "12.0.0-1",
-  "main": "index.ts",
+  "main": "src/index.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:lib": "rollup -c ../../configs/rollup.config.js",
+    "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
+  },
+  "keywords": [
+    "otplib-plugin",
+    "base32"
+  ],
   "dependencies": {
     "@otplib/core": "^12.0.0-1",
     "base32-decode": "^1.0.0",

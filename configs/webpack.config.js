@@ -1,20 +1,23 @@
 /* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/explicit-function-return-type */
+const path = require('path');
 const webpack = require('webpack');
-const createBundleType = require('./createBundleType');
+const helpers = require('./helpers');
 
 const ENV = (process.env.NODE_ENV || 'development').toLowerCase();
+const CWD = process.cwd();
+const pkg = helpers.packageJSON(CWD);
 
-function webpackConfig(config, helpers) {
+function webpackConfig(file) {
   return {
     mode: ENV === 'production' ? ENV : 'development',
     entry: {
-      otplib: config.sourceFilePath
+      otplib: path.join(CWD, file)
     },
     output: {
       library: '[name]',
-      libraryTarget: config.format,
-      path: config.buildFolderPath,
-      filename: config.buildFileName
+      libraryTarget: 'umd',
+      path: helpers.outputDirectory(CWD),
+      filename: helpers.fileNameNoExt(file) + '.js'
     },
     node: {
       Buffer: false
@@ -30,7 +33,10 @@ function webpackConfig(config, helpers) {
               babelrc: false,
               configFile: false,
               presets: [
-                ['@babel/preset-env', { modules: false, ...config.presetEnv }],
+                [
+                  '@babel/preset-env',
+                  { modules: false, targets: 'cover 99.5%' }
+                ],
                 '@babel/preset-typescript'
               ]
             }
@@ -39,15 +45,15 @@ function webpackConfig(config, helpers) {
       ]
     },
     resolve: {
-      alias: helpers.renameImports('sourceImport'),
-      extensions: helpers.EXTENSIONS
+      extensions: helpers.EXTENSIONS,
+      modules: [path.join(helpers.ROOT_DIR, 'node_modules'), 'node_modules']
     },
     plugins: [
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(ENV)
       }),
       new webpack.BannerPlugin({
-        banner: helpers.createBanner(config.sourceImport),
+        banner: helpers.banner(pkg),
         raw: true
       })
     ],
@@ -56,4 +62,4 @@ function webpackConfig(config, helpers) {
   };
 }
 
-module.exports = createBundleType('webpack', webpackConfig);
+module.exports = helpers.packageFiles(pkg).map(webpackConfig);

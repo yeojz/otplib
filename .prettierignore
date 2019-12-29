@@ -1,5 +1,7 @@
 .cache
-package.json
+builds
+externals
+extras
+node_modules
 package-lock.json
 public
-builds

@@ -1,7 +1,18 @@
 {
-  "name": "@otplib/preset-preset-v11",
+  "name": "@otplib/preset-v11",
   "version": "12.0.0-1",
-  "main": "index.ts",
+  "main": "src/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:lib": "rollup -c ../../configs/rollup.config.js",
+    "build:typedef": "cp ./src/index.d.ts ./builds/index.d.ts"
+  },
+  "keywords": [
+    "otplib-preset",
+    "node"
+  ],
   "dependencies": {
     "@otplib/core": "^12.0.0-1",
     "@otplib/plugin-crypto": "^12.0.0-1",

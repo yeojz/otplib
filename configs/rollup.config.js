@@ -1,44 +1,48 @@
 /* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/explicit-function-return-type */
+const path = require('path');
 const babel = require('rollup-plugin-babel');
 const cleanup = require('rollup-plugin-cleanup');
-const commonjs = require('rollup-plugin-commonjs');
-const nodeResolve = require('rollup-plugin-node-resolve');
-const createBundleType = require('./createBundleType');
+const commonjs = require('@rollup/plugin-commonjs');
+const resolve = require('@rollup/plugin-node-resolve');
+const helpers = require('./helpers');
 
-/**
- * Builds module for node consumption
- *
- * @param {string} name name of package
- * @param {object} config build config
- * @param {string} file eg: index.ts
- */
-function rollupConfig(config, helpers) {
-  console.log(['build:', config.sourceFile, '=>', config.buildFile].join(' '));
+const CWD = process.cwd();
+const pkg = helpers.packageJSON(CWD);
 
-  const pkgs = helpers.renameImports('buildImport');
+function rollupConfig(file) {
+  const outputFile = path.join(
+    helpers.outputDirectory(CWD),
+    helpers.fileNameNoExt(file) + '.js'
+  );
 
   return {
-    input: config.sourceFilePath,
+    input: path.join(CWD, file),
     output: {
-      banner: helpers.createBanner(config.sourceImport),
-      file: config.buildFilePath,
-      format: config.format,
-      paths: pkgs
+      banner: helpers.banner(pkg),
+      file: outputFile,
+      format: 'cjs'
     },
-    external: [...config.external, ...Object.keys(pkgs)],
+    external: [
+      'crypto',
+      ...(helpers.buildConfig(pkg).externals || []),
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.devDependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {})
+    ],
     plugins: [
       babel({
         extensions: helpers.EXTENSIONS,
         babelrc: false,
         configFile: false,
         presets: [
-          ['@babel/preset-env', { modules: false, ...config.presetEnv }],
+          ['@babel/preset-env', { modules: false, targets: 'node 8' }],
           '@babel/preset-typescript'
         ]
       }),
-      nodeResolve({
+      resolve({
         extensions: helpers.EXTENSIONS,
-        preferBuiltins: true
+        preferBuiltins: true,
+        rootDir: path.join(__dirname, '..')
       }),
       commonjs({
         include: 'node_modules/**'
@@ -51,4 +55,4 @@ function rollupConfig(config, helpers) {
   };
 }
 
-module.exports = createBundleType('rollup', rollupConfig);
+module.exports = helpers.packageFiles(pkg).map(rollupConfig);

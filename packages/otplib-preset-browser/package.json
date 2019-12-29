@@ -1,8 +1,19 @@
 {
   "name": "@otplib/preset-browser",
   "version": "12.0.0-1",
-  "main": "index.ts",
-  "dependencies": {
+  "main": "src/index.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:lib": "webpack --config ../../configs/webpack.config.js",
+    "postbuild:lib": "cp ./externals/buffer.js ./builds/buffer.js"
+  },
+  "keywords": [
+    "otplib-preset",
+    "browser"
+  ],
+  "devDependencies": {
     "@otplib/core": "^12.0.0-1",
     "@otplib/plugin-base32-enc-dec": "^12.0.0-1",
     "@otplib/plugin-crypto-js": "^12.0.0-1"

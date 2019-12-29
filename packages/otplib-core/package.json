@@ -1,5 +1,15 @@
 {
   "name": "@otplib/core",
   "version": "12.0.0-1",
-  "main": "index.ts"
+  "main": "src/index.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:lib": "rollup -c ../../configs/rollup.config.js",
+    "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
+  },
+  "keywords": [
+    "otplib-core"
+  ]
 }

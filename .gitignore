@@ -72,5 +72,6 @@ yarn-error.log
 .vscode
 .rpt2_cache/
 audit.txt
-/builds
+builds
+externals
 lib.test.*

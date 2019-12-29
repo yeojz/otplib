@@ -1,10 +1,13 @@
 {
   "exclude": [
-    "website",
-    "packages/tests-*/*",
-    "packages/**/*.test.ts",
+    "builds",
+    "configs",
     "packages/**/*.js",
-    "packages/**/*.test.js"
+    "packages/**/*.test.js",
+    "packages/**/*.test.ts",
+    "scripts",
+    "tests",
+    "website"
   ],
   "excludeExternals": true,
   "excludeNotExported": true,
