@@ -1,6 +1,6 @@
 {
   "name": "@otplib/preset-browser",
-  "version": "12.0.0-1",
+  "version": "12.0.0-2",
   "main": "src/index.ts",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "browser"
   ],
   "devDependencies": {
-    "@otplib/core": "^12.0.0-1",
-    "@otplib/plugin-base32-enc-dec": "^12.0.0-1",
-    "@otplib/plugin-crypto-js": "^12.0.0-1"
+    "@otplib/core": "^12.0.0-2",
+    "@otplib/plugin-base32-enc-dec": "^12.0.0-2",
+    "@otplib/plugin-crypto-js": "^12.0.0-2"
   }
 }
