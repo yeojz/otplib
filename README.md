@@ -79,7 +79,7 @@ and includes additional methods to allow you to work with Google Authenticator.
 ## Quick Start
 
 > If you need to customise your base32 or crypto libraries,
-> check out the [In-Depth Guide][docs-in-depth]
+> check out the [In-Depth Guide][docs-in-depth] and [Available Packages][docs-available-packages]
 
 ### In Node.js
 
@@ -517,6 +517,7 @@ specification. Contributions of any kind welcome!
 
 <!-- Project Links -->
 
+[docs-available-packages]: https://github.com/yeojz/otplib/blob/master/packages/README.md
 [docs-core-async]: https://github.com/yeojz/otplib/blob/master/packages/otplib-core-async/README.md
 [docs-in-depth]: https://github.com/yeojz/otplib/blob/master/packages/otplib-core/README.md#getting-started
 [docs-preset-browser-src]: https://github.com/yeojz/otplib/blob/master/packages/otplib-preset-browser/src/index.ts

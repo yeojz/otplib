@@ -6,6 +6,8 @@ All other `otplib-*` libraries that are not scoped are not maintained under this
 
 Packages are classified into 3 categories: `core`, `plugin` and `preset`.
 
+Do refer to the [Quick Start Guide][docs-quick-start] to get started.
+
 <!-- TOC depthFrom:2 -->
 
 - [Core](#core)
@@ -80,3 +82,5 @@ Each presets would need the corresponding dependent npm modules to be installed.
 | [@otplib/preset-default-async](./otplib-preset-default-async) | Async version of `@otplib/preset-default`                  |
 | [@otplib/preset-browser](./otplib-preset-browser)             | Webpack bundle and is a self contained umd bundle.         |
 | [@otplib/preset-v11](./otplib-preset-v11)                     | Wrapper to adapt the APIs to v11.x compatible format       |
+
+[docs-quick-start]: https://github.com/yeojz/otplib/blob/master/README.md#quick-start

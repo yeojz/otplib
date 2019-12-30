@@ -16,5 +16,5 @@ npm install --save @otplib/plugin-crypto-js
 `@otplib/plugin-crypto-js` is [MIT licensed][project-license]
 
 [project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE
-[project-v-readme]: https://github.com/yeojz/otplib/blob/master/packages/README.md#plugins---crypto
+[project-v-readme]: https://github.com/yeojz/otplib/blob/master/README.md
 [project-v-site]: https://otplib.yeojz.dev
