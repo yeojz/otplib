@@ -1,7 +1,7 @@
 {
   "name": "otplib",
   "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
-  "version": "12.0.0-3",
+  "version": "12.0.0",
   "main": "src/index.ts",
   "publishConfig": {
     "access": "public"
@@ -11,9 +11,9 @@
     "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
   },
   "dependencies": {
-    "@otplib/core": "^12.0.0-3",
-    "@otplib/preset-default": "^12.0.0-3",
-    "@otplib/preset-v11": "^12.0.0-3"
+    "@otplib/core": "^12.0.0",
+    "@otplib/preset-default": "^12.0.0",
+    "@otplib/preset-v11": "^12.0.0"
   },
   "otplib": {
     "files": [

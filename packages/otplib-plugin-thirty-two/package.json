@@ -1,7 +1,7 @@
 {
   "name": "@otplib/plugin-thirty-two",
   "description": "thirty-two plugin for otplib",
-  "version": "12.0.0-3",
+  "version": "12.0.0",
   "main": "src/index.ts",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
     "base32"
   ],
   "dependencies": {
-    "@otplib/core": "^12.0.0-3",
+    "@otplib/core": "^12.0.0",
     "thirty-two": "^1.0.2"
   }
 }
