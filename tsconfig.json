@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "baseUrl": "./",
+    "outDir": "./builds",
     "paths": {
       "@builds/*": ["packages/otplib-*/builds"],
       "@otplib/*": ["packages/otplib-*"],
