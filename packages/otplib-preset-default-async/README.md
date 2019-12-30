@@ -17,4 +17,4 @@ npm install --save @otplib/preset-default-async
 
 [project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE
 [project-v-readme]: https://github.com/yeojz/otplib/blob/master/README.md#presets
-[project-v-site]: https://otplib.yeojz.com
+[project-v-site]: https://otplib.yeojz.dev

@@ -17,4 +17,4 @@ npm install --save @otplib/plugin-crypto-async-ronomon
 
 [project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE
 [project-v-readme]: https://github.com/yeojz/otplib/blob/master/packages/README.md#plugins---crypto
-[project-v-site]: https://otplib.yeojz.com
+[project-v-site]: https://otplib.yeojz.dev

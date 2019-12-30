@@ -22,10 +22,10 @@ Provides the core functionality of the library. Parts of the logic
 has been separated out in order to provide flexibility to the library via
 available plugins.
 
-| npm install        | description                                          |
-| ------------------ | ---------------------------------------------------- |
-| @otplib/core       | Core hotp/totp/authenticator functions + classes     |
-| @otplib/core-async | Provides async helpers in addition to `@otplib/core` |
+| npm install                               | description                                          |
+| ----------------------------------------- | ---------------------------------------------------- |
+| [@otplib/core](./otplib-core)             | Core hotp/totp/authenticator functions + classes     |
+| [@otplib/core-async](./otplib-core-async) | Provides async helpers in addition to `@otplib/core` |
 
 ```js
 import { HOTP, TOTP, Authenticator } from '@otplib/core';
@@ -36,11 +36,11 @@ import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from '@otplib/core-async';
 
 ### Plugins - Crypto
 
-| npm install                         | type  | uses                           |
-| ----------------------------------- | ----- | ------------------------------ |
-| @otplib/plugin-crypto               | sync  | `crypto` (included in Node.js) |
-| @otplib/plugin-crypto-js            | sync  | `crypto-js`                    |
-| @otplib/plugin-crypto-async-ronomon | async | `@ronomon/crypto-async`        |
+| npm install                                                                 | type  | uses                           |
+| --------------------------------------------------------------------------- | ----- | ------------------------------ |
+| [@otplib/plugin-crypto](./otplib-plugin-crypto)                             | sync  | `crypto` (included in Node.js) |
+| [@otplib/plugin-crypto-js](./otplib-plugin-crypto-js)                       | sync  | `crypto-js`                    |
+| [@otplib/plugin-crypto-async-ronomon](./otplib-plugin-crypto-async-ronomon) | async | `@ronomon/crypto-async`        |
 
 These crypto plugins provides:
 
@@ -53,10 +53,10 @@ These crypto plugins provides:
 
 ### Plugins - Base32
 
-| npm install                   | type | uses                                |
-| ----------------------------- | ---- | ----------------------------------- |
-| @otplib/plugin-thirty-two     | sync | `thirty-two`                        |
-| @otplib/plugin-base32-enc-dec | sync | `base32-encode` and `base32-decode` |
+| npm install                                                     | type | uses                                |
+| --------------------------------------------------------------- | ---- | ----------------------------------- |
+| [@otplib/plugin-thirty-two](./otplib-plugin-thirty-two)         | sync | `thirty-two`                        |
+| [@otplib/plugin-base32-enc-dec](./otplib-plugin-base32-enc-dec) | sync | `base32-encode` and `base32-decode` |
 
 These Base32 plugins provides:
 
@@ -74,11 +74,9 @@ allow you to get started with the library quickly.
 
 Each presets would need the corresponding dependent npm modules to be installed.
 
-| npm install                  | description                                                                                        |
-| ---------------------------- | -------------------------------------------------------------------------------------------------- |
-| @otplib/preset-default       | A preset with the base32 and crypto plugins already setup.                                         |
-| @otplib/preset-default-async | Async version of `@otplib/preset-default`                                                          |
-| @otplib/preset-browser       | Webpack bundle and is self contained.<br /> [See Browser Compatibility][docs-browser-compatiblity] |
-| @otplib/preset-v11           | Wrapper to adapt the APIs to v11.x compatible format                                               |
-
-[docs-browser-compatiblity]: https://github.com/yeojz/otplib/blob/master/README.md#browser-compatiblity
+| npm install                                                   | description                                                |
+| ------------------------------------------------------------- | ---------------------------------------------------------- |
+| [@otplib/preset-default](./otplib-preset-default)             | A preset with the base32 and crypto plugins already setup. |
+| [@otplib/preset-default-async](./otplib-preset-default-async) | Async version of `@otplib/preset-default`                  |
+| [@otplib/preset-browser](./otplib-preset-browser)             | Webpack bundle and is a self contained umd bundle.         |
+| [@otplib/preset-v11](./otplib-preset-v11)                     | Wrapper to adapt the APIs to v11.x compatible format       |

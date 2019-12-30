@@ -103,5 +103,5 @@ eg: `AuthenticatorAsync`, `totpDigestAsync`, `hotpTokenAsync` etc.
 `@otplib/core-async` is [MIT licensed][project-license]
 
 [project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE
-[project-v-api]: https://otplib.yeojz.com/api
+[project-v-api]: https://otplib.yeojz.dev/api
 [project-v-readme]: https://github.com/yeojz/otplib/blob/master/README.md

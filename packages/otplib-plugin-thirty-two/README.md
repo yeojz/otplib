@@ -17,4 +17,4 @@ npm install --save @otplib/plugin-thirty-two
 
 [project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE
 [project-v-readme]: https://github.com/yeojz/otplib/blob/master/packages/README.md#plugins---base32
-[project-v-site]: https://otplib.yeojz.com
+[project-v-site]: https://otplib.yeojz.dev

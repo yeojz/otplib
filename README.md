@@ -29,7 +29,6 @@
   - [Type Definitions](#type-definitions)
   - [Async Support](#async-support)
   - [Browser Compatiblity](#browser-compatiblity)
-    - [Browser bundle size](#browser-bundle-size)
   - [Length of Secrets](#length-of-secrets)
   - [Google Authenticator](#google-authenticator)
     - [Difference between Authenticator and TOTP](#difference-between-authenticator-and-totp)
@@ -130,8 +129,13 @@ For all available APIs, please refer to [API Documentation][project-v-api].
 
 ### In Browser
 
-The browser preset is a self contained `umd` module with `Buffer` split out as an external dependency.
-As such, there are 2 scripts required: `@otplib/preset-browser/index.js` and `@otplib/preset-browser/buffer.js`.
+The browser preset is a self-contained `umd` module, and it is provided in a separate bundle.
+
+```bash
+npm install @otplib/preset-browser --save
+```
+
+The following is an example, where we are using the scripts hosted by `unpkg.com`.
 
 ```html
 <script src="https://unpkg.com/@otplib/preset-browser@^12.0.0/buffer.js"></script>
@@ -144,12 +148,7 @@ As such, there are 2 scripts required: `@otplib/preset-browser/index.js` and `@o
 </script>
 ```
 
-The `buffer.js` provided by this library is a cached copy
-from [https://www.npmjs.com/package/buffer][link-npm-buffer].
-You can also download and include the latest version via their project page.
-
-In the above example, we are directly using the scripts hosted by `unpkg.com`.
-You can also `npm install otplib` and get a copy from the `node_modules/@otplib/preset-browser` folder.
+For more details, please refer to the [@otplib/preset-browser documentation][docs-preset-browser].
 
 ## References
 
@@ -158,7 +157,7 @@ You can also `npm install otplib` and get a copy from the `node_modules/@otplib/
 | Version         | Links                                                                               |
 | --------------- | ----------------------------------------------------------------------------------- |
 | v12.x           | [Website][project-v-site] / [API][project-v-api] / [Readme][project-v-readme]       |
-| v11.x           | [Website][project-v11-site] / [API][project-v11-api] / [Readme][project-v11-readme] |
+| v11.x           | [API][project-v11-api] / [Readme][project-v11-readme] |
 | v10.x and below | Available via git history                                                           |
 
 ### Versioning
@@ -314,26 +313,10 @@ You to find more details in the [core-async][docs-core-async] folder.
 
 `@otplib/preset-browser` is a `umd` bundle with some node modules replaced to reduce the browser size.
 
-The following defaults have been used:
-
-- **crypto**: `crypto-js`
-- **encoder**: `base32-encode`
-- **decoder**: `base32-decode`
-
-For more details, you can take a look at `packages/otplib-preset-browser/src/index.ts`.
-
-#### Browser bundle size
-
-The approximate **bundle sizes** are as follows:
-
-| Bundle Type                       | Size       |
-| --------------------------------- | ---------- |
-| original                          | 324KB      |
-| original, minified + gzipped      | 102KB      |
-| optimised                         | 30.9KB     |
-| **optimised, minified + gzipped** | **9.53KB** |
-
+The approximate size for the **optimised, minified + gzipped** bundle is **9.53KB**.
 Paired with the gzipped browser `buffer.js` module, it would be about `7.65KB + 9.53KB = 17.18KB`.
+
+For more details, please refer to the [@otplib/preset-browser documentation][docs-preset-browser].
 
 ### Length of Secrets
 
@@ -536,14 +519,15 @@ specification. Contributions of any kind welcome!
 
 [docs-core-async]: https://github.com/yeojz/otplib/blob/master/packages/otplib-core-async/README.md
 [docs-in-depth]: https://github.com/yeojz/otplib/blob/master/packages/otplib-core/README.md#getting-started
+[docs-preset-browser-src]: https://github.com/yeojz/otplib/blob/master/packages/otplib-preset-browser/src/index.ts
+[docs-preset-browser]: https://github.com/yeojz/otplib/blob/master/packages/otplib-preset-browser/README.md
 [project-circle]: https://circleci.com/gh/yeojz/otplib
 [project-coveralls]: https://coveralls.io/github/yeojz/otplib
 [project-license]: https://github.com/yeojz/otplib/blob/master/LICENSE
 [project-npm]: https://www.npmjs.com/package/otplib
 [project-repo]: https://github.com/yeojz/otplib
-[project-v-api]: https://otplib.yeojz.com/api
+[project-v-api]: https://otplib.yeojz.dev/api
 [project-v-readme]: https://github.com/yeojz/otplib/blob/master/README.md
-[project-v-site]: https://otplib.yeojz.com
+[project-v-site]: https://otplib.yeojz.dev
 [project-v11-api]: https://5d4d0cc4c85e00000788a456--otplib.netlify.com/docs
 [project-v11-readme]: https://github.com/yeojz/otplib/blob/d0aedccbca8ae7ec1983f40da4d7a14c9e815e9c/README.md
-[project-v11-site]: https://5d4d0cc4c85e00000788a456--otplib.netlify.com
