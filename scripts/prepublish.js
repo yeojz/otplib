@@ -5,7 +5,7 @@ const pkgRoot = require('../package.json');
 
 const ROOT_DIR = path.join(__dirname, '..');
 
-const packages = [
+const PACKAGES = [
   'otplib',
   'otplib-core',
   'otplib-core-async',
@@ -19,6 +19,8 @@ const packages = [
   'otplib-preset-default-async',
   'otplib-preset-v11'
 ];
+
+const NON_TS_PACKAGES = ['otplib-preset-browser'];
 
 function pkgFolder(folder) {
   return path.join(ROOT_DIR, 'packages', folder);
@@ -56,32 +58,29 @@ function packageJson(folder) {
   const file = fs.readFileSync(path.join(pkgFolder(folder), 'package.json'));
   const pkg = JSON.parse(file);
 
-  const output = {
-    name: pkg.name,
-    version: pkg.version,
-    main: './index.js',
-    publishConfig: pkg.publishConfig || {},
-    author: pkgRoot.license,
-    license: pkgRoot.author,
-    homepage: pkgRoot.homepage,
-    repository:
-      folder === 'otplib'
-        ? 'https://github.com/yeojz/otplib'
-        : `https://github.com/yeojz/otplib/tree/master/packages/${folder}`,
-    scripts: {},
-    keywords: pkg.keywords || [],
-    dependencies: pkg.dependencies || {},
-    devDependencies: pkg.devDependencies || {},
-    peerDependencies: pkg.peerDependencies || {}
-  };
+  pkg.main = './index.js';
+  pkg.scripts = {};
+  pkg.otplib = {};
+  pkg.author = pkgRoot.license;
+  pkg.license = pkgRoot.author;
+  pkg.homepage = pkgRoot.homepage;
+  pkg.repository =
+    folder === 'otplib'
+      ? 'https://github.com/yeojz/otplib'
+      : `https://github.com/yeojz/otplib/tree/master/packages/${folder}`;
+
+  const isTypeScriptLibrary = NON_TS_PACKAGES.indexOf(folder) < 0;
+  if (isTypeScriptLibrary) {
+    pkg.types = './index.d.ts';
+  }
 
   fs.writeFileSync(
     path.join(buildFolder(folder), 'package.json'),
-    JSON.stringify(output, null, 2)
+    JSON.stringify(pkg, null, 2)
   );
 }
 
-packages.forEach(folder => {
+PACKAGES.forEach(folder => {
   console.log(`[[ preparing ${folder} ]]`);
 
   readme(folder);

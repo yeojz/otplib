@@ -2,14 +2,15 @@
 
 > Independent otplib browser bundle containing browser-optimised presets
 
-`@otplib/preset-browser` is a `umd` bundle with some node modules replaced to reduce the browser size.
-The browser preset is a self contained `umd` module with `Buffer` split out as an external dependency.
+`@otplib/preset-browser` is a self-contained `umd` bundle, with `Buffer` split out
+as an external dependency and certain defaults chosen to reduce the browser size.
+
 
 <!-- TOC depthFrom:2 -->
 
 - [Getting Started](#getting-started)
-- [Defaults](#defaults)
-- [Bundle size](#bundle-size)
+- [Plugins Used](#plugins-used)
+- [Bundle Size](#bundle-size)
 - [License](#license)
 
 <!-- /TOC -->
@@ -41,7 +42,7 @@ In the above example, we are directly using the scripts hosted by `unpkg.com`.
 You can also `npm install @otplib/preset-browser` and get the bundle
 from the `node_modules/@otplib/preset-browser` folder.
 
-## Defaults
+## Plugins Used
 
 The following plugins were used as default:
 
@@ -51,7 +52,7 @@ The following plugins were used as default:
 
 For more details, you can take a look at [packages/otplib-preset-browser/src/index.ts][docs-preset-browser-src].
 
-## Bundle size
+## Bundle Size
 
 The approximate **bundle sizes** are as follows:
 
