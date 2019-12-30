@@ -1,6 +1,6 @@
 # @otplib/preset-browser
 
-> Independent otplib browser bundle containing browser-optimised presets
+> Independent otplib browser bundle containing browser-compatible plugins
 
 `@otplib/preset-browser` is a self-contained `umd` bundle, with `Buffer` split out
 as an external dependency and certain defaults chosen to reduce the browser size.

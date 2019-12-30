@@ -1,5 +1,6 @@
 {
   "name": "@otplib/plugin-thirty-two",
+  "description": "thirty-two plugin for otplib",
   "version": "12.0.0-2",
   "main": "src/index.ts",
   "publishConfig": {

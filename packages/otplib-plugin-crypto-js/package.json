@@ -1,5 +1,6 @@
 {
   "name": "@otplib/plugin-crypto-js",
+  "description": "crypto-js plugin for otplib",
   "version": "12.0.0-2",
   "main": "src/index.ts",
   "publishConfig": {

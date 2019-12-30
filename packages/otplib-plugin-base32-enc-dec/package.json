@@ -1,5 +1,6 @@
 {
   "name": "@otplib/plugin-base32-enc-dec",
+  "description": "base32-encode / base32-decode plugin for otplib",
   "version": "12.0.0-2",
   "main": "src/index.ts",
   "publishConfig": {

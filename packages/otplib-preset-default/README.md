@@ -1,6 +1,6 @@
 # @otplib/preset-default
 
-> otplib node bundle with pre-configured adapters to get started quickly.
+> otplib node bundle with pre-configured plugins to get started quickly.
 
 See our [project readme][project-v-readme] for more information
 or visit the [demo website][project-v-site].
