@@ -1,7 +1,7 @@
 {
   "name": "@otplib/preset-default",
   "description": "basic preset for otplib",
-  "version": "12.0.0-2",
+  "version": "12.0.0-3",
   "main": "src/index.ts",
   "publishConfig": {
     "access": "public"
@@ -15,8 +15,8 @@
     "node"
   ],
   "dependencies": {
-    "@otplib/core": "^12.0.0-2",
-    "@otplib/plugin-crypto": "^12.0.0-2",
-    "@otplib/plugin-thirty-two": "^12.0.0-2"
+    "@otplib/core": "^12.0.0-3",
+    "@otplib/plugin-crypto": "^12.0.0-3",
+    "@otplib/plugin-thirty-two": "^12.0.0-3"
   }
 }
