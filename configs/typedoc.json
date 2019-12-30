@@ -1,13 +1,13 @@
 {
   "exclude": [
-    "builds",
-    "configs",
+    "builds/**/*",
+    "configs/**/*",
     "packages/**/*.js",
     "packages/**/*.test.js",
     "packages/**/*.test.ts",
-    "scripts",
-    "tests",
-    "website"
+    "scripts/**/*",
+    "tests/**/*",
+    "website/**/*"
   ],
   "excludeExternals": true,
   "excludeNotExported": true,

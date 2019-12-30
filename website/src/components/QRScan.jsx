@@ -5,6 +5,7 @@ import { RowLabel, RowContent, RowAction } from './Row';
 
 const QRScan = () => {
   const [image, setImage] = useState();
+  const [link, setLink] = useState();
   const { secret } = useContext(SecretContext);
 
   useEffect(() => {
@@ -18,6 +19,7 @@ const QRScan = () => {
       'otplib-website',
       secret
     );
+    setLink(otpauth);
 
     qrcode.toDataURL(otpauth, (err, imageUrl) => {
       if (err) {
@@ -33,7 +35,9 @@ const QRScan = () => {
     <Fragment>
       <RowLabel />
       <RowContent>
-        {image && <img src={image} alt="" />}
+        {image && link && (
+          <img src={image} alt="" onClick={() => window.open(link)} />
+        )}
         <p>
           Scan this QR Code image with Google Authenticator, Authy or any other
           compatible 2FA app.
