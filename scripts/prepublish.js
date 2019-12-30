@@ -61,8 +61,8 @@ function packageJson(folder) {
   pkg.main = './index.js';
   pkg.scripts = {};
   pkg.otplib = {};
-  pkg.author = pkgRoot.license;
-  pkg.license = pkgRoot.author;
+  pkg.author = pkgRoot.author;
+  pkg.license = pkgRoot.license;
   pkg.homepage = pkgRoot.homepage;
   pkg.repository =
     folder === 'otplib'

@@ -5,7 +5,6 @@
 `@otplib/preset-browser` is a self-contained `umd` bundle, with `Buffer` split out
 as an external dependency and certain defaults chosen to reduce the browser size.
 
-
 <!-- TOC depthFrom:2 -->
 
 - [Getting Started](#getting-started)

@@ -7,7 +7,7 @@
   "author": "Gerald Yeo <contact@fusedthought.com>",
   "license": "MIT",
   "bugs": "https://github.com/yeojz/otplib/issues",
-  "homepage": "https://yeojz.github.io/otplib",
+  "homepage": "https://yeojz.otplib.dev",
   "scripts": {
     "ci:node8": "./scripts/ci-node8.sh",
     "build:site": "./scripts/build-site.sh",
@@ -15,6 +15,8 @@
     "clean": "rimraf coverage packages/**/builds",
     "format": "prettier --write \"{packages,scripts,configs}/**/*.{ts,tsx,js,jsx,json,md,mdx}\"",
     "lint": "tsc --noEmit",
+    "release:beta": " npx lerna publish from-package --contents builds --dist-tag next",
+    "release:stable": "npx lerna publish from-package --contents builds --dist-tag latest",
     "setup": "./scripts/setup.sh",
     "test:extras": "./scripts/test-extras.sh",
     "test:runner": "jest --runInBand",
