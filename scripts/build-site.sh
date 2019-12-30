@@ -37,7 +37,8 @@ echo "[[ building api docs ]]"
 npx typedoc \
   --hideGenerator \
   --options ./configs/typedoc.json \
-  --out ./builds/typedocs
+  --out ./builds/typedocs \
+  --name otplib
 
 echo "[[ copying api docs to website ]]"
 cp -r ./builds/typedocs/. ./website/static/api
