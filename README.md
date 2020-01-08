@@ -471,12 +471,12 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://developer.mozilla.org/profiles/madarche/"><img src="https://avatars0.githubusercontent.com/u/152407?v=4" width="80px;" alt="Marc-Aurèle DARCHE"/><br /><sub><b>Marc-Aurèle DARCHE</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=madarche" title="Documentation">📖</a></td>
     <td align="center"><a href="http://shakram02.github.io/"><img src="https://avatars3.githubusercontent.com/u/10996982?v=4" width="80px;" alt="Ahmed Hamdy (@shakram02)"/><br /><sub><b>Ahmed Hamdy (@shakram02)</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=shakram02" title="Documentation">📖</a></td>
     <td align="center"><a href="https://tony.brix.ninja"><img src="https://avatars3.githubusercontent.com/u/97994?v=4" width="80px;" alt="Tony Brix"/><br /><sub><b>Tony Brix</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=UziTech" title="Code">💻</a> <a href="https://github.com/yeojz/otplib/commits?author=UziTech" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/encX"><img src="https://avatars3.githubusercontent.com/u/5965883?v=4" width="80px;" alt="Plai"/><br /><sub><b>Plai</b></sub></a><br /><a href="https://github.com/yeojz/otplib/commits?author=encX" title="Documentation">📖</a></td>
   </tr>
 </table>
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
-
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors)
