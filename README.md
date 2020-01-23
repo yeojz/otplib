@@ -50,7 +50,7 @@
 It implements both [HOTP][rfc-4226-wiki] - [RFC 4226][rfc-4226]
 and [TOTP][rfc-6238-wiki] - [RFC 6238][rfc-6238],
 and are tested against the test vectors provided in their respective RFC specifications.
-These datasets can be found in the `packages/tests-data` folder.
+These datasets can be found in the `tests/data` folder.
 
 - [RFC 4226 Dataset][rfc-4226-dataset]
 - [RFC 6238 Dataset][rfc-6238-dataset]

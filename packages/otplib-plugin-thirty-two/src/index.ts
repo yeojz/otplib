@@ -27,7 +27,7 @@ export const keyEncoder: KeyEncoder = (
   encoding: KeyEncodings
 ): Base32SecretKey => {
   return thirtyTwo
-    .encode(Buffer.from(secret, encoding).toString())
+    .encode(Buffer.from(secret, encoding).toString('ascii'))
     .toString()
     .replace(/=/g, '');
 };
