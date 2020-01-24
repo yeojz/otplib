@@ -25,6 +25,7 @@ jobs:
       run: |
         npm run setup
         npm run test
+        npm run test:extras -- --type=issue
       env:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
