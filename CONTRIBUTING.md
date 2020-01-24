@@ -18,6 +18,13 @@ but it is mostly for emergencies. All automations are wired to the GitHub projec
 
 When a change lands on GitHub, it will be checked by the continuous integration system.
 
+### Issue fixes
+
+All issue fixes should generally be accompanied by corresponding tests on the issues
+to prevent future regressions.
+
+Examples of those can be found in `tests/extras/issue-*.test.js`.
+
 ## Getting Started
 
 ```bash
@@ -57,6 +64,7 @@ By contributing to `otplib`, you agree that your contributions will be licensed 
 
 - is the code tested?
   - `npm run test`
+  - `npm run test:extras`
 - is the code linted?
   - `npm run lint`
 - is the code formatted?

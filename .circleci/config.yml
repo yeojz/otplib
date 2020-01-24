@@ -9,7 +9,9 @@ aliases:
 
   - &test_package
     name: test
-    command: npm run test
+    command: |
+      npm run test
+      npm run test:extras -- --type=issue
 
   - &lint_package
     name: lint

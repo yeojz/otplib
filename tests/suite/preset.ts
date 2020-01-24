@@ -5,7 +5,6 @@ import {
   rfcTestSuiteTOTP,
   dataTestSuiteAuthenticator
 } from '@tests/suite/rfcs';
-import { testSuiteIssues } from '@tests/suite/issues';
 
 interface Presets {
   hotp: HOTP | HOTPAsync;
@@ -17,5 +16,4 @@ export function testSuitePreset(name: string, pkg: Presets): void {
   rfcTestSuiteHOTP(name, pkg.hotp);
   rfcTestSuiteTOTP(name, pkg.totp);
   dataTestSuiteAuthenticator(name, pkg.authenticator);
-  testSuiteIssues(name, pkg.authenticator);
 }

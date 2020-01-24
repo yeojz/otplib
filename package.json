@@ -12,7 +12,7 @@
     "build:site": "./scripts/build-site.sh",
     "build": "./scripts/build.sh",
     "clean": "rimraf coverage packages/**/builds",
-    "format": "prettier --write \"{packages,scripts,configs}/**/*.{ts,tsx,js,jsx,json,md,mdx}\"",
+    "format": "prettier --write \"{packages,scripts,configs,tests}/**/*.{ts,tsx,js,jsx,json,md,mdx}\"",
     "lint": "tsc --noEmit",
     "release:beta": " npx lerna publish from-package --contents builds --dist-tag next",
     "release:stable": "npx lerna publish from-package --contents builds --dist-tag latest",
