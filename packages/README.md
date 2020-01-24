@@ -1,24 +1,42 @@
 # otplib packages
 
-This library adopts a monorepo design, and is responsible for `@otplib/*` packages.
-The only other package that is not under this scope is the quick-start package `otplib`.
-All other `otplib-*` libraries that are not scoped are not maintained under this project.
+This library adopts a monorepo design. It contains both scoped (`@otplib/*`) and unscoped
+npm packages, all of which are listed in this document.
+Only packages found in this repository are officially supported under this project.
 
-Packages are classified into 3 categories: `core`, `plugin` and `preset`.
+The codebase was split out into multiple packages (as plugins) in order to guard against any
+possible deprecations of 3rd-party dependencies or new platforms which require unique implementations.
 
 Do refer to the [Quick Start Guide][docs-quick-start] to get started.
 
 <!-- TOC depthFrom:2 -->
 
-- [Core](#core)
-- [Plugins](#plugins)
-  - [Plugins - Crypto](#plugins---crypto)
-  - [Plugins - Base32](#plugins---base32)
-- [Presets](#presets)
+- [Unscoped Packages](#unscoped-packages)
+- [Scoped Packages](#scoped-packages)
+  - [Core](#core)
+  - [Plugins](#plugins)
+    - [Plugins - Crypto](#plugins---crypto)
+    - [Plugins - Base32](#plugins---base32)
+  - [Presets](#presets)
 
 <!-- /TOC -->
 
-## Core
+## Unscoped Packages
+
+These are usually quick start packages or feature packages that installs and uses
+one or many of the `@otplib/*` scoped packages.
+
+| npm install        | description                               |
+| ------------------ | ----------------------------------------- |
+| [otplib](./otplib) | Main package for quickly getting started. |
+
+## Scoped Packages
+
+These packages are published under the `@otplib/*` namespace.
+
+Packages are for scoped modules fall into 3 categories: `core`, `plugins` and `presets`.
+
+### Core
 
 Provides the core functionality of the library. Parts of the logic
 has been separated out in order to provide flexibility to the library via
@@ -34,9 +52,9 @@ import { HOTP, TOTP, Authenticator } from '@otplib/core';
 import { HOTPAsync, TOTPAsync, AuthenticatorAsync } from '@otplib/core-async';
 ```
 
-## Plugins
+### Plugins
 
-### Plugins - Crypto
+#### Plugins - Crypto
 
 | npm install                                                                 | type  | uses                           |
 | --------------------------------------------------------------------------- | ----- | ------------------------------ |
@@ -53,7 +71,7 @@ These crypto plugins provides:
 }
 ```
 
-### Plugins - Base32
+#### Plugins - Base32
 
 | npm install                                                     | type | uses                                |
 | --------------------------------------------------------------- | ---- | ----------------------------------- |
@@ -69,7 +87,7 @@ These Base32 plugins provides:
 }
 ```
 
-## Presets
+### Presets
 
 Presets are preconfigured HOTP, TOTP, Authenticator instances to
 allow you to get started with the library quickly.
