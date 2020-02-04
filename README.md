@@ -38,6 +38,7 @@
   - [Using with Expo](#using-with-expo)
   - [Exploring with local-repl](#exploring-with-local-repl)
   - [OTP Backup Codes](#otp-backup-codes)
+  - [ECMAScript Modules](#ecmascript-modules)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -154,11 +155,11 @@ For more details, please refer to the [@otplib/preset-browser documentation][doc
 
 ### API / Demo Website
 
-| Version         | Links                                                                               |
-| --------------- | ----------------------------------------------------------------------------------- |
-| v12.x           | [Website][project-v-site] / [API][project-v-api] / [Readme][project-v-readme]       |
-| v11.x           | [API][project-v11-api] / [Readme][project-v11-readme] |
-| v10.x and below | Available via git history                                                           |
+| Version         | Links                                                                         |
+| --------------- | ----------------------------------------------------------------------------- |
+| v12.x           | [Website][project-v-site] / [API][project-v-api] / [Readme][project-v-readme] |
+| v11.x           | [API][project-v11-api] / [Readme][project-v11-readme]                         |
+| v10.x and below | Available via git history                                                     |
 
 ### Versioning
 
@@ -457,6 +458,31 @@ As this process is separate from the specifications for OTP, this library does n
 provide any backup code related verification logic, and thus would have to be
 implemented separately.
 
+### ECMAScript Modules
+
+`Node.js 12` introduced ECMAScript modules support behind the `--experimental-modules` flag,
+while `Node.js v13` onwards shipped with it enabled by default.
+
+As the feature is still listed as experimental, the packages in this project will continue to be
+released only in `commonjs` format for stability. Once the feature moves out of experimental status,
+we will look to support it.
+
+At the moment, examples in the documentation assumes the use of transpilers (eg: babel).
+If you are using the Node's experimental `import` feature, some tweaks to the examples will be needed.
+
+```js
+// If the example shows:
+import { authenticator } from 'otplib';
+
+// Then for:
+// node 12 --experimental-modules
+// node 13 onwards
+// use the following:
+import otplib from 'otplib';
+
+const { authenticator } = otplib;
+```
+
 ## Contributors
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -477,6 +503,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors)
