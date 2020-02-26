@@ -18,6 +18,6 @@
     "@otplib/core": "^12.0.1"
   },
   "devDependencies": {
-    "@types/node": "^12.7.2"
+    "@types/node": "^13.7.6"
   }
 }
