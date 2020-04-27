@@ -185,8 +185,7 @@ export function padStart(
  * ```
  */
 export function keyuri(options: KeyURIOptions): string {
-  const tmpl = `otpauth://${options.type}/{labelPrefix}:{accountName}?secret={secret}{query}`;
-  const params: string[] = [];
+  const params: string[] = [`secret=${options.secret}`];
 
   if (STRATEGY.indexOf(options.type) < 0) {
     throw new Error(
@@ -203,33 +202,29 @@ export function keyuri(options: KeyURIOptions): string {
       );
     }
 
-    params.push(`&counter=${options.counter}`);
+    params.push(`counter=${options.counter}`);
   }
 
   if (options.type === 'totp' && options.step) {
-    params.push(`&period=${options.step}`);
+    params.push(`period=${options.step}`);
   }
 
   if (options.digits) {
-    params.push(`&digits=${options.digits}`);
+    params.push(`digits=${options.digits}`);
   }
 
   if (options.algorithm) {
-    params.push(`&algorithm=${options.algorithm.toUpperCase()}`);
+    params.push(`algorithm=${options.algorithm.toUpperCase()}`);
   }
 
+  let label = encodeURIComponent(options.accountName);
   if (options.issuer) {
-    params.push(`&issuer=${encodeURIComponent(options.issuer)}`);
+    const issuer = encodeURIComponent(options.issuer);
+    label = `${issuer}:${label}`;
+    params.push(`issuer=${issuer}`);
   }
-
-  return tmpl
-    .replace(
-      '{labelPrefix}',
-      encodeURIComponent(options.issuer || options.accountName)
-    )
-    .replace('{accountName}', encodeURIComponent(options.accountName))
-    .replace('{secret}', options.secret)
-    .replace('{query}', params.join(''));
+  const query = params.join('&');
+  return `otpauth://${options.type}/${label}?${query}`;
 }
 
 /**
