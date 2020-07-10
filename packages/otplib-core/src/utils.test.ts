@@ -121,7 +121,7 @@ describe('keyuri', (): void => {
     });
 
     expect(result).toEqual(
-      `${totpPrefix}test%20user:test%20user?secret=testsecret`
+      `${totpPrefix}test%20user?secret=testsecret`
     );
   });
 });
