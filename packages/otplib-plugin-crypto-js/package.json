@@ -19,7 +19,7 @@
     "crypto-js": "^4.0.0"
   },
   "devDependencies": {
-    "@types/crypto-js": "^3.1.43"
+    "@types/crypto-js": "^4.0.1"
   },
   "otplib": {
     "externals": [
