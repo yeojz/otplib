@@ -1,0 +1,56 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "21:00"
+  open-pull-requests-limit: 10
+  versioning-strategy: widen
+  ignore:
+  - dependency-name: webpack
+    versions:
+    - 5.17.0
+    - 5.19.0
+    - 5.21.2
+    - 5.22.0
+    - 5.23.0
+    - 5.24.2
+    - 5.24.4
+    - 5.26.0
+    - 5.27.2
+    - 5.28.0
+    - 5.30.0
+    - 5.32.0
+  - dependency-name: rollup
+    versions:
+    - 2.40.0
+    - 2.41.2
+    - 2.42.3
+    - 2.44.0
+    - 2.45.1
+  - dependency-name: "@babel/core"
+    versions:
+    - 7.13.10
+    - 7.13.14
+    - 7.13.15
+    - 7.13.8
+  - dependency-name: y18n
+    versions:
+    - 4.0.1
+  - dependency-name: "@babel/preset-env"
+    versions:
+    - 7.13.10
+    - 7.13.12
+    - 7.13.8
+    - 7.13.9
+  - dependency-name: "@babel/runtime"
+    versions:
+    - 7.13.10
+    - 7.13.8
+    - 7.13.9
+  - dependency-name: "@rollup/plugin-node-resolve"
+    versions:
+    - 11.1.0
+    - 11.1.1
+    - 11.2.0
