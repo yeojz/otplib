@@ -6,7 +6,7 @@
   "author": "Gerald Yeo <contact@fusedthought.com>",
   "license": "MIT",
   "bugs": "https://github.com/yeojz/otplib/issues",
-  "homepage": "https://yeojz.otplib.dev",
+  "homepage": "https://otplib.yeojz.dev",
   "scripts": {
     "ci:node8": "./scripts/ci-node8.sh",
     "build:site": "./scripts/build-site.sh",
