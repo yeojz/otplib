@@ -10,6 +10,11 @@
     "build:lib": "rollup -c ../../configs/rollup.config.js",
     "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeojz/otplib.git",
+    "directory": "packages/otplib-core"
+  },
   "keywords": [
     "otplib-core"
   ]

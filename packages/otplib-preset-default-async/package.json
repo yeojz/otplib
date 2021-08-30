@@ -15,6 +15,11 @@
     "node",
     "async"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeojz/otplib.git",
+    "directory": "packages/otplib-preset-default-async"
+  },
   "dependencies": {
     "@otplib/core-async": "^12.0.1",
     "@otplib/plugin-crypto-async-ronomon": "^12.0.1",

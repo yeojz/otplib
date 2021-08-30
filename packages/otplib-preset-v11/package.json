@@ -14,6 +14,11 @@
     "otplib-preset",
     "node"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeojz/otplib.git",
+    "directory": "packages/otplib-preset-v11"
+  },
   "dependencies": {
     "@otplib/core": "^12.0.1",
     "@otplib/plugin-crypto": "^12.0.1",

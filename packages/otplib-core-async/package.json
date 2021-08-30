@@ -14,6 +14,11 @@
     "otplib-core",
     "async"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeojz/otplib.git",
+    "directory": "packages/otplib-core-async"
+  },
   "dependencies": {
     "@otplib/core": "^12.0.1"
   }

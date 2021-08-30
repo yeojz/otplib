@@ -21,6 +21,11 @@
   "devDependencies": {
     "@types/crypto-js": "^3.1.43"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeojz/otplib.git",
+    "directory": "packages/otplib-plugin-crypto-js"
+  },
   "otplib": {
     "externals": [
       "crypto-js/core",
