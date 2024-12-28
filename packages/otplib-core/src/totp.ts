@@ -98,10 +98,8 @@ export const totpPadSecret = (
   const hexSecret = Buffer.from(secret, encoding).toString('hex');
 
   if (currentLength < minLength) {
-    const newSecret = new Array(minLength - currentLength + 1).join(hexSecret);
-    return Buffer.from(newSecret, 'hex')
-      .slice(0, minLength)
-      .toString('hex');
+    const newSecret = hexSecret.repeat(Math.ceil(minLength / hexSecret.length));
+    return newSecret.slice(0, minLength * 2);
   }
 
   return hexSecret;
