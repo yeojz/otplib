@@ -10,17 +10,17 @@
       "@otplib/plugin-crypto-noble",
       "@otplib/plugin-crypto-node",
       "@otplib/plugin-crypto-web",
+      "@otplib/preset-v11",
       "@otplib/totp",
       "@otplib/uri",
-      "@otplib/v11-adapter",
       "@otplib/v12-adapter",
       "otplib"
     ],
-    ["@repo/docs", "@repo/typedoc"]
+    ["@repo/docs"]
   ],
   "linked": [],
+  "ignore": ["@repo/benchmarks", "@repo/fuzz-tests", "@repo/typedoc"],
   "access": "public",
   "baseBranch": "main",
-  "updateInternalDependencies": "patch",
-  "ignore": []
+  "updateInternalDependencies": "patch"
 }
