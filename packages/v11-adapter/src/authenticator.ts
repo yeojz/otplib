@@ -141,18 +141,12 @@ export class Authenticator<T extends AuthenticatorOptions = AuthenticatorOptions
 
   encode(secret: SecretKey): Base32SecretKey {
     const opts = this.allOptions();
-    if (opts.keyEncoder) {
-      return opts.keyEncoder(secret, opts.encoding);
-    }
-    return defaultKeyEncoder(secret, opts.encoding);
+    return opts.keyEncoder(secret, opts.encoding);
   }
 
   decode(secret: Base32SecretKey): SecretKey {
     const opts = this.allOptions();
-    if (opts.keyDecoder) {
-      return opts.keyDecoder(secret, opts.encoding);
-    }
-    return defaultKeyDecoder(secret, opts.encoding);
+    return opts.keyDecoder(secret, opts.encoding);
   }
 
   generateSecret(numberOfBytes: number = 20): Base32SecretKey {

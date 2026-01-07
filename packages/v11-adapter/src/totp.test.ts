@@ -1,9 +1,20 @@
 import { describe, it, expect } from "vitest";
 import { TOTP, HashAlgorithms, type TOTPOptions } from "./index";
-import { RFC6238_VECTORS, BASE_SECRET } from "@repo/testing";
+import { RFC6238_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
 
 describe("TOTP (v11-adapter)", () => {
   describe("constructor and options", () => {
+    it("should create new instance", () => {
+      const totp = new TOTP();
+      const created = totp.create({ step: 60 });
+
+      expect(created).toBeInstanceOf(TOTP);
+      expect(created.allOptions().step).toBe(60);
+
+      const createdDefault = totp.create();
+      expect(createdDefault).toBeInstanceOf(TOTP);
+      expect(createdDefault.allOptions().step).toBe(30);
+    });
     it("should create instance with default options", () => {
       const totp = new TOTP();
       const opts = totp.allOptions();
@@ -152,6 +163,53 @@ describe("TOTP (v11-adapter)", () => {
 
       expect(delta).toBe(-2);
     });
+
+    it("should return null when crypto plugin throws an error", () => {
+      const throwingCrypto = {
+        hmac: () => {
+          throw new Error("Simulated crypto failure");
+        },
+      };
+
+      const totp = new TOTP<TOTPOptions>({
+        epoch: 0,
+        crypto: throwingCrypto as any,
+      });
+
+      // Should catch the error and return null instead of throwing
+      expect(totp.checkDelta("123456", BASE_SECRET)).toBe(null);
+    });
+  });
+
+  describe("verify", () => {
+    it("should verify with object-based API", () => {
+      const totp = new TOTP({ epoch: 0 });
+      const secret = BASE_SECRET;
+      const token = totp.generate(secret);
+
+      expect(totp.verify({ token, secret })).toBe(true);
+    });
+
+    it("should throw for non-object argument", () => {
+      const totp = new TOTP();
+
+      expect(() => {
+        // @ts-expect-error - Testing invalid argument
+        totp.verify("invalid");
+      }).toThrow("Expecting argument 0 of verify to be an object");
+    });
+  });
+
+  describe("keyuri", () => {
+    it("should generate valid otpauth URI", () => {
+      const totp = new TOTP();
+      const uri = totp.keyuri("user@example.com", "MyApp", BASE_SECRET_BASE32);
+
+      expect(uri).toContain("otpauth://totp/");
+      expect(uri).toContain("user%40example.com");
+      expect(uri).toContain("issuer=MyApp");
+      expect(uri).toContain(`secret=${BASE_SECRET_BASE32}`);
+    });
   });
 
   describe("timeUsed and timeRemaining", () => {
@@ -159,6 +217,12 @@ describe("TOTP (v11-adapter)", () => {
       // epoch 15s = 15 seconds into step
       const totp = new TOTP({ epoch: 15, step: 30 });
       expect(totp.timeUsed()).toBe(15);
+    });
+
+    it("should calculate time remaining", () => {
+      // epoch 15s = 15 seconds into step
+      const totp = new TOTP({ epoch: 15, step: 30 });
+      expect(totp.timeRemaining()).toBe(15);
     });
   });
 });
