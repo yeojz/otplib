@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Authenticator } from "./index";
 import { BASE_SECRET_BASE32 } from "@repo/testing";
+import { CryptoPlugin } from "@otplib/core";
 
 describe("Authenticator (v11-adapter)", () => {
   it("should generate token from base32 secret", () => {
@@ -81,7 +82,7 @@ describe("Authenticator (v11-adapter)", () => {
         hmac: () => {
           throw new Error("fail");
         },
-      } as any,
+      } as unknown as CryptoPlugin,
     });
 
     expect(auth.checkDelta("123", BASE_SECRET_BASE32)).toBe(null);

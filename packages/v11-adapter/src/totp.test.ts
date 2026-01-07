@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { TOTP, HashAlgorithms, type TOTPOptions } from "./index";
 import { RFC6238_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
+import { CryptoPlugin } from "@otplib/core";
 
 describe("TOTP (v11-adapter)", () => {
   describe("constructor and options", () => {
@@ -173,7 +174,7 @@ describe("TOTP (v11-adapter)", () => {
 
       const totp = new TOTP<TOTPOptions>({
         epoch: 0,
-        crypto: throwingCrypto as any,
+        crypto: throwingCrypto as unknown as CryptoPlugin,
       });
 
       // Should catch the error and return null instead of throwing

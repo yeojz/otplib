@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { HOTP, HashAlgorithms, type HOTPOptions } from "./index";
 import { RFC4226_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
+import { CryptoPlugin } from "@otplib/core";
 
 describe("HOTP (v11-adapter)", () => {
   it("should match RFC 4226 vectors", () => {
@@ -113,7 +114,7 @@ describe("HOTP (v11-adapter)", () => {
         hmac: () => {
           throw new Error("error");
         },
-      } as any,
+      } as unknown as CryptoPlugin,
     });
     expect(hotp.check("123456", BASE_SECRET, 0)).toBe(false);
   });
