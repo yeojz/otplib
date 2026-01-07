@@ -203,5 +203,59 @@ describe("Authenticator (v12-adapter)", () => {
       expect(auth.checkDelta(pastToken, secret)).toBe(null);
       expect(auth.check(pastToken, secret)).toBe(false);
     });
+    it("should ignore invalid window type", () => {
+      const auth = new Authenticator();
+      const secret = auth.generateSecret();
+      const token = auth.generate(secret);
+
+      auth.options = { window: {} as unknown as number };
+
+      // Should default to 0 tolerance, so current token works
+      expect(auth.checkDelta(token, secret)).toBe(0);
+    });
+  });
+
+  describe("error handling", () => {
+    it("should return null in checkDelta when crypto throws", () => {
+      const throwingCrypto = {
+        name: "throwing-plugin",
+        randomBytes: () => new Uint8Array(10),
+        hmac: () => {
+          throw new Error("Crypto error");
+        },
+      };
+
+      const auth = new Authenticator({
+        crypto: throwingCrypto as unknown as AuthenticatorOptions["crypto"],
+      });
+
+      const secret = auth.generateSecret();
+      expect(auth.checkDelta("123456", secret)).toBe(null);
+    });
+  });
+
+  describe("encoder/decoder fallbacks", () => {
+    it("should fallback to default encoder when keyEncoder is explicitly undefined", () => {
+      const auth = new Authenticator();
+      // Explicitly remove the keyEncoder from options to trigger fallback
+      auth.options = { keyEncoder: undefined };
+
+      const secret = "test";
+      // This should use the default encoder since the option is undefined
+      // and the method has a fallback
+      expect(auth.encode(secret)).toBeDefined();
+    });
+
+    it("should fallback to default decoder when keyDecoder is explicitly undefined", () => {
+      const auth = new Authenticator();
+      // Explicitly remove the keyDecoder from options to trigger fallback
+      auth.options = { keyDecoder: undefined };
+
+      // Generate a valid base32 string (default encoder)
+      const encoded = auth.encode("test");
+
+      // This should use the default decoder since the option is undefined
+      expect(auth.decode(encoded)).toBe("test");
+    });
   });
 });

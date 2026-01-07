@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { HOTP, HashAlgorithms, KeyEncodings } from "./index";
+import { HOTP, HashAlgorithms, KeyEncodings, hotpDigestToToken, type HOTPOptions } from "./index";
 import { RFC4226_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
 
 describe("HOTP (v12-adapter)", () => {
@@ -177,6 +177,85 @@ describe("HOTP (v12-adapter)", () => {
       // Verify with instance options
       expect(hotp8.check(token8, secret, 5)).toBe(true);
       expect(hotp.check(token8, secret, 5)).toBe(false); // 6 digits expected
+    });
+  });
+
+  describe("options getter", () => {
+    it("should return merged default and instance options", () => {
+      const hotp = new HOTP<HOTPOptions>({ algorithm: "sha1" });
+      hotp.options = { digits: 8 };
+
+      const opts = hotp.options;
+
+      expect(opts.algorithm).toBe("sha1");
+      expect(opts.digits).toBe(8);
+    });
+  });
+
+  describe("secretToBytes encoding support", () => {
+    it("should decode Base32-encoded secrets", () => {
+      const hotp = new HOTP({ encoding: KeyEncodings.BASE32 });
+      // Base32 encoding of "12345678901234567890" (BASE_SECRET)
+      const base32EncodedSecret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+      const token = hotp.generate(base32EncodedSecret, 0);
+
+      expect(token).toHaveLength(6);
+      expect(token).toMatch(/^\d{6}$/);
+
+      // Verify the token matches ASCII version
+      const hotpAscii = new HOTP({ encoding: KeyEncodings.ASCII });
+      const tokenAscii = hotpAscii.generate(BASE_SECRET, 0);
+      expect(token).toBe(tokenAscii);
+    });
+
+    it("should decode hex-encoded secrets", () => {
+      // "12345678901234567890" as hex
+      const hexSecret = "3132333435363738393031323334353637383930";
+      const hotp = new HOTP({ encoding: KeyEncodings.HEX });
+      const token = hotp.generate(hexSecret, 0);
+
+      expect(token).toHaveLength(6);
+      expect(token).toMatch(/^\d{6}$/);
+
+      // Verify against ASCII version to confirm same result
+      const hotpAscii = new HOTP({ encoding: KeyEncodings.ASCII });
+      const tokenAscii = hotpAscii.generate(BASE_SECRET, 0);
+
+      expect(token).toBe(tokenAscii);
+    });
+
+    it("should handle hex secrets with spaces", () => {
+      // Same hex with spaces
+      const hexSecretWithSpaces = "31 32 33 34 35 36 37 38 39 30 31 32 33 34 35 36 37 38 39 30";
+      const hotp = new HOTP({ encoding: KeyEncodings.HEX });
+      const token = hotp.generate(hexSecretWithSpaces, 0);
+
+      // Verify against ASCII version to confirm spaces are stripped
+      const hotpAscii = new HOTP({ encoding: KeyEncodings.ASCII });
+      const tokenAscii = hotpAscii.generate(BASE_SECRET, 0);
+
+      expect(token).toBe(tokenAscii);
+    });
+  });
+
+  describe("hotpDigestToToken", () => {
+    it("should convert hex digest to token", () => {
+      // RFC 4226 test vector: counter=0, HMAC = cc93cf18508d94934c64b65d8ba7667fb7cde4b0
+      // Expected truncation for 6 digits: 755224
+      const hexDigest = "cc93cf18508d94934c64b65d8ba7667fb7cde4b0";
+      const token = hotpDigestToToken(hexDigest, 6);
+
+      expect(token).toHaveLength(6);
+      expect(token).toMatch(/^\d{6}$/);
+      expect(token).toBe("755224");
+    });
+
+    it("should convert digest to 8-digit token", () => {
+      const hexDigest = "cc93cf18508d94934c64b65d8ba7667fb7cde4b0";
+      const token = hotpDigestToToken(hexDigest, 8);
+
+      expect(token).toHaveLength(8);
+      expect(token).toMatch(/^\d{8}$/);
     });
   });
 });

@@ -30,8 +30,8 @@ export default defineConfig({
 
   themeConfig: {
     logo: {
-      light: "/otplib-black.svg",
-      dark: "/otplib-white.svg",
+      light: "/assets/otplib-b.svg",
+      dark: "/assets/otplib-w.svg",
     },
 
     search: {

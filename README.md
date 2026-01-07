@@ -1,17 +1,18 @@
-<p align="center">
-  <img src="https://otplib.yeojz.dev/otplib.png" alt="otplib logo" width="256" />
-</p>
+<picture>
+  <source srcset="/assets/otplib-w.svg" media="(prefers-color-scheme: dark)">
+  <img src="/assets/otplib-b.svg" alt="otplib-logo"  width="170">
+</picture>
 
 # otplib-repo
 
 [![npm version](https://img.shields.io/npm/v/otplib.svg)](https://www.npmjs.com/package/otplib)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://img.shields.io/npm/dm/otplib.svg)](https://www.npmjs.com/package/otplib)
-[![Repo](https://img.shields.io/github/stars/yeojz/otplib?style=flat)](https://github.com/yeojz/otplib)
+[![Code Repository](https://img.shields.io/github/stars/yeojz/otplib?style=flat)](https://github.com/yeojz/otplib)
 
 > The One-Time Password (OTP) library
 
-TypeScript-first implementation of HOTP/TOTP algorithms with RFC-based implementations with Google Authenticator compatibility.
+TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime and plugin support
 
 ## Breaking Changes (v13)
 

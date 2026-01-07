@@ -4,10 +4,10 @@ layout: home
 hero:
   name: otplib
   text: One-Time Password Library
-  tagline: TypeScript-first library for TOTP and HOTP with multi-runtime and plugin support
+  tagline: TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime and plugin support
   image:
-    light: /otplib-black.svg
-    dark: /otplib-white.svg
+    light: /assets/otplib-b.svg
+    dark: /assets/otplib-w.svg
     alt: otplib logo
   actions:
     - theme: brand

@@ -175,11 +175,7 @@ export class Authenticator<T extends AuthenticatorOptions = AuthenticatorOptions
         return null;
       }
 
-      if (typeof result.delta === "number") {
-        return result.delta;
-      }
-
-      return 0;
+      return result.delta;
     } catch {
       return null;
     }
