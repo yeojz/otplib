@@ -34,13 +34,12 @@ import { authenticator } from "@otplib/v12-adapter";
 
 This adapter mimics the v12 synchronous API while using v13's plugins under the hood.
 
-::: info
-You are still recommended to full migrate to v13 as soon as possible.
+::: info Recommendation
+You are still recommended to do a full migration to use v13 directly for full compatibility and future-proofing.
 :::
 
-::: warning
-Only the instance / class based API is provided.
-If you had used a specific function directly from the package, you will need to do a Full Migration.
+::: warning Class/Instance API Only
+This adapter only exports the `authenticator`, `totp`, and `hotp` singleton instances and their classes. If you were importing specific utility functions directly from `otplib/core` or other internal paths in v12, those are not covered by this adapter.
 :::
 
 ## Full Migration
