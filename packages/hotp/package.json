@@ -4,7 +4,7 @@
   "description": "RFC 4226 HOTP implementation for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
-  "homepage": "https://github.com/yeojz/otplib",
+  "homepage": "https://otplib.yeojz.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yeojz/otplib.git",

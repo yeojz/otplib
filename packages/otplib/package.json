@@ -4,7 +4,7 @@
   "description": "TypeScript-first library for TOTP and HOTP with multi-runtime and plugin support",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
-  "homepage": "https://github.com/yeojz/otplib",
+  "homepage": "https://otplib.yeojz.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yeojz/otplib.git",
