@@ -13,6 +13,7 @@ concurrency:
 
 jobs:
   prepare-release:
+    environment: general
     name: Prepare Release (Create PR)
     runs-on: ubuntu-latest
     steps:
