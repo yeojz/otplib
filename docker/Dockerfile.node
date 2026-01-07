@@ -1,0 +1,16 @@
+ARG IMAGE_TAG=20-alpine
+FROM node:${IMAGE_TAG}
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@8.14.0 --activate
+
+WORKDIR /workspace
+
+# Copy everything (including pre-built dist/)
+COPY . .
+
+# Install dependencies (for running tests)
+RUN pnpm install --frozen-lockfile
+
+# Default command (can be overridden)
+CMD ["pnpm", "test:ci"]

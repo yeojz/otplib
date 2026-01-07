@@ -1,0 +1,165 @@
+/**
+ * @otplib/totp
+ *
+ * Type definitions for TOTP implementation
+ */
+
+import type { CryptoPlugin, Digits, HashAlgorithm, Base32Plugin } from "@otplib/core";
+
+/**
+ * TOTP configuration options
+ *
+ * All properties are optional for flexible class-based configuration.
+ * Use `TOTPGenerateOptions` or `TOTPVerifyOptions` for function parameters
+ * where certain fields are required.
+ */
+export type TOTPOptions = {
+  /** The shared secret key (Base32-encoded string or raw bytes) */
+  readonly secret?: string | Uint8Array;
+  /** Current Unix epoch timestamp in seconds (default: Date.now() / 1000) */
+  readonly epoch?: number;
+  /**
+   * Initial Unix time to start counting time steps (default: 0)
+   *
+   * Per RFC 6238, T0 is the Unix time from which to start counting.
+   * Most implementations use 0, but some systems may use a different start time.
+   *
+   * Formula: counter = floor((epoch - t0) / period)
+   */
+  readonly t0?: number;
+  /** Time step in seconds (default: 30) */
+  readonly period?: number;
+  /** Hash algorithm to use (default: 'sha1') */
+  readonly algorithm?: HashAlgorithm;
+  /** Number of digits in the OTP code (default: 6) */
+  readonly digits?: Digits;
+  /** Crypto plugin to use for HMAC operations */
+  readonly crypto?: CryptoPlugin;
+  /** Base32 plugin to decode string secrets (required if secret is a string) */
+  readonly base32?: Base32Plugin;
+  /** Service provider name (for URI generation) */
+  readonly issuer?: string;
+  /** User identifier/email/username (for URI generation) */
+  readonly label?: string;
+};
+
+/**
+ * Required options for TOTP generation
+ *
+ * Requires `secret` and `crypto` for OTP generation.
+ */
+export type TOTPGenerateOptions = TOTPOptions & {
+  readonly secret: string | Uint8Array;
+  readonly crypto: CryptoPlugin;
+};
+
+/**
+ * Required options for TOTP verification
+ *
+ * Requires `secret`, `token`, and `crypto` for verification.
+ */
+export type TOTPVerifyOptions = TOTPGenerateOptions & {
+  /** The OTP token to verify */
+  readonly token: string;
+  /**
+   * Time tolerance in seconds (default: 0 = current period only)
+   *
+   * Accepts tokens that were or will be valid within the specified tolerance
+   * of the current time. This aligns with RFC 6238's transmission delay concept.
+   *
+   * @see {@link https://tools.ietf.org/html/rfc6238#section-5.2 | RFC 6238 Section 5.2}
+   *
+   * - Number: symmetric tolerance (same for past and future)
+   *   `epochTolerance: 5` checks [epoch - 5, epoch + 5]
+   *
+   * - Tuple [past, future]: asymmetric tolerance
+   *   `epochTolerance: [5, 0]` checks [epoch - 5, epoch] (RFC-compliant, past only)
+   *   `epochTolerance: [5, 10]` checks [epoch - 5, epoch + 10]
+   *
+   * @example Recommended values by security level
+   * ```typescript
+   * // RFC-compliant (transmission delay only, past tokens)
+   * epochTolerance: [5, 0]
+   *
+   * // High security (banking, critical systems)
+   * epochTolerance: 5  // or [5, 5] symmetric
+   *
+   * // Standard (most 2FA implementations)
+   * epochTolerance: 30
+   *
+   * // Lenient (poor network, user-friendly)
+   * epochTolerance: 60
+   * ```
+   *
+   * @example How tolerance works
+   * ```
+   * With period=30 and epochTolerance=[5, 0] (RFC-compliant):
+   *
+   * Period N-1         | Period N (current)  | Period N+1
+   * [token A valid]    | [token B valid]     | [token C valid]
+   *                    |                     |
+   * At epoch in period N:
+   * - If 0-5 sec into period:  A valid, B valid
+   * - If 6-29 sec into period: B valid only
+   * (Future tokens never accepted)
+   * ```
+   */
+  readonly epochTolerance?: number | [number, number];
+};
+
+/**
+ * Successful verification result with delta offset
+ */
+export type VerifyResultValid = {
+  /** Token is valid */
+  readonly valid: true;
+  /**
+   * The offset from the current time step where the token matched.
+   * - 0: Token matched at current time step (no drift)
+   * - Negative: Token matched in a past time step (client clock behind)
+   * - Positive: Token matched in a future time step (client clock ahead)
+   */
+  readonly delta: number;
+  /**
+   * The epoch tolerance used for verification (in seconds)
+   *
+   * This indicates the time tolerance setting that was applied during verification.
+   * - Number: The symmetric tolerance value (same for past and future)
+   * - Tuple [past, future]: The asymmetric tolerance values
+   *
+   * @example
+   * ```typescript
+   * const result = await verify({ secret, token, epochTolerance: 30 });
+   * if (result.valid) {
+   *   console.log(`Verified with ${result.epochTolerance}s tolerance`);
+   *   console.log(`Token was ${result.delta} periods away`);
+   * }
+   * ```
+   */
+  readonly epochTolerance: number | [number, number];
+};
+
+/**
+ * Failed verification result
+ */
+export type VerifyResultInvalid = {
+  /** Token is invalid */
+  readonly valid: false;
+};
+
+/**
+ * Result of OTP verification (discriminated union)
+ *
+ * Use type narrowing to access `delta`:
+ * ```ts
+ * const result = await verify({ secret, token, epochTolerance: 30 });
+ * if (result.valid) {
+ *   // TypeScript knows delta exists here
+ *   if (result.delta !== 0) {
+ *     console.log(`Clock drift detected: ${result.delta} periods`);
+ *   }
+ *   console.log(`Verified with tolerance: ${result.epochTolerance}`);
+ * }
+ * ```
+ */
+export type VerifyResult = VerifyResultValid | VerifyResultInvalid;

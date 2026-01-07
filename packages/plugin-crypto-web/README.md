@@ -1,0 +1,135 @@
+# @otplib/plugin-crypto-web
+
+Web Crypto API plugin for otplib, compatible with browsers and edge runtimes.
+
+## Installation
+
+```bash
+npm install @otplib/plugin-crypto-web
+pnpm add @otplib/plugin-crypto-web
+yarn add @otplib/plugin-crypto-web
+```
+
+## Overview
+
+This plugin provides HMAC and random byte generation using the Web Crypto API. It supports all hash algorithms available in modern browsers:
+
+- `SHA-1`
+- `SHA-256`
+- `SHA-512`
+
+## Usage
+
+### Basic Usage
+
+```typescript
+import { generateSecret, generate } from "otplib";
+import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+
+const crypto = new WebCryptoPlugin();
+const base32 = new ScureBase32Plugin();
+
+// Generate a secret
+const secret = await generateSecret({ crypto, base32 });
+
+// Generate a token
+const token = await generate({
+  secret,
+  crypto,
+  base32,
+});
+```
+
+### With Custom Algorithm
+
+```typescript
+import { generate } from "otplib";
+import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+
+const crypto = new WebCryptoPlugin();
+const base32 = new ScureBase32Plugin();
+
+const token = await generate({
+  secret: "JBSWY3DPEHPK3PXP",
+  algorithm: "sha256",
+  crypto,
+  base32,
+});
+```
+
+### Asynchronous Operations
+
+The Web Crypto API only supports asynchronous operations:
+
+```typescript
+import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+
+const crypto = new WebCryptoPlugin();
+
+// Async HMAC (required by Web Crypto API)
+const digest = await crypto.hmac("SHA-1", key, data);
+
+// Async random bytes
+const bytes = await crypto.randomBytes(20);
+```
+
+## Browser Compatibility
+
+| Browser     | SHA-1 | SHA-256 | SHA-512 |
+| ----------- | ----- | ------- | ------- |
+| Chrome 37+  | Yes   | Yes     | Yes     |
+| Firefox 34+ | Yes   | Yes     | Yes     |
+| Safari 7+   | Yes   | Yes     | Yes     |
+| Edge 79+    | Yes   | Yes     | Yes     |
+| IE 11       | No    | No      | No      |
+
+## Edge Runtime Support
+
+Works in Cloudflare Workers, Vercel Edge Functions, Deno, and other edge runtimes that implement Web Crypto API:
+
+```typescript
+// Cloudflare Worker example
+import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+
+export default {
+  async fetch(request) {
+    const crypto = new WebCryptoPlugin();
+    // Use crypto for OTP operations
+  },
+};
+```
+
+## When to Use
+
+Use this plugin when:
+
+- Running in browsers (Chrome, Firefox, Safari, Edge)
+- Using edge runtimes (Cloudflare Workers, Vercel Edge)
+- Building web applications with React, Vue, etc.
+- Need cross-platform crypto support
+- Want modern browser-native crypto (no external dependencies)
+
+## Performance
+
+- All operations return Promises (asynchronous only)
+- Uses native browser crypto implementations
+- Uses OS-level crypto primitives
+
+## Limitations
+
+- Only supports asynchronous operations (no sync HMAC)
+- Not available in Node.js (use `@otplib/plugin-crypto-node` instead)
+- Requires modern browser with Web Crypto API support
+
+## Documentation
+
+Full documentation available at [otplib.yeojz.dev](https://otplib.yeojz.dev):
+
+- [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started)
+- [API Reference](https://otplib.yeojz.dev/api/)
+
+## License
+
+[MIT](./LICENSE) © 2026 Gerald Yeo

@@ -1,6 +1,17 @@
-.cache
-builds
-externals
-node_modules
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+cache/
+*.tsbuildinfo
+
+# Generated files
+coverage/
+.turbo/
+
+# Package lock files
+pnpm-lock.yaml
 package-lock.json
-public
+yarn.lock

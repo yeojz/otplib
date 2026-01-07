@@ -1,0 +1,65 @@
+{
+  "name": "@otplib/plugin-crypto-node",
+  "version": "12.0.1",
+  "description": "Node.js crypto module adapter for otplib",
+  "license": "MIT",
+  "author": "Gerald Yeo <support@yeojz.dev>",
+  "homepage": "https://github.com/yeojz/otplib",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeojz/otplib.git",
+    "directory": "packages/plugin-crypto-node"
+  },
+  "bugs": {
+    "url": "https://github.com/yeojz/otplib/issues"
+  },
+  "keywords": [
+    "otp",
+    "crypto",
+    "nodejs",
+    "hmac",
+    "plugin"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:ci": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist .tsbuildinfo"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.3.3",
+    "@otplib/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.16"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

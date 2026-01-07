@@ -1,0 +1,54 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".tsbuildinfo", ".vitepress/dist/**"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
+    },
+    "test:ci": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"],
+      "inputs": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
+    },
+    "lint": {
+      "outputs": [],
+      "inputs": ["src/**/*.ts", "*.config.{js,mjs,cjs,ts}"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "inputs": ["src/**/*.ts", "tsconfig.json"]
+    },
+    "docs:api": {
+      "inputs": ["../../packages/*/src/**/*.ts", "typedoc.json"],
+      "outputs": ["../../apps/docs/api/**"]
+    },
+    "docs:benchmarks": {
+      "inputs": ["internal/benchmarks/src/**/*.ts", "packages/core/src/**/*.ts"],
+      "outputs": ["../../apps/docs/public/benchmarks.json"]
+    },
+    "docs:dev": {
+      "dependsOn": ["docs:api", "docs:benchmarks"],
+      "cache": false,
+      "persistent": true
+    },
+    "docs:build": {
+      "dependsOn": ["docs:api", "docs:benchmarks"],
+      "outputs": [".vitepress/dist/**"]
+    },
+    "docs:serve": {
+      "dependsOn": ["docs:build"],
+      "cache": false,
+      "persistent": true
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

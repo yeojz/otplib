@@ -1,0 +1,65 @@
+{
+  "name": "@otplib/plugin-base32-scure",
+  "version": "12.0.1",
+  "description": "Base32 plugin for otplib using @scure/base",
+  "license": "MIT",
+  "author": "Gerald Yeo <support@yeojz.dev>",
+  "homepage": "https://github.com/yeojz/otplib",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeojz/otplib.git",
+    "directory": "packages/plugin-base32-scure"
+  },
+  "bugs": {
+    "url": "https://github.com/yeojz/otplib/issues"
+  },
+  "keywords": [
+    "otp",
+    "base32",
+    "encoding",
+    "plugin"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:ci": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist .tsbuildinfo"
+  },
+  "dependencies": {
+    "@otplib/core": "workspace:*",
+    "@scure/base": "^1.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

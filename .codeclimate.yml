@@ -1,4 +1,0 @@
-eslint:
-  enabled: true
-  config:
-    config: ./.eslintrc.json

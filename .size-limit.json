@@ -1,0 +1,57 @@
+[
+  {
+    "name": "@otplib/core",
+    "path": "packages/core/dist/index.js",
+    "limit": "5 KB"
+  },
+  {
+    "name": "@otplib/hotp",
+    "path": "packages/hotp/dist/index.js",
+    "limit": "3 KB"
+  },
+  {
+    "name": "@otplib/totp",
+    "path": "packages/totp/dist/index.js",
+    "limit": "4 KB"
+  },
+  {
+    "name": "@otplib/uri",
+    "path": "packages/uri/dist/index.js",
+    "limit": "2 KB"
+  },
+  {
+    "name": "otplib (main)",
+    "path": "packages/otplib/dist/index.js",
+    "limit": "10 KB"
+  },
+  {
+    "name": "@otplib/plugin-crypto-node",
+    "path": "packages/plugin-crypto-node/dist/index.js",
+    "limit": "1 KB",
+    "ignore": ["crypto"]
+  },
+  {
+    "name": "@otplib/plugin-crypto-noble",
+    "path": "packages/plugin-crypto-noble/dist/index.js",
+    "limit": "1 KB",
+    "ignore": [
+      "@noble/hashes",
+      "@noble/hashes/hmac",
+      "@noble/hashes/sha1",
+      "@noble/hashes/sha256",
+      "@noble/hashes/sha512",
+      "@noble/hashes/utils"
+    ]
+  },
+  {
+    "name": "@otplib/plugin-crypto-web",
+    "path": "packages/plugin-crypto-web/dist/index.js",
+    "limit": "1 KB"
+  },
+  {
+    "name": "@otplib/plugin-base32-scure",
+    "path": "packages/plugin-base32-scure/dist/index.js",
+    "limit": "1 KB",
+    "ignore": ["@scure/base"]
+  }
+]

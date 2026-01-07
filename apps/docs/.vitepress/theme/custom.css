@@ -1,0 +1,83 @@
+/**
+ * Custom Theme for otplib docs
+ * Palette: "Authoritative Trust"
+ * Design goal: Convey reliability, security, and professional-grade quality
+ *              befitting a foundational security library.
+ *
+ * Color Psychology:
+ * - Deep navy/slate blues signal stability and institutional trust
+ * - Subtle gradients add sophistication without appearing "startup playful"
+ * - High contrast ratios ensure WCAG AAA compliance
+ */
+
+:root {
+  /* Brand Colors - Deep authoritative blues */
+  /* Navy-leaning palette for gravitas and institutional trust */
+  --vp-c-brand-1: #1e5a9e; /* Primary - Authoritative Navy Blue */
+  --vp-c-brand-2: #164a87; /* Hover state - Deeper */
+  --vp-c-brand-3: #0f3a6e; /* Active state - Deepest */
+  --vp-c-brand-soft: rgba(30, 90, 158, 0.12);
+
+  /* Home Hero - Sophisticated slate-to-navy gradient */
+  /* Avoids the "startup vibrant" feel, emphasizes stability */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    135deg,
+    #1e3a5f 0%,
+    #2563a8 50%,
+    #1e5a9e 100%
+  );
+
+  /* Tip/Info callout colors - cohesive with brand */
+  --vp-custom-block-tip-border: var(--vp-c-brand-1);
+  --vp-custom-block-tip-text: var(--vp-c-brand-1);
+}
+
+.dark {
+  /* Dark mode - Lighter blues for readability against dark backgrounds */
+  /* Slightly desaturated for a calm, professional appearance */
+  --vp-c-brand-1: #6ba3d6; /* Primary - Accessible sky blue */
+  --vp-c-brand-2: #5a94c9; /* Hover state */
+  --vp-c-brand-3: #4a85bb; /* Active state */
+  --vp-c-brand-soft: rgba(107, 163, 214, 0.14);
+
+  /* Ensure button text has strong contrast (WCAG AAA: 7:1+) */
+  --vp-button-brand-text: #0a1929;
+
+  /* Dark mode hero gradient - sophisticated and calm */
+  --vp-home-hero-name-background: linear-gradient(
+    135deg,
+    #6ba3d6 0%,
+    #82b5e0 50%,
+    #5a94c9 100%
+  );
+}
+
+/* Button styling for solid, trustworthy appearance */
+.VPButton.brand {
+  border-radius: 6px; /* Professional, not too rounded */
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.VPButton.brand:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 90, 158, 0.25);
+}
+
+.dark .VPButton.brand:hover {
+  box-shadow: 0 4px 12px rgba(107, 163, 214, 0.2);
+}
+
+/* Alt button refinement for consistency */
+.VPButton.alt {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.VPButton.alt:hover {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+}

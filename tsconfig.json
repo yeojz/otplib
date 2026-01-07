@@ -1,27 +1,47 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",
-    "declaration": true,
-    "strict": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022"],
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "allowJs": true,
-    "baseUrl": "./",
-    "outDir": "./builds",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@builds/*": ["packages/otplib-*/builds"],
-      "@otplib/*": ["packages/otplib-*"],
-      "@tests/*": ["tests/*"]
+      "@otplib/core": ["./packages/core/src"],
+      "@otplib/hotp": ["./packages/hotp/src"],
+      "@otplib/totp": ["./packages/totp/src"],
+      "@otplib/uri": ["./packages/uri/src"],
+      "@otplib/plugin-crypto-node": ["./packages/plugin-crypto-node/src"],
+      "@otplib/plugin-crypto-web": ["./packages/plugin-crypto-web/src"],
+      "@otplib/plugin-crypto-noble": ["./packages/plugin-crypto-noble/src"],
+      "@otplib/plugin-base32-scure": ["./packages/plugin-base32-scure/src"],
+      "@repo/testing": ["./internal/testing/src"]
     }
   },
-  "exclude": [
-    "configs",
-    "node_modules",
-    "packages/**/builds",
-    "packages/**/externals",
-    "packages/**/extras",
-    "scripts",
-    "website"
+  "files": [],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/plugin-base32-scure" },
+    { "path": "./packages/plugin-crypto-noble" },
+    { "path": "./packages/plugin-crypto-node" },
+    { "path": "./packages/plugin-crypto-web" },
+    { "path": "./packages/uri" },
+    { "path": "./packages/hotp" },
+    { "path": "./packages/totp" },
+    { "path": "./packages/otplib" },
+    { "path": "./internal/testing" }
   ]
 }

@@ -1,106 +1,74 @@
 {
   "name": "otplib-repo",
-  "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
+  "version": "12.0.1",
   "private": true,
-  "repository": "https://github.com/yeojz/otplib",
-  "author": "Gerald Yeo <contact@fusedthought.com>",
-  "license": "MIT",
-  "bugs": "https://github.com/yeojz/otplib/issues",
-  "homepage": "https://yeojz.otplib.dev",
+  "type": "module",
+  "description": "TypeScript-first library for TOTP and HOTP with multi-runtime and plugin support",
   "scripts": {
-    "ci:node8": "./scripts/ci-node8.sh",
-    "build:site": "./scripts/build-site.sh",
-    "build": "./scripts/build.sh",
-    "clean": "rimraf coverage packages/**/builds",
-    "format": "prettier --write \"{packages,scripts,configs,tests}/**/*.{ts,tsx,js,jsx,json,md,mdx}\"",
-    "lint": "tsc --noEmit",
-    "release:beta": " npx lerna publish from-package --contents builds --dist-tag next",
-    "release:stable": "npx lerna publish from-package --contents builds --dist-tag latest",
-    "setup": "./scripts/setup.sh",
-    "test:extras": "./scripts/test-extras.sh",
-    "test:runner": "jest --runInBand",
-    "test": "./scripts/test.sh",
-    "update:release-notes": "npx conventional-github-releaser -p angular",
-    "upload:coverage": "cat ./coverage/lcov.info | npx coveralls"
+    "build": "turbo run build",
+    "test": "vitest --run",
+    "test:ci": "vitest --run --coverage",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "turbo run typecheck",
+    "fix": "pnpm lint:fix && pnpm format",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "docs:dev": "turbo run docs:dev",
+    "docs:build": "turbo run docs:build",
+    "docs:serve": "turbo run docs:serve",
+    "docs:api": "turbo run docs:api",
+    "bench": "pnpm --filter @repo/benchmarks bench",
+    "bench:hotp": "pnpm --filter @repo/benchmarks bench:hotp",
+    "bench:totp": "pnpm --filter @repo/benchmarks bench:totp",
+    "bench:base32": "pnpm --filter @repo/benchmarks bench:base32",
+    "bench:utils": "pnpm --filter @repo/benchmarks bench:utils",
+    "test:bun": "bun test packages/*/src/*.bun.test.ts",
+    "test:deno": "deno test --allow-read --no-check packages/*/src/*.deno.test.ts",
+    "test:docker": "sh scripts/test-docker.sh",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "turbo run build && changeset publish",
+    "size": "size-limit",
+    "size:check": "size-limit --json"
   },
-  "keywords": [
-    "totp",
-    "hotp",
-    "otp",
-    "authenticator",
-    "one time password",
-    "google authenticator",
-    "authentication",
-    "2FA",
-    "2 factor",
-    "node",
-    "browser"
-  ],
   "devDependencies": {
-    "@babel/core": "^7.7.7",
-    "@babel/plugin-transform-runtime": "^7.7.6",
-    "@babel/preset-env": "^7.7.7",
-    "@babel/preset-typescript": "^7.7.7",
-    "@babel/runtime": "^7.7.7",
-    "@rollup/plugin-commonjs": "^17.0.0",
-    "@rollup/plugin-node-resolve": "^7.1.1",
-    "@types/jest": "^26.0.0",
-    "@typescript-eslint/eslint-plugin": "^2.13.0",
-    "@typescript-eslint/parser": "^2.13.0",
-    "babel-jest": "^26.0.1",
-    "babel-loader": "^8.0.6",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.8.0",
-    "eslint-plugin-prettier": "^3.1.2",
-    "jest": "^25.1.0",
-    "lerna": "^3.19.0",
-    "prettier": "^2.0.1",
-    "puppeteer": "^7.0.1",
-    "rimraf": "^3.0.0",
-    "rollup": "^2.7.3",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-cleanup": "^3.1.1",
-    "typescript": "^4.0.2",
-    "webpack": "^4.41.4",
-    "webpack-cli": "^4.0.0"
+    "@changesets/cli": "^2.29.8",
+    "@eslint/js": "^9.39.2",
+    "@size-limit/preset-small-lib": "^12.0.0",
+    "@types/node": "^25.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.50.1",
+    "@typescript-eslint/parser": "^8.50.1",
+    "@vitest/coverage-istanbul": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.16",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "fast-check": "^4.5.2",
+    "lefthook": "^2.0.12",
+    "prettier": "^3.7.4",
+    "size-limit": "^12.0.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "turbo": "^2.7.2",
+    "typedoc": "^0.28.15",
+    "typedoc-plugin-markdown": "^4.9.0",
+    "typedoc-vitepress-theme": "^1.1.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.1",
+    "vite": "^7.3.0",
+    "vitest": "^4.0.16",
+    "vitest-tsconfig-paths": "^3.4.1"
   },
-  "jest": {
-    "collectCoverageFrom": [
-      "packages/**/*.{js,ts}",
-      "!**/node_modules/**",
-      "!packages/otplib-preset-browser/**",
-      "!**/builds/*",
-      "!**/externals/*",
-      "!**/extras/*",
-      "!**/tests/*"
-    ],
-    "coverageDirectory": "./coverage/",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/.*/__mocks__",
-      "<rootDir>/packages/.*/builds"
-    ],
-    "resetMocks": true,
-    "setupFiles": [],
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/builds/"
-    ],
-    "testURL": "http://localhost",
-    "moduleNameMapper": {
-      "@builds/(.*)$": "<rootDir>/packages/otplib-$1/builds",
-      "@otplib/(.*)$": "<rootDir>/packages/otplib-$1",
-      "@tests/(.*)$": "<rootDir>/tests/$1"
-    },
-    "transform": {
-      "^.+\\.(js|ts)$": [
-        "babel-jest",
-        {
-          "rootMode": "upward"
-        }
-      ]
+  "packageManager": "pnpm@8.14.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": ">=0.25.0"
     }
-  },
-  "prettier": {
-    "singleQuote": true
   }
 }

@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "composite": false,
+    "declarationDir": "./dist",
+    "paths": {
+      "@otplib/core": ["../core/src"],
+      "@otplib/uri": ["../uri/src"],
+      "@otplib/hotp": ["../hotp/src"],
+      "@otplib/totp": ["../totp/src"],
+      "@otplib/plugin-crypto-noble": ["../plugin-crypto-noble/src"],
+      "@otplib/plugin-crypto-web": ["../plugin-crypto-web/src"],
+      "@otplib/plugin-base32-scure": ["../plugin-base32-scure/src"],
+      "@repo/testing": ["../../internal/testing/src"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

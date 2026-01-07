@@ -1,38 +1,77 @@
 {
   "name": "otplib",
-  "description": "HMAC-based (HOTP) and Time-based (TOTP) One-Time Password library",
   "version": "12.0.1",
-  "main": "src/index.ts",
-  "publishConfig": {
-    "access": "public"
+  "description": "TypeScript-first library for TOTP and HOTP with multi-runtime and plugin support",
+  "license": "MIT",
+  "author": "Gerald Yeo <support@yeojz.dev>",
+  "homepage": "https://github.com/yeojz/otplib",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeojz/otplib.git",
+    "directory": "packages/otplib"
   },
-  "scripts": {
-    "build:lib": "rollup -c ../../configs/rollup.config.js",
-    "build:typedef": "tsc --emitDeclarationOnly -p tsconfig.build.json"
-  },
-  "dependencies": {
-    "@otplib/core": "^12.0.1",
-    "@otplib/preset-default": "^12.0.1",
-    "@otplib/preset-v11": "^12.0.1"
-  },
-  "otplib": {
-    "files": [
-      "src/core.ts",
-      "src/index.ts",
-      "src/v11.ts"
-    ]
+  "bugs": {
+    "url": "https://github.com/yeojz/otplib/issues"
   },
   "keywords": [
-    "totp",
-    "hotp",
     "otp",
+    "hotp",
+    "totp",
+    "rfc4226",
+    "rfc6238",
+    "2fa",
+    "mfa",
     "authenticator",
-    "one time password",
-    "google authenticator",
-    "authentication",
-    "2FA",
-    "2 factor",
-    "node",
-    "browser"
-  ]
+    "google-authenticator",
+    "one-time-password",
+    "security"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:ci": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist .tsbuildinfo"
+  },
+  "dependencies": {
+    "@otplib/core": "workspace:*",
+    "@otplib/uri": "workspace:*",
+    "@otplib/hotp": "workspace:*",
+    "@otplib/totp": "workspace:*",
+    "@otplib/plugin-crypto-noble": "workspace:*",
+    "@otplib/plugin-base32-scure": "workspace:*"
+  },
+  "devDependencies": {
+    "@otplib/plugin-crypto-noble": "workspace:*",
+    "@repo/testing": "workspace:*",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.16"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

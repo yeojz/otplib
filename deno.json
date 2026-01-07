@@ -1,0 +1,25 @@
+{
+  "tasks": {
+    "test": "deno test --allow-read --no-check packages/*/src/*.deno.test.ts",
+    "test:hotp": "deno test --allow-read --no-check packages/hotp/src/index.deno.test.ts",
+    "test:totp": "deno test --allow-read --no-check packages/totp/src/index.deno.test.ts"
+  },
+  "imports": {
+    "@otplib/core": "./packages/core/dist/index.js",
+    "@otplib/hotp": "./packages/hotp/dist/index.js",
+    "@otplib/totp": "./packages/totp/dist/index.js",
+    "@otplib/uri": "./packages/uri/dist/index.js",
+    "@otplib/plugin-crypto-noble": "./packages/plugin-crypto-noble/dist/index.js",
+    "@otplib/plugin-crypto-node": "./packages/plugin-crypto-node/dist/index.js",
+    "@otplib/plugin-crypto-web": "./packages/plugin-crypto-web/dist/index.js",
+    "@otplib/plugin-base32-scure": "./packages/plugin-base32-scure/dist/index.js",
+    "@repo/testing": "./internal/testing/src/index.ts",
+    "@noble/hashes/hmac": "npm:@noble/hashes@^1.3.3/hmac",
+    "@noble/hashes/legacy": "npm:@noble/hashes@^1.3.3/legacy",
+    "@noble/hashes/sha2": "npm:@noble/hashes@^1.3.3/sha2",
+    "@noble/hashes/utils": "npm:@noble/hashes@^1.3.3/utils",
+    "@scure/base": "npm:@scure/base@^1.1.7",
+    "@std/assert": "https://deno.land/std@0.220.0/assert/mod.ts"
+  },
+  "nodeModulesDir": "auto"
+}
