@@ -555,6 +555,7 @@ describe("generateSecret", () => {
       }
       return bytes;
     },
+    constantTimeEqual: () => true,
   };
 
   // Mock base32 plugin

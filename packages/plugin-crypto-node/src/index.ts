@@ -1,6 +1,6 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
-import type { CryptoPlugin } from "@otplib/core";
+import { stringToBytes, type CryptoPlugin } from "@otplib/core";
 
 /**
  * Node.js crypto module implementation of CryptoPlugin
@@ -64,8 +64,8 @@ export class NodeCryptoPlugin implements CryptoPlugin {
    * @returns true if values are equal, false otherwise
    */
   constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
-    const bufA = typeof a === "string" ? Buffer.from(a, "utf8") : Buffer.from(a);
-    const bufB = typeof b === "string" ? Buffer.from(b, "utf8") : Buffer.from(b);
+    const bufA = stringToBytes(a);
+    const bufB = stringToBytes(b);
 
     if (bufA.length !== bufB.length) {
       return false;

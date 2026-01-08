@@ -40,6 +40,9 @@ export const MIN_SECRET_BYTES = 16;
 
 /**
  * Maximum secret length in bytes (512 bits)
+ *
+ * The 64-byte maximum is not part of the RFCs.
+ * This is to prevent excessive memory usage in HMAC operations.
  */
 export const MAX_SECRET_BYTES = 64;
 
@@ -310,8 +313,8 @@ export function truncateDigits(value: number, digits: number): string {
  * @returns true if values are equal, false otherwise
  */
 export function constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
-  const bufA = typeof a === "string" ? textEncoder.encode(a) : a;
-  const bufB = typeof b === "string" ? textEncoder.encode(b) : b;
+  const bufA = stringToBytes(a);
+  const bufB = stringToBytes(b);
 
   if (bufA.length !== bufB.length) {
     return false;
@@ -343,24 +346,27 @@ export function getDigestSize(algorithm: HashAlgorithm): number {
 }
 
 /**
- * Convert a string to a Uint8Array
+ * Convert a string or Uint8Array to Uint8Array
  *
- * This is a utility function for tests and examples to convert
- * human-readable strings to Uint8Array for better readability.
+ * This utility function normalizes input to Uint8Array, converting strings
+ * using UTF-8 encoding. Uint8Array inputs are returned as-is.
  *
- * @param str - The string to convert
- * @returns The string as a Uint8Array (UTF-8 encoded)
+ * @param value - The value to convert (string or Uint8Array)
+ * @returns The value as a Uint8Array (UTF-8 encoded for strings)
  *
  * @example
  * ```ts
  * import { stringToBytes } from '@otplib/core'
  *
- * const secret = stringToBytes('1234567890123456')
+ * const bytes1 = stringToBytes('1234567890123456')
  * // Returns: Uint8Array([49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54])
+ *
+ * const bytes2 = stringToBytes(new Uint8Array([1, 2, 3]))
+ * // Returns: Uint8Array([1, 2, 3]) - returned as-is
  * ```
  */
-export function stringToBytes(str: string): Uint8Array {
-  return textEncoder.encode(str);
+export function stringToBytes(value: string | Uint8Array): Uint8Array {
+  return typeof value === "string" ? textEncoder.encode(value) : value;
 }
 
 /**
