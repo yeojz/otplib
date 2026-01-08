@@ -39,6 +39,19 @@ export type CryptoPlugin = {
    * @returns Random bytes
    */
   randomBytes(length: number): Uint8Array;
+
+  /**
+   * Constant-time comparison to prevent timing side-channel attacks
+   *
+   * Compares two values in a way that takes constant time regardless of
+   * whether they match or differ. This prevents timing attacks where an
+   * attacker could determine the secret by measuring comparison time.
+   *
+   * @param a - First value to compare (string or Uint8Array)
+   * @param b - Second value to compare (string or Uint8Array)
+   * @returns true if values are equal, false otherwise
+   */
+  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean;
 };
 
 /**

@@ -124,4 +124,79 @@ describe("NobleCryptoPlugin", () => {
       await testRFC4226HMAC(plugin, expect);
     });
   });
+
+  describe("constantTimeEqual", () => {
+    it("should return true for equal strings", () => {
+      const plugin = new NobleCryptoPlugin();
+      const result = plugin.constantTimeEqual("hello", "hello");
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false for different strings", () => {
+      const plugin = new NobleCryptoPlugin();
+      const result = plugin.constantTimeEqual("hello", "world");
+
+      expect(result).toBe(false);
+    });
+
+    it("should return true for equal Uint8Arrays", () => {
+      const plugin = new NobleCryptoPlugin();
+      const arr1 = new Uint8Array([1, 2, 3, 4, 5]);
+      const arr2 = new Uint8Array([1, 2, 3, 4, 5]);
+      const result = plugin.constantTimeEqual(arr1, arr2);
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false for different Uint8Arrays", () => {
+      const plugin = new NobleCryptoPlugin();
+      const arr1 = new Uint8Array([1, 2, 3, 4, 5]);
+      const arr2 = new Uint8Array([1, 2, 3, 4, 6]);
+      const result = plugin.constantTimeEqual(arr1, arr2);
+
+      expect(result).toBe(false);
+    });
+
+    it("should return false for different length arrays", () => {
+      const plugin = new NobleCryptoPlugin();
+      const arr1 = new Uint8Array([1, 2, 3]);
+      const arr2 = new Uint8Array([1, 2, 3, 4]);
+      const result = plugin.constantTimeEqual(arr1, arr2);
+
+      expect(result).toBe(false);
+    });
+
+    it("should return false for different length strings", () => {
+      const plugin = new NobleCryptoPlugin();
+      const result = plugin.constantTimeEqual("hello", "hello world");
+
+      expect(result).toBe(false);
+    });
+
+    it("should handle mixed string and Uint8Array inputs", () => {
+      const plugin = new NobleCryptoPlugin();
+      const str = "hello";
+      const arr = stringToBytes("hello");
+      const result = plugin.constantTimeEqual(str, arr);
+
+      expect(result).toBe(true);
+    });
+
+    it("should return true for empty strings", () => {
+      const plugin = new NobleCryptoPlugin();
+      const result = plugin.constantTimeEqual("", "");
+
+      expect(result).toBe(true);
+    });
+
+    it("should return true for empty Uint8Arrays", () => {
+      const plugin = new NobleCryptoPlugin();
+      const arr1 = new Uint8Array([]);
+      const arr2 = new Uint8Array([]);
+      const result = plugin.constantTimeEqual(arr1, arr2);
+
+      expect(result).toBe(true);
+    });
+  });
 });

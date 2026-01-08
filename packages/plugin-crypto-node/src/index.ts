@@ -1,4 +1,4 @@
-import { createHmac, randomBytes } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 import type { CryptoPlugin } from "@otplib/core";
 
@@ -51,6 +51,27 @@ export class NodeCryptoPlugin implements CryptoPlugin {
    */
   randomBytes(length: number): Uint8Array {
     return new Uint8Array(randomBytes(length));
+  }
+
+  /**
+   * Constant-time comparison using Node.js crypto.timingSafeEqual
+   *
+   * Uses Node.js's built-in timing-safe comparison which prevents
+   * timing side-channel attacks.
+   *
+   * @param a - First value to compare
+   * @param b - Second value to compare
+   * @returns true if values are equal, false otherwise
+   */
+  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
+    const bufA = typeof a === "string" ? Buffer.from(a, "utf8") : Buffer.from(a);
+    const bufB = typeof b === "string" ? Buffer.from(b, "utf8") : Buffer.from(b);
+
+    if (bufA.length !== bufB.length) {
+      return false;
+    }
+
+    return timingSafeEqual(bufA, bufB);
   }
 }
 

@@ -1,3 +1,5 @@
+import { constantTimeEqual as constantTimeEqualUtil } from "@otplib/core";
+
 import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
 
 /**
@@ -101,6 +103,20 @@ export class WebCryptoPlugin implements CryptoPlugin {
     const bytes = new Uint8Array(length);
     webCrypto.getRandomValues(bytes);
     return bytes;
+  }
+
+  /**
+   * Constant-time comparison to prevent timing side-channel attacks
+   *
+   * Web Crypto API doesn't provide a built-in constant-time comparison,
+   * so we use the core utility implementation.
+   *
+   * @param a - First value to compare
+   * @param b - Second value to compare
+   * @returns true if values are equal, false otherwise
+   */
+  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
+    return constantTimeEqualUtil(a, b);
   }
 }
 

@@ -11,7 +11,6 @@
  */
 
 import {
-  constantTimeEqual,
   normalizeSecret,
   normalizeEpochTolerance,
   validateEpochTolerance,
@@ -283,7 +282,7 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
       crypto,
     });
 
-    if (constantTimeEqual(expected, token)) {
+    if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: counter - currentCounter, epochTolerance };
     }
   }
@@ -349,7 +348,7 @@ export function verifySync(options: TOTPVerifyOptions): VerifyResult {
       crypto,
     });
 
-    if (constantTimeEqual(expected, token)) {
+    if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: counter - currentCounter, epochTolerance };
     }
   }

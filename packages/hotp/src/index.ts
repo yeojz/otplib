@@ -7,7 +7,6 @@
  */
 
 import {
-  constantTimeEqual,
   counterToBytes,
   createCryptoContext,
   dynamicTruncate,
@@ -269,7 +268,7 @@ export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> 
       crypto,
     });
 
-    if (constantTimeEqual(expected, token)) {
+    if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: offset };
     }
   }
@@ -329,7 +328,7 @@ export function verifySync(options: HOTPVerifyOptions): VerifyResult {
       crypto,
     });
 
-    if (constantTimeEqual(expected, token)) {
+    if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: offset };
     }
   }

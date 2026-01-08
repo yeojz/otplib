@@ -2,6 +2,7 @@ import { hmac } from "@noble/hashes/hmac";
 import { sha1 } from "@noble/hashes/legacy";
 import { sha256, sha512 } from "@noble/hashes/sha2";
 import { randomBytes } from "@noble/hashes/utils";
+import { constantTimeEqual as constantTimeEqualUtil } from "@otplib/core";
 
 import type { CryptoPlugin } from "@otplib/core";
 
@@ -57,6 +58,20 @@ export class NobleCryptoPlugin implements CryptoPlugin {
    */
   randomBytes(length: number): Uint8Array {
     return randomBytes(length);
+  }
+
+  /**
+   * Constant-time comparison to prevent timing side-channel attacks
+   *
+   * @noble/hashes doesn't provide a constant-time comparison,
+   * so we Use the core utility implementation.
+   *
+   * @param a - First value to compare
+   * @param b - Second value to compare
+   * @returns true if values are equal, false otherwise
+   */
+  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
+    return constantTimeEqualUtil(a, b);
   }
 }
 
