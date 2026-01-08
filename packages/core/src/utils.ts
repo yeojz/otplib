@@ -199,18 +199,23 @@ export function validateCounterTolerance(counterTolerance: number | number[]): v
  * Also validates that tolerance values are non-negative.
  *
  * @param epochTolerance - Epoch tolerance specification (number or tuple [past, future])
+ * @param period - The TOTP period in seconds (default: 30). Used to calculate max tolerance.
  * @throws {EpochToleranceNegativeError} If tolerance contains negative values
  * @throws {EpochToleranceTooLargeError} If tolerance exceeds MAX_WINDOW periods
  *
  * @example
  * ```ts
- * validateEpochTolerance(30);           // OK: 30 seconds
- * validateEpochTolerance([5, 0]);       // OK: 5 seconds past only
- * validateEpochTolerance([-5, 0]);      // Throws: negative values not allowed
- * validateEpochTolerance(3600);         // Throws: exceeds MAX_WINDOW * period
+ * validateEpochTolerance(30);            // OK: 30 seconds (default period 30s)
+ * validateEpochTolerance([5, 0]);        // OK: 5 seconds past only
+ * validateEpochTolerance([-5, 0]);       // Throws: negative values not allowed
+ * validateEpochTolerance(3600);          // Throws: exceeds MAX_WINDOW * period
+ * validateEpochTolerance(6000, 60);      // OK with 60s period (MAX_WINDOW * 60 = 6000)
  * ```
  */
-export function validateEpochTolerance(epochTolerance: number | [number, number]): void {
+export function validateEpochTolerance(
+  epochTolerance: number | [number, number],
+  period: number = DEFAULT_PERIOD,
+): void {
   const [pastTolerance, futureTolerance] = Array.isArray(epochTolerance)
     ? epochTolerance
     : [epochTolerance, epochTolerance];
@@ -222,7 +227,7 @@ export function validateEpochTolerance(epochTolerance: number | [number, number]
 
   // Check total tolerance doesn't exceed reasonable limits
   // Convert to periods and check against MAX_WINDOW
-  const maxToleranceSeconds = MAX_WINDOW * DEFAULT_PERIOD;
+  const maxToleranceSeconds = MAX_WINDOW * period;
   const maxAllowed = Math.max(pastTolerance, futureTolerance);
 
   if (maxAllowed > maxToleranceSeconds) {

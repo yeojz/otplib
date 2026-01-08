@@ -196,7 +196,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   validateTime(epoch);
   validatePeriod(period);
   validateToken(token, digits);
-  validateEpochTolerance(epochTolerance);
+  validateEpochTolerance(epochTolerance, period);
 
   const currentCounter = Math.floor((epoch - t0) / period);
 

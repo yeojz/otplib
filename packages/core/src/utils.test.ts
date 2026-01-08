@@ -257,6 +257,34 @@ describe("validateEpochTolerance", () => {
       EpochToleranceTooLargeError,
     );
   });
+
+  it("should accept higher tolerance when period is larger", () => {
+    // With default period 30s, max tolerance is MAX_WINDOW * 30 = 3000s
+    // With period 60s, max tolerance is MAX_WINDOW * 60 = 6000s
+    const toleranceExceedingDefault = MAX_WINDOW * DEFAULT_PERIOD + 1;
+
+    // Should throw with default period
+    expect(() => validateEpochTolerance(toleranceExceedingDefault)).toThrowError(
+      EpochToleranceTooLargeError,
+    );
+
+    // Should succeed with 60s period
+    expect(() => validateEpochTolerance(toleranceExceedingDefault, 60)).not.toThrow();
+  });
+
+  it("should use actual period for max tolerance calculation", () => {
+    // Max tolerance with 60s period = MAX_WINDOW * 60 = 6000s
+    expect(() => validateEpochTolerance(MAX_WINDOW * 60, 60)).not.toThrow();
+    expect(() => validateEpochTolerance(MAX_WINDOW * 60 + 1, 60)).toThrowError(
+      EpochToleranceTooLargeError,
+    );
+  });
+
+  it("should have lower max tolerance when period is smaller", () => {
+    // Max tolerance with 10s period = MAX_WINDOW * 10 = 1000s
+    expect(() => validateEpochTolerance(1000, 10)).not.toThrow();
+    expect(() => validateEpochTolerance(1001, 10)).toThrowError(EpochToleranceTooLargeError);
+  });
 });
 
 describe("normalizeCounterTolerance", () => {
