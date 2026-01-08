@@ -34,7 +34,7 @@ export type Brand<T, B extends string> = T & { readonly __brand: B };
  *   // TypeScript ensures only Base32Secret values are passed
  * }
  *
- * const secret = authenticator.generateSecret() as Base32Secret;
+ * const secret = generateSecret() as Base32Secret;
  * processSecret(secret); // OK
  * processSecret('random-string'); // Type error
  * ```
@@ -55,7 +55,7 @@ export type Base32Secret = Brand<string, "Base32Secret">;
  *   // TypeScript ensures only OTPToken values are passed
  * }
  *
- * const token = await totp.generate() as OTPToken;
+ * const token = await generate() as OTPToken;
  * validateToken(token); // OK
  * validateToken('123456'); // Type error
  * ```

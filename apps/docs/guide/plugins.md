@@ -254,6 +254,7 @@ type CryptoPlugin = {
     data: Uint8Array,
   ): Uint8Array | Promise<Uint8Array>;
   randomBytes(length: number): Uint8Array;
+  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean;
 };
 ```
 
