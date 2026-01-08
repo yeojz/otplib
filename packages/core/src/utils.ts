@@ -380,6 +380,8 @@ export function stringToBytes(value: string | Uint8Array): Uint8Array {
  * This is useful for working with RFC test vectors and debugging HMAC outputs,
  * which are commonly represented as hexadecimal strings.
  *
+ * If your environment supports it, consider using `Uint8Array.fromHex()` instead.
+ *
  * @param hex - The hex string to convert (lowercase or uppercase, no 0x prefix)
  * @returns The bytes as a Uint8Array
  *
