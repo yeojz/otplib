@@ -111,23 +111,9 @@ You **MUST** implement stateful tracking in your application database or cache t
 While SHA-1 has known collision vulnerabilities, HMAC-SHA-1 remains secure. The attack surface for OTP (6-8 digits, short validity) makes collision attacks impractical. SHA-1 provides the best compatibility with authenticator apps.
 :::
 
-## Common Vulnerabilities
+## Other Common Vulnerabilities
 
-### 1. Weak Secret Generation
-
-**Vulnerable:**
-
-```typescript
-const secret = Buffer.from(userId).toString("base32");
-```
-
-**Secure:**
-
-```typescript
-const secret = generateSecret();
-```
-
-### 2. Secret Exposure in Logs
+### Secret Exposure in Logs
 
 **Vulnerable:**
 
@@ -141,27 +127,11 @@ console.log("Verifying token for secret:", secret);
 console.log("Verifying token for user:", userId);
 ```
 
-### 3. Missing Rate Limiting
+### No Rate Limiting
 
-**Vulnerable:**
+Do ensure rate limiting is implemented in your application. This library only provides the core OTP logic and does not provide rate limiting out of the box.
 
-```typescript
-app.post("/verify", async (req, res) => {
-  const result = await verify({ secret, token: req.body.token });
-  res.json({ valid: result.valid });
-});
-```
-
-**Secure:**
-
-```typescript
-app.post("/verify", rateLimiter, async (req, res) => {
-  const result = await verify({ secret, token: req.body.token });
-  res.json({ valid: result.valid });
-});
-```
-
-### 4. Large Verification Windows
+### Large Verification Windows
 
 **Vulnerable:**
 
@@ -175,7 +145,9 @@ const result = await verify({ secret, token, epochTolerance: 300 });
 const result = await verify({ secret, token, epochTolerance: 30 });
 ```
 
-### 5. No Replay Protection
+### No Replay Protection
+
+Especially critical for HOTP, update your counter after successful verification. For TOTP, you can consider tracking used tokens within the current window.
 
 **Vulnerable:**
 
