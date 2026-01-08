@@ -7,6 +7,7 @@
  */
 
 import {
+  CounterError,
   counterToBytes,
   createCryptoContext,
   dynamicTruncate,
@@ -255,9 +256,11 @@ export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> 
     // (e.g., negative values from tolerance calculations)
     try {
       validateCounter(currentCounter);
-    } catch {
-      // validateCounter only throws CounterError - skip invalid counters
-      continue;
+    } catch (error) {
+      /* v8 ignore next -- @preserve */
+      if (error instanceof CounterError) continue;
+      /* v8 ignore next -- @preserve */
+      throw error;
     }
 
     const expected = await generate({
@@ -315,9 +318,11 @@ export function verifySync(options: HOTPVerifyOptions): VerifyResult {
     // (e.g., negative values from tolerance calculations)
     try {
       validateCounter(currentCounter);
-    } catch {
-      // validateCounter only throws CounterError - skip invalid counters
-      continue;
+    } catch (error) {
+      /* v8 ignore next -- @preserve */
+      if (error instanceof CounterError) continue;
+      /* v8 ignore next -- @preserve */
+      throw error;
     }
 
     const expected = generateSync({

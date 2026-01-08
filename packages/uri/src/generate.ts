@@ -88,13 +88,11 @@ export type HOTPURIOptions = URIOptions & {
 export function generate(uri: OTPAuthURI): string {
   const { type, label, params } = uri;
 
+  // Encode label parts while preserving ':' as the issuer/account separator
   const encodedLabel = label
-    .split("")
-    .map((char) => {
-      if (char === ":") return ":";
-      return encodeURIComponent(char);
-    })
-    .join("");
+    .split(":")
+    .map((part) => encodeURIComponent(part))
+    .join(":");
 
   let result = `otpauth://${type}/${encodedLabel}?`;
 

@@ -204,13 +204,6 @@ Once PRs are merged to `main`:
     - After merging the version PR, go back to Actions and trigger **Publish to npm**.
     - **Action**: The workflow will detect that versions have been bumped. It will build the project and run `pnpm run release` to publish the updated packages to npm.
 
-## Security
-
-If you discover a security vulnerability:
-
-1. **Do NOT open a public issue**
-2. Use [GitHub's private security advisory](https://github.com/yeojz/otplib/security/advisories/new) to report the vulnerability
-
 ## AI Usage Guidelines
 
 Code or other content generated in whole or in part using AI tools can be contributed to the project, provided that it satisfies the following conditions:
@@ -224,14 +217,14 @@ Code or other content generated in whole or in part using AI tools can be contri
 - Verify permission to use any third-party copyrighted materials (e.g., via compatible open source license or public domain)
 - Provide attribution and license information for any third-party content included
 
-### Responsibility
+### Responsible AI Usage
 
 - You are responsible for reviewing, testing, and verifying any AI-assisted changes.
 - If AI tools generated significant parts of your contribution, mention this in your PR so reviewers can provide appropriate guidance.
 
 ## Questions?
 
-- Open a [GitHub Discussion](https://github.com/yeojz/otplib/discussions)
+- Open a [GitHub Issues](https://github.com/yeojz/otplib/issues)
 - Check the [documentation](https://otplib.yeojz.dev)
 
 ## License
