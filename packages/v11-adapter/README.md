@@ -1,11 +1,17 @@
 # @otplib/preset-v11
 
-> v11 compatibility preset for otplib
+> Drop-in replacement adapter for migrating `otplib` from v11 to v13.
+
+This adapter mimics the v11 API while using v13's plugins under the hood. However, some fundamental changes from v13 may carry over.
+
+**Note:** This is intended as a temporary bridge to help you upgrade to v13 without rewriting your entire application immediately. We strongly recommend fully migrating to the new v13 API when possible.
 
 ## Installation
 
 ```bash
 npm install @otplib/preset-v11
+pnpm add @otplib/preset-v11
+yarn add @otplib/preset-v11
 ```
 
 ## Usage
@@ -28,4 +34,4 @@ const isValid = authenticator.check(token, secret);
 
 ## License
 
-MIT
+[MIT](./LICENSE) © 2026 Gerald Yeo

@@ -126,7 +126,7 @@ console.log("Valid:", result.valid);
 
 ### OTP Strategies
 
-- **`totp`**: Time-based OTP (default) - Uses timestamp to generate tokens
+- **`totp`**: Time-based OTP (default) - Uses timestamp to generate tokens (Google Authenticator compatible)
 - **`hotp`**: HMAC-based OTP - Uses a counter to generate tokens
 
 ### TOTP Options

@@ -31,6 +31,8 @@ TypeScript-first implementation of HOTP/TOTP with automatic crypto backend detec
 
 ```bash
 npm install otplib
+pnpm add otplib
+yarn add otplib
 ```
 
 ## Quick Start

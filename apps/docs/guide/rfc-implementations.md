@@ -96,8 +96,6 @@ otplib verifies the time step calculation against the "Value of T (hex)" from RF
 | 2000000000  | `0000000003f940aa` | Pass   |
 | 20000000000 | `0000000027bc86aa` | Pass   |
 
-**Test File:** `tests/shared/test-vectors.ts` AND `packages/hotp/src/hotp-test.ts`
-
 ## RFC 4648 - The Base16, Base32, and Base64 Data Encodings
 
 ### Key Requirements
@@ -123,8 +121,6 @@ otplib passes all RFC 4648 Section 10 test vectors:
 | "foob"     | "MZXW6YQ="              | "MZXW6YQ"             | "MZXW6YQ="            | "MZXW6YQ"           | Pass   |
 | "fooba"    | "MZXW6YTB"              | "MZXW6YTB"            | "MZXW6YTB"            | "MZXW6YTB"          | Pass   |
 | "foobar"   | "MZXW6YTBOI======"      | "MZXW6YTBOI"          | "MZXW6YTBOI======"    | "MZXW6YTBOI"        | Pass   |
-
-**Test File:** `tests/shared/test-vectors.ts` AND `packages/totp/src/totp-test.ts`
 
 ## Google Authenticator Compatibility
 
@@ -228,9 +224,9 @@ epochTolerance: 0;
 otplib uses constant-time comparison for all token verifications:
 
 ```typescript
-function constantTimeEqual(a: string, b: string): boolean {
-  const bufA = new TextEncoder().encode(a);
-  const bufB = new TextEncoder().encode(b);
+function constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
+  const bufA = typeof a === "string" ? new TextEncoder().encode(a) : a;
+  const bufB = typeof b === "string" ? new TextEncoder().encode(b) : b;
 
   if (bufA.length !== bufB.length) {
     return false;
@@ -247,21 +243,7 @@ function constantTimeEqual(a: string, b: string): boolean {
 
 ## Compliance Testing
 
-All RFC compliance is verified through automated tests:
-
-```bash
-# Run RFC compliance tests
-pnpm test --filter @otplib/hotp
-pnpm test --filter @otplib/totp
-pnpm test --filter @otplib/plugin-base32-scure
-```
-
-### Test Coverage
-
-- 100% statement coverage
-- 100% branch coverage
-- 100% function coverage
-- 100% line coverage
+All RFC compliance is verified through automated tests, see the [test-vectors.ts](https://github.com/yeojz/otplib/blob/main/tests/shared/test-vectors.ts) file for more details.
 
 ## References
 

@@ -102,6 +102,11 @@ const padded = base32.encode(bytes, { padding: true });
 // "JBSWY3DPEHPK3PXP="
 ```
 
+::: warning Default is `false`
+By default, padding is disabled for compatibility with Google Authenticator.
+For strict RFC Compliance, enable padding.
+:::
+
 ### Algorithm Selection
 
 Google Authenticator and most standard apps use **SHA-1**.
@@ -339,15 +344,17 @@ try {
 
 | Error Class                     | When Thrown                              |
 | ------------------------------- | ---------------------------------------- |
-| `SecretTooShortError`           | Secret is less than 16 bytes             |
-| `SecretTooLongError`            | Secret exceeds 64 bytes                  |
-| `TokenLengthError`              | Token doesn't match expected digit count |
-| `TokenFormatError`              | Token contains non-numeric characters    |
+| `AlgorithmError`                | Invalid algorithm (not sha1/sha256/etc)  |
+| `Base32DecodeError`             | Base32 decoding fails (invalid input)    |
+| `Base32EncodeError`             | Base32 encoding fails                    |
+| `Base32PluginMissingError`      | String secret but no Base32 plugin       |
+| `CounterToleranceTooLargeError` | Counter tolerance exceeds maximum (100)  |
+| `CryptoPluginMissingError`      | No crypto plugin provided                |
+| `DigitsError`                   | Invalid digits configuration (not 6-8)   |
+| `EpochToleranceTooLargeError`   | Tolerance exceeds maximum (3000 seconds) |
 | `HMACError`                     | HMAC computation fails in crypto plugin  |
 | `RandomBytesError`              | Random byte generation fails             |
-| `Base32EncodeError`             | Base32 encoding fails                    |
-| `Base32DecodeError`             | Base32 decoding fails (invalid input)    |
-| `CryptoPluginMissingError`      | No crypto plugin provided                |
-| `Base32PluginMissingError`      | String secret but no Base32 plugin       |
-| `EpochToleranceTooLargeError`   | Tolerance exceeds maximum (3000 seconds) |
-| `CounterToleranceTooLargeError` | Counter tolerance exceeds maximum (100)  |
+| `SecretTooLongError`            | Secret exceeds 64 bytes                  |
+| `SecretTooShortError`           | Secret is less than 16 bytes             |
+| `TokenFormatError`              | Token contains non-numeric characters    |
+| `TokenLengthError`              | Token doesn't match expected digit count |

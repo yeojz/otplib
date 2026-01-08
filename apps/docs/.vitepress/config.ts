@@ -75,12 +75,10 @@ export default defineConfig({
       {
         text: "Migrations",
         collapsed: false,
-        items: [{ text: "Migrating v12 to v13", link: "/guide/migrating-v12-to-v13.md" }],
-      },
-      {
-        text: "Apps",
-        collapsed: false,
-        items: [{ text: "CLI Tool (Experimental)", link: "/guide/cli-guide" }],
+        items: [
+          { text: "Migrating v11 to v13", link: "/guide/v11-adapter.md" },
+          { text: "Migrating v12 to v13", link: "/guide/v12-adapter.md" },
+        ],
       },
       {
         text: "API Reference",

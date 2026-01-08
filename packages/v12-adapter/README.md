@@ -2,7 +2,7 @@
 
 > Drop-in replacement adapter for migrating `otplib` from v12 to v13.
 
-This package provides a v12-compatible API layer on top of `otplib` v13's new architecture. It essentially re-exports the v13 internals wrapped in classes that mimic v12's synchronous `authenticator`, `totp`, and `hotp` instances.
+This adapter mimics the v12 synchronous API while using v13's plugins under the hood. However, some fundamental changes from v13 may carry over.
 
 **Note:** This is intended as a temporary bridge to help you upgrade to v13 without rewriting your entire application immediately. We strongly recommend fully migrating to the new v13 API when possible.
 
@@ -10,6 +10,8 @@ This package provides a v12-compatible API layer on top of `otplib` v13's new ar
 
 ```bash
 npm install @otplib/v12-adapter
+pnpm add @otplib/v12-adapter
+yarn add @otplib/v12-adapter
 ```
 
 ## Usage
@@ -45,3 +47,7 @@ const isValid = authenticator.verify({ token, secret });
 ## Migration Guide
 
 For a full guide on migrating to v13, including the benefits of the new architecture and how to use the new features, please see the [Migration Guide](https://otplib.yeojz.dev/guide/migrating-v12-to-v13).
+
+## License
+
+[MIT](./LICENSE) © 2026 Gerald Yeo

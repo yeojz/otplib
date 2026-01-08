@@ -1,6 +1,15 @@
-# Migration Guide: v12 to v13
+# Migration (v12 Adapter)
 
-This guide covers the breaking changes and migration steps from otplib v12 to v13.
+This adapter mimics the v12 synchronous API while using v13's plugins under the hood. However, some fundamental changes from v13 may carry over.
+
+::: info Recommendation
+This adapter is intended as a temporary bridge.
+You are still recommended to do a full migration to use v13 directly for full compatibility and future-proofing.
+:::
+
+::: warning Class/Instance API Only
+This adapter only exports the `authenticator`, `totp`, and `hotp` singleton instances and their classes. If you were importing specific utility functions directly from `otplib/core` or other internal paths in v12, those are not covered by this adapter.
+:::
 
 ## Overview of Changes
 
@@ -31,16 +40,6 @@ import { authenticator } from "otplib";
 // v13 with Adapter
 import { authenticator } from "@otplib/v12-adapter";
 ```
-
-This adapter mimics the v12 synchronous API while using v13's plugins under the hood.
-
-::: info Recommendation
-You are still recommended to do a full migration to use v13 directly for full compatibility and future-proofing.
-:::
-
-::: warning Class/Instance API Only
-This adapter only exports the `authenticator`, `totp`, and `hotp` singleton instances and their classes. If you were importing specific utility functions directly from `otplib/core` or other internal paths in v12, those are not covered by this adapter.
-:::
 
 ## Full Migration
 
