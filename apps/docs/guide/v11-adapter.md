@@ -46,3 +46,7 @@ The `check` and `verify` methods swallow errors and return `false`, matching v11
 ### Secret Length
 
 Strict secret length checks (> 16 bytes) are enforced due to security requirements in the v13 core.
+
+::: tip See Also
+For a comprehensive overview of v13 changes, breaking changes, and detailed migration patterns, refer to the [v12 Adapter Migration Guide](./v12-adapter.md).
+:::
