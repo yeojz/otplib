@@ -154,17 +154,15 @@ export function generateSync(options: TOTPGenerateOptions): string {
  * @internal
  */
 type TOTPVerifyOptionsInternal = {
-  secret: Uint8Array;
   token: string;
-  t0: number;
-  period: number;
-  algorithm: HashAlgorithm;
-  digits: Digits;
   crypto: CryptoPlugin;
   minCounter: number;
   maxCounter: number;
   currentCounter: number;
-  epochTolerance: number | [number, number];
+  t0: number;
+  period: number;
+  /** Generate options for a specific counter value */
+  getGenerateOptions: (counter: number) => TOTPGenerateOptions;
 };
 
 /**
@@ -209,17 +207,22 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   const maxCounter = Math.floor((epoch + futureTolerance - t0) / period);
 
   return {
-    secret: secretBytes,
-    t0,
-    period,
-    algorithm,
-    digits,
+    token,
     crypto,
     minCounter,
     maxCounter,
     currentCounter,
-    epochTolerance,
-    token,
+    t0,
+    period,
+    getGenerateOptions: (counter: number) => ({
+      secret: secretBytes,
+      epoch: counter * period + t0,
+      t0,
+      period,
+      algorithm,
+      digits,
+      crypto,
+    }),
   };
 }
 
@@ -255,34 +258,13 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
  * ```
  */
 export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> {
-  const {
-    secret,
-    t0,
-    period,
-    algorithm,
-    digits,
-    crypto,
-    minCounter,
-    maxCounter,
-    currentCounter,
-    token,
-  } = getTOTPVerifyOptions(options);
+  const { token, crypto, minCounter, maxCounter, currentCounter, t0, period, getGenerateOptions } =
+    getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
-    const time = counter * period + t0;
-
-    const expected = await generate({
-      secret,
-      epoch: time,
-      t0,
-      period,
-      algorithm,
-      digits,
-      crypto,
-    });
-
+    const expected = await generate(getGenerateOptions(counter));
     if (crypto.constantTimeEqual(expected, token)) {
-      return { valid: true, delta: counter - currentCounter, epoch: time };
+      return { valid: true, delta: counter - currentCounter, epoch: counter * period + t0 };
     }
   }
 
@@ -320,34 +302,13 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
  * ```
  */
 export function verifySync(options: TOTPVerifyOptions): VerifyResult {
-  const {
-    secret,
-    t0,
-    period,
-    algorithm,
-    digits,
-    crypto,
-    minCounter,
-    maxCounter,
-    currentCounter,
-    token,
-  } = getTOTPVerifyOptions(options);
+  const { token, crypto, minCounter, maxCounter, currentCounter, t0, period, getGenerateOptions } =
+    getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
-    const time = counter * period + t0;
-
-    const expected = generateSync({
-      secret,
-      epoch: time,
-      t0,
-      period,
-      algorithm,
-      digits,
-      crypto,
-    });
-
+    const expected = generateSync(getGenerateOptions(counter));
     if (crypto.constantTimeEqual(expected, token)) {
-      return { valid: true, delta: counter - currentCounter, epoch: time };
+      return { valid: true, delta: counter - currentCounter, epoch: counter * period + t0 };
     }
   }
 
