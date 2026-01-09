@@ -161,7 +161,7 @@ type TOTPVerifyOptionsInternal = {
   currentCounter: number;
   t0: number;
   period: number;
-  /** Generate options for a specific counter value */
+
   getGenerateOptions: (counter: number) => TOTPGenerateOptions;
 };
 

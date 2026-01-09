@@ -7,7 +7,6 @@
  */
 
 import {
-  CounterError,
   counterToBytes,
   createCryptoContext,
   dynamicTruncate,
@@ -138,12 +137,11 @@ export function generateSync(options: HOTPGenerateOptions): string {
  */
 type HOTPVerifyOptionsInternal = {
   token: string;
-  secretBytes: Uint8Array;
   counterNum: number;
   offsets: number[];
-  algorithm: HashAlgorithm;
-  digits: Digits;
   crypto: CryptoPlugin;
+
+  getGenerateOptions: (counter: number) => HOTPGenerateOptions;
 };
 
 /**
@@ -175,16 +173,23 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   validateCounterTolerance(counterTolerance);
 
   const counterNum = typeof counter === "bigint" ? Number(counter) : counter;
-  const offsets = normalizeCounterTolerance(counterTolerance);
+  // Pre-filter offsets that would result in invalid counters (e.g., negative values)
+  const offsets = normalizeCounterTolerance(counterTolerance).filter(
+    (offset) => counterNum + offset >= 0,
+  );
 
   return {
     token,
-    secretBytes,
     counterNum,
     offsets,
-    algorithm,
-    digits,
     crypto,
+    getGenerateOptions: (cnt: number) => ({
+      secret: secretBytes,
+      counter: cnt,
+      algorithm,
+      digits,
+      crypto,
+    }),
   };
 }
 
@@ -246,31 +251,11 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
  * ```
  */
 export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> {
-  const { token, secretBytes, counterNum, offsets, algorithm, digits, crypto } =
-    getHOTPVerifyOptions(options);
+  const { token, counterNum, offsets, crypto, getGenerateOptions } = getHOTPVerifyOptions(options);
 
   for (const offset of offsets) {
     const currentCounter = counterNum + offset;
-
-    // Check if counter is valid - skip invalid counters
-    // (e.g., negative values from tolerance calculations)
-    try {
-      validateCounter(currentCounter);
-    } catch (error) {
-      /* v8 ignore next -- @preserve */
-      if (error instanceof CounterError) continue;
-      /* v8 ignore next -- @preserve */
-      throw error;
-    }
-
-    const expected = await generate({
-      secret: secretBytes,
-      counter: currentCounter,
-      algorithm,
-      digits,
-      crypto,
-    });
-
+    const expected = await generate(getGenerateOptions(currentCounter));
     if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: offset };
     }
@@ -308,31 +293,11 @@ export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> 
  * ```
  */
 export function verifySync(options: HOTPVerifyOptions): VerifyResult {
-  const { token, secretBytes, counterNum, offsets, algorithm, digits, crypto } =
-    getHOTPVerifyOptions(options);
+  const { token, counterNum, offsets, crypto, getGenerateOptions } = getHOTPVerifyOptions(options);
 
   for (const offset of offsets) {
     const currentCounter = counterNum + offset;
-
-    // Check if counter is valid - skip invalid counters
-    // (e.g., negative values from tolerance calculations)
-    try {
-      validateCounter(currentCounter);
-    } catch (error) {
-      /* v8 ignore next -- @preserve */
-      if (error instanceof CounterError) continue;
-      /* v8 ignore next -- @preserve */
-      throw error;
-    }
-
-    const expected = generateSync({
-      secret: secretBytes,
-      counter: currentCounter,
-      algorithm,
-      digits,
-      crypto,
-    });
-
+    const expected = generateSync(getGenerateOptions(currentCounter));
     if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: offset };
     }
