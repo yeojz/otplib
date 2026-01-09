@@ -243,7 +243,7 @@ function constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): bool
 
 ## Compliance Testing
 
-All RFC compliance is verified through automated tests, see the [test-vectors.ts](https://github.com/yeojz/otplib/blob/main/tests/shared/test-vectors.ts) file for more details.
+All RFC compliance is verified through automated tests, see the [rfc-test-vectors.ts](https://github.com/yeojz/otplib/blob/main/internal/testing/src/rfc-test-vectors.ts) file for more details.
 
 ## References
 
