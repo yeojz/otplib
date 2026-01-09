@@ -1,6 +1,6 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
-import { stringToBytes, type CryptoPlugin } from "@otplib/core";
+import { stringToBytes, validateByteLengthEqual, type CryptoPlugin } from "@otplib/core";
 
 /**
  * Node.js crypto module implementation of CryptoPlugin
@@ -67,7 +67,7 @@ export class NodeCryptoPlugin implements CryptoPlugin {
     const bufA = stringToBytes(a);
     const bufB = stringToBytes(b);
 
-    if (bufA.length !== bufB.length) {
+    if (!validateByteLengthEqual(bufA, bufB)) {
       return false;
     }
 

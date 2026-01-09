@@ -305,6 +305,19 @@ export function truncateDigits(value: number, digits: number): string {
 }
 
 /**
+ * Validate that two byte arrays have equal length
+ *
+ * Useful as a preliminary check before performing byte-by-byte comparisons.
+ *
+ * @param a - First byte array
+ * @param b - Second byte array
+ * @returns true if arrays have equal length, false otherwise
+ */
+export function validateByteLengthEqual(a: Uint8Array, b: Uint8Array): boolean {
+  return a.length === b.length;
+}
+
+/**
  * Constant-time comparison to prevent timing attacks
  *
  * This implements a timing-safe equality check as recommended in
@@ -321,7 +334,7 @@ export function constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array
   const bufA = stringToBytes(a);
   const bufB = stringToBytes(b);
 
-  if (bufA.length !== bufB.length) {
+  if (!validateByteLengthEqual(bufA, bufB)) {
     return false;
   }
 

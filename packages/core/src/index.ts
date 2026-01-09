@@ -63,6 +63,7 @@ export {
   counterToBytes,
   dynamicTruncate,
   truncateDigits,
+  validateByteLengthEqual,
   constantTimeEqual,
   getDigestSize,
   stringToBytes,
