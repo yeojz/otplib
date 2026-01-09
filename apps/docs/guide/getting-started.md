@@ -59,6 +59,7 @@ console.log("Token:", token); // e.g., "123456"
 // Verify a token
 const result = await verify({ secret, token });
 console.log("Valid:", result.valid); // true
+// result.epoch is available here for TOTP
 ```
 
 #### HOTP (HMAC-Based OTP)
@@ -126,8 +127,20 @@ console.log("Valid:", result.valid);
 
 ### OTP Strategies
 
-- **`totp`**: Time-based OTP (default) - Uses timestamp to generate tokens (Google Authenticator compatible)
+- **`totp`**: Time-based OTP (default) - Uses timestamp to generate tokens
 - **`hotp`**: HMAC-based OTP - Uses a counter to generate tokens
+
+::: info Note on Google Authenticator vs RFC4648 (TOTP)
+
+**Google Authenticator** requires specific settings for compatibility:
+
+- Algorithm: `sha1` (default)
+- Digits: `6` (default)
+- Period: `30` seconds (default)
+- Secret: Base32 encoded, **unpadded**
+
+**RFC 4648** specifies that Base32 should be padded. However, Google Authenticator and many other apps expect unpadded secrets. `otplib` defaults to `padding: false` in `generateSecret` and `generateURI` to ensure compatibility out of the box.
+:::
 
 ### TOTP Options
 

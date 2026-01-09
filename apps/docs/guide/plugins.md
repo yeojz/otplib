@@ -13,7 +13,7 @@ otplib uses a plugin architecture for cryptographic operations and Base32 encodi
 
 ## Choosing a Crypto Plugin
 
-::: tip Other Runtimes
+::: info Other Runtimes
 This section focuses on package selection. for specific setup instructions for **Deno** (using `npm:` specifiers) or **Bun**, please refer to the [Runtime Compatibility](./runtime-compatibility) guide.
 :::
 
@@ -60,7 +60,7 @@ Is your app Node.js only?
 
 ### @otplib/plugin-crypto-node
 
-::: tip Included Plugins
+::: info Included Plugins
 The `@otplib/plugin-crypto-noble` and `@otplib/plugin-base32-scure` plugins are **included by default** in the main `otplib` package and can be imported directly. Other plugins (like `node` and `web`) must be installed separately.
 :::
 

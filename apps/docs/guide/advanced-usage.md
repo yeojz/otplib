@@ -102,7 +102,7 @@ const padded = base32.encode(bytes, { padding: true });
 // "JBSWY3DPEHPK3PXP="
 ```
 
-::: warning Default is `false`
+::: info Default is `false`
 By default, padding is disabled for compatibility with Google Authenticator.
 For strict RFC Compliance, enable padding.
 :::
@@ -209,9 +209,10 @@ const result = await safeVerify({
 });
 
 if (result.ok) {
-  // result.value is { delta: number, valid: boolean }
+  // result.value is { valid: true; delta: number; epoch?: number }
   if (result.value.valid) {
     console.log("Valid!");
+    console.log("Matched at epoch:", result.value.epoch);
   }
 } else {
   console.error("Verification failed:", result.error);

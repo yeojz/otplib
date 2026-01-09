@@ -54,7 +54,9 @@ import { authenticator } from "otplib";
 const secret = authenticator.generateSecret();
 const token = authenticator.generate(secret);
 const isValid = authenticator.verify({ token, secret });
+```
 
+```typescript
 // v13 - Using the Functional API (Recommended)
 import { generateSecret, generate, verify } from "otplib";
 
@@ -102,7 +104,8 @@ const result = await verify({
 
 ### 1. Async API
 
-All `generate()` and `verify()` functions are now async:
+All `generate()` and `verify()` functions are now async by default.
+You may use the `sync` variants if you need synchronous behavior.
 
 ```typescript
 // v12 (synchronous)
@@ -110,6 +113,9 @@ const token = authenticator.generate(secret);
 
 // v13 (async)
 const token = await generate({ secret });
+
+// v13 (sync)
+const token = generateSync({ secret });
 ```
 
 ### 2. Plugin Injection Required
