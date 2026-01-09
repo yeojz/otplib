@@ -250,7 +250,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
  *   crypto: new NodeCryptoPlugin(),
  * });
  * if (result.valid) {
- *   console.log(`Verified with ${result.epochTolerance}s tolerance`);
+ *   console.log(`Token matched at epoch: ${result.epoch}`);
  * }
  * ```
  */
@@ -265,16 +265,15 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
     minCounter,
     maxCounter,
     currentCounter,
-    epochTolerance,
     token,
   } = getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
-    const periodStart = counter * period + t0;
+    const time = counter * period + t0;
 
     const expected = await generate({
       secret,
-      epoch: periodStart,
+      epoch: time,
       t0,
       period,
       algorithm,
@@ -283,7 +282,7 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
     });
 
     if (crypto.constantTimeEqual(expected, token)) {
-      return { valid: true, delta: counter - currentCounter, epochTolerance };
+      return { valid: true, delta: counter - currentCounter, epoch: time };
     }
   }
 
@@ -316,7 +315,7 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
  *   crypto: new NodeCryptoPlugin(),
  * });
  * if (result.valid) {
- *   console.log(`Verified with ${result.epochTolerance}s tolerance`);
+ *   console.log(`Token matched at epoch: ${result.epoch}`);
  * }
  * ```
  */
@@ -331,16 +330,15 @@ export function verifySync(options: TOTPVerifyOptions): VerifyResult {
     minCounter,
     maxCounter,
     currentCounter,
-    epochTolerance,
     token,
   } = getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
-    const periodStart = counter * period + t0;
+    const time = counter * period + t0;
 
     const expected = generateSync({
       secret,
-      epoch: periodStart,
+      epoch: time,
       t0,
       period,
       algorithm,
@@ -349,7 +347,7 @@ export function verifySync(options: TOTPVerifyOptions): VerifyResult {
     });
 
     if (crypto.constantTimeEqual(expected, token)) {
-      return { valid: true, delta: counter - currentCounter, epochTolerance };
+      return { valid: true, delta: counter - currentCounter, epoch: time };
     }
   }
 

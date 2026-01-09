@@ -121,22 +121,22 @@ export type VerifyResultValid = {
    */
   readonly delta: number;
   /**
-   * The epoch tolerance used for verification (in seconds)
+   * The exact epoch timestamp (in seconds) of the period start where the token matched.
    *
-   * This indicates the time tolerance setting that was applied during verification.
-   * - Number: The symmetric tolerance value (same for past and future)
-   * - Tuple [past, future]: The asymmetric tolerance values
+   * This provides the precise Unix timestamp for the beginning of the time period
+   * in which the token was valid. Useful for logging, debugging, and advanced
+   * time drift analysis.
    *
    * @example
    * ```typescript
    * const result = await verify({ secret, token, epochTolerance: 30 });
    * if (result.valid) {
-   *   console.log(`Verified with ${result.epochTolerance}s tolerance`);
+   *   console.log(`Token matched at epoch: ${result.epoch}`);
    *   console.log(`Token was ${result.delta} periods away`);
    * }
    * ```
    */
-  readonly epochTolerance: number | [number, number];
+  readonly epoch: number;
 };
 
 /**
@@ -158,7 +158,7 @@ export type VerifyResultInvalid = {
  *   if (result.delta !== 0) {
  *     console.log(`Clock drift detected: ${result.delta} periods`);
  *   }
- *   console.log(`Verified with tolerance: ${result.epochTolerance}`);
+ *   console.log(`Token matched at epoch: ${result.epoch}`);
  * }
  * ```
  */

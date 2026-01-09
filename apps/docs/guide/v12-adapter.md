@@ -153,9 +153,10 @@ verify({ secret, token, crypto, base32 });
 const isValid = authenticator.verify({ token, secret }); // boolean
 
 // v13
-const result = await verify({ secret, token }); // { valid: boolean, delta?: number }
+const result = await verify({ secret, token }); // { valid: boolean; delta?: number; epoch?: number }
 const isValid = result.valid;
 const delta = result.delta; // 0 = exact match, +/- for window offset
+const epoch = result.epoch; // Exact epoch (in seconds) of the period that matched
 ```
 
 ### 5. Secret Format Changes
@@ -340,7 +341,7 @@ import type {
 
 // HashAlgorithm = "sha1" | "sha256" | "sha512"
 // Digits = 6 | 7 | 8
-// VerifyResult = { boolean: delta?: number }
+// VerifyResult = { valid: boolean; delta?: number; epoch?: number }
 ```
 
 ## Tolerance Changes (`window` vs `tolerance`)
