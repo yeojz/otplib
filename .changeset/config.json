@@ -19,7 +19,7 @@
     ["@repo/docs"]
   ],
   "linked": [],
-  "ignore": ["@repo/benchmarks", "@repo/fuzz-tests", "@repo/typedoc"],
+  "ignore": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch"
