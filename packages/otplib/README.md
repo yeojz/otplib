@@ -2,7 +2,7 @@
 
 > The One-Time Password (OTP) library
 
-TypeScript-first implementation of HOTP/TOTP with automatic crypto backend detection for optimal performance across Node.js, browsers, and edge environments.
+TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime and plugin support
 
 ## Breaking Changes (v13)
 
