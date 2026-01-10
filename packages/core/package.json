@@ -1,6 +1,6 @@
 {
   "name": "@otplib/core",
-  "version": "12.0.1",
+  "version": "13.0.0",
   "description": "Core interfaces, types, and crypto abstraction for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
