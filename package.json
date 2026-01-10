@@ -1,0 +1,20 @@
+{
+  "name": "otplib-smoke-test",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Smoke tests for published otplib packages",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:typescript": "tsc --noEmit test/*.test.ts",
+    "pretest": "npm install otplib@latest @otplib/core@latest @otplib/totp@latest @otplib/hotp@latest @otplib/uri@latest @otplib/plugin-base32-scure@latest @otplib/plugin-crypto-noble@latest @otplib/plugin-crypto-node@latest --save-exact"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

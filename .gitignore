@@ -1,0 +1,58 @@
+.DS_Store
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# VitePress
+**/.vitepress/dist/
+**/.vitepress/cache/
+**/.vitepress/.temp/
+
+# Temporary files
+*.tmp
+.tmp/
+
+# Generated API docs
+apps/docs/api/
+apps/docs/**/benchmarks.json
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git worktrees
+.worktrees/
+
+# Testing
+coverage/
+coverage-*/
+.nyc_output/
+*.lcov
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Turbo
+.turbo/
+
+# Changesets
+.changeset/pre.json
