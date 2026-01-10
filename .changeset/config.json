@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
-  "changelog": false,
+  "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [
     [
@@ -14,8 +14,7 @@
       "@otplib/totp",
       "@otplib/uri",
       "@otplib/v12-adapter",
-      "otplib",
-      "@repo/testing"
+      "otplib"
     ]
   ],
   "linked": [],

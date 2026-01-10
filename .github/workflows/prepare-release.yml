@@ -35,8 +35,8 @@ jobs:
       - name: Create Versioning PR
         uses: changesets/action@v1.5.3
         with:
-          version: pnpm run version
-          commit: "ci: version packages"
-          title: "ci: version packages"
+          version: pnpm run version-update
+          commit: "ci: update package versions"
+          title: "ci: update package versions"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
