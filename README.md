@@ -17,7 +17,7 @@ TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime an
 ## Breaking Changes (v13)
 
 > [!IMPORTANT]  
-> v13.0.0 is a complete rewrite with breaking changes:
+> v13 is a complete rewrite with breaking changes:
 >
 > - **New**
 >   - **Security-audited plugins** — Default crypto uses `@noble/hashes` and `@scure/base`, both independently audited
@@ -85,7 +85,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
 
 ## AI Usage Disclosure
 
-From v13.0.0, portions of this codebase, including tests and documentation, were refined with AI assistance and human review. See [CONTRIBUTING.md](./CONTRIBUTING.md#ai-usage-guidelines) for guidelines.
+From v13, portions of this codebase, including tests and documentation, were refined with AI assistance and human review. See [CONTRIBUTING.md](./CONTRIBUTING.md#ai-usage-guidelines) for guidelines.
 
 ## License
 

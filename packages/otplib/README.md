@@ -7,7 +7,7 @@ TypeScript-first implementation of HOTP/TOTP with automatic crypto backend detec
 ## Breaking Changes (v13)
 
 > [!IMPORTANT]  
-> v13.0.0 is a complete rewrite with breaking changes:
+> v13 is a complete rewrite with breaking changes:
 >
 > - **New**
 >   - **Security-audited plugins** — Default crypto uses `@noble/hashes` and `@scure/base`, both independently audited
