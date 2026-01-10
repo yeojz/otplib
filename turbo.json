@@ -34,12 +34,12 @@
       "outputs": ["../../apps/docs/public/benchmarks.json"]
     },
     "docs:dev": {
-      "dependsOn": ["docs:api", "docs:benchmarks"],
+      "dependsOn": ["@repo/typedoc#docs:api", "@repo/benchmarks#docs:benchmarks"],
       "cache": false,
       "persistent": true
     },
     "docs:build": {
-      "dependsOn": ["docs:api", "docs:benchmarks"],
+      "dependsOn": ["@repo/typedoc#docs:api", "@repo/benchmarks#docs:benchmarks"],
       "outputs": [".vitepress/dist/**"]
     },
     "docs:serve": {

@@ -1,3 +1,5 @@
+.DS_Store
+
 # Dependencies
 node_modules/
 .pnpm-store/
@@ -8,11 +10,17 @@ build/
 *.tsbuildinfo
 
 # VitePress
-.vitepress/cache/
+**/.vitepress/dist/
+**/.vitepress/cache/
+**/.vitepress/.temp/
+
+# Temporary files
+*.tmp
+.tmp/
 
 # Generated API docs
-docs/api/
 apps/docs/api/
+apps/docs/**/benchmarks.json
 
 # Environment
 .env
@@ -25,13 +33,11 @@ apps/docs/api/
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Git worktrees
 .worktrees/
 
 # Testing
-.tmp/
 coverage/
 coverage-*/
 .nyc_output/
