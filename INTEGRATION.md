@@ -2,6 +2,25 @@
 
 This document explains how to integrate the smoke tests from this orphaned branch into your main repository's CI/CD pipeline.
 
+## Quick Start
+
+**Use the workflow template provided in this branch:**
+
+See [MAIN-BRANCH-SETUP.md](./MAIN-BRANCH-SETUP.md) for detailed setup instructions and usage scenarios.
+
+**Quick setup:**
+```bash
+# From your main branch
+cp .github/workflows/smoke-test-main-branch-template.yml \
+   .github/workflows/smoke-test.yml
+```
+
+Then customize for your needs. The template includes commented examples for different scenarios.
+
+---
+
+## Detailed Integration Options
+
 ## Option 1: Add Smoke Test Step to Publish Workflow
 
 Add the following job to your `publish-npm.yml` workflow after the publish step:

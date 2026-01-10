@@ -2,6 +2,9 @@
 
 This package contains smoke tests for the published `otplib` npm packages. It verifies that the published packages can be installed and used correctly in a clean environment.
 
+> **Setting up smoke tests in your main branch?**
+> See [MAIN-BRANCH-SETUP.md](./MAIN-BRANCH-SETUP.md) for the workflow template and setup instructions.
+
 ## Purpose
 
 These smoke tests run after packages are published to npm to ensure:
@@ -15,12 +18,18 @@ These smoke tests run after packages are published to npm to ensure:
 
 ```
 otplib-branch-2/
-├── package.json           # Smoke test package configuration
-├── tsconfig.json          # TypeScript configuration for type checking
+├── .github/workflows/
+│   ├── smoke-test.yml                      # Workflow for this smoke branch
+│   └── smoke-test-main-branch-template.yml # Template for main branch
 ├── test/
-│   ├── otplib.test.js    # Runtime smoke tests
-│   └── types.test.ts     # TypeScript type checking tests
-└── README.md             # This file
+│   ├── otplib.test.js                      # Runtime smoke tests
+│   └── types.test.ts                       # TypeScript type checking tests
+├── package.json                            # Smoke test package configuration
+├── tsconfig.json                           # TypeScript configuration
+├── install-packages.sh                     # Script to install otplib packages
+├── README.md                               # This file
+├── MAIN-BRANCH-SETUP.md                    # Setup guide for main branch
+└── INTEGRATION.md                          # Integration options
 ```
 
 ## How It Works

@@ -1,0 +1,74 @@
+# Smoke Test Workflow Template for Main Branch
+# Copy this file to your main branch as .github/workflows/smoke-test.yml
+
+name: Smoke Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "otplib version to test (e.g., 13.0.0, latest)"
+        required: false
+        default: "latest"
+  # Uncomment to run smoke tests after publishing
+  # workflow_run:
+  #   workflows: ["Publish to npm"]
+  #   types:
+  #     - completed
+  # Uncomment to run smoke tests on a schedule
+  # schedule:
+  #   - cron: "0 2 * * *"
+
+permissions:
+  contents: read
+
+env:
+  OTPLIB_VERSION: ${{ github.event.inputs.version || 'latest' }}
+
+jobs:
+  smoke-test:
+    name: Smoke Test (Node.js ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    # Only run if workflow_run was successful (when using workflow_run trigger)
+    # if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24]
+    steps:
+      - name: Checkout smoke tests
+        uses: actions/checkout@v4
+        with:
+          ref: smoke
+          path: smoke-tests
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+          cache-dependency-path: smoke-tests/pnpm-lock.yaml
+
+      # Wait for npm to propagate packages (useful after publishing)
+      # Uncomment this step if running after publish workflow
+      # - name: Wait for npm to propagate
+      #   run: sleep 60
+
+      - name: Install dependencies
+        working-directory: smoke-tests
+        run: pnpm install
+
+      - name: Install otplib packages
+        working-directory: smoke-tests
+        run: pnpm install:packages
+
+      - name: Run smoke tests
+        working-directory: smoke-tests
+        run: pnpm test
+
+      - name: Run TypeScript type check
+        working-directory: smoke-tests
+        run: pnpm test:typecheck
