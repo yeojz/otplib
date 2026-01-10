@@ -197,7 +197,7 @@ Once PRs are merged to `main`:
     - **Action**: This will create (or update) a "Version Packages" Pull Request by consuming changesets.
 
 2.  **Review & Merge Version PR**:
-    - Review the "Version Packages" PR created by the bot. This PR consumes changesets and updates `package.json` versions and `CHANGELOG.md`.
+    - Review the "Version Packages" PR created by the bot. This PR consumes changesets and updates `package.json` versions.
     - Merge this PR into `main`.
 
 3.  **Trigger "Publish to npm"**:

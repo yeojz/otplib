@@ -33,6 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Create Versioning PR
+        id: changesets
         uses: changesets/action@v1.5.3
         with:
           version: pnpm run version-update
@@ -40,3 +41,16 @@ jobs:
           title: "ci: update package versions"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add autorelease label
+        if: steps.changesets.outputs.pullRequestNumber
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.changesets.outputs.pullRequestNumber }},
+              labels: ['ci-release']
+            })
