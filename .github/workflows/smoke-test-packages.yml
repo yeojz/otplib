@@ -27,30 +27,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: smoke-tests
-          path: smoke-tests
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
-          cache-dependency-path: smoke-tests/package-lock.json
+          cache-dependency-path: package.json
 
       - name: Wait for npm to propagate
         run: sleep 60
 
       - name: Install dependencies
-        working-directory: smoke-tests
+
         run: npm install
 
       - name: Install otplib packages
-        working-directory: smoke-tests
+
         run: npm run install:packages
 
       - name: Run smoke tests
-        working-directory: smoke-tests
+
         run: npm run test:all
 
       - name: Run TypeScript type check
-        working-directory: smoke-tests
+
         run: npm run test:typecheck
