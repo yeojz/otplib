@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  checks: write
 
 jobs:
   # Note:
@@ -39,17 +40,26 @@ jobs:
         run: sleep 60
 
       - name: Install dependencies
-
         run: npm install
 
       - name: Install otplib packages
-
         run: npm run install:packages
 
       - name: Run smoke tests
-
         run: npm run test:all
 
       - name: Run TypeScript type check
-
         run: npm run test:typecheck
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: "report.xml"
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: test-report
+          path: report.xml
