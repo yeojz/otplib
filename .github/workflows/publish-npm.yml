@@ -40,7 +40,7 @@ jobs:
 
       - name: Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v1.5.3
         with:
           publish: pnpm run release
         env:

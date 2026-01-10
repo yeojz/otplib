@@ -33,7 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Create Versioning PR
-        uses: changesets/action@v1
+        uses: changesets/action@v1.5.3
         with:
           version: pnpm run version
           commit: "ci: version packages"
