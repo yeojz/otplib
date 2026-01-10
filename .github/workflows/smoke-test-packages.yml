@@ -12,6 +12,9 @@ permissions:
   contents: read
 
 jobs:
+  # Note:
+  # This workflow uses `npm` instead of `pnpm` for package management
+  # My assumption is that more users are on npm.
   smoke-test-packages:
     environment: general
     name: Smoke Test (Packages)
@@ -23,34 +26,31 @@ jobs:
       - name: Checkout smoke tests
         uses: actions/checkout@v4
         with:
-          ref: smoke
+          ref: smoke-tests
           path: smoke-tests
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "pnpm"
-          cache-dependency-path: smoke-tests/pnpm-lock.yaml
+          cache: "npm"
+          cache-dependency-path: smoke-tests/package-lock.json
 
       - name: Wait for npm to propagate
         run: sleep 60
 
       - name: Install dependencies
         working-directory: smoke-tests
-        run: pnpm install
+        run: npm install
 
       - name: Install otplib packages
         working-directory: smoke-tests
-        run: pnpm install:packages
+        run: npm run install:packages
 
       - name: Run smoke tests
         working-directory: smoke-tests
-        run: pnpm test
+        run: npm run test:all
 
       - name: Run TypeScript type check
         working-directory: smoke-tests
-        run: pnpm test:typecheck
+        run: npm run test:typecheck
