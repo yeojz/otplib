@@ -69,38 +69,7 @@ pnpm install:packages
 
 This smoke test is designed to be used in GitHub Actions workflow:
 
-```yaml
-- name: Checkout smoke tests
-  uses: actions/checkout@v4
-  with:
-    repository: your-org/otplib
-    ref: smoke
-    path: smoke-tests
-
-- name: Setup pnpm
-  uses: pnpm/action-setup@v4
-
-- name: Setup Node.js
-  uses: actions/setup-node@v4
-  with:
-    node-version: 20
-    cache: "pnpm"
-    cache-dependency-path: smoke-tests/pnpm-lock.yaml
-
-- name: Install dependencies
-  working-directory: smoke-tests
-  run: pnpm install
-
-- name: Install otplib packages
-  working-directory: smoke-tests
-  env:
-    OTPLIB_VERSION: latest  # or specify a version like 13.0.0
-  run: pnpm install:packages
-
-- name: Run smoke tests
-  working-directory: smoke-tests
-  run: pnpm test
-```
+See the `main` branch [smoke-test-packages.yml](https://github.com/yeojz/otplib/blob/main/.github/workflows/smoke-test-packages.yml)
 
 ## Notes
 
