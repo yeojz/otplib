@@ -3,9 +3,11 @@
  */
 
 import type { CryptoPlugin, Base32Plugin, Digits, HashAlgorithm } from "@otplib/core";
+import type { HOTPOptions } from "@otplib/hotp";
 import type { TOTPOptions } from "@otplib/totp";
 
-// Re-export TOTPOptions for type-only usage
+// Re-export OTP options for type-only usage
+export type { HOTPOptions };
 export type { TOTPOptions };
 
 /**
