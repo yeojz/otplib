@@ -1,6 +1,6 @@
 {
   "name": "@repo/fuzz-tests",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Property-based fuzz tests for otplib packages",
