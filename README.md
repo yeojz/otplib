@@ -35,9 +35,24 @@ otplib-branch-2/
 ## Running Locally
 
 ```bash
+# Install and test the latest version (default)
 npm install
 npm test
+
+# Test a specific version
+OTPLIB_VERSION=13.0.0 npm test
+
+# Install packages only (without running tests)
+npm run install:packages
 ```
+
+## Configuration
+
+### Environment Variables
+
+- `OTPLIB_VERSION` - Version of otplib packages to install and test (default: `latest`)
+  - Examples: `latest`, `13.0.0`, `12.0.1`
+  - Set this before running `npm test` or `npm run install:packages`
 
 ## CI Integration
 
@@ -53,6 +68,8 @@ This smoke test is designed to be used in GitHub Actions workflow:
 
 - name: Run smoke tests
   working-directory: smoke-tests
+  env:
+    OTPLIB_VERSION: latest  # or specify a version like 13.0.0
   run: |
     npm install
     npm test

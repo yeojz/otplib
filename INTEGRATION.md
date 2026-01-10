@@ -30,6 +30,26 @@ Add the following job to your `publish-npm.yml` workflow after the publish step:
 
       - name: Run smoke tests
         working-directory: smoke-tests
+        env:
+          OTPLIB_VERSION: latest  # or use a specific version
+        run: |
+          npm install
+          npm test
+```
+
+### Testing a Specific Version
+
+To test a specific version (e.g., the version just published), you can extract and pass the version:
+
+```yaml
+      - name: Get published version
+        id: version
+        run: echo "VERSION=$(node -p "require('./packages/otplib/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Run smoke tests
+        working-directory: smoke-tests
+        env:
+          OTPLIB_VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
           npm install
           npm test
@@ -37,7 +57,7 @@ Add the following job to your `publish-npm.yml` workflow after the publish step:
 
 ## Option 2: Trigger Smoke Tests via Workflow Dispatch
 
-After publishing, trigger the smoke test workflow in the smoke branch:
+After publishing, trigger the smoke test workflow in the smoke branch with a specific version:
 
 ```yaml
   trigger-smoke-tests:
@@ -46,6 +66,10 @@ After publishing, trigger the smoke test workflow in the smoke branch:
     if: needs.publish.outputs.published == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Get published version
+        id: version
+        run: echo "VERSION=$(node -p "require('./packages/otplib/package.json').version")" >> $GITHUB_OUTPUT
+
       - name: Trigger smoke test workflow
         uses: actions/github-script@v7
         with:
@@ -54,7 +78,10 @@ After publishing, trigger the smoke test workflow in the smoke branch:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'smoke-test.yml',
-              ref: 'smoke'
+              ref: 'smoke',
+              inputs: {
+                version: '${{ steps.version.outputs.VERSION }}'
+              }
             });
 ```
 
@@ -65,5 +92,7 @@ The smoke branch already includes a scheduled workflow that runs daily. You can 
 ## Notes
 
 - Wait at least 60 seconds after publishing before running smoke tests to allow npm to propagate the new packages
-- The smoke tests always install the latest published versions
+- The smoke tests install the version specified by `OTPLIB_VERSION` environment variable (defaults to `latest`)
+- You can test specific versions by setting the `OTPLIB_VERSION` environment variable
 - If smoke tests fail, it indicates an issue with the published packages
+- The workflow can be manually triggered with a specific version via the GitHub Actions UI

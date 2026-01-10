@@ -2,11 +2,19 @@ name: Smoke Test
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "otplib version to test (e.g., 13.0.0, latest)"
+        required: false
+        default: "latest"
   schedule:
     - cron: "0 2 * * *"
 
 permissions:
   contents: read
+
+env:
+  OTPLIB_VERSION: ${{ github.event.inputs.version || 'latest' }}
 
 jobs:
   smoke-test:
@@ -33,4 +41,4 @@ jobs:
         run: npm test
 
       - name: Run TypeScript type check
-        run: npm run test:typescript
+        run: npm run test:typecheck

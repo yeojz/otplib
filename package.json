@@ -5,9 +5,10 @@
   "type": "module",
   "description": "Smoke tests for published otplib packages",
   "scripts": {
-    "test": "node --test test/*.test.js",
-    "test:typescript": "tsc --noEmit test/*.test.ts",
-    "pretest": "npm install otplib@latest @otplib/core@latest @otplib/totp@latest @otplib/hotp@latest @otplib/uri@latest @otplib/plugin-base32-scure@latest @otplib/plugin-crypto-noble@latest @otplib/plugin-crypto-node@latest --save-exact"
+    "test": "node --test test/*.test.js && node --test --experimental-strip-types test/*.test.ts",
+    "test:typecheck": "tsc --noEmit test/*.test.ts",
+    "pretest": "bash install-packages.sh",
+    "install:packages": "bash install-packages.sh"
   },
   "dependencies": {},
   "devDependencies": {
