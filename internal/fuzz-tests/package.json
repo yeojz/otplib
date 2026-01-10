@@ -1,0 +1,24 @@
+{
+  "name": "@repo/fuzz-tests",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Property-based fuzz tests for otplib packages",
+  "scripts": {
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@otplib/core": "workspace:*",
+    "@otplib/hotp": "workspace:*",
+    "@otplib/totp": "workspace:*",
+    "@otplib/uri": "workspace:*",
+    "@otplib/plugin-crypto-node": "workspace:*",
+    "@otplib/plugin-crypto-noble": "workspace:*",
+    "@otplib/plugin-base32-scure": "workspace:*",
+    "@repo/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "fast-check": "^4.5.2",
+    "vitest": "^4.0.16"
+  }
+}

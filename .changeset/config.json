@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [
+    [
+      "@otplib/core",
+      "@otplib/hotp",
+      "@otplib/plugin-base32-scure",
+      "@otplib/plugin-crypto-noble",
+      "@otplib/plugin-crypto-node",
+      "@otplib/plugin-crypto-web",
+      "@otplib/preset-v11",
+      "@otplib/totp",
+      "@otplib/uri",
+      "@otplib/v12-adapter",
+      "otplib"
+    ],
+    ["@repo/docs"]
+  ],
+  "linked": [],
+  "ignore": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch"
+}

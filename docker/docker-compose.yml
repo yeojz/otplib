@@ -1,0 +1,95 @@
+services:
+  # Bun 1.x
+  bun-1:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.bun
+      args:
+        IMAGE_TAG: '1.3.5-alpine'
+    volumes:
+      - bun-1-node-modules:/workspace/node_modules
+    working_dir: /workspace
+    command: sh -c "pnpm install --frozen-lockfile && bun test ./packages/*/src/*.bun.test.ts"
+
+  # Deno 1.x
+  deno-1:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.deno
+      args:
+        IMAGE_TAG: '1.46.3'
+    volumes:
+      - deno-1-node-modules:/workspace/node_modules
+      - deno-1-cache:/deno-dir
+    environment:
+      - DENO_DIR=/deno-dir
+    working_dir: /workspace
+    command:
+      - sh
+      - -c
+      - |
+        pnpm install --frozen-lockfile
+        sed -i 's/"nodeModulesDir": "auto"/"nodeModulesDir": true/' deno.json
+        sed -i 's/"version": "5"/"version": "3"/' deno.lock
+        deno test --allow-read --no-check --unstable-sloppy-imports packages/*/src/*.deno.test.ts
+
+  # Deno 2.x
+  deno-2:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.deno
+      args:
+        IMAGE_TAG: '2.6.3'
+    volumes:
+      - deno-2-node-modules:/workspace/node_modules
+      - deno-2-cache:/deno-dir
+    environment:
+      - DENO_DIR=/deno-dir
+    working_dir: /workspace
+    command: sh -c "pnpm install --frozen-lockfile && deno test --allow-read --no-check packages/*/src/*.deno.test.ts"
+
+  # Node.js 20
+  node-20:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+      args:
+        IMAGE_TAG: '20-alpine'
+    volumes:
+      - node-20-node-modules:/workspace/node_modules
+    working_dir: /workspace
+    command: pnpm test:ci run
+
+  # Node.js 22
+  node-22:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+      args:
+        IMAGE_TAG: '22'
+    volumes:
+      - node-22-node-modules:/workspace/node_modules
+    working_dir: /workspace
+    command: pnpm test:ci run
+
+  # Node.js 24
+  node-24:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+      args:
+        IMAGE_TAG: '24'
+    volumes:
+      - node-24-node-modules:/workspace/node_modules
+    working_dir: /workspace
+    command: pnpm test:ci run
+
+volumes:
+  bun-1-node-modules:
+  deno-1-node-modules:
+  deno-1-cache:
+  deno-2-node-modules:
+  deno-2-cache:
+  node-20-node-modules:
+  node-22-node-modules:
+  node-24-node-modules:

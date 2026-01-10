@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 80">
+  <rect x="10" y="10" width="150" height="46" fill="none" stroke="black" stroke-width="3" rx="0"/>
+  <text x="85" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="black">687 542</text>
+  <text x="163" y="72" text-anchor="end" font-family="monospace" font-size="14" fill="black">******otplib</text>
+</svg>

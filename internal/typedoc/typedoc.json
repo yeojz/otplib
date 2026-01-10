@@ -1,0 +1,40 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "../../packages/core",
+    "../../packages/hotp",
+    "../../packages/totp",
+    "../../packages/uri",
+    "../../packages/plugin-base32-scure",
+    "../../packages/plugin-crypto-node",
+    "../../packages/plugin-crypto-noble",
+    "../../packages/plugin-crypto-web",
+    "../../packages/otplib"
+  ],
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+  "entryPointStrategy": "packages",
+  "packageOptions": {
+    "readme": "README.md"
+  },
+  "out": "../../apps/docs/api",
+  "docsRoot": "/api",
+  "name": "otplib API Documentation",
+  "readme": "../../README.md",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": ["Core", "HOTP", "TOTP", "URI", "Plugins", "*"],
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  },
+  "sort": ["alphabetical"],
+  "visibilityFilters": {
+    "protected": false,
+    "private": false,
+    "inherited": true,
+    "external": false
+  }
+}

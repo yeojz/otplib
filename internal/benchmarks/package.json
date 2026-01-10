@@ -1,0 +1,29 @@
+{
+  "name": "@repo/benchmarks",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench": "tsx src/index.ts",
+    "bench:hotp": "tsx src/hotp.bench.ts",
+    "bench:totp": "tsx src/totp.bench.ts",
+    "bench:base32": "tsx src/base32.bench.ts",
+    "bench:utils": "tsx src/utils.bench.ts",
+    "bench:uri": "tsx src/uri.bench.ts",
+    "docs:benchmarks": "tsx src/generate-json.ts"
+  },
+  "dependencies": {
+    "@otplib/core": "workspace:*",
+    "@otplib/hotp": "workspace:*",
+    "@otplib/totp": "workspace:*",
+    "@otplib/uri": "workspace:*",
+    "@otplib/plugin-base32-scure": "workspace:*",
+    "@otplib/plugin-crypto-node": "workspace:*",
+    "@otplib/plugin-crypto-noble": "workspace:*",
+    "@repo/testing": "workspace:*"
+  },
+  "devDependencies": {
+    "tinybench": "^2.9.0",
+    "tsx": "^4.21.0"
+  }
+}

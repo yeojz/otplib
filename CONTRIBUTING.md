@@ -1,88 +1,232 @@
-# Contributing
+# Contributing to otplib
 
-Thank you for your interest in this project. If you can, feel free to contribute and help improve it.
-There are many ways to contribute to `otplib`, and it does not only involve writing code.
+Thank you for your interest in contributing to otplib! This guide covers everything you need to get started.
 
-Here's a few ideas to get started:
+## Development Setup
 
-- Try out the library. Does everything work as expected? If not, just let us know by opening an issue.
-- Read through the docs. If you find anything confusing or can be improved, do try to help out.
-  - You can make edits by clicking "Edit" at the top of most docs.
+### Prerequisites
 
-Contributions are very welcome. If you are unsure if something fits into the library, open an issue anyway.
+- Node.js >= 20.0.0
+- pnpm >= 8.0.0
 
-## Development process
-
-GitHub is currently the source of truth. This project does have mirror repositories in bitbucket / gitlab,
-but it is mostly for emergencies. All automations are wired to the GitHub project.
-
-When a change lands on GitHub, it will be checked by the continuous integration system.
-
-### Issue fixes
-
-All issue fixes should generally be accompanied by corresponding tests on the issues
-to prevent future regressions.
-
-Examples of those can be found in `tests/extras/issue-*.test.js`.
-
-## Getting Started
+### Getting Started
 
 ```bash
-git clone <REPO ADDRESS>
-npm run setup
+# Clone the repository
+git clone https://github.com/yeojz/otplib.git
+cd otplib
+
+# Install dependencies
+pnpm install
 ```
 
-### Code organization
+## Common Commands
 
-- This project's primary branch is `master`.
-- Releases are managed by tags.
-  - `v0.0.0` represents **stable builds**
-  - `v0.0.0-0` represents **pre-releases**
-- Tags follow semantic versioning.
-  - patch versions for bug fixes.
-  - minor versions for new features.
-  - major versions for any breaking changes.
-- Release information are generated from the git messages.
-  - Commit messages should follow the format of [conventional-commits](https://conventionalcommits.org/).
-  - Eg: `feat: description`, `fix: description`, `chore: description`
+```bash
+# Development
+pnpm install          # Install dependencies
+pnpm build            # Build all packages (required before testing)
+pnpm test             # Run all tests
+pnpm test:ci          # Run tests with coverage
+pnpm fix              # Lint + format (run before commits)
+pnpm typecheck        # TypeScript validation
 
-### Releases
+# Single package testing
+pnpm --filter @otplib/core test -- --project packages
+pnpm --filter otplib-cli test -- --project otplib-cli
 
-This project is published on `npm`, mostly under 2 tags: `latest` and `next`.
+# Run specific test file
+pnpm vitest run packages/core/src/utils.test.ts
 
-`latest` contains **stable builds** while `next` contains **pre-release**.
-End-users can install latest stable using `npm install otplib` and
-pre-releases using `npm install otplib@next`
+# Multi-runtime tests (See #Testing)
+pnpm test:bun         # Bun-specific tests
+pnpm test:deno        # Deno-specific tests
+# OR
+pnpm test:docker bun-1
 
-All releases are handled via the CI system.
+# Documentation
+pnpm docs:dev         # Start docs dev server
+pnpm docs:build       # Build documentation
 
-### License
+# Other
+pnpm size             # Check bundle sizes
+```
 
-By contributing to `otplib`, you agree that your contributions will be licensed under its MIT license.
+## Project Structure
 
-### Pull Request Checklist
+```
+otplib/
+├── packages/
+│   ├── core/              # Core interfaces, types, utilities
+│   ├── hotp/              # HOTP implementation (RFC 4226)
+│   ├── totp/              # TOTP implementation (RFC 6238)
+│   ├── authenticator/     # Google Authenticator-compatible API
+│   ├── uri/               # otpauth:// URI generation/parsing
+│   ├── otplib/            # All-in-one bundle
+│   ├── plugin-crypto-node/    # Node.js crypto plugin
+│   ├── plugin-crypto-web/     # Web Crypto API plugin
+│   ├── plugin-crypto-noble/   # Noble hashes plugin
+│   └── plugin-base32-scure/   # Scure base32 plugin
+├── apps/
+│   ├── docs/              # VitePress documentation
+└── internal/
+    ├── benchmarks/        # Performance benchmarks
+    └── fuzz-tests/        # Property-based fuzz testing
+```
 
-- is the code tested?
-  - `npm run test`
-  - `npm run test:extras`
-- is the code linted?
-  - `npm run lint`
-- is the code formatted?
-  - `npm run format`
-- is it a new package?
-  - if yes, make sure you add a package.json in your folder.
-  - configure the build steps. You can choose between `rollup` (node modules) and `webpack` (umd, browser).
+- `internal/` - Internal packages that are not to be published
+- `packages/` - Part of the core `otplib` ecosystem
+- `apps/` - Applications that uses the library (i.e `packages/`)
 
-Please **do not** bump the version or tag your pull request
-with a v\[number\] as it corresponds to a release.
+## Testing Requirements
 
-### Troubleshooting
+- `packages/`
+  - 100% test coverage strictly required
+  - Test must pass on all supported runtimes and environments.
+- `apps/`
+  - Test must pass tests. Preferably reaching full coverage.
+  - Coverage thresholds dependent on application.
+  - Strive for full coverage and provide reason for deciding not to.
 
-- I run the `npm run setup` and got `No Xcode or CLT version detected!`
-  - Make sure you have Xcode or atleast Xcode build tools installed using `xcode-select --install`
-  - Or it might be because the current developer path is incorrectly configured by default
-  - to change that: `sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer/`
+Test files follow the pattern:
 
-### Thank You
+- `*.test.ts` - Vitest tests (Node.js)
+- `*.bun.test.ts` - Bun-specific tests
+- `*.deno.test.ts` - Deno-specific tests
 
-Thank you for any contributions!
+### Local Testing
+
+```bash
+pnpm test
+pnpm test:ci
+pnpm test:bun # depends on installed bun version
+pnpm test:deno # depends on installed deno version
+```
+
+### Docker-based Multi-Runtime Testing
+
+Since this library supports multiple runtimes (Bun 1.x, Deno 1.x/2.x, Node 20/22/23), you can use Docker to test across all environments without installing them locally:
+
+```bash
+# Test a specific runtime
+./scripts/test-docker.sh node-20
+./scripts/test-docker.sh bun
+./scripts/test-docker.sh deno-2
+
+# Test all runtimes
+./scripts/test-docker.sh all
+```
+
+Available runtimes: `bun-1`, `deno-1`, `deno-2`, `node-20`, `node-22`, `node-24`
+
+See [tests/docker-compose.test.yml](tests/docker-compose.test.yml) for configuration details.
+
+## Making Changes
+
+### Branching Strategy
+
+- Create feature branches from `main`
+- Use descriptive branch names: `feat/add-feature`, `fix/issue-123`, `docs/update-guide`
+
+### Code Style
+
+- TypeScript strict mode enabled
+- ESLint and Prettier for formatting
+- Run `pnpm fix` before committing
+
+### Commit Messages
+
+Follow conventional commits:
+
+```
+feat: add new feature
+fix: resolve issue with token generation
+docs: update API documentation
+test: add edge case tests
+refactor: simplify validation logic
+chore: update dependencies
+```
+
+## Pull Request Guidelines
+
+1. **Create an issue first** for significant changes
+2. **Keep PRs focused** - one feature or fix per PR
+3. **Include tests** for new functionality
+4. **Update documentation** if adding/changing APIs
+5. **Run all checks** before submitting:
+   ```bash
+   pnpm fix && pnpm typecheck && pnpm test:ci
+   ```
+
+### PR Checklist
+
+- [ ] Tests pass (`pnpm test:ci`)
+- [ ] Coverage thresholds met (if applicable) (`pnpm test:ci`)
+- [ ] Types check (`pnpm typecheck`)
+- [ ] Linting passes (`pnpm lint`)
+- [ ] Code formatted (`pnpm format`)
+- [ ] Documentation updated (if applicable)
+- [ ] Changeset added (for version changes)
+
+### Adding Changesets
+
+For changes that affect published packages:
+
+```bash
+pnpm changeset
+```
+
+Follow the prompts to describe your changes.
+
+### Release Process (For Maintainers)
+
+The release process is partially automated but requires manual triggers.
+
+#### 1. Contributors
+
+- **Make Changes**: Implement features or fixes.
+- **Add Changeset**: Run `pnpm changeset` and follow prompts to select affected packages and bump types.
+- **Pull Request**: Submit PR with changes and changeset file.
+
+#### 2. Maintainers (Workflow)
+
+Once PRs are merged to `main`:
+
+1.  **Trigger "Prepare Release"**:
+    - Maintainers should periodically trigger the **Prepare Release** workflow via `workflow_dispatch` (Actions tab).
+    - **Action**: This will create (or update) a "Version Packages" Pull Request by consuming changesets.
+
+2.  **Review & Merge Version PR**:
+    - Review the "Version Packages" PR created by the bot. This PR consumes changesets and updates `package.json` versions and `CHANGELOG.md`.
+    - Merge this PR into `main`.
+
+3.  **Trigger "Publish to npm"**:
+    - After merging the version PR, go back to Actions and trigger **Publish to npm**.
+    - **Action**: The workflow will detect that versions have been bumped. It will build the project and run `pnpm run release` to publish the updated packages to npm.
+
+## AI Usage Guidelines
+
+Code or other content generated in whole or in part using AI tools can be contributed to the project, provided that it satisfies the following conditions:
+
+### AI Tool Terms Compatibility
+
+- Ensure the AI tool's terms don't conflict with the project's open source license, IP policies, or Open Source Definition
+
+### Third-Party Content in AI Output
+
+- Verify permission to use any third-party copyrighted materials (e.g., via compatible open source license or public domain)
+- Provide attribution and license information for any third-party content included
+
+### Responsible AI Usage
+
+- You are responsible for reviewing, testing, and verifying any AI-assisted changes.
+- If AI tools generated significant parts of your contribution, mention this in your PR so reviewers can provide appropriate guidance.
+
+## Questions?
+
+- Open a [GitHub Issues](https://github.com/yeojz/otplib/issues)
+- Check the [documentation](https://otplib.yeojz.dev)
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the MIT License.

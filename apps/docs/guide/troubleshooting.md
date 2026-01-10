@@ -1,0 +1,428 @@
+# Troubleshooting
+
+Common issues and solutions when using otplib.
+
+## Token Verification Failures
+
+### "Token is always invalid"
+
+The most common causes of verification failures:
+
+**1. Clock Drift (TOTP)**
+
+TOTP tokens are time-sensitive. If the server and client clocks are out of sync, verification will fail.
+
+```typescript
+// Increase tolerance to allow for clock drift
+const result = await verify({
+  secret,
+  token,
+  epochTolerance: 30, // Allow ±30 seconds tolerance
+});
+```
+
+**2. Counter Mismatch (HOTP)**
+
+HOTP tokens are counter-based. The server counter must match or be behind the client counter.
+
+```typescript
+// Use counter tolerance to handle counter drift
+const result = await verify({
+  secret,
+  token,
+  counter: serverCounter,
+  counterTolerance: 10, // Allow up to 10 counters ahead
+});
+
+// After successful verification, update the counter
+if (result.valid) {
+  const newCounter = serverCounter + result.delta + 1;
+  await saveCounter(userId, newCounter);
+}
+```
+
+**3. Secret Encoding Issues**
+
+Ensure the secret format matches what's expected:
+
+```typescript
+// If secret is Base32 string, ensure base32 plugin is provided
+const result = await verify({
+  secret: "JBSWY3DPEHPK3PXP",
+  token,
+  crypto: new NodeCryptoPlugin(),
+  base32: new ScureBase32Plugin(), // Required for string secrets
+});
+
+// If using raw bytes, no base32 plugin needed
+const result = await verify({
+  secret: new Uint8Array([...]),
+  token,
+  crypto: new NodeCryptoPlugin(),
+});
+```
+
+**4. Algorithm Mismatch**
+
+Ensure both generation and verification use the same algorithm:
+
+```typescript
+// If token was generated with SHA-256
+const result = await verify({
+  secret,
+  token,
+  algorithm: "sha256", // Must match generation algorithm
+});
+```
+
+### "Tolerance validation failed"
+
+The tolerance parameters have maximum values to prevent DoS attacks:
+
+```typescript
+// This will throw EpochToleranceTooLargeError
+const result = await verify({
+  secret,
+  token,
+  epochTolerance: 5000, // Too large!
+});
+
+// Use a reasonable tolerance value
+const result = await verify({
+  secret,
+  token,
+  epochTolerance: 30, // For TOTP: ±30 seconds
+  // counterTolerance: 10, // For HOTP: look-ahead of 10
+});
+```
+
+## Secret-Related Errors
+
+### "SecretTooShortError"
+
+Secrets must be at least 16 bytes (128 bits):
+
+```typescript
+// This will fail - secret is too short
+const result = await generate({
+  secret: new Uint8Array([1, 2, 3]), // Only 3 bytes!
+  counter: 0,
+  crypto: new NodeCryptoPlugin(),
+});
+
+// Use proper secret length
+const result = await generate({
+  secret: new Uint8Array(20).fill(0), // 20 bytes minimum
+  counter: 0,
+  crypto: new NodeCryptoPlugin(),
+});
+
+// Or generate a proper secret
+import { generateSecret } from "otplib";
+const secret = generateSecret(); // 20 bytes by default
+```
+
+### "SecretTooLongError"
+
+Secrets must not exceed 64 bytes (512 bits):
+
+```typescript
+// Use appropriate secret lengths
+// SHA-1:   20 bytes (160 bits) - default
+// SHA-256: 32 bytes (256 bits)
+// SHA-512: 64 bytes (512 bits) - maximum
+```
+
+### "String secrets require a Base32Plugin"
+
+When using Base32-encoded string secrets, you must provide a base32 plugin:
+
+```typescript
+import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+
+// Wrong - missing base32 plugin
+const result = await generate({
+  secret: "JBSWY3DPEHPK3PXP",
+  crypto: new NodeCryptoPlugin(),
+});
+
+// Correct
+const result = await generate({
+  secret: "JBSWY3DPEHPK3PXP",
+  crypto: new NodeCryptoPlugin(),
+  base32: new ScureBase32Plugin(),
+});
+```
+
+## Plugin Errors
+
+### "Crypto plugin is required"
+
+All operations require a crypto plugin:
+
+```typescript
+import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+
+// For Node.js
+const crypto = new NodeCryptoPlugin();
+
+// For browsers (with WebCrypto API)
+const crypto = new WebCryptoPlugin();
+
+// For universal (works everywhere)
+const crypto = new NobleCryptoPlugin();
+```
+
+### "WebCrypto not available"
+
+The Web Crypto API requires a secure context (HTTPS) in browsers:
+
+```typescript
+// Check if WebCrypto is available
+if (typeof globalThis.crypto?.subtle === "undefined") {
+  // Fall back to noble crypto
+  const crypto = new NobleCryptoPlugin();
+}
+```
+
+**Solutions:**
+
+1. Use HTTPS in production
+2. For local development, use `localhost` (treated as secure)
+3. Use `NobleCryptoPlugin` as a fallback
+
+## Time-Related Issues
+
+### "TimeNegativeError"
+
+Time values cannot be negative:
+
+```typescript
+// Wrong
+const result = await generate({
+  secret,
+  epoch: -1000, // Negative time!
+  crypto,
+});
+
+// Correct
+const result = await generate({
+  secret,
+  epoch: Math.floor(Date.now() / 1000), // Current Unix timestamp
+  crypto,
+});
+```
+
+### "PeriodTooSmallError" / "PeriodTooLargeError"
+
+Period must be between 1 and 3600 seconds:
+
+```typescript
+// Valid periods
+const result = await generate({
+  secret,
+  period: 30, // Default, recommended
+  crypto,
+});
+
+// Period range: 1 to 3600 (1 second to 1 hour)
+```
+
+## Token Format Errors
+
+### "TokenLengthError"
+
+Token length must match the `digits` parameter:
+
+```typescript
+// If digits is 6 (default), token must be exactly 6 characters
+const result = await verify({
+  secret,
+  token: "123456", // Correct - 6 digits
+  digits: 6,
+});
+
+// This will fail
+const result = await verify({
+  secret,
+  token: "12345678", // Wrong - 8 digits but expecting 6
+  digits: 6,
+});
+```
+
+### "TokenFormatError"
+
+Tokens must contain only digits (0-9):
+
+```typescript
+// Wrong - contains non-digit characters
+const result = await verify({
+  secret,
+  token: "12345a", // 'a' is not a digit
+});
+
+// Correct
+const result = await verify({
+  secret,
+  token: "123456",
+});
+```
+
+## QR Code / URI Issues
+
+### "Label is required" / "Issuer is required"
+
+When generating URIs for QR codes, both label and issuer are required:
+
+```typescript
+import { generateURI } from "otplib";
+import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+
+const uri = generateURI({
+  secret: "JBSWY3DPEHPK3PXP",
+  issuer: "MyApp", // Required
+  label: "user@example.com", // Required
+  crypto: new NodeCryptoPlugin(),
+  base32: new ScureBase32Plugin(),
+});
+// otpauth://totp/MyApp:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=MyApp
+```
+
+### "URI generation requires secret to be a Base32 string"
+
+When using the `generateURI` function, the secret must be a Base32 string:
+
+```typescript
+// Wrong - raw bytes won't work with generateURI()
+const uri = generateURI({
+  secret: new Uint8Array([1, 2, 3]),
+});
+// Error!
+
+// Correct - use Base32 string
+const uri = generateURI({
+  secret: "JBSWY3DPEHPK3PXP",
+});
+// Works!
+```
+
+## TypeScript Issues
+
+### "Property 'X' is missing in type"
+
+The functional API requires specific properties. Use the correct options type:
+
+```typescript
+import type { HOTPGenerateOptions, TOTPVerifyOptions } from "otplib";
+
+// HOTPGenerateOptions requires: secret, counter, crypto
+// TOTPGenerateOptions requires: secret, crypto
+// HOTPVerifyOptions requires: secret, counter, token, crypto
+// TOTPVerifyOptions requires: secret, token, crypto
+```
+
+## Debugging Tips
+
+### Enable Verbose Logging
+
+Check the actual values being used:
+
+```typescript
+const options = {
+  secret: "JBSWY3DPEHPK3PXP",
+  epoch: Math.floor(Date.now() / 1000),
+  period: 30,
+  algorithm: "sha1",
+  digits: 6,
+};
+
+console.log("Epoch:", options.epoch);
+console.log("Counter:", Math.floor(options.epoch / options.period));
+
+const token = await generate({ ...options, crypto, base32 });
+console.log("Generated token:", token);
+```
+
+### Verify Time Synchronization
+
+For TOTP, check if clocks are synchronized:
+
+```typescript
+// Server time
+console.log("Server time:", new Date().toISOString());
+console.log("Server epoch:", Math.floor(Date.now() / 1000));
+
+// Check time step
+const epoch = Math.floor(Date.now() / 1000);
+const counter = Math.floor(epoch / 30);
+console.log("Current time step:", counter);
+```
+
+### Test with Known Values
+
+Use RFC test vectors to verify your setup:
+
+```typescript
+// RFC 4226 test vector (HOTP)
+const testSecret = new Uint8Array([
+  0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
+  0x37, 0x38, 0x39, 0x30,
+]); // "12345678901234567890"
+
+// Counter 0 should produce "755224"
+const token = await generate({
+  secret: testSecret,
+  counter: 0,
+  digits: 6,
+  algorithm: "sha1",
+  crypto: new NodeCryptoPlugin(),
+});
+console.log("Expected: 755224, Got:", token);
+```
+
+### Inspecting Error Causes
+
+When errors occur in crypto or Base32 plugins, otplib wraps them with descriptive error types. Use the `cause` property to access the original error for detailed debugging:
+
+```typescript
+import { Base32DecodeError, HMACError } from "@otplib/core";
+
+try {
+  const token = await generate({
+    secret: "invalid-base32!@#",
+    crypto,
+    base32,
+  });
+} catch (error) {
+  console.log("Error type:", error.constructor.name);
+  console.log("Error message:", error.message);
+
+  // Access the underlying plugin error
+  if (error.cause) {
+    console.log("Caused by:", error.cause.message);
+    console.log("Original stack:", error.cause.stack);
+  }
+}
+// Output:
+// Error type: Base32DecodeError
+// Error message: Base32 decoding failed: Invalid character at position 14
+// Caused by: Invalid character at position 14
+// Original stack: Error: Invalid character...
+```
+
+This is especially useful when debugging issues with custom plugins or unusual input data.
+
+## Getting Help
+
+If you're still experiencing issues:
+
+1. Check the [API Reference](/api) for detailed function signatures
+2. Review [Advanced Usage](/guide/advanced-usage) for best practices
+3. Open an issue on [GitHub](https://github.com/yeojz/otplib/issues) with:
+   - otplib version
+   - Runtime environment (Node.js version, browser, etc.)
+   - Minimal reproduction code
+   - Error message and stack trace

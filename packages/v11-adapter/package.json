@@ -1,0 +1,75 @@
+{
+  "name": "@otplib/preset-v11",
+  "version": "12.0.1",
+  "description": "v11 compatibility preset for otplib",
+  "license": "MIT",
+  "author": "Gerald Yeo <support@yeojz.dev>",
+  "homepage": "https://otplib.yeojz.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeojz/otplib.git",
+    "directory": "packages/v11-adapter"
+  },
+  "bugs": {
+    "url": "https://github.com/yeojz/otplib/issues"
+  },
+  "keywords": [
+    "otp",
+    "hotp",
+    "totp",
+    "2fa",
+    "mfa",
+    "authenticator",
+    "migration",
+    "v11",
+    "adapter"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:ci": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist .tsbuildinfo"
+  },
+  "dependencies": {
+    "@otplib/core": "workspace:*",
+    "@otplib/hotp": "workspace:*",
+    "@otplib/totp": "workspace:*",
+    "@otplib/uri": "workspace:*",
+    "@otplib/plugin-crypto-noble": "workspace:*",
+    "@otplib/plugin-base32-scure": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.16",
+    "@repo/testing": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
