@@ -110,6 +110,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: yeojz/otplib
 
   test-deno:
     name: Test (Deno ${{ matrix.deno-version }})
