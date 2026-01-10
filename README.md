@@ -25,8 +25,8 @@ otplib-branch-2/
 
 ## How It Works
 
-1. The `pretest` script installs the latest published versions of all otplib packages from npm
-2. Tests verify that:
+1. Run `pnpm install:packages` to install the specified version of all otplib packages from npm
+2. Run `pnpm test` to verify that:
    - The main `otplib` bundle works
    - Individual packages (`@otplib/totp`, `@otplib/hotp`, `@otplib/uri`, `@otplib/core`) work
    - Plugin packages work (`@otplib/plugin-crypto-*`, `@otplib/plugin-base32-*`)
@@ -35,15 +35,17 @@ otplib-branch-2/
 ## Running Locally
 
 ```bash
+# Install dev dependencies
+pnpm install
+
 # Install and test the latest version (default)
-npm install
-npm test
+pnpm install:packages && pnpm test
 
 # Test a specific version
-OTPLIB_VERSION=13.0.0 npm test
+OTPLIB_VERSION=13.0.0 pnpm install:packages && pnpm test
 
 # Install packages only (without running tests)
-npm run install:packages
+pnpm install:packages
 ```
 
 ## Configuration
@@ -52,7 +54,7 @@ npm run install:packages
 
 - `OTPLIB_VERSION` - Version of otplib packages to install and test (default: `latest`)
   - Examples: `latest`, `13.0.0`, `12.0.1`
-  - Set this before running `npm test` or `npm run install:packages`
+  - Set this before running `pnpm install:packages`
 
 ## CI Integration
 
@@ -66,18 +68,34 @@ This smoke test is designed to be used in GitHub Actions workflow:
     ref: smoke
     path: smoke-tests
 
-- name: Run smoke tests
+- name: Setup pnpm
+  uses: pnpm/action-setup@v4
+
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: 20
+    cache: "pnpm"
+    cache-dependency-path: smoke-tests/pnpm-lock.yaml
+
+- name: Install dependencies
+  working-directory: smoke-tests
+  run: pnpm install
+
+- name: Install otplib packages
   working-directory: smoke-tests
   env:
     OTPLIB_VERSION: latest  # or specify a version like 13.0.0
-  run: |
-    npm install
-    npm test
+  run: pnpm install:packages
+
+- name: Run smoke tests
+  working-directory: smoke-tests
+  run: pnpm test
 ```
 
 ## Notes
 
 - This is an orphaned branch, separate from the main repository history
-- The `pretest` script always installs the latest published versions
+- Uses pnpm for package management, consistent with the main repository
 - Tests use Node.js built-in test runner (no external test framework required)
 - TypeScript type checking ensures type definitions are correct

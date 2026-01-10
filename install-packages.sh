@@ -8,7 +8,7 @@ VERSION="${OTPLIB_VERSION:-latest}"
 
 echo "Installing otplib packages@${VERSION}..."
 
-npm install \
+pnpm install \
   otplib@${VERSION} \
   @otplib/core@${VERSION} \
   @otplib/totp@${VERSION} \

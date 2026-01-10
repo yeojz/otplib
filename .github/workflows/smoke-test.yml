@@ -28,17 +28,23 @@ jobs:
       - name: Checkout smoke tests
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
+
+      - name: Install otplib packages
+        run: pnpm install:packages
 
       - name: Run smoke tests
-        run: npm test
+        run: pnpm test
 
       - name: Run TypeScript type check
-        run: npm run test:typecheck
+        run: pnpm test:typecheck

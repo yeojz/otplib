@@ -5,17 +5,18 @@
   "type": "module",
   "description": "Smoke tests for published otplib packages",
   "scripts": {
+    "install:packages": "bash install-packages.sh",
     "test": "node --test test/*.test.js && node --test --experimental-strip-types test/*.test.ts",
-    "test:typecheck": "tsc --noEmit test/*.test.ts",
-    "pretest": "bash install-packages.sh",
-    "install:packages": "bash install-packages.sh"
+    "test:typecheck": "tsc --noEmit test/*.test.ts"
   },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
+  "packageManager": "pnpm@8.14.0",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
   }
 }

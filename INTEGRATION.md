@@ -19,22 +19,32 @@ Add the following job to your `publish-npm.yml` workflow after the publish step:
           ref: smoke
           path: smoke-tests
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
+          cache-dependency-path: smoke-tests/pnpm-lock.yaml
 
       - name: Wait for npm to propagate
         run: sleep 60
 
-      - name: Run smoke tests
+      - name: Install dependencies
+        working-directory: smoke-tests
+        run: pnpm install
+
+      - name: Install otplib packages
         working-directory: smoke-tests
         env:
           OTPLIB_VERSION: latest  # or use a specific version
-        run: |
-          npm install
-          npm test
+        run: pnpm install:packages
+
+      - name: Run smoke tests
+        working-directory: smoke-tests
+        run: pnpm test
 ```
 
 ### Testing a Specific Version
@@ -46,13 +56,15 @@ To test a specific version (e.g., the version just published), you can extract a
         id: version
         run: echo "VERSION=$(node -p "require('./packages/otplib/package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Run smoke tests
+      - name: Install otplib packages
         working-directory: smoke-tests
         env:
           OTPLIB_VERSION: ${{ steps.version.outputs.VERSION }}
-        run: |
-          npm install
-          npm test
+        run: pnpm install:packages
+
+      - name: Run smoke tests
+        working-directory: smoke-tests
+        run: pnpm test
 ```
 
 ## Option 2: Trigger Smoke Tests via Workflow Dispatch
