@@ -1,7 +1,5 @@
 # otplib
 
-> The One-Time Password (OTP) library
-
 TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime and plugin support
 
 ## Breaking Changes (v13)

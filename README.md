@@ -10,8 +10,6 @@
 [![Downloads](https://img.shields.io/npm/dm/otplib.svg)](https://www.npmjs.com/package/otplib)
 [![Code Repository](https://img.shields.io/github/stars/yeojz/otplib?style=flat)](https://github.com/yeojz/otplib)
 
-> The One-Time Password (OTP) library
-
 TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime and plugin support
 
 ## Breaking Changes (v13)

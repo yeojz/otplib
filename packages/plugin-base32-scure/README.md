@@ -1,6 +1,6 @@
 # @otplib/plugin-base32-scure
 
-Base32 encoding/decoding plugin for otplib using the audited `@scure/base` library.
+Base32 encoding/decoding plugin for otplib using the `@scure/base` library.
 
 ## Installation
 
@@ -12,7 +12,7 @@ yarn add @otplib/plugin-base32-scure
 
 ## Overview
 
-This plugin provides Base32 encoding and decoding using `@scure/base`, a cryptographic library from the authors of `noble-ciphers`. It offers excellent performance, extensive auditing, and comprehensive TypeScript support.
+This plugin provides Base32 encoding and decoding using `@scure/base`, a cryptographic library which is audited and has comprehensive TypeScript support.
 
 ## Usage
 
