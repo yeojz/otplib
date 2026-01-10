@@ -105,6 +105,12 @@ jobs:
         if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest' && (github.event_name == 'pull_request')
         uses: davelosert/vitest-coverage-report-action@v2
 
+      - name: Upload coverage to Codecov
+        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   test-deno:
     name: Test (Deno ${{ matrix.deno-version }})
     needs: build
