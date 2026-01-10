@@ -34,8 +34,6 @@ export {
   Base32Error,
   Base32EncodeError,
   Base32DecodeError,
-  WindowError,
-  WindowTooLargeError,
   CounterToleranceError,
   CounterToleranceTooLargeError,
   EpochToleranceError,

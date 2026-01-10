@@ -297,29 +297,6 @@ export class Base32DecodeError extends Base32Error {
 }
 
 /**
- * Error thrown when verification window is invalid
- */
-export class WindowError extends OTPError {
-  constructor(message: string) {
-    super(message);
-    this.name = "WindowError";
-  }
-}
-
-/**
- * Error thrown when verification window is too large
- */
-export class WindowTooLargeError extends WindowError {
-  constructor(maxWindow: number, actualSize: number) {
-    super(
-      `Verification window size must not exceed ${maxWindow}, got ${actualSize}. ` +
-        `Large windows can cause performance issues.`,
-    );
-    this.name = "WindowTooLargeError";
-  }
-}
-
-/**
  * Error thrown when counter tolerance is invalid
  */
 export class CounterToleranceError extends OTPError {

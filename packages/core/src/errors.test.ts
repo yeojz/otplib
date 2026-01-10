@@ -23,8 +23,6 @@ import {
   Base32Error,
   Base32EncodeError,
   Base32DecodeError,
-  WindowError,
-  WindowTooLargeError,
   CounterToleranceError,
   CounterToleranceTooLargeError,
   EpochToleranceError,
@@ -217,26 +215,6 @@ describe("RandomBytesError", () => {
     expect(error.message).toBe("Random byte generation failed: Entropy low");
     expect(error.name).toBe("RandomBytesError");
     expect(error).toBeInstanceOf(CryptoError);
-  });
-});
-
-describe("WindowError", () => {
-  it("should create error with message", () => {
-    const error = new WindowError("Invalid window");
-    expect(error.message).toBe("Invalid window");
-    expect(error.name).toBe("WindowError");
-    expect(error).toBeInstanceOf(OTPError);
-  });
-});
-
-describe("WindowTooLargeError", () => {
-  it("should create error with max and actual window sizes", () => {
-    const error = new WindowTooLargeError(100, 101);
-    expect(error.message).toBe(
-      "Verification window size must not exceed 100, got 101. Large windows can cause performance issues.",
-    );
-    expect(error.name).toBe("WindowTooLargeError");
-    expect(error).toBeInstanceOf(WindowError);
   });
 });
 
