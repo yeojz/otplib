@@ -56,3 +56,9 @@ yarn-error.log*
 
 # Changesets
 .changeset/pre.json
+
+# Lock files
+pnpm-lock.yaml
+package.json
+yarn.lock
+

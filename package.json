@@ -7,17 +7,17 @@
   "scripts": {
     "install:packages": "bash install-packages.sh",
     "test": "node --test test/*.test.js && tsx --test test/*.test.ts",
-    "test:typecheck": "tsc --noEmit test/*.test.ts"
+    "test:typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
-    "@otplib/core": "13.0.0",
-    "@otplib/hotp": "13.0.0",
-    "@otplib/plugin-base32-scure": "13.0.0",
-    "@otplib/plugin-crypto-noble": "13.0.0",
-    "@otplib/plugin-crypto-node": "13.0.0",
-    "@otplib/totp": "13.0.0",
-    "@otplib/uri": "13.0.0",
-    "otplib": "13.0.0"
+    "@otplib/core": "*",
+    "@otplib/hotp": "*",
+    "@otplib/plugin-base32-scure": "*",
+    "@otplib/plugin-crypto-noble": "*",
+    "@otplib/plugin-crypto-node": "*",
+    "@otplib/totp": "*",
+    "@otplib/uri": "*",
+    "otplib": "*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

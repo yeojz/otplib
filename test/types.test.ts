@@ -1,28 +1,41 @@
 import { test } from "node:test";
 import assert from "node:assert";
-import type { TOTPOptions, HOTPOptions, VerifyResult } from "otplib";
-import { generateSecret, generate, verify, generateURI } from "otplib";
 import * as totp from "@otplib/totp";
 import * as hotp from "@otplib/hotp";
 import * as uri from "@otplib/uri";
 import * as core from "@otplib/core";
-import { base32, type ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { crypto as nobleCrypto, NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-import { crypto as nodeCrypto, NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { base32, ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import {
+  crypto as nobleCrypto,
+  NobleCryptoPlugin,
+} from "@otplib/plugin-crypto-noble";
+import {
+  crypto as nodeCrypto,
+  NodeCryptoPlugin,
+} from "@otplib/plugin-crypto-node";
 import type { Base32Plugin, CryptoPlugin } from "@otplib/core";
+import type { TOTPGenerateOptions, VerifyResult } from "@otplib/totp";
+import type { HOTPGenerateOptions } from "@otplib/hotp";
 
-test("otplib types - TOTPOptions and basic TOTP types", async () => {
-  const secret: string = generateSecret();
+// Use node crypto and scure base32 for tests
+const crypto = nodeCrypto;
 
-  const totpOptions: TOTPOptions = {
-    secret,
+// v13.0.0 requires secrets to be at least 16 bytes (128 bits)
+// Use a 32-byte secret to ensure compliance
+const TEST_SECRET = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+
+test("@otplib/totp types - TOTPGenerateOptions and basic TOTP types", async () => {
+  const totpOptions: TOTPGenerateOptions = {
+    secret: TEST_SECRET,
     algorithm: "sha1",
     digits: 6,
-    step: 30,
+    period: 30,
+    crypto,
+    base32,
   };
 
-  const token: string = await generate(totpOptions);
-  const result: VerifyResult = await verify({ secret, token });
+  const token: string = await totp.generate(totpOptions);
+  const result: VerifyResult = await totp.verify({ ...totpOptions, token });
   const isValid: boolean = result.valid;
 
   assert.strictEqual(typeof token, "string");
@@ -30,84 +43,96 @@ test("otplib types - TOTPOptions and basic TOTP types", async () => {
   assert.ok(result.valid);
 });
 
-test("otplib types - HOTPOptions and HOTP types", async () => {
-  const secret = generateSecret();
-
-  const hotpOptions: HOTPOptions = {
-    secret,
+test("@otplib/hotp types - HOTPGenerateOptions and HOTP types", async () => {
+  const hotpOptions: HOTPGenerateOptions = {
+    secret: TEST_SECRET,
     counter: 0,
     algorithm: "sha256",
     digits: 8,
-    strategy: "hotp",
+    crypto,
+    base32,
   };
 
-  const token: string = await generate(hotpOptions);
-  const result: VerifyResult = await verify({
+  const token: string = await hotp.generate(hotpOptions);
+  const result = await hotp.verify({
     ...hotpOptions,
     token,
   });
 
   assert.strictEqual(typeof token, "string");
   assert.ok(result.valid);
-  assert.strictEqual(typeof result.delta, "number");
+  if (result.valid) {
+    assert.strictEqual(typeof result.delta, "number");
+  }
 });
 
-test("otplib types - GenerateURI types", () => {
-  const secret = generateSecret();
-
-  const otpauthURI: string = generateURI({
-    type: "totp",
+test("@otplib/uri types - can parse and generate URIs", () => {
+  const totpURI = uri.generateTOTP({
     label: "user@example.com",
-    secret,
+    secret: TEST_SECRET,
     issuer: "TestApp",
   });
 
-  const parsed = uri.parse(otpauthURI);
+  const parsed = uri.parse(totpURI);
 
-  assert.strictEqual(typeof otpauthURI, "string");
+  assert.strictEqual(typeof totpURI, "string");
   assert.strictEqual(parsed.type, "totp");
-  assert.strictEqual(parsed.secret, secret);
-  assert.strictEqual(parsed.issuer, "TestApp");
+  assert.strictEqual(parsed.params.secret, TEST_SECRET);
+  assert.strictEqual(parsed.params.issuer, "TestApp");
 });
 
 test("@otplib/totp types - can use all TOTP exports", async () => {
-  const secret = core.generateSecret();
-  const token = await totp.generate({ secret });
-  const result = await totp.verify({ secret, token });
+  const token = await totp.generate({ secret: TEST_SECRET, crypto, base32 });
+  const result = await totp.verify({
+    secret: TEST_SECRET,
+    token,
+    crypto,
+    base32,
+  });
 
-  assert.strictEqual(typeof secret, "string");
   assert.strictEqual(typeof token, "string");
   assert.ok(result.valid);
 });
 
 test("@otplib/hotp types - can use all HOTP exports", async () => {
-  const token = await hotp.generate({ secret: "TEST", counter: 0 });
-  const result = await hotp.verify({ secret: "TEST", counter: 0, token });
+  const token = await hotp.generate({
+    secret: TEST_SECRET,
+    counter: 0,
+    crypto,
+    base32,
+  });
+  const result = await hotp.verify({
+    secret: TEST_SECRET,
+    counter: 0,
+    token,
+    crypto,
+    base32,
+  });
 
   assert.strictEqual(typeof token, "string");
   assert.ok(result.valid);
 });
 
 test("@otplib/uri types - can use URI parsing functions", () => {
-  const testURI = "otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example";
+  const testURI = `otpauth://totp/Example:user@example.com?secret=${TEST_SECRET}&issuer=Example`;
   const parsed = uri.parse(testURI);
 
   assert.strictEqual(parsed.type, "totp");
-  assert.strictEqual(parsed.secret, "JBSWY3DPEHPK3PXP");
-  assert.strictEqual(parsed.issuer, "Example");
+  assert.strictEqual(parsed.params.secret, TEST_SECRET);
+  assert.strictEqual(parsed.params.issuer, "Example");
   assert.strictEqual(parsed.label, "Example:user@example.com");
 });
 
 test("@otplib/uri types - can generate URIs", () => {
   const totpURI = uri.generateTOTP({
     label: "user@example.com",
-    secret: "JBSWY3DPEHPK3PXP",
+    secret: TEST_SECRET,
     issuer: "Example",
   });
 
   const hotpURI = uri.generateHOTP({
     label: "user@example.com",
-    secret: "JBSWY3DPEHPK3PXP",
+    secret: TEST_SECRET,
     issuer: "Example",
     counter: 0,
   });
@@ -117,12 +142,10 @@ test("@otplib/uri types - can generate URIs", () => {
 });
 
 test("@otplib/core types - can use core utilities", () => {
-  const secret = "JBSWY3DPEHPK3PXP";
-
-  const generatedSecret: string = core.generateSecret();
+  const generatedSecret: string = core.generateSecret({ crypto, base32 });
   assert.strictEqual(typeof generatedSecret, "string");
 
-  const normalized = core.normalizeSecret(secret);
+  const normalized = core.normalizeSecret(TEST_SECRET, base32);
   assert.ok(normalized instanceof Uint8Array);
 
   core.validateSecret(normalized);
@@ -178,12 +201,13 @@ test("plugin types - Plugin class instantiation", () => {
   assert.strictEqual(nodeInstance.name, "node");
 });
 
-test("plugin types - crypto plugins can create HMAC", () => {
+test("plugin types - crypto plugins can create HMAC", async () => {
   const key = new Uint8Array([1, 2, 3, 4, 5]);
   const data = new Uint8Array([10, 20, 30]);
 
-  const nobleHmac = nobleCrypto.hmac("sha1", key, data);
-  const nodeHmac = nodeCrypto.hmac("sha1", key, data);
+  // hmac can return Uint8Array or Promise<Uint8Array>
+  const nobleHmac = await Promise.resolve(nobleCrypto.hmac("sha1", key, data));
+  const nodeHmac = await Promise.resolve(nodeCrypto.hmac("sha1", key, data));
 
   assert.ok(nobleHmac instanceof Uint8Array);
   assert.ok(nodeHmac instanceof Uint8Array);
