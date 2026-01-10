@@ -39,7 +39,7 @@
       "persistent": true
     },
     "docs:build": {
-      "dependsOn": ["@repo/typedoc#docs:api", "@repo/benchmarks#docs:benchmarks"],
+      "dependsOn": ["build", "@repo/typedoc#docs:api", "@repo/benchmarks#docs:benchmarks"],
       "outputs": [".vitepress/dist/**"]
     },
     "docs:serve": {

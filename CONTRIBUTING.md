@@ -45,7 +45,7 @@ pnpm test:deno        # Deno-specific tests
 pnpm test:docker bun-1
 
 # Documentation
-pnpm docs:dev         # Start docs dev server
+pnpm docs:dev         # Start docs dev server. (Requires a manual pnpm run build before running)
 pnpm docs:build       # Build documentation
 
 # Other
