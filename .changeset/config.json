@@ -14,7 +14,8 @@
       "@otplib/totp",
       "@otplib/uri",
       "@otplib/v12-adapter",
-      "otplib"
+      "otplib",
+      "@repo/testing"
     ]
   ],
   "linked": [],

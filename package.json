@@ -32,7 +32,7 @@
     "test:docker": "sh scripts/test-docker.sh",
     "test": "vitest --run",
     "typecheck": "turbo run typecheck",
-    "version-update": "changeset version && node scripts/clean-changelogs.js"
+    "version-update": "changeset version"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",

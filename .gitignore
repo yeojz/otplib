@@ -56,3 +56,5 @@ yarn-error.log*
 
 # Changesets
 .changeset/pre.json
+**/CHANGELOG.md
+!/CHANGELOG.md
