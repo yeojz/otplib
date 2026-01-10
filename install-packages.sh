@@ -8,7 +8,8 @@ VERSION="${OTPLIB_VERSION:-latest}"
 
 echo "Installing otplib packages@${VERSION}..."
 
-pnpm install \
+# Use npm with --no-save since pnpm add always modifies package.json
+npm install --no-save \
   otplib@${VERSION} \
   @otplib/core@${VERSION} \
   @otplib/totp@${VERSION} \
@@ -16,7 +17,6 @@ pnpm install \
   @otplib/uri@${VERSION} \
   @otplib/plugin-base32-scure@${VERSION} \
   @otplib/plugin-crypto-noble@${VERSION} \
-  @otplib/plugin-crypto-node@${VERSION} \
-  --save-exact
+  @otplib/plugin-crypto-node@${VERSION}
 
 echo "Installed packages@${VERSION}"

@@ -57,8 +57,7 @@ yarn-error.log*
 # Changesets
 .changeset/pre.json
 
-# Lock files
+# Ignoring lock files as smoke tests are dynamic.
 pnpm-lock.yaml
-package.json
 yarn.lock
-
+package-lock.json

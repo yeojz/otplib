@@ -6,18 +6,10 @@
   "description": "Smoke tests for published otplib packages",
   "scripts": {
     "install:packages": "bash install-packages.sh",
-    "test": "node --test test/*.test.js && tsx --test test/*.test.ts",
+    "test:esm": "node --test test/*.test.js && tsx --test test/*.test.ts",
+    "test:cjs": "node --test test/*.test.cjs",
+    "test:all": "npm run test:esm && npm run test:cjs",
     "test:typecheck": "tsc --noEmit -p ."
-  },
-  "dependencies": {
-    "@otplib/core": "*",
-    "@otplib/hotp": "*",
-    "@otplib/plugin-base32-scure": "*",
-    "@otplib/plugin-crypto-noble": "*",
-    "@otplib/plugin-crypto-node": "*",
-    "@otplib/totp": "*",
-    "@otplib/uri": "*",
-    "otplib": "*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

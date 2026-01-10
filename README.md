@@ -2,9 +2,6 @@
 
 This package contains smoke tests for the published `otplib` npm packages. It verifies that the published packages can be installed and used correctly in a clean environment.
 
-> **Setting up smoke tests in your main branch?**
-> See [MAIN-BRANCH-SETUP.md](./MAIN-BRANCH-SETUP.md) for the workflow template and setup instructions.
-
 ## Purpose
 
 These smoke tests run after packages are published to npm to ensure:
@@ -22,8 +19,9 @@ otplib-branch-2/
 │   ├── smoke-test.yml                      # Workflow for this smoke branch
 │   └── smoke-test-main-branch-template.yml # Template for main branch
 ├── test/
-│   ├── otplib.test.js                      # Runtime smoke tests
-│   └── types.test.ts                       # TypeScript type checking tests
+│   ├── otplib.test.js                      # Runtime smoke tests (ESM)
+│   ├── types.test.ts                       # TypeScript type checking tests
+│   └── require.test.cjs                    # CommonJS require smoke tests
 ├── package.json                            # Smoke test package configuration
 ├── tsconfig.json                           # TypeScript configuration
 ├── install-packages.sh                     # Script to install otplib packages
@@ -34,27 +32,26 @@ otplib-branch-2/
 
 ## How It Works
 
-1. Run `pnpm install:packages` to install the specified version of all otplib packages from npm
-2. Run `pnpm test` to verify that:
-   - The main `otplib` bundle works
-   - Individual packages (`@otplib/totp`, `@otplib/hotp`, `@otplib/uri`, `@otplib/core`) work
-   - Plugin packages work (`@otplib/plugin-crypto-*`, `@otplib/plugin-base32-*`)
-   - TypeScript types are properly defined and usable
+1. Run `npm run install:packages` to install the specified version of all otplib packages from npm
+2. Run `npm run test:all` to verify everything:
+   - **ESM Tests** (`test/*.test.js`): Verifies imports and functionality of main bundle and sub-packages
+   - **CommonJS Tests** (`test/*.test.cjs`): Verifies `require()` usage in CJS environments
+   - **TypeScript Tests** (`test/*.test.ts`): Verifies type definitions and compilation
 
 ## Running Locally
 
 ```bash
 # Install dev dependencies
-pnpm install
+npm install
 
 # Install and test the latest version (default)
-pnpm install:packages && pnpm test
+npm run install:packages && npm run test:all
 
 # Test a specific version
-OTPLIB_VERSION=13.0.0 pnpm install:packages && pnpm test
+OTPLIB_VERSION=13.0.0 npm run install:packages && npm run test:all
 
 # Install packages only (without running tests)
-pnpm install:packages
+npm run install:packages
 ```
 
 ## Configuration
@@ -63,7 +60,7 @@ pnpm install:packages
 
 - `OTPLIB_VERSION` - Version of otplib packages to install and test (default: `latest`)
   - Examples: `latest`, `13.0.0`, `12.0.1`
-  - Set this before running `pnpm install:packages`
+  - Set this before running `npm run install:packages`
 
 ## CI Integration
 
@@ -74,6 +71,7 @@ See the `main` branch [smoke-test-packages.yml](https://github.com/yeojz/otplib/
 ## Notes
 
 - This is an orphaned branch, separate from the main repository history
-- Uses pnpm for package management, consistent with the main repository
+- Uses `npm` for development dependencies
+- Uses `npm install --no-save` for installing otplib packages to keep `package.json` clean
 - Tests use Node.js built-in test runner (no external test framework required)
 - TypeScript type checking ensures type definitions are correct
