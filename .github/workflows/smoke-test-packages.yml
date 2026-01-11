@@ -50,16 +50,3 @@ jobs:
 
       - name: Run TypeScript type check
         run: npm run test:typecheck
-
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          files: "report.xml"
-
-      - name: Upload Test Report
-        uses: actions/upload-artifact@v6
-        if: success() || failure()
-        with:
-          name: test-report
-          path: report.xml
