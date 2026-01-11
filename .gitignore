@@ -21,6 +21,7 @@ build/
 # Generated API docs
 apps/docs/api/
 apps/docs/**/benchmarks.json
+internal/typedoc/api/
 
 # Environment
 .env

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "docs:api": "typedoc"
+    "docs:api": "typedoc && mv api ../../apps/docs/api"
   },
   "devDependencies": {
     "typedoc": "^0.28.15",
