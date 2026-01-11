@@ -1,6 +1,6 @@
 {
   "name": "@otplib/plugin-base32-scure",
-  "version": "13.0.1",
+  "version": "13.0.2",
   "description": "Base32 plugin for otplib using @scure/base",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
