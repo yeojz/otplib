@@ -111,13 +111,15 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: yeojz/otplib
+          report_type: coverage
 
       - name: Upload test results to Codecov
-        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest' && !cancelled()
-        uses: codecov/test-results-action@v1
+        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: yeojz/otplib
+          report_type: test_results
           files: reports/junit.xml
 
   test-deno:

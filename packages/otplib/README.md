@@ -1,6 +1,8 @@
 # otplib
 
-TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime and plugin support
+TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime (Node, Bun, Deno, Browser) support via plugins.
+
+A web based demo is available at [https://otplib.yeojz.dev](https://otplib.yeojz.dev).
 
 ## Breaking Changes (v13)
 
@@ -16,7 +18,7 @@ TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime an
 >   - **Separate authenticator package** — TOTP now covers all authenticator functionality
 >   - **Outdated plugins** — Legacy crypto adapters removed in favor of modern, audited alternatives
 >
-> See [Migration Guide](https://otplib.yeojz.dev/guide/migrating-v12-to-v13) for details.
+> See [Migration Guide](https://otplib.yeojz.dev/guide/v12-adapter.html) for details.
 
 ## Features
 
@@ -28,9 +30,16 @@ TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime an
 ## Installation
 
 ```bash
+# Node
 npm install otplib
 pnpm add otplib
 yarn add otplib
+```
+
+```bash
+# Other runtimes
+bun add otplib
+deno install npm:otplib
 ```
 
 ## Quick Start
