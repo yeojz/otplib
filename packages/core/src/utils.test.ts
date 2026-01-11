@@ -343,6 +343,38 @@ describe("validateEpochTolerance", () => {
   });
 });
 
+describe("validateEpochTolerance with guardrails", () => {
+  it("should accept custom MAX_WINDOW for numeric tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 5 });
+    const maxToleranceSeconds = 5 * DEFAULT_PERIOD;
+    expect(() => validateEpochTolerance(maxToleranceSeconds, DEFAULT_PERIOD, g)).not.toThrow();
+  });
+
+  it("should throw EpochToleranceTooLargeError with custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 3 });
+    const maxToleranceSeconds = 3 * DEFAULT_PERIOD;
+    expect(() => validateEpochTolerance(maxToleranceSeconds + 1, DEFAULT_PERIOD, g)).toThrowError(
+      EpochToleranceTooLargeError,
+    );
+  });
+
+  it("should accept custom MAX_WINDOW for tuple tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 2 });
+    const maxToleranceSeconds = 2 * DEFAULT_PERIOD;
+    expect(() =>
+      validateEpochTolerance([maxToleranceSeconds, maxToleranceSeconds], DEFAULT_PERIOD, g),
+    ).not.toThrow();
+  });
+
+  it("should throw EpochToleranceTooLargeError for tuple exceeding custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 2 });
+    const maxToleranceSeconds = 2 * DEFAULT_PERIOD;
+    expect(() =>
+      validateEpochTolerance([0, maxToleranceSeconds + 1], DEFAULT_PERIOD, g),
+    ).toThrowError(EpochToleranceTooLargeError);
+  });
+});
+
 describe("normalizeCounterTolerance", () => {
   it("should return default [0] for undefined", () => {
     expect(normalizeCounterTolerance()).toEqual([0]);

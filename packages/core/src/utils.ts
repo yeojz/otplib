@@ -273,6 +273,7 @@ export function validateCounterTolerance(
 export function validateEpochTolerance(
   epochTolerance: number | [number, number],
   period: number = DEFAULT_PERIOD,
+  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
 ): void {
   const [pastTolerance, futureTolerance] = Array.isArray(epochTolerance)
     ? epochTolerance
@@ -285,7 +286,7 @@ export function validateEpochTolerance(
 
   // Check total tolerance doesn't exceed reasonable limits
   // Convert to periods and check against MAX_WINDOW
-  const maxToleranceSeconds = MAX_WINDOW * period;
+  const maxToleranceSeconds = guardrails.MAX_WINDOW * period;
   const maxAllowed = Math.max(pastTolerance, futureTolerance);
 
   if (maxAllowed > maxToleranceSeconds) {
