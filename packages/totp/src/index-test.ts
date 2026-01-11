@@ -1595,6 +1595,83 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
         expect(strictResult.valid).toBe(false); // Correctly rejected
       });
+
+      it("should accept tokens from same period even if generated outside tolerance window (TOTP limitation)", async () => {
+        // IMPORTANT: This test documents a fundamental TOTP limitation.
+        //
+        // TOTP tokens encode only the counter (period), not the exact generation time.
+        // Therefore, if ANY part of a period overlaps with the tolerance window,
+        // ALL tokens from that period are accepted, even if they were generated
+        // outside the tolerance window.
+        //
+        // Example: Server at epoch 60, tolerance 5, period 30
+        // - Window: [55, 65]
+        // - Counter 1 spans [30, 60), overlaps at [55, 60)
+        // - Token from epoch 59: 1s away → ACCEPT (expected)
+        // - Token from epoch 54: 6s away → ACCEPT (TOTP limitation!)
+        //
+        // Both produce the same token (counter 1), so both are accepted.
+        // Worst case: with tolerance T and period P, tokens up to T + (P-1) seconds
+        // old can be accepted (5 + 29 = 34 seconds in this example).
+
+        const period = 30;
+        const serverEpoch = 60; // Start of counter 2
+        const tolerance = 5;
+
+        // Token from epoch 59: 1 second before server (should accept)
+        const token59 = await generate({
+          secret,
+          epoch: 59,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        // Token from epoch 54: 6 seconds before server (outside 5s tolerance, but same counter!)
+        const token54 = await generate({
+          secret,
+          epoch: 54,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        // Both are from counter 1: floor(59/30) = floor(54/30) = 1
+        expect(Math.floor(59 / period)).toBe(Math.floor(54 / period));
+
+        // Therefore, both produce the same token
+        expect(token59).toBe(token54);
+
+        // Verify at server time 60 with 5s tolerance
+        const result59 = await verify({
+          secret,
+          token: token59,
+          epoch: serverEpoch,
+          epochTolerance: tolerance,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        const result54 = await verify({
+          secret,
+          token: token54,
+          epoch: serverEpoch,
+          epochTolerance: tolerance,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        // Both accepted because counter 1 overlaps with window [55, 65]
+        expect(result59.valid).toBe(true);
+        expect(result54.valid).toBe(true);
+
+        // Note: This is a fundamental limitation of TOTP, not a bug.
+        // Tokens represent time periods, not instants.
+        // epochTolerance means "periods that overlap with [epoch±tolerance]",
+        // not "tokens generated within ±tolerance seconds".
+      });
     });
 
     describe("Synchronous API", () => {
