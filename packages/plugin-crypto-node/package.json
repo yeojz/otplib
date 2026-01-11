@@ -52,7 +52,7 @@
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "dependencies": {
-    "@noble/hashes": "^1.3.3",
+    "@noble/hashes": "^2.0.1",
     "@otplib/core": "workspace:*"
   },
   "devDependencies": {
