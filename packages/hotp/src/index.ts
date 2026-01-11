@@ -9,6 +9,7 @@
 import {
   counterToBytes,
   createCryptoContext,
+  createGuardrails,
   dynamicTruncate,
   truncateDigits,
   validateCounter,
@@ -49,7 +50,7 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
   const { secret, counter, algorithm = "sha1", digits = 6, crypto, base32 } = options;
 
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes);
+  validateSecret(secretBytes, createGuardrails());
   validateCounter(counter);
 
   const ctx = createCryptoContext(crypto);
@@ -167,7 +168,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   } = options;
 
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes);
+  validateSecret(secretBytes, createGuardrails());
   validateCounter(counter);
   validateToken(token, digits);
   validateCounterTolerance(counterTolerance);

@@ -84,28 +84,28 @@ describe("Constants", () => {
 describe("validateSecret", () => {
   it("should accept valid secret", () => {
     const secret = stringToBytes("0123456789012345");
-    expect(() => validateSecret(secret)).not.toThrow();
+    expect(() => validateSecret(secret, createGuardrails())).not.toThrow();
   });
 
   it("should accept recommended secret length", () => {
     const secret = new Uint8Array(RECOMMENDED_SECRET_BYTES);
     globalThis.crypto.getRandomValues(secret);
-    expect(() => validateSecret(secret)).not.toThrow();
+    expect(() => validateSecret(secret, createGuardrails())).not.toThrow();
   });
 
   it("should throw SecretTooShortError for short secret", () => {
     const secret = new Uint8Array(MIN_SECRET_BYTES - 1);
-    expect(() => validateSecret(secret)).toThrowError(SecretTooShortError);
+    expect(() => validateSecret(secret, createGuardrails())).toThrowError(SecretTooShortError);
   });
 
   it("should throw SecretTooLongError for long secret", () => {
     const secret = new Uint8Array(MAX_SECRET_BYTES + 1);
-    expect(() => validateSecret(secret)).toThrowError(SecretTooLongError);
+    expect(() => validateSecret(secret, createGuardrails())).toThrowError(SecretTooLongError);
   });
 
   it("should accept secret with some repeated bytes", () => {
     const secret = stringToBytes("0123456789012345");
-    expect(() => validateSecret(secret)).not.toThrow();
+    expect(() => validateSecret(secret, createGuardrails())).not.toThrow();
   });
 });
 
@@ -911,5 +911,31 @@ describe("createGuardrails", () => {
   it("accepts partial guardrails", () => {
     const g = createGuardrails({ MAX_WINDOW: 50 });
     expect(g.MAX_WINDOW).toBe(50);
+  });
+});
+
+describe("validateSecret with guardrails", () => {
+  it("accepts secret within custom bounds", () => {
+    const secret = new Uint8Array(8);
+    const g = createGuardrails({ MIN_SECRET_BYTES: 8, MAX_SECRET_BYTES: 16 });
+    expect(() => validateSecret(secret, g)).not.toThrow();
+  });
+
+  it("rejects secret below custom minimum", () => {
+    const secret = new Uint8Array(4);
+    const g = createGuardrails({ MIN_SECRET_BYTES: 8 });
+    expect(() => validateSecret(secret, g)).toThrow(SecretTooShortError);
+  });
+
+  it("rejects secret above custom maximum", () => {
+    const secret = new Uint8Array(100);
+    const g = createGuardrails({ MAX_SECRET_BYTES: 32 });
+    expect(() => validateSecret(secret, g)).toThrow(SecretTooLongError);
+  });
+
+  it("allows extreme values without validation", () => {
+    const secret = new Uint8Array(2);
+    const g = createGuardrails({ MIN_SECRET_BYTES: 1, MAX_SECRET_BYTES: 1000 });
+    expect(() => validateSecret(secret, g)).not.toThrow();
   });
 });

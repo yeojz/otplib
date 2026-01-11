@@ -11,6 +11,7 @@
  */
 
 import {
+  createGuardrails,
   normalizeSecret,
   normalizeEpochTolerance,
   validateEpochTolerance,
@@ -59,7 +60,7 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
   } = options;
 
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes);
+  validateSecret(secretBytes, createGuardrails());
   validateTime(epoch);
   validatePeriod(period);
 
@@ -190,7 +191,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   } = options;
 
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes);
+  validateSecret(secretBytes, createGuardrails());
   validateTime(epoch);
   validatePeriod(period);
   validateToken(token, digits);

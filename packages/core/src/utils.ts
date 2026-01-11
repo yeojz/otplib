@@ -136,16 +136,17 @@ export function createGuardrails(custom?: Partial<OTPGuardrails>): Readonly<OTPG
  * Validate secret key
  *
  * @param secret - The secret to validate
+ * @param guardrails - Validation guardrails
  * @throws {SecretTooShortError} If secret is too short
  * @throws {SecretTooLongError} If secret is too long
  */
-export function validateSecret(secret: Uint8Array): void {
-  if (secret.length < MIN_SECRET_BYTES) {
-    throw new SecretTooShortError(MIN_SECRET_BYTES, secret.length);
+export function validateSecret(secret: Uint8Array, guardrails: Readonly<OTPGuardrails>): void {
+  if (secret.length < guardrails.MIN_SECRET_BYTES) {
+    throw new SecretTooShortError(guardrails.MIN_SECRET_BYTES, secret.length);
   }
 
-  if (secret.length > MAX_SECRET_BYTES) {
-    throw new SecretTooLongError(MAX_SECRET_BYTES, secret.length);
+  if (secret.length > guardrails.MAX_SECRET_BYTES) {
+    throw new SecretTooLongError(guardrails.MAX_SECRET_BYTES, secret.length);
   }
 }
 
