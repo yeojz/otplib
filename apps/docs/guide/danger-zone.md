@@ -1,12 +1,16 @@
-# Danger Zone: Custom Guardrails
+# Danger Zone
 
-::: danger
-This guide covers advanced configuration that can **weaken security**. Only modify guardrails if you have specific requirements and understand the security implications.
+::: danger Caution!
+This guide covers advanced configurations that have implications on security or reliability.
 
-For standard use cases, the default guardrails are sufficient and provide strong security guarantees.
+For standard use cases, the defaults should be sufficient.
 :::
 
-## What Are Guardrails?
+## Guardrails
+
+::: warning
+Only modify guardrails if you have specific requirements and understand the security implications.
+:::
 
 Guardrails are validation limits that protect against common security vulnerabilities and implementation errors:
 
@@ -53,12 +57,6 @@ Valid reasons to customize guardrails:
 3. **Specialized Hardware**: Devices with unique constraints
 4. **Testing**: Controlled test environments requiring extreme values
 
-Invalid reasons:
-
-- ❌ "I want weaker security for convenience"
-- ❌ "The defaults are giving me errors so I'll just disable them"
-- ❌ "I don't understand the error so I'll work around it"
-
 ## Security Implications
 
 ### MIN_SECRET_BYTES
@@ -82,7 +80,7 @@ const guardrails = createGuardrails({ MIN_SECRET_BYTES: 8 });
 
 ```typescript
 // UNSAFE: Allows 10MB secrets
-const guardrails = createGuardrails({ MAX_SECRET_BYTES: 10_000_000 });
+const guardrails = createGuardrails({ MAX_SECRET_BYTES: 10000000 });
 ```
 
 **When to increase**: Rarely needed. Standard secrets are 20-32 bytes.
@@ -158,18 +156,21 @@ const result = await verify({
 #### Instance-Level Guardrails
 
 ```typescript
-import { HOTP } from "@otplib/hotp";
+import { HOTP, createGuardrails } from "@otplib/hotp";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+
+// Create custom guardrails using the factory function
+const customGuardrails = createGuardrails({
+  MAX_WINDOW: 20,
+});
 
 // Configure guardrails for all operations on this instance
 const hotp = new HOTP({
   secret: "JBSWY3DPEHPK3PXP",
   crypto: new NodeCryptoPlugin(),
   base32: new ScureBase32Plugin(),
-  guardrails: {
-    MAX_WINDOW: 20,
-  },
+  guardrails: customGuardrails,
 });
 
 // All generate/verify calls use the instance guardrails
@@ -180,6 +181,10 @@ const result = await hotp.verify({ token, counter: 0 });
 #### Method-Level Overrides
 
 ```typescript
+import { HOTP, createGuardrails } from "@otplib/hotp";
+import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+
 // Instance with standard guardrails
 const hotp = new HOTP({
   secret: "JBSWY3DPEHPK3PXP",
@@ -189,7 +194,7 @@ const hotp = new HOTP({
 
 // Override guardrails for a specific operation
 const token = await hotp.generate(0, {
-  guardrails: { MIN_SECRET_BYTES: 10 },
+  guardrails: createGuardrails({ MIN_SECRET_BYTES: 10 }),
 });
 
 // Verification with different override
@@ -197,7 +202,7 @@ const result = await hotp.verify(
   { token, counter: 0 },
   {
     counterTolerance: 15,
-    guardrails: { MAX_WINDOW: 20 },
+    guardrails: createGuardrails({ MAX_WINDOW: 20 }),
   },
 );
 ```
@@ -205,7 +210,7 @@ const result = await hotp.verify(
 ### TOTP Example
 
 ```typescript
-import { TOTP } from "@otplib/totp";
+import { TOTP, createGuardrails } from "@otplib/totp";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
@@ -214,10 +219,10 @@ const totp = new TOTP({
   period: 60, // 60-second periods
   crypto: new NodeCryptoPlugin(),
   base32: new ScureBase32Plugin(),
-  guardrails: {
+  guardrails: createGuardrails({
     MAX_PERIOD: 120, // Allow up to 2-minute periods
     MAX_WINDOW: 5, // Tighter window than default
-  },
+  }),
 });
 
 const token = await totp.generate();
@@ -292,27 +297,8 @@ const guardrails = createGuardrails({ MAX_WINDOW: 20 });
 guardrails.MAX_WINDOW = 30; // TypeError: Cannot assign to read only property
 ```
 
-## Best Practices
-
-1. **Document Your Reasoning**: Leave comments explaining why you override defaults
-2. **Start Conservative**: Override minimally, only what's needed
-3. **Test Thoroughly**: Validate that relaxed limits don't introduce vulnerabilities
-4. **Monitor in Production**: Log guardrail overrides for security audits
-5. **Review Regularly**: Reassess whether overrides are still necessary
-
 ## Related Documentation
 
 - [Security Best Practices](./security.md) - General security guidelines
 - [Advanced Usage](./advanced-usage.md) - Advanced configuration options
 - [RFC Implementations](./rfc-implementations.md) - Standards compliance
-
-## Summary
-
-Guardrails protect your application from common security pitfalls. Override them only when:
-
-- ✅ You have a specific, documented requirement
-- ✅ You understand the security implications
-- ✅ You've exhausted alternatives (fixing root cause, using different algorithms)
-- ✅ You've tested thoroughly in a safe environment
-
-When in doubt, use the defaults. They're designed to balance security and usability for the vast majority of use cases.

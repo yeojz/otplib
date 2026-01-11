@@ -38,22 +38,22 @@ export type HOTPOptions = {
   readonly label?: string;
   /**
    * Custom guardrails to override validation limits
+   * Must be created via createGuardrails() factory
    * Use this carefully - see danger-zone documentation
    */
-  readonly guardrails?: Partial<OTPGuardrails>;
+  readonly guardrails?: Readonly<OTPGuardrails>;
 };
 
 /**
  * Required options for HOTP generation
  *
  * Requires `secret`, `counter`, and `crypto` for OTP generation.
- * Optional `guardrails` for custom validation limits.
+ * Optional `guardrails` must be created via createGuardrails() factory.
  */
 export type HOTPGenerateOptions = HOTPOptions & {
   readonly secret: string | Uint8Array;
   readonly counter: number | bigint;
   readonly crypto: CryptoPlugin;
-  readonly guardrails?: Partial<OTPGuardrails> | Readonly<OTPGuardrails>;
 };
 
 /**

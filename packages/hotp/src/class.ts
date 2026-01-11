@@ -49,7 +49,7 @@ export class HOTP {
 
   constructor(options: HOTPOptions = {}) {
     this.options = options;
-    this.guardrails = createGuardrails(options.guardrails);
+    this.guardrails = options.guardrails ?? createGuardrails();
   }
 
   /**
@@ -83,7 +83,7 @@ export class HOTP {
     requireBase32Plugin(base32);
 
     // Use class guardrails, or override if provided in options
-    const guardrails = options?.guardrails ? createGuardrails(options.guardrails) : this.guardrails;
+    const guardrails = options?.guardrails ?? this.guardrails;
 
     return generateCode({
       secret,
@@ -123,7 +123,7 @@ export class HOTP {
     requireBase32Plugin(base32);
 
     // Use class guardrails, or override if provided in options
-    const guardrails = options?.guardrails ? createGuardrails(options.guardrails) : this.guardrails;
+    const guardrails = options?.guardrails ?? this.guardrails;
 
     return verifyCode({
       secret,

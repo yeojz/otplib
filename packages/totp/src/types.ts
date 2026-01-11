@@ -49,21 +49,21 @@ export type TOTPOptions = {
   readonly label?: string;
   /**
    * Custom guardrails to override validation limits
+   * Must be created via createGuardrails() factory
    * Use this carefully - see danger-zone documentation
    */
-  readonly guardrails?: Partial<OTPGuardrails>;
+  readonly guardrails?: Readonly<OTPGuardrails>;
 };
 
 /**
  * Required options for TOTP generation
  *
  * Requires `secret` and `crypto` for OTP generation.
- * Optional `guardrails` for custom validation limits.
+ * Optional `guardrails` must be created via createGuardrails() factory.
  */
 export type TOTPGenerateOptions = TOTPOptions & {
   readonly secret: string | Uint8Array;
   readonly crypto: CryptoPlugin;
-  readonly guardrails?: Partial<OTPGuardrails> | Readonly<OTPGuardrails>;
 };
 
 /**
