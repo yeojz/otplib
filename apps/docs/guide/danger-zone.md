@@ -20,35 +20,7 @@ Guardrails are validation limits that protect against common security vulnerabil
 
 By default, otplib enforces sensible limits based on RFC recommendations and security best practices. However, some production systems may have legitimate needs to override these limits.
 
-## Default Guardrails
-
-```typescript
-const DEFAULT_GUARDRAILS = {
-  // Secret must be at least 16 bytes (128 bits)
-  MIN_SECRET_BYTES: 16,
-
-  // Secret cannot exceed 1024 bytes
-  MAX_SECRET_BYTES: 1024,
-
-  // Counter must be >= 0
-  MIN_COUNTER: 0,
-
-  // Counter cannot exceed 2^53-1 (JavaScript safe integer limit)
-  MAX_COUNTER: Number.MAX_SAFE_INTEGER,
-
-  // Time period must be at least 1 second
-  MIN_PERIOD: 1,
-
-  // Time period cannot exceed 3600 seconds (1 hour)
-  MAX_PERIOD: 3600,
-
-  // Verification window cannot exceed 10 positions in either direction
-  // (For HOTP: 10 counter steps, for TOTP: 10 time periods)
-  MAX_WINDOW: 10,
-};
-```
-
-## Why Override Guardrails?
+### Why Override Guardrails?
 
 Valid reasons to customize guardrails:
 
@@ -57,71 +29,44 @@ Valid reasons to customize guardrails:
 3. **Specialized Hardware**: Devices with unique constraints
 4. **Testing**: Controlled test environments requiring extreme values
 
-## Security Implications
+### How to Override Guardrails
 
-### MIN_SECRET_BYTES
-
-**Default**: 16 bytes (128 bits)
-
-**Risk of lowering**: Secrets become vulnerable to brute-force attacks. A 10-byte secret has only 2^80 possible values, which is feasible for well-funded attackers.
+The `createGuardrails()` factory is provided to allow you to override the default guardrails. It returns a frozen (immutable) guardrails object.
 
 ```typescript
-// UNSAFE: Weak 8-byte secret
-const guardrails = createGuardrails({ MIN_SECRET_BYTES: 8 });
+import { createGuardrails } from "@otplib/core";
+
+// Returns a frozen (immutable) guardrails object
+const guardrails = createGuardrails({
+  MIN_SECRET_BYTES: 10,
+  MAX_WINDOW: 20,
+});
+
+// Attempting to modify throws an error
+guardrails.MAX_WINDOW = 30; // TypeError: Cannot assign to read only property
 ```
 
-**When to lower**: Only when integrating with legacy systems that cannot be upgraded.
+You only need to specify the guardrails you want to override. Unspecified limits use their defaults.
 
-### MAX_SECRET_BYTES
+::: warning
+There is NO validation performed on the guardrails that are set this way. It is up to the developer to ensure that the guardrails are valid.
 
-**Default**: 1024 bytes
+For example, setting `MIN_SECRET_BYTES` to a value higher than `MAX_SECRET_BYTES` might result in unexpected behavior.
+:::
 
-**Risk of increasing**: Potential DoS attacks through excessive memory consumption.
+### Overridable Guardrails
 
-```typescript
-// UNSAFE: Allows 10MB secrets
-const guardrails = createGuardrails({ MAX_SECRET_BYTES: 10000000 });
-```
+| Setting              | Default               | Risk                                                                                              | When to modify                                                                                             |
+| :------------------- | :-------------------- | :------------------------------------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------- |
+| **MIN_SECRET_BYTES** | 16 bytes (128 bits)   | Secrets become vulnerable to brute-force attacks. A 10-byte secret has only 2^80 possible values. | Only when integrating with legacy systems that cannot be upgraded.                                         |
+| **MAX_SECRET_BYTES** | 1024 bytes            | Potential DoS attacks through excessive memory consumption.                                       | Rarely needed. Standard secrets are 20-32 bytes.                                                           |
+| **MIN_PERIOD**       | 1 second              | Below 1 second, TOTP, behaviour will become unpredicatable.                                       | Use HOTP instead if you need event-based OTPs.                                                             |
+| **MAX_PERIOD**       | 3600 seconds (1 hour) | Tokens remain valid longer, increasing replay attack window.                                      | Specialized systems with coarse time granularity (e.g., daily batch processes).                            |
+| **MAX_WINDOW**       | 10 positions          | Larger verification windows increase replay attack surface exponentially.                         | Systems with extreme clock drift or poor network conditions. Consider fixing the underlying issue instead. |
 
-**When to increase**: Rarely needed. Standard secrets are 20-32 bytes.
+### Usage Examples
 
-### MIN_PERIOD
-
-**Default**: 1 second
-
-**Risk of lowering**: Below 1 second, TOTP becomes impractical due to clock drift and network latency.
-
-**When to lower**: Never. Use HOTP instead if you need event-based OTPs.
-
-### MAX_PERIOD
-
-**Default**: 3600 seconds (1 hour)
-
-**Risk of increasing**: Tokens remain valid longer, increasing replay attack window.
-
-```typescript
-// UNSAFE: Tokens valid for 24 hours
-const guardrails = createGuardrails({ MAX_PERIOD: 86400 });
-```
-
-**When to increase**: Specialized systems with coarse time granularity (e.g., daily batch processes).
-
-### MAX_WINDOW
-
-**Default**: 10 positions
-
-**Risk of increasing**: Larger verification windows increase replay attack surface exponentially.
-
-```typescript
-// UNSAFE: Checks 101 positions (50 before, current, 50 after)
-const guardrails = createGuardrails({ MAX_WINDOW: 50 });
-```
-
-**When to increase**: Systems with extreme clock drift or poor network conditions. Consider fixing the underlying issue instead.
-
-## Usage Examples
-
-### Functional API
+#### Functional API
 
 ```typescript
 import { generate, verify, createGuardrails } from "@otplib/hotp";
@@ -151,9 +96,9 @@ const result = await verify({
 });
 ```
 
-### Class-Based API
+#### Class-Based API
 
-#### Instance-Level Guardrails
+##### Instance-Level Guardrails
 
 ```typescript
 import { HOTP, createGuardrails } from "@otplib/hotp";
@@ -178,7 +123,7 @@ const token = await hotp.generate(0);
 const result = await hotp.verify({ token, counter: 0 });
 ```
 
-#### Method-Level Overrides
+##### Method-Level Overrides
 
 ```typescript
 import { HOTP, createGuardrails } from "@otplib/hotp";
@@ -207,7 +152,7 @@ const result = await hotp.verify(
 );
 ```
 
-### TOTP Example
+##### TOTP Example
 
 ```typescript
 import { TOTP, createGuardrails } from "@otplib/totp";
@@ -227,74 +172,6 @@ const totp = new TOTP({
 
 const token = await totp.generate();
 const result = await totp.verify(token, { epochTolerance: 30 });
-```
-
-## Partial Overrides
-
-You only need to specify the guardrails you want to override. Unspecified limits use their defaults:
-
-```typescript
-// Only override MAX_WINDOW, everything else uses defaults
-const guardrails = createGuardrails({
-  MAX_WINDOW: 20,
-});
-```
-
-## Testing Considerations
-
-For testing, you might need extreme values:
-
-```typescript
-import { createGuardrails } from "@otplib/core";
-
-// Testing guardrails (NEVER use in production)
-const testGuardrails = createGuardrails({
-  MIN_SECRET_BYTES: 1, // Allow tiny secrets for unit tests
-  MAX_WINDOW: 1000, // Large window for edge case testing
-  MAX_PERIOD: 86400, // Allow daily periods
-});
-```
-
-::: warning
-Always use separate configurations for testing and production. Never deploy test guardrails to production.
-:::
-
-## Validation Errors
-
-If your values violate guardrails, you'll receive clear error messages:
-
-```typescript
-// With default guardrails
-const token = await generate({
-  secret: tooShortSecret, // 8 bytes
-  counter: 0,
-  crypto: new NodeCryptoPlugin(),
-});
-// Throws: SecretTooShortError: Secret must be at least 16 bytes
-
-// With custom guardrails
-const customGuardrails = createGuardrails({ MIN_SECRET_BYTES: 8 });
-const token = await generate({
-  secret: tooShortSecret, // 8 bytes - now acceptable
-  counter: 0,
-  crypto: new NodeCryptoPlugin(),
-  guardrails: customGuardrails,
-});
-// Success
-```
-
-## Factory Pattern
-
-The `createGuardrails()` factory ensures guardrails are immutable and properly validated:
-
-```typescript
-import { createGuardrails } from "@otplib/core";
-
-// Returns a frozen (immutable) guardrails object
-const guardrails = createGuardrails({ MAX_WINDOW: 20 });
-
-// Attempting to modify throws an error
-guardrails.MAX_WINDOW = 30; // TypeError: Cannot assign to read only property
 ```
 
 ## Related Documentation

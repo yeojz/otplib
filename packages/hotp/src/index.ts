@@ -49,10 +49,9 @@ type HOTPGenerateOptionsInternal = {
 function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptionsInternal {
   const { secret, counter, algorithm = "sha1", digits = 6, crypto, base32, guardrails } = options;
 
-  const normalizedGuardrails = createGuardrails(guardrails);
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes, normalizedGuardrails);
-  validateCounter(counter, normalizedGuardrails);
+  validateSecret(secretBytes, guardrails);
+  validateCounter(counter, guardrails);
 
   const ctx = createCryptoContext(crypto);
   const counterBytes = counterToBytes(counter);
@@ -166,15 +165,14 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
     crypto,
     base32,
     counterTolerance = 0,
-    guardrails,
+    guardrails = createGuardrails(),
   } = options;
 
-  const normalizedGuardrails = createGuardrails(guardrails);
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes, normalizedGuardrails);
-  validateCounter(counter, normalizedGuardrails);
+  validateSecret(secretBytes, guardrails);
+  validateCounter(counter, guardrails);
   validateToken(token, digits);
-  validateCounterTolerance(counterTolerance, normalizedGuardrails);
+  validateCounterTolerance(counterTolerance, guardrails);
 
   const counterNum = typeof counter === "bigint" ? Number(counter) : counter;
   // Pre-filter offsets that would result in invalid counters (e.g., negative values)
