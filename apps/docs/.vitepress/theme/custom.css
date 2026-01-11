@@ -21,12 +21,7 @@
   /* Home Hero - Sophisticated slate-to-navy gradient */
   /* Avoids the "startup vibrant" feel, emphasizes stability */
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(
-    135deg,
-    #1e3a5f 0%,
-    #2563a8 50%,
-    #1e5a9e 100%
-  );
+  --vp-home-hero-name-background: linear-gradient(135deg, #1e3a5f 0%, #2563a8 50%, #1e5a9e 100%);
 
   /* Tip/Info callout colors - cohesive with brand */
   --vp-custom-block-tip-border: var(--vp-c-brand-1);
@@ -45,12 +40,7 @@
   --vp-button-brand-text: #0a1929;
 
   /* Dark mode hero gradient - sophisticated and calm */
-  --vp-home-hero-name-background: linear-gradient(
-    135deg,
-    #6ba3d6 0%,
-    #82b5e0 50%,
-    #5a94c9 100%
-  );
+  --vp-home-hero-name-background: linear-gradient(135deg, #6ba3d6 0%, #82b5e0 50%, #5a94c9 100%);
 }
 
 /* Button styling for solid, trustworthy appearance */
@@ -68,6 +58,10 @@
 
 .dark .VPButton.brand:hover {
   box-shadow: 0 4px 12px rgba(107, 163, 214, 0.2);
+}
+
+.dark .VPButton.brand {
+  color: #fff;
 }
 
 /* Alt button refinement for consistency */
