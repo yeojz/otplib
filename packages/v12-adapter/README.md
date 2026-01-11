@@ -46,7 +46,7 @@ const isValid = authenticator.verify({ token, secret });
 
 ## Migration Guide
 
-For a full guide on migrating to v13, including the benefits of the new architecture and how to use the new features, please see the [Migration Guide](https://otplib.yeojz.dev/guide/migrating-v12-to-v13).
+For a full guide on migrating to v13, including the benefits of the new architecture and how to use the new features, please see the [Migration Guide](https://otplib.yeojz.dev/guide/v12-adapter).
 
 ## License
 

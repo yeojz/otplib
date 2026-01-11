@@ -84,17 +84,12 @@ console.log(result.valid); // true
 
 ## Documentation
 
-Full documentation available at [here](https://otplib.yeojz.dev/guide/getting-started):
+Refer to the [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started), or check out the other sections in the guide:
 
-- [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started)
+- [Advanced Usage](https://otplib.yeojz.dev/guide/advanced-usage)
 - [Runtime Compatibility](https://otplib.yeojz.dev/guide/runtime-compatibility)
 - [Security Considerations](https://otplib.yeojz.dev/guide/security)
 - [API Reference](https://otplib.yeojz.dev/api/)
-
-## Requirements
-
-- Node.js >= 20.0.0 (or Bun/Deno)
-- TypeScript 5.0+ (for type definitions)
 
 ## Contributing
 

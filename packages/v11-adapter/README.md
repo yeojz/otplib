@@ -32,6 +32,10 @@ const isValid = authenticator.check(token, secret);
 - **Error Handling**: `check` and `verify` methods swallow errors and return `false`, matching v11 behavior.
 - **Secret Length**: Enforces strict secret length (> 16 bytes) due to v13 core security requirements.
 
+## Migration Guide
+
+For a full guide on migrating to v13 refer to the [Migration Guide](https://otplib.yeojz.dev/guide/v11-adapter).
+
 ## License
 
 [MIT](./LICENSE) © 2026 Gerald Yeo

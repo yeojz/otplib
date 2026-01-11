@@ -27,7 +27,7 @@ A web based demo is available at [https://otplib.yeojz.dev](https://otplib.yeojz
 >   - **Separate authenticator package** — TOTP now covers all authenticator functionality
 >   - **Outdated plugins** — Legacy crypto adapters removed in favor of modern, audited alternatives
 >
-> See [Migration Guide](https://otplib.yeojz.dev/guide/v12-adapter.html) for details.
+> See [Migration Guide](https://otplib.yeojz.dev/guide/v12-adapter) for details.
 
 ## Installation
 
@@ -95,9 +95,9 @@ const uri = otp.generateURI({
 
 ## Documentation
 
-Full documentation available at [here](https://otplib.yeojz.dev):
+Refer to the [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started), or check out the other sections in the guide:
 
-- [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started)
+- [Advanced Usage](https://otplib.yeojz.dev/guide/advanced-usage)
 - [Runtime Compatibility](https://otplib.yeojz.dev/guide/runtime-compatibility)
 - [Security Considerations](https://otplib.yeojz.dev/guide/security)
 - [API Reference](https://otplib.yeojz.dev/api/)

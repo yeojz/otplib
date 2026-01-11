@@ -200,16 +200,6 @@ const encoded = plugin.encode(data);
 const encoded = scureBase32.encode(data, { padding: false });
 ```
 
-## Dependencies
-
-```json
-{
-  "dependencies": {
-    "@scure/base": "^1.1.0"
-  }
-}
-```
-
 ## Related Packages
 
 - `@scure/base` - Audited encoding/decoding library

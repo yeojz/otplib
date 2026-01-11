@@ -75,19 +75,9 @@ const digest = await crypto.hmac("SHA-1", key, data);
 const bytes = await crypto.randomBytes(20);
 ```
 
-## Browser Compatibility
-
-| Browser     | SHA-1 | SHA-256 | SHA-512 |
-| ----------- | ----- | ------- | ------- |
-| Chrome 37+  | Yes   | Yes     | Yes     |
-| Firefox 34+ | Yes   | Yes     | Yes     |
-| Safari 7+   | Yes   | Yes     | Yes     |
-| Edge 79+    | Yes   | Yes     | Yes     |
-| IE 11       | No    | No      | No      |
-
 ## Edge Runtime Support
 
-Works in Cloudflare Workers, Vercel Edge Functions, Deno, and other edge runtimes that implement Web Crypto API:
+Should also work in runtimes which implements Web Crypto API:
 
 ```typescript
 // Cloudflare Worker example
@@ -105,8 +95,8 @@ export default {
 
 Use this plugin when:
 
-- Running in browsers (Chrome, Firefox, Safari, Edge)
-- Using edge runtimes (Cloudflare Workers, Vercel Edge)
+- Running in browsers (eg: Chrome, Firefox, Safari, Edge)
+- Using edge runtimes (eg: Cloudflare Workers, Vercel Edge Functions)
 - Building web applications with React, Vue, etc.
 - Need cross-platform crypto support
 - Want modern browser-native crypto (no external dependencies)

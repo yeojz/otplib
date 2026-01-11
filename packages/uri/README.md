@@ -210,54 +210,6 @@ const qrDataUrl = await QRCode.toDataURL(uri);
 const qrSvg = await QRCode.toString(uri, { type: "svg" });
 ```
 
-## Type Definitions
-
-### OTPAuthURI
-
-```typescript
-interface OTPAuthURI {
-  type: "hotp" | "totp";
-  label: string;
-  params: OTPAuthParams;
-}
-```
-
-### OTPAuthParams
-
-```typescript
-interface OTPAuthParams {
-  secret: string; // Required
-  issuer?: string; // Recommended
-  algorithm?: "sha1" | "sha256" | "sha512"; // Default: 'sha1'
-  digits?: 6 | 7 | 8; // Default: 6
-  counter?: number; // HOTP only
-  period?: number; // TOTP only, default: 30
-}
-```
-
-### URIOptions
-
-```typescript
-interface URIOptions {
-  issuer?: string;
-  label?: string;
-  secret: string;
-  algorithm?: "sha1" | "sha256" | "sha512";
-  digits?: 6 | 7 | 8;
-  period?: number; // TOTP only
-  counter?: number; // HOTP only
-}
-```
-
-## Error Classes
-
-| Error                   | Description                            |
-| ----------------------- | -------------------------------------- |
-| `URIParseError`         | Base error for all URI parsing errors  |
-| `InvalidURIError`       | URI format is invalid                  |
-| `MissingParameterError` | Required parameter (secret) is missing |
-| `InvalidParameterError` | Parameter value is invalid             |
-
 ## Documentation
 
 Full documentation available at [otplib.yeojz.dev](https://otplib.yeojz.dev):

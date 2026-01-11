@@ -86,17 +86,6 @@ Use this plugin when:
 - Building **isomorphic applications** that run on both server and client
 - Need **synchronous HMAC** operations in environments without Node.js crypto
 
-## Platform Support
-
-| Platform           | Support |
-| ------------------ | ------- |
-| Node.js            | Yes     |
-| Browsers           | Yes     |
-| Cloudflare Workers | Yes     |
-| Vercel Edge        | Yes     |
-| Deno               | Yes     |
-| Bun                | Yes     |
-
 ## Security Considerations
 
 - Uses [@noble/hashes](https://github.com/paulmillr/noble-hashes) which is audited and widely used
