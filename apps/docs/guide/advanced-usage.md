@@ -38,26 +38,138 @@ function isValidBase32(value: string): boolean {
 
 ### Verification Tolerance
 
-OTP verification supports tolerance parameters to handle clock drift (TOTP) or counter desynchronization (HOTP).
+OTP verification supports tolerance parameters to accommodate clock drift (TOTP) or counter desynchronization (HOTP).
 
 #### TOTP (Time-Based) - epochTolerance
 
-The `epochTolerance` parameter accepts tokens valid within a time window (in seconds):
+The `epochTolerance` parameter defines the range of time periods to check during verification. This is useful when the client and server clocks are not perfectly synchronized.
 
-- `epochTolerance: 0` - Exact match only (most secure)
-- `epochTolerance: 30` - Accept tokens valid within ±30 seconds (symmetric)
-- `epochTolerance: [5, 0]` - RFC-compliant: accept past only (5 seconds)
+##### How Tolerance Works
+
+The `epochTolerance` setting specifies a tolerance window around the current time. It does not represent a strict duration in seconds (e.g., "±N seconds"), but rather dictates which **periods** overlap with the tolerance window `[currentTime - tolerance, currentTime + tolerance]`.
+
+The verification process checks:
+
+1. The current time period.
+2. Any periods that overlap with the specified tolerance window.
+
+If the token matches any of these periods, it is considered valid.
+
+**Basic usage:**
 
 ```typescript
 import { verify } from "otplib";
 
-// Allow ±30 seconds tolerance
+// Symmetric tolerance (±30 seconds)
 const result = await verify({
   secret,
   token,
   epochTolerance: 30,
 });
+
+// Asymmetric tolerance (5s past, 0s future - RFC-compliant)
+const result = await verify({
+  secret,
+  token,
+  epochTolerance: [5, 0],
+});
 ```
+
+##### Understanding the Window
+
+With `period: 30` (default) and `epochTolerance: 5`, the server checks a window of time around the current timestamp.
+
+```
+Time:     50    55    60    65    70
+Period:   [---- C1 ---][---- C2 ---][---- C3 ----]
+Window:           [----5s----^----5s----]
+                        (server at 60)
+
+Accepted periods: C1 (overlaps window), C2 (current), C3 (overlaps window)
+```
+
+In this example, even though the tolerance is set to 5 seconds, tokens generated anywhere within period C1 (30-60) are accepted because the tolerance window overlaps with that period.
+
+##### The Same-Period Limitation
+
+TOTP tokens are generated based on a time period (counter), not the exact second. This means all timestamps within the same period (e.g., 30s) produce the identical token.
+
+```typescript
+// Server time: 60 (start of period 2)
+// Tolerance: 5 seconds → Window [55, 65]
+
+// Token generated at epoch 59 (1 second ago)
+const token59 = await generate({ secret, epoch: 59, period: 30 });
+
+// Token generated at epoch 54 (6 seconds ago)
+const token54 = await generate({ secret, epoch: 54, period: 30 });
+
+// Both timestamps fall in period 1: floor(59/30) = floor(54/30) = 1
+// Therefore, they produce the same token.
+console.log(token59 === token54); // true
+
+// Both are accepted because period 1 [30, 60) overlaps the tolerance window [55, 65]
+const result59 = await verify({ secret, token: token59, epoch: 60, epochTolerance: 5 });
+const result54 = await verify({ secret, token: token54, epoch: 60, epochTolerance: 5 });
+
+console.log(result59.valid); // true
+console.log(result54.valid); // true
+```
+
+##### Security Considerations
+
+Setting a smaller `epochTolerance` reduces the window of time in which a token is accepted.
+
+**Comparison: 5 Seconds vs 30 Seconds**
+
+Using a smaller tolerance (e.g., 5 seconds) restricts the acceptance window more effectively than a larger tolerance (e.g., 30 seconds).
+
+1.  **Start of a new period:**
+    - With `epochTolerance: 30`, a token from the previous period remains valid for the entire duration of the current period (30s).
+    - With `epochTolerance: 5`, a token from the previous period is only valid for the first 5 seconds of the current period.
+
+2.  **Middle of a period:**
+    A larger tolerance might overlap with multiple adjacent periods, potentially accepting tokens from further in the past or future. A smaller tolerance limits this overlap to typically just the immediate adjacent periods.
+
+##### Recommended Values
+
+- **Maximum Security**: `epochTolerance: 0` (Accepts only the current period; requires synchronized clocks).
+- **High Security**: `epochTolerance: 5` or `[5, 0]` (Allows for small network delays; RFC 6238 recommends avoiding future tolerance).
+- **Standard**: `epochTolerance: 30` (Balances security and user convenience).
+- **Lenient**: `epochTolerance: 60` (Useful for environments with poor network conditions or unsynchronized clocks).
+
+##### Asymmetric Tolerance (RFC-Compliant)
+
+RFC 6238 suggests accepting tokens from the recent past to account for transmission delays, but rejecting tokens from the future to prevent potential clock manipulation.
+
+```typescript
+// Accept tokens from 5 seconds in the past, reject future tokens
+const result = await verify({
+  secret,
+  token,
+  epochTolerance: [5, 0], // [past, future]
+});
+```
+
+##### Best Practices
+
+1.  **Choose an appropriate tolerance**
+    Start with a smaller tolerance (e.g., 5 seconds) and adjust if necessary based on user feedback or network conditions.
+
+2.  **Consider asymmetric tolerance**
+    For higher security, prefer `[5, 0]` to allow for network delays without accepting future tokens.
+
+3.  **Implement rate limiting**
+    Limit failed verification attempts per user to protect against brute-force attacks.
+
+4.  **Monitor verification deltas**
+
+    ```typescript
+    const result = await verify({ secret, token, epochTolerance: 30 });
+    if (result.valid && result.delta !== 0) {
+      console.warn(`Clock drift detected: ${result.delta} periods`);
+    }
+    ```
 
 #### HOTP (Counter-Based) - counterTolerance
 
