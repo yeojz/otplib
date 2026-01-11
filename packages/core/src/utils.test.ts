@@ -9,6 +9,7 @@ import {
   DEFAULT_PERIOD,
   MAX_COUNTER,
   MAX_WINDOW,
+  createGuardrails,
   validateSecret,
   validateCounter,
   validateTime,
@@ -876,5 +877,39 @@ describe("wrapResultAsync", () => {
     const result = await wrapped();
 
     expect(result).toEqual({ ok: true, value: "async result" });
+  });
+});
+
+describe("createGuardrails", () => {
+  it("returns default guardrails when no custom provided", () => {
+    const g = createGuardrails();
+    expect(g.MIN_SECRET_BYTES).toBe(16);
+    expect(g.MAX_SECRET_BYTES).toBe(64);
+    expect(g.MIN_PERIOD).toBe(1);
+    expect(g.MAX_PERIOD).toBe(3600);
+    expect(g.MAX_COUNTER).toBe(Number.MAX_SAFE_INTEGER);
+    expect(g.MAX_WINDOW).toBe(100);
+  });
+
+  it("merges custom with defaults", () => {
+    const g = createGuardrails({ MAX_WINDOW: 200, MIN_SECRET_BYTES: 8 });
+    expect(g.MAX_WINDOW).toBe(200);
+    expect(g.MIN_SECRET_BYTES).toBe(8);
+    expect(g.MAX_SECRET_BYTES).toBe(64);
+    expect(g.MIN_PERIOD).toBe(1);
+  });
+
+  it("returns frozen object", () => {
+    const g = createGuardrails();
+    expect(Object.isFrozen(g)).toBe(true);
+    expect(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (g as any).MAX_WINDOW = 999;
+    }).toThrow();
+  });
+
+  it("accepts partial guardrails", () => {
+    const g = createGuardrails({ MAX_WINDOW: 50 });
+    expect(g.MAX_WINDOW).toBe(50);
   });
 });

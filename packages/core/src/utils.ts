@@ -83,6 +83,56 @@ export const MAX_COUNTER = Number.MAX_SAFE_INTEGER;
 export const MAX_WINDOW = 100;
 
 /**
+ * Configurable guardrails for OTP validation
+ *
+ * Allows overriding default safety limits for non-standard production requirements.
+ * Use with caution - custom guardrails can weaken security.
+ */
+export type OTPGuardrails = {
+  MIN_SECRET_BYTES: number;
+  MAX_SECRET_BYTES: number;
+  MIN_PERIOD: number;
+  MAX_PERIOD: number;
+  MAX_COUNTER: number;
+  MAX_WINDOW: number;
+};
+
+/**
+ * Default guardrails matching RFC recommendations
+ */
+const DEFAULT_GUARDRAILS: OTPGuardrails = {
+  MIN_SECRET_BYTES,
+  MAX_SECRET_BYTES,
+  MIN_PERIOD,
+  MAX_PERIOD,
+  MAX_COUNTER,
+  MAX_WINDOW,
+} as const;
+
+/**
+ * Create guardrails configuration object
+ *
+ * Factory function that merges custom guardrails with defaults and returns
+ * an immutable (frozen) object. No validation is performed on custom values.
+ *
+ * @param custom - Optional partial guardrails to override defaults
+ * @returns Frozen guardrails object
+ *
+ * @example
+ * ```ts
+ * import { createGuardrails } from '@otplib/core'
+ *
+ * const guardrails = createGuardrails({
+ *   MIN_SECRET_BYTES: 8,
+ *   MAX_WINDOW: 200
+ * })
+ * ```
+ */
+export function createGuardrails(custom?: Partial<OTPGuardrails>): Readonly<OTPGuardrails> {
+  return Object.freeze({ ...DEFAULT_GUARDRAILS, ...custom });
+}
+
+/**
  * Validate secret key
  *
  * @param secret - The secret to validate
