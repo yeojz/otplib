@@ -83,7 +83,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
 
 ## AI Usage Disclosure
 
-From v13, portions of this codebase, including tests and documentation, were refined with AI assistance and human review. See [CONTRIBUTING.md](./CONTRIBUTING.md#ai-usage-guidelines) for guidelines.
+Since v13, parts of the codebase, tests, and documentation have been refined with AI assistance, with all outputs reviewed by humans. See [CONTRIBUTING.md](./CONTRIBUTING.md#ai-usage-guidelines) for guidelines.
 
 ## License
 

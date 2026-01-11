@@ -44,7 +44,8 @@ Always increment the counter after successful verification.
 
 ```typescript
 if (result.valid) {
-  // Eg: If delta is 1, increment counter by 2
+  // Remember to implement a counter increment function
+  // to prevent replay
   await updateCounter(counter + result.delta + 1);
   grantAccess();
 }

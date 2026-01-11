@@ -34,10 +34,11 @@ const result = await verify({
   counterTolerance: 10, // Allow up to 10 counters ahead
 });
 
-// After successful verification, update the counter
 if (result.valid) {
+  // Remember to implement a counter increment function
+  // to prevent replay
   const newCounter = serverCounter + result.delta + 1;
-  await saveCounter(userId, newCounter);
+  await updateCounter(userId, newCounter);
 }
 ```
 

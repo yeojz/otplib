@@ -60,7 +60,6 @@ otplib/
 │   ├── core/              # Core interfaces, types, utilities
 │   ├── hotp/              # HOTP implementation (RFC 4226)
 │   ├── totp/              # TOTP implementation (RFC 6238)
-│   ├── authenticator/     # Google Authenticator-compatible API
 │   ├── uri/               # otpauth:// URI generation/parsing
 │   ├── otplib/            # All-in-one bundle
 │   ├── plugin-crypto-node/    # Node.js crypto plugin
@@ -71,7 +70,9 @@ otplib/
 │   ├── docs/              # VitePress documentation
 └── internal/
     ├── benchmarks/        # Performance benchmarks
-    └── fuzz-tests/        # Property-based fuzz testing
+    ├── fuzz-tests/        # Property-based fuzz testing
+    ├── testing/           # Testing utilities and test suites
+    └── typedoc/           # API documentation generator to put in docs/
 ```
 
 - `internal/` - Internal packages that are not to be published

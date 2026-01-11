@@ -20,35 +20,35 @@ otplib is fully compliant with the following RFCs:
 
 otplib passes all RFC 4226 Appendix D test vectors:
 
-| Counter | Expected | Actual | Status |
-| ------- | -------- | ------ | ------ |
-| 0       | 755224   | 755224 | Pass   |
-| 1       | 287082   | 287082 | Pass   |
-| 2       | 359152   | 359152 | Pass   |
-| 3       | 969429   | 969429 | Pass   |
-| 4       | 338314   | 338314 | Pass   |
-| 5       | 254676   | 254676 | Pass   |
-| 6       | 287922   | 287922 | Pass   |
-| 7       | 162583   | 162583 | Pass   |
-| 8       | 399871   | 399871 | Pass   |
-| 9       | 520489   | 520489 | Pass   |
+| Counter | Expected | Actual |
+| ------- | -------- | ------ |
+| 0       | 755224   | 755224 |
+| 1       | 287082   | 287082 |
+| 2       | 359152   | 359152 |
+| 3       | 969429   | 969429 |
+| 4       | 338314   | 338314 |
+| 5       | 254676   | 254676 |
+| 6       | 287922   | 287922 |
+| 7       | 162583   | 162583 |
+| 8       | 399871   | 399871 |
+| 9       | 520489   | 520489 |
 
 ### Intermediate HMAC-SHA-1 Values
 
 otplib also verifies the intermediate HMAC-SHA-1 computation against RFC 4226 Appendix D. This ensures the crypto plugin is functioning correctly before truncation.
 
-| Counter | HMAC-SHA-1 (hex)                           | Status |
-| ------- | ------------------------------------------ | ------ |
-| 0       | `cc93cf18508d94934c64b65d8ba7667fb7cde4b0` | Pass   |
-| 1       | `75a48a19d4cbe100644e8ac1397eea747a2d33ab` | Pass   |
-| 2       | `0bacb7fa082fef30782211938bc1c5e70416ff44` | Pass   |
-| 3       | `66c28227d03a2d5529262ff016a1e6ef76557ece` | Pass   |
-| 4       | `a904c900a64b35909874b33e61c5938a8e15ed1c` | Pass   |
-| 5       | `a37e783d7b7233c083d4f62926c7a25f238d0316` | Pass   |
-| 6       | `bc9cd28561042c83f219324d3c607256c03272ae` | Pass   |
-| 7       | `a4fb960c0bc06e1eabb804e5b397cdc4b45596fa` | Pass   |
-| 8       | `1b3c89f65e6c9e883012052823443f048b4332db` | Pass   |
-| 9       | `1637409809a679dc698207310c8c7fc07290d9e5` | Pass   |
+| Counter | HMAC-SHA-1 (hex)                           |
+| ------- | ------------------------------------------ |
+| 0       | `cc93cf18508d94934c64b65d8ba7667fb7cde4b0` |
+| 1       | `75a48a19d4cbe100644e8ac1397eea747a2d33ab` |
+| 2       | `0bacb7fa082fef30782211938bc1c5e70416ff44` |
+| 3       | `66c28227d03a2d5529262ff016a1e6ef76557ece` |
+| 4       | `a904c900a64b35909874b33e61c5938a8e15ed1c` |
+| 5       | `a37e783d7b7233c083d4f62926c7a25f238d0316` |
+| 6       | `bc9cd28561042c83f219324d3c607256c03272ae` |
+| 7       | `a4fb960c0bc06e1eabb804e5b397cdc4b45596fa` |
+| 8       | `1b3c89f65e6c9e883012052823443f048b4332db` |
+| 9       | `1637409809a679dc698207310c8c7fc07290d9e5` |
 
 **Test File:** [`packages/hotp/src/rfc4226.test.ts`](../packages/hotp/src/rfc4226.test.ts)
 
@@ -70,31 +70,31 @@ otplib also verifies the intermediate HMAC-SHA-1 computation against RFC 4226 Ap
 
 otplib passes all RFC 6238 Appendix B test vectors:
 
-| Time (sec)  | Mode | SHA    | Expected | Actual   | Status |
-| ----------- | ---- | ------ | -------- | -------- | ------ |
-| 59          | TOTP | SHA1   | 94287082 | 94287082 | Pass   |
-| 59          | TOTP | SHA256 | 46119246 | 46119246 | Pass   |
-| 59          | TOTP | SHA512 | 90693936 | 90693936 | Pass   |
-| 1111111109  | TOTP | SHA1   | 07081804 | 07081804 | Pass   |
-| 1111111109  | TOTP | SHA256 | 68084774 | 68084774 | Pass   |
-| 1111111109  | TOTP | SHA512 | 25091201 | 25091201 | Pass   |
-| 1111111111  | TOTP | SHA1   | 14050471 | 14050471 | Pass   |
-| 1234567890  | TOTP | SHA1   | 89005924 | 89005924 | Pass   |
-| 2000000000  | TOTP | SHA1   | 69279037 | 69279037 | Pass   |
-| 20000000000 | TOTP | SHA1   | 65353130 | 65353130 | Pass   |
+| Time (sec)  | Mode | SHA    | Expected | Actual   |
+| ----------- | ---- | ------ | -------- | -------- |
+| 59          | TOTP | SHA1   | 94287082 | 94287082 |
+| 59          | TOTP | SHA256 | 46119246 | 46119246 |
+| 59          | TOTP | SHA512 | 90693936 | 90693936 |
+| 1111111109  | TOTP | SHA1   | 07081804 | 07081804 |
+| 1111111109  | TOTP | SHA256 | 68084774 | 68084774 |
+| 1111111109  | TOTP | SHA512 | 25091201 | 25091201 |
+| 1111111111  | TOTP | SHA1   | 14050471 | 14050471 |
+| 1234567890  | TOTP | SHA1   | 89005924 | 89005924 |
+| 2000000000  | TOTP | SHA1   | 69279037 | 69279037 |
+| 20000000000 | TOTP | SHA1   | 65353130 | 65353130 |
 
 ### Intermediate Time Step (T) Values
 
 otplib verifies the time step calculation against the "Value of T (hex)" from RFC 6238 Appendix B. This ensures that time-to-counter conversion is accurate.
 
-| Time (sec)  | Value of T (hex)   | Status |
-| ----------- | ------------------ | ------ |
-| 59          | `0000000000000001` | Pass   |
-| 1111111109  | `00000000023523ec` | Pass   |
-| 1111111111  | `00000000023523ed` | Pass   |
-| 1234567890  | `000000000273ef07` | Pass   |
-| 2000000000  | `0000000003f940aa` | Pass   |
-| 20000000000 | `0000000027bc86aa` | Pass   |
+| Time (sec)  | Value of T (hex)   |
+| ----------- | ------------------ |
+| 59          | `0000000000000001` |
+| 1111111109  | `00000000023523ec` |
+| 1111111111  | `00000000023523ed` |
+| 1234567890  | `000000000273ef07` |
+| 2000000000  | `0000000003f940aa` |
+| 20000000000 | `0000000027bc86aa` |
 
 ## RFC 4648 - The Base16, Base32, and Base64 Data Encodings
 

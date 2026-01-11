@@ -76,10 +76,10 @@ const result = await verify({
 });
 
 if (result.valid) {
-  // AUTOMATICALLY UPDATE COUNTER
-  // result.delta indicates how far ahead the match was found
+  // Remember to implement a counter increment function
+  // to prevent replay
   const newCounter = currentCounter + result.delta + 1;
-  await saveCounter(userId, newCounter);
+  await updateCounter(userId, newCounter);
 }
 ```
 

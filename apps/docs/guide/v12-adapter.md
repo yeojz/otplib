@@ -454,9 +454,10 @@ const result = await verify({
 });
 
 if (result.valid) {
-  // Update counter to prevent replay
+  // Remember to implement a counter increment function
+  // to prevent replay
   const nextCounter = 10 + result.delta + 1;
-  await saveCounter(userId, nextCounter);
+  await updateCounter(userId, nextCounter);
 }
 ```
 
