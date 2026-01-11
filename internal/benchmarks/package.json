@@ -23,7 +23,7 @@
     "@repo/testing": "workspace:*"
   },
   "devDependencies": {
-    "tinybench": "^2.9.0",
+    "tinybench": "^6.0.0",
     "tsx": "^4.21.0"
   }
 }
