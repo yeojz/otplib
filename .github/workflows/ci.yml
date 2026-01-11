@@ -229,6 +229,18 @@ jobs:
       - name: Check bundle size
         run: pnpm run size
 
+      - name: Upload bundle analysis to Codecov
+        env:
+          CODECOV_SLUG: yeojz/otplib
+        run: |
+          for pkg in packages/*/dist; do
+            pkg_dir=$(dirname $pkg)
+            name=$(jq -r '.name' "$pkg_dir/package.json")
+            pnpm exec bundle-analyzer "$pkg" \
+              --bundle-name="$name" \
+              --upload-token=${{ secrets.CODECOV_TOKEN }}
+          done
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:

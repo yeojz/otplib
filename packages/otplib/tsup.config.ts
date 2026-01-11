@@ -16,4 +16,5 @@ export default defineConfig({
   target: "es2022",
   tsconfig: "./tsconfig.json",
   minify: isProduction,
+  metafile: true,
 });
