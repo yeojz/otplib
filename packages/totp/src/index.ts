@@ -62,7 +62,7 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, createGuardrails());
   validateTime(epoch);
-  validatePeriod(period);
+  validatePeriod(period, createGuardrails());
 
   const counter = Math.floor((epoch - t0) / period);
 
@@ -193,7 +193,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, createGuardrails());
   validateTime(epoch);
-  validatePeriod(period);
+  validatePeriod(period, createGuardrails());
   validateToken(token, digits);
   validateEpochTolerance(epochTolerance, period);
 
@@ -338,7 +338,7 @@ export function getRemainingTime(
   t0: number = 0,
 ): number {
   validateTime(time);
-  validatePeriod(period);
+  validatePeriod(period, createGuardrails());
 
   const counter = Math.floor((time - t0) / period);
   const nextCounter = counter + 1;
@@ -369,7 +369,7 @@ export function getTimeStepUsed(
   t0: number = 0,
 ): number {
   validateTime(time);
-  validatePeriod(period);
+  validatePeriod(period, createGuardrails());
 
   return Math.floor((time - t0) / period);
 }

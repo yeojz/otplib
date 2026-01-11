@@ -192,13 +192,13 @@ export function validateTime(time: number): void {
  * @throws {PeriodTooSmallError} If period is too small
  * @throws {PeriodTooLargeError} If period is too large
  */
-export function validatePeriod(period: number): void {
-  if (!Number.isInteger(period) || period < MIN_PERIOD) {
-    throw new PeriodTooSmallError(MIN_PERIOD);
+export function validatePeriod(period: number, guardrails: Readonly<OTPGuardrails>): void {
+  if (!Number.isInteger(period) || period < guardrails.MIN_PERIOD) {
+    throw new PeriodTooSmallError(guardrails.MIN_PERIOD);
   }
 
-  if (period > MAX_PERIOD) {
-    throw new PeriodTooLargeError(MAX_PERIOD);
+  if (period > guardrails.MAX_PERIOD) {
+    throw new PeriodTooLargeError(guardrails.MAX_PERIOD);
   }
 }
 

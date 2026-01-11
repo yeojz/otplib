@@ -164,21 +164,47 @@ describe("validateTime", () => {
 
 describe("validatePeriod", () => {
   it("should accept valid periods", () => {
-    expect(() => validatePeriod(MIN_PERIOD)).not.toThrow();
-    expect(() => validatePeriod(DEFAULT_PERIOD)).not.toThrow();
-    expect(() => validatePeriod(MAX_PERIOD)).not.toThrow();
+    expect(() => validatePeriod(MIN_PERIOD, createGuardrails())).not.toThrow();
+    expect(() => validatePeriod(DEFAULT_PERIOD, createGuardrails())).not.toThrow();
+    expect(() => validatePeriod(MAX_PERIOD, createGuardrails())).not.toThrow();
   });
 
   it("should throw PeriodTooSmallError for period less than minimum", () => {
-    expect(() => validatePeriod(MIN_PERIOD - 1)).toThrowError(PeriodTooSmallError);
+    expect(() => validatePeriod(MIN_PERIOD - 1, createGuardrails())).toThrowError(
+      PeriodTooSmallError,
+    );
   });
 
   it("should throw PeriodTooSmallError for non-integer", () => {
-    expect(() => validatePeriod(1.5)).toThrowError(PeriodTooSmallError);
+    expect(() => validatePeriod(1.5, createGuardrails())).toThrowError(PeriodTooSmallError);
   });
 
   it("should throw PeriodTooLargeError for period exceeding maximum", () => {
-    expect(() => validatePeriod(MAX_PERIOD + 1)).toThrowError(PeriodTooLargeError);
+    expect(() => validatePeriod(MAX_PERIOD + 1, createGuardrails())).toThrowError(
+      PeriodTooLargeError,
+    );
+  });
+});
+
+describe("validatePeriod with guardrails", () => {
+  it("should accept custom MIN_PERIOD", () => {
+    const g = createGuardrails({ MIN_PERIOD: 5 });
+    expect(() => validatePeriod(5, g)).not.toThrow();
+  });
+
+  it("should throw PeriodTooSmallError with custom MIN_PERIOD", () => {
+    const g = createGuardrails({ MIN_PERIOD: 10 });
+    expect(() => validatePeriod(9, g)).toThrowError(PeriodTooSmallError);
+  });
+
+  it("should accept custom MAX_PERIOD", () => {
+    const g = createGuardrails({ MAX_PERIOD: 120 });
+    expect(() => validatePeriod(120, g)).not.toThrow();
+  });
+
+  it("should throw PeriodTooLargeError with custom MAX_PERIOD", () => {
+    const g = createGuardrails({ MAX_PERIOD: 60 });
+    expect(() => validatePeriod(61, g)).toThrowError(PeriodTooLargeError);
   });
 });
 
