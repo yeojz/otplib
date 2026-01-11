@@ -44,6 +44,9 @@ updates:
       day: "monday"
     open-pull-requests-limit: 5
     versioning-strategy: "increase"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     groups:
       patch-updates:
         patterns:
