@@ -18,7 +18,7 @@
     "@repo/testing": "workspace:*"
   },
   "devDependencies": {
-    "fast-check": "^4.5.2",
+    "fast-check": "^4.5.3",
     "vitest": "^4.0.16"
   }
 }
