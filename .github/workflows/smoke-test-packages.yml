@@ -25,12 +25,12 @@ jobs:
         run: echo "OTPLIB_VERSION=${{ github.event.inputs.version || 'latest' }}" >> $GITHUB_ENV
 
       - name: Checkout smoke tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: smoke-tests
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: "npm"
@@ -58,7 +58,7 @@ jobs:
           files: "report.xml"
 
       - name: Upload Test Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: success() || failure()
         with:
           name: test-report
