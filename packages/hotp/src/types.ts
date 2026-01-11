@@ -4,7 +4,13 @@
  * Type definitions for HOTP implementation
  */
 
-import type { CryptoPlugin, Digits, HashAlgorithm, Base32Plugin } from "@otplib/core";
+import type {
+  CryptoPlugin,
+  Digits,
+  HashAlgorithm,
+  Base32Plugin,
+  OTPGuardrails,
+} from "@otplib/core";
 
 /**
  * HOTP configuration options
@@ -30,17 +36,24 @@ export type HOTPOptions = {
   readonly issuer?: string;
   /** User identifier/email/username (for URI generation) */
   readonly label?: string;
+  /**
+   * Custom guardrails to override validation limits
+   * Use this carefully - see danger-zone documentation
+   */
+  readonly guardrails?: Partial<OTPGuardrails>;
 };
 
 /**
  * Required options for HOTP generation
  *
  * Requires `secret`, `counter`, and `crypto` for OTP generation.
+ * Optional `guardrails` for custom validation limits.
  */
 export type HOTPGenerateOptions = HOTPOptions & {
   readonly secret: string | Uint8Array;
   readonly counter: number | bigint;
   readonly crypto: CryptoPlugin;
+  readonly guardrails?: Partial<OTPGuardrails> | Readonly<OTPGuardrails>;
 };
 
 /**

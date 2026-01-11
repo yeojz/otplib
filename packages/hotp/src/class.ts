@@ -12,12 +12,14 @@ import {
   requireLabel,
   requireIssuer,
   requireBase32String,
+  createGuardrails,
 } from "@otplib/core";
 import { generateHOTP as generateHOTPURI } from "@otplib/uri";
 
 import { generate as generateCode, verify as verifyCode } from "./index";
 
 import type { VerifyResult, HOTPOptions } from "./types";
+import type { OTPGuardrails } from "@otplib/core";
 
 /**
  * HOTP class for HMAC-based one-time password generation
@@ -43,9 +45,11 @@ import type { VerifyResult, HOTPOptions } from "./types";
  */
 export class HOTP {
   private readonly options: HOTPOptions;
+  private readonly guardrails: Readonly<OTPGuardrails>;
 
   constructor(options: HOTPOptions = {}) {
     this.options = options;
+    this.guardrails = createGuardrails(options.guardrails);
   }
 
   /**
@@ -78,6 +82,9 @@ export class HOTP {
     requireCryptoPlugin(crypto);
     requireBase32Plugin(base32);
 
+    // Use class guardrails, or override if provided in options
+    const guardrails = options?.guardrails ? createGuardrails(options.guardrails) : this.guardrails;
+
     return generateCode({
       secret,
       counter,
@@ -85,6 +92,7 @@ export class HOTP {
       digits,
       crypto,
       base32,
+      guardrails,
     });
   }
 
@@ -114,6 +122,9 @@ export class HOTP {
     requireCryptoPlugin(crypto);
     requireBase32Plugin(base32);
 
+    // Use class guardrails, or override if provided in options
+    const guardrails = options?.guardrails ? createGuardrails(options.guardrails) : this.guardrails;
+
     return verifyCode({
       secret,
       token: params.token,
@@ -123,6 +134,7 @@ export class HOTP {
       counterTolerance,
       crypto,
       base32,
+      guardrails,
     });
   }
 
