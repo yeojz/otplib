@@ -236,12 +236,15 @@ export function validateToken(token: string, digits: number): void {
  * validateCounterTolerance([0, 1]);   // OK: 2 offsets
  * ```
  */
-export function validateCounterTolerance(counterTolerance: number | number[]): void {
+export function validateCounterTolerance(
+  counterTolerance: number | number[],
+  guardrails: Readonly<OTPGuardrails>,
+): void {
   const size = Array.isArray(counterTolerance) ? counterTolerance.length : counterTolerance * 2 + 1;
 
-  if (size > MAX_WINDOW * 2 + 1) {
+  if (size > guardrails.MAX_WINDOW * 2 + 1) {
     throw new CounterToleranceTooLargeError(
-      MAX_WINDOW,
+      guardrails.MAX_WINDOW,
       Array.isArray(counterTolerance) ? counterTolerance.length : counterTolerance,
     );
   }

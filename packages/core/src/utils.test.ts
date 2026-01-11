@@ -235,26 +235,53 @@ describe("validateToken", () => {
 
 describe("validateCounterTolerance", () => {
   it("should accept valid numeric tolerance", () => {
-    expect(() => validateCounterTolerance(0)).not.toThrow();
-    expect(() => validateCounterTolerance(1)).not.toThrow();
-    expect(() => validateCounterTolerance(MAX_WINDOW)).not.toThrow();
+    expect(() => validateCounterTolerance(0, createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance(1, createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance(MAX_WINDOW, createGuardrails())).not.toThrow();
   });
 
   it("should accept valid array tolerance", () => {
-    expect(() => validateCounterTolerance([0])).not.toThrow();
-    expect(() => validateCounterTolerance([0, 1, 2])).not.toThrow();
-    expect(() => validateCounterTolerance([-1, 0, 1])).not.toThrow();
+    expect(() => validateCounterTolerance([0], createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance([0, 1, 2], createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance([-1, 0, 1], createGuardrails())).not.toThrow();
   });
 
   it("should throw CounterToleranceTooLargeError for tolerance exceeding max", () => {
-    expect(() => validateCounterTolerance(MAX_WINDOW + 1)).toThrowError(
+    expect(() => validateCounterTolerance(MAX_WINDOW + 1, createGuardrails())).toThrowError(
       CounterToleranceTooLargeError,
     );
   });
 
   it("should throw CounterToleranceTooLargeError for array with too many elements", () => {
     const largeArray = Array.from({ length: MAX_WINDOW * 2 + 2 }, (_, i) => i);
-    expect(() => validateCounterTolerance(largeArray)).toThrowError(CounterToleranceTooLargeError);
+    expect(() => validateCounterTolerance(largeArray, createGuardrails())).toThrowError(
+      CounterToleranceTooLargeError,
+    );
+  });
+});
+
+describe("validateCounterTolerance with guardrails", () => {
+  it("should accept custom MAX_WINDOW for numeric tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 5 });
+    expect(() => validateCounterTolerance(5, g)).not.toThrow();
+  });
+
+  it("should throw CounterToleranceTooLargeError with custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 3 });
+    expect(() => validateCounterTolerance(4, g)).toThrowError(CounterToleranceTooLargeError);
+  });
+
+  it("should accept custom MAX_WINDOW for array tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 2 });
+    expect(() => validateCounterTolerance([0, 1, 2, 3, 4], g)).not.toThrow(); // 5 elements <= 2*2+1
+  });
+
+  it("should throw CounterToleranceTooLargeError for array exceeding custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 2 });
+    const largeArray = Array.from({ length: 6 }, (_, i) => i); // 6 > 2*2+1
+    expect(() => validateCounterTolerance(largeArray, g)).toThrowError(
+      CounterToleranceTooLargeError,
+    );
   });
 });
 

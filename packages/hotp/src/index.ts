@@ -171,7 +171,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   validateSecret(secretBytes, createGuardrails());
   validateCounter(counter, createGuardrails());
   validateToken(token, digits);
-  validateCounterTolerance(counterTolerance);
+  validateCounterTolerance(counterTolerance, createGuardrails());
 
   const counterNum = typeof counter === "bigint" ? Number(counter) : counter;
   // Pre-filter offsets that would result in invalid counters (e.g., negative values)
