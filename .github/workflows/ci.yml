@@ -112,6 +112,14 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: yeojz/otplib
 
+      - name: Upload test results to Codecov
+        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest' && !cancelled()
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: yeojz/otplib
+          files: reports/junit.xml
+
   test-deno:
     name: Test (Deno ${{ matrix.deno-version }})
     needs: build

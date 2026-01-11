@@ -58,3 +58,6 @@ yarn-error.log*
 .changeset/pre.json
 **/CHANGELOG.md
 !/CHANGELOG.md
+
+# Test Reports
+reports/
