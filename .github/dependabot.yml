@@ -13,25 +13,20 @@ updates:
     open-pull-requests-limit: 10
     versioning-strategy: "increase"
     groups:
-      vitest:
-        patterns:
-          - "vitest*"
-          - "@vitest/*"
+      dependencies-minor:
+        dependency-type: "production"
         update-types:
           - "minor"
-      typescript:
-        patterns:
-          - "typescript"
-          - "@types/*"
+      dependencies-patch:
+        dependency-type: "production"
         update-types:
-          - "minor"
-      dev-dependencies:
+          - "patch"
+      dev-dependencies-minor:
         dependency-type: "development"
         update-types:
           - "minor"
-      patch-updates:
-        patterns:
-          - "*"
+      dev-dependencies-patch:
+        dependency-type: "development"
         update-types:
           - "patch"
     commit-message:
