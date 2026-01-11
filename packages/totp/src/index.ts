@@ -57,12 +57,14 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     digits = 6,
     crypto,
     base32,
+    guardrails,
   } = options;
 
+  const normalizedGuardrails = createGuardrails(guardrails);
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes, createGuardrails());
+  validateSecret(secretBytes, normalizedGuardrails);
   validateTime(epoch);
-  validatePeriod(period, createGuardrails());
+  validatePeriod(period, normalizedGuardrails);
 
   const counter = Math.floor((epoch - t0) / period);
 
@@ -188,14 +190,16 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     crypto,
     base32,
     epochTolerance = 0,
+    guardrails,
   } = options;
 
+  const normalizedGuardrails = createGuardrails(guardrails);
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes, createGuardrails());
+  validateSecret(secretBytes, normalizedGuardrails);
   validateTime(epoch);
-  validatePeriod(period, createGuardrails());
+  validatePeriod(period, normalizedGuardrails);
   validateToken(token, digits);
-  validateEpochTolerance(epochTolerance, period);
+  validateEpochTolerance(epochTolerance, period, normalizedGuardrails);
 
   const currentCounter = Math.floor((epoch - t0) / period);
 

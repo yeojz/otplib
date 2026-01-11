@@ -4,7 +4,13 @@
  * Type definitions for TOTP implementation
  */
 
-import type { CryptoPlugin, Digits, HashAlgorithm, Base32Plugin } from "@otplib/core";
+import type {
+  CryptoPlugin,
+  Digits,
+  HashAlgorithm,
+  Base32Plugin,
+  OTPGuardrails,
+} from "@otplib/core";
 
 /**
  * TOTP configuration options
@@ -41,16 +47,23 @@ export type TOTPOptions = {
   readonly issuer?: string;
   /** User identifier/email/username (for URI generation) */
   readonly label?: string;
+  /**
+   * Custom guardrails to override validation limits
+   * Use this carefully - see danger-zone documentation
+   */
+  readonly guardrails?: Partial<OTPGuardrails>;
 };
 
 /**
  * Required options for TOTP generation
  *
  * Requires `secret` and `crypto` for OTP generation.
+ * Optional `guardrails` for custom validation limits.
  */
 export type TOTPGenerateOptions = TOTPOptions & {
   readonly secret: string | Uint8Array;
   readonly crypto: CryptoPlugin;
+  readonly guardrails?: Partial<OTPGuardrails> | Readonly<OTPGuardrails>;
 };
 
 /**
