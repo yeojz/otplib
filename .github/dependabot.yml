@@ -12,15 +12,22 @@ updates:
       day: "monday"
     open-pull-requests-limit: 10
     versioning-strategy: "increase"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
     groups:
       vitest:
         patterns:
           - "vitest*"
           - "@vitest/*"
+        update-types:
+          - "minor"
       typescript:
         patterns:
           - "typescript"
           - "@types/*"
+        update-types:
+          - "minor"
       dev-dependencies:
         dependency-type: "development"
         update-types:
@@ -28,6 +35,23 @@ updates:
     commit-message:
       prefix: "chore"
       prefix-development: "chore"
+      include: "scope"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    versioning-strategy: "increase"
+    groups:
+      patch-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+    commit-message:
+      prefix: "chore"
       include: "scope"
 
   - package-ecosystem: "github-actions"
