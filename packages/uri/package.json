@@ -1,6 +1,6 @@
 {
   "name": "@otplib/uri",
-  "version": "13.0.1",
+  "version": "13.0.2",
   "description": "otpauth:// URI parsing and generation for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",

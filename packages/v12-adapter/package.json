@@ -1,6 +1,6 @@
 {
   "name": "@otplib/v12-adapter",
-  "version": "13.0.1",
+  "version": "13.0.2",
   "description": "Drop-in replacement adapter for migrating from otplib v12 to v13",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
