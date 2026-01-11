@@ -19,7 +19,7 @@ jobs:
   dry-run:
     if: "${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'ci-release')) }}"
     environment: general
-    name: Dry Run
+    name: Dry Run (Packages)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,11 +41,11 @@ jobs:
         run: pnpm run build
 
       - name: Dry run publish
-        run: pnpm run release:dry-run
+        run: pnpm run release:packages-dry-run
 
   publish:
     environment: production
-    name: Publish
+    name: Publish (Packages)
     runs-on: ubuntu-latest
     needs: dry-run
     steps:
@@ -71,7 +71,7 @@ jobs:
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: Publish to npm
-        run: pnpm run release
+        run: pnpm run release:packages
         env:
           NPM_CONFIG_PROVENANCE: true
 
@@ -92,3 +92,37 @@ jobs:
               ref: 'main',
               inputs: { version: '${{ steps.version.outputs.version }}' }
             })
+
+      - name: Create GitHub Release
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ steps.version.outputs.version }}"
+
+          # Check if release already exists
+          if gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "Release $VERSION already exists. Skipping publish."
+            exit 0
+          fi
+
+          # Fetch only tags to ensure we can sort them
+          git fetch origin '+refs/tags/*:refs/tags/*'
+
+          # Find the previous latest tag:
+          # 1. List all tags matching vX.X.X
+          # 2. Sort by version descending (v14 > v13 > v2)
+          # 3. Filter out the current version (if tag already exists)
+          # 4. Take the first result
+          PREV_TAG=$(git tag -l "v*.*.*" --sort=-v:refname | grep -v "^${VERSION}$" | head -n 1)
+
+          echo "Current Version: $VERSION"
+          echo "Previous Version: $PREV_TAG"
+
+          if [ -n "$PREV_TAG" ]; then
+            echo "Creating release with notes from $PREV_TAG..."
+            gh release create "$VERSION" --generate-notes --notes-start-tag "$PREV_TAG" --target main
+          else
+            echo "No previous tag found. Creating initial release..."
+            gh release create "$VERSION" --generate-notes --target main
+          fi
