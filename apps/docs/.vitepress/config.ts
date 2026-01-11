@@ -65,6 +65,7 @@ export default defineConfig({
         items: [
           { text: "Testing", link: "/guide/testing" },
           { text: "Security Considerations", link: "/guide/security" },
+          { text: "Danger Zone: Custom Guardrails", link: "/guide/danger-zone" },
           { text: "Runtime Compatibility", link: "/guide/runtime-compatibility" },
           { text: "RFC Implementations", link: "/guide/rfc-implementations" },
           { text: "Fuzz Tests", link: "/guide/fuzz-tests" },
