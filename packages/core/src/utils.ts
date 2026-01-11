@@ -99,15 +99,18 @@ export type OTPGuardrails = {
 
 /**
  * Default guardrails matching RFC recommendations
+ *
+ * Frozen to ensure immutability. Used as default parameter for validation functions.
+ * For custom guardrails, use the createGuardrails() factory function.
  */
-const DEFAULT_GUARDRAILS: OTPGuardrails = {
+const DEFAULT_GUARDRAILS: Readonly<OTPGuardrails> = Object.freeze({
   MIN_SECRET_BYTES,
   MAX_SECRET_BYTES,
   MIN_PERIOD,
   MAX_PERIOD,
   MAX_COUNTER,
   MAX_WINDOW,
-} as const;
+});
 
 /**
  * Create guardrails configuration object
@@ -136,11 +139,14 @@ export function createGuardrails(custom?: Partial<OTPGuardrails>): Readonly<OTPG
  * Validate secret key
  *
  * @param secret - The secret to validate
- * @param guardrails - Validation guardrails
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {SecretTooShortError} If secret is too short
  * @throws {SecretTooLongError} If secret is too long
  */
-export function validateSecret(secret: Uint8Array, guardrails: Readonly<OTPGuardrails>): void {
+export function validateSecret(
+  secret: Uint8Array,
+  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
+): void {
   if (secret.length < guardrails.MIN_SECRET_BYTES) {
     throw new SecretTooShortError(guardrails.MIN_SECRET_BYTES, secret.length);
   }
@@ -154,13 +160,13 @@ export function validateSecret(secret: Uint8Array, guardrails: Readonly<OTPGuard
  * Validate counter value
  *
  * @param counter - The counter to validate
- * @param guardrails - Validation guardrails
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {CounterNegativeError} If counter is negative
  * @throws {CounterOverflowError} If counter exceeds safe integer
  */
 export function validateCounter(
   counter: number | bigint,
-  guardrails: Readonly<OTPGuardrails>,
+  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
 ): void {
   const value = typeof counter === "bigint" ? counter : BigInt(counter);
 
@@ -189,10 +195,14 @@ export function validateTime(time: number): void {
  * Validate period value
  *
  * @param period - The period in seconds to validate
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {PeriodTooSmallError} If period is too small
  * @throws {PeriodTooLargeError} If period is too large
  */
-export function validatePeriod(period: number, guardrails: Readonly<OTPGuardrails>): void {
+export function validatePeriod(
+  period: number,
+  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
+): void {
   if (!Number.isInteger(period) || period < guardrails.MIN_PERIOD) {
     throw new PeriodTooSmallError(guardrails.MIN_PERIOD);
   }
@@ -226,6 +236,7 @@ export function validateToken(token: string, digits: number): void {
  * Prevents DoS attacks by limiting the number of counter values checked.
  *
  * @param counterTolerance - Counter tolerance specification (number or array of offsets)
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {CounterToleranceTooLargeError} If tolerance size exceeds MAX_WINDOW
  *
  * @example
@@ -238,7 +249,7 @@ export function validateToken(token: string, digits: number): void {
  */
 export function validateCounterTolerance(
   counterTolerance: number | number[],
-  guardrails: Readonly<OTPGuardrails>,
+  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
 ): void {
   const size = Array.isArray(counterTolerance) ? counterTolerance.length : counterTolerance * 2 + 1;
 
@@ -258,6 +269,7 @@ export function validateCounterTolerance(
  *
  * @param epochTolerance - Epoch tolerance specification (number or tuple [past, future])
  * @param period - The TOTP period in seconds (default: 30). Used to calculate max tolerance.
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {EpochToleranceNegativeError} If tolerance contains negative values
  * @throws {EpochToleranceTooLargeError} If tolerance exceeds MAX_WINDOW periods
  *
