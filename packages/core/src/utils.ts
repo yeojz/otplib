@@ -154,17 +154,21 @@ export function validateSecret(secret: Uint8Array, guardrails: Readonly<OTPGuard
  * Validate counter value
  *
  * @param counter - The counter to validate
+ * @param guardrails - Validation guardrails
  * @throws {CounterNegativeError} If counter is negative
  * @throws {CounterOverflowError} If counter exceeds safe integer
  */
-export function validateCounter(counter: number | bigint): void {
+export function validateCounter(
+  counter: number | bigint,
+  guardrails: Readonly<OTPGuardrails>,
+): void {
   const value = typeof counter === "bigint" ? counter : BigInt(counter);
 
   if (value < 0n) {
     throw new CounterNegativeError();
   }
 
-  if (value > BigInt(MAX_COUNTER)) {
+  if (value > BigInt(guardrails.MAX_COUNTER)) {
     throw new CounterOverflowError();
   }
 }

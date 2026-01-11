@@ -51,7 +51,7 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
 
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, createGuardrails());
-  validateCounter(counter);
+  validateCounter(counter, createGuardrails());
 
   const ctx = createCryptoContext(crypto);
   const counterBytes = counterToBytes(counter);
@@ -169,7 +169,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
 
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, createGuardrails());
-  validateCounter(counter);
+  validateCounter(counter, createGuardrails());
   validateToken(token, digits);
   validateCounterTolerance(counterTolerance);
 

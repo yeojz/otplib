@@ -111,37 +111,39 @@ describe("validateSecret", () => {
 
 describe("validateCounter", () => {
   it("should accept zero counter", () => {
-    expect(() => validateCounter(0)).not.toThrow();
-    expect(() => validateCounter(0n)).not.toThrow();
+    expect(() => validateCounter(0, createGuardrails())).not.toThrow();
+    expect(() => validateCounter(0n, createGuardrails())).not.toThrow();
   });
 
   it("should accept positive counter", () => {
-    expect(() => validateCounter(1)).not.toThrow();
-    expect(() => validateCounter(1000)).not.toThrow();
-    expect(() => validateCounter(1n)).not.toThrow();
-    expect(() => validateCounter(1000n)).not.toThrow();
+    expect(() => validateCounter(1, createGuardrails())).not.toThrow();
+    expect(() => validateCounter(1000, createGuardrails())).not.toThrow();
+    expect(() => validateCounter(1n, createGuardrails())).not.toThrow();
+    expect(() => validateCounter(1000n, createGuardrails())).not.toThrow();
   });
 
   it("should accept max safe integer", () => {
-    expect(() => validateCounter(MAX_COUNTER)).not.toThrow();
+    expect(() => validateCounter(MAX_COUNTER, createGuardrails())).not.toThrow();
   });
 
   it("should throw CounterNegativeError for negative number", () => {
-    expect(() => validateCounter(-1)).toThrowError(CounterNegativeError);
+    expect(() => validateCounter(-1, createGuardrails())).toThrowError(CounterNegativeError);
   });
 
   it("should throw CounterNegativeError for negative bigint", () => {
-    expect(() => validateCounter(-1n)).toThrowError(CounterNegativeError);
+    expect(() => validateCounter(-1n, createGuardrails())).toThrowError(CounterNegativeError);
   });
 
   it("should throw CounterOverflowError for number exceeding max safe integer", () => {
-    expect(() => validateCounter(Number.MAX_SAFE_INTEGER + 1)).toThrowError(CounterOverflowError);
+    expect(() => validateCounter(Number.MAX_SAFE_INTEGER + 1, createGuardrails())).toThrowError(
+      CounterOverflowError,
+    );
   });
 
   it("should throw CounterOverflowError for bigint exceeding max safe integer", () => {
-    expect(() => validateCounter(BigInt(Number.MAX_SAFE_INTEGER) + 1n)).toThrowError(
-      CounterOverflowError,
-    );
+    expect(() =>
+      validateCounter(BigInt(Number.MAX_SAFE_INTEGER) + 1n, createGuardrails()),
+    ).toThrowError(CounterOverflowError);
   });
 });
 
@@ -937,5 +939,22 @@ describe("validateSecret with guardrails", () => {
     const secret = new Uint8Array(2);
     const g = createGuardrails({ MIN_SECRET_BYTES: 1, MAX_SECRET_BYTES: 1000 });
     expect(() => validateSecret(secret, g)).not.toThrow();
+  });
+});
+
+describe("validateCounter with guardrails", () => {
+  it("accepts counter within custom bounds", () => {
+    const g = createGuardrails({ MAX_COUNTER: 1000 });
+    expect(() => validateCounter(500, g)).not.toThrow();
+  });
+
+  it("rejects counter above custom maximum", () => {
+    const g = createGuardrails({ MAX_COUNTER: 100 });
+    expect(() => validateCounter(101, g)).toThrow(CounterOverflowError);
+  });
+
+  it("accepts bigint counter within bounds", () => {
+    const g = createGuardrails({ MAX_COUNTER: 1000 });
+    expect(() => validateCounter(500n, g)).not.toThrow();
   });
 });
