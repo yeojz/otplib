@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@otplib/core": "workspace:*",
-    "@noble/hashes": "^1.3.3"
+    "@noble/hashes": "^2.0.1"
   },
   "devDependencies": {
     "tsup": "^8.0.1",
