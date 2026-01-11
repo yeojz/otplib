@@ -132,8 +132,8 @@ importers:
         version: link:../testing
     devDependencies:
       tinybench:
-        specifier: ^2.9.0
-        version: 2.9.0
+        specifier: ^6.0.0
+        version: 6.0.0
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -5024,6 +5024,11 @@ packages:
 
   /tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
+    dev: true
+
+  /tinybench@6.0.0:
+    resolution: {integrity: sha512-BWlWpVbbZXaYjRV0twGLNQO00Zj4HA/sjLOQP2IvzQqGwRGp+2kh7UU3ijyJ3ywFRogYDRbiHDMrUOfaMnN56g==}
+    engines: {node: '>=20.0.0'}
     dev: true
 
   /tinyexec@0.3.2:
