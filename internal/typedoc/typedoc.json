@@ -16,8 +16,7 @@
   "packageOptions": {
     "readme": "README.md"
   },
-  "out": "../../apps/docs/api",
-  "docsRoot": "/api",
+  "out": "api",
   "name": "otplib API Documentation",
   "readme": "../../README.md",
   "excludePrivate": true,

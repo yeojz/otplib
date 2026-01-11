@@ -21,6 +21,7 @@ build/
 # Generated API docs
 apps/docs/api/
 apps/docs/**/benchmarks.json
+internal/typedoc/api/
 
 # Environment
 .env
@@ -58,3 +59,6 @@ yarn-error.log*
 .changeset/pre.json
 **/CHANGELOG.md
 !/CHANGELOG.md
+
+# Test Reports
+reports/
