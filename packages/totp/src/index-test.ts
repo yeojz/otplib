@@ -1166,6 +1166,129 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         expect(result.valid).toBe(false);
       });
 
+      it("should reject next period token when exactly 6 seconds outside 5s tolerance", async () => {
+        // Epoch 24. Tolerance 5. Window [19, 29].
+        // Token from epoch 30 (next period) is 6 seconds in the future, should be rejected
+        // Current counter: floor(24/30) = 0
+        // Token counter: floor(30/30) = 1
+        // Window [19, 29] covers: floor(19/30)=0 to floor(29/30)=0 → only counter 0
+        // Token from counter 1 is outside tolerance window
+        const period = 30;
+        const epoch = 24;
+
+        const tokenTime30 = await generate({
+          secret,
+          epoch: 30, // 6 seconds in the future (next period)
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        const result = await verify({
+          secret,
+          token: tokenTime30,
+          epoch,
+          epochTolerance: 5,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        expect(result.valid).toBe(false);
+      });
+
+      it("should accept next period token when exactly at 5s tolerance boundary", async () => {
+        // Epoch 25. Tolerance 5. Window [20, 30].
+        // Token from epoch 30 is exactly 5 seconds in the future, should be accepted (inclusive)
+        const period = 30;
+        const epoch = 25; // 5 seconds before period boundary at 30
+
+        const tokenTime30 = await generate({
+          secret,
+          epoch: 30, // Exactly 5 seconds in the future
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        const result = await verify({
+          secret,
+          token: tokenTime30,
+          epoch,
+          epochTolerance: 5,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.delta).toBe(1);
+        }
+      });
+
+      it("should reject when tolerance window strictly excludes previous period", async () => {
+        // Epoch 35. Tolerance 5. Window [30, 40].
+        // 30 is start of C1. 40 is in C1.
+        // Allowed: C1 only. (floor(30/30)=1, floor(40/30)=1)
+        const period = 30;
+        const currentPeriodStart = 30;
+        const epoch = currentPeriodStart + 5; // 35
+
+        // Token from Time 29 is C0.
+        // Diff is 6s (35 - 29).
+        const tokenTime29 = await generate({
+          secret,
+          epoch: 29,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        const result = await verify({
+          secret,
+          token: tokenTime29,
+          epoch,
+          epochTolerance: 5,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        expect(result.valid).toBe(false);
+      });
+
+      it("should accept previous period token when exactly at 5s tolerance boundary", async () => {
+        // Epoch 35. Tolerance 5. Window [30, 40].
+        // Token from epoch 30 is exactly 5 seconds in the past, should be accepted (inclusive)
+        const period = 30;
+        const currentPeriodStart = 30;
+        const epoch = currentPeriodStart + 5; // 35
+
+        const tokenTime30 = await generate({
+          secret,
+          epoch: 30, // Exactly 5 seconds in the past
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        const result = await verify({
+          secret,
+          token: tokenTime30,
+          epoch,
+          epochTolerance: 5,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.delta).toBe(0);
+        }
+      });
+
       it("should accept tokens within full period tolerance", async () => {
         const period = 30;
         const epoch = 1000;
@@ -1345,6 +1468,58 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           crypto,
         });
         expect(nextResult.valid).toBe(true);
+      });
+
+      it("should reject when array tolerance [past, future] strictly excludes previous period", async () => {
+        // Look-behind Failure Case
+        // Epoch 35. Tolerance [5, 0]. Window [30, 35].
+        // 30 is start of C1. 35 is in C1.
+        // Allowed: C1 only. (floor(30/30)=1, floor(35/30)=1)
+
+        // Token from Time 29 is C0.
+        // Diff is 6s (35 - 29).
+        const period = 30;
+        const currentPeriodStart = 30;
+        const epoch = currentPeriodStart + 5; // 35
+        const tokenTime29 = await generate({ secret, epoch: 29, period, digits: 6, crypto });
+
+        const result = await verify({
+          secret,
+          token: tokenTime29,
+          epoch,
+          epochTolerance: [5, 0],
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        expect(result.valid).toBe(false);
+      });
+
+      it("should reject when array tolerance [past, future] strictly excludes future period", async () => {
+        // Look-ahead Failure Case
+        // Epoch 25. Tolerance [0, 4]. Window [25, 29].
+        // 25 is in C0. 29 is in C0.
+        // Allowed: C0 only. (floor(25/30)=0, floor(29/30)=0)
+
+        // Token from Time 30 is C1.
+        // Diff is 5s (30 - 25).
+        const period = 30;
+        const epoch = 25; // 5s before end of C0
+
+        const tokenTime30 = await generate({ secret, epoch: 30, period, digits: 6, crypto });
+
+        const result = await verify({
+          secret,
+          token: tokenTime30,
+          epoch,
+          epochTolerance: [0, 4],
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        expect(result.valid).toBe(false);
       });
 
       it("should handle tolerance with t0 offset", async () => {
