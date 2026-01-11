@@ -8,7 +8,7 @@
     "install:packages": "bash install-packages.sh",
     "test:esm": "node --test test/*.test.js && tsx --test test/*.test.ts",
     "test:cjs": "node --test test/*.test.cjs",
-    "test:all": "tsx --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=report.xml test/*.test.js test/*.test.cjs test/*.test.ts",
+    "test:all": "tsx --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=./junit-reporter.js --test-reporter-destination=report.xml test/*.test.js test/*.test.cjs test/*.test.ts",
     "test:typecheck": "tsc --noEmit -p ."
   },
   "devDependencies": {
