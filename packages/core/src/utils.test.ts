@@ -79,7 +79,7 @@ describe("Constants", () => {
   });
 
   it("should have correct window constant", () => {
-    expect(MAX_WINDOW).toBe(50);
+    expect(MAX_WINDOW).toBe(100);
   });
 });
 
@@ -424,8 +424,8 @@ describe("validateEpochTolerance", () => {
 
   it("should have lower max tolerance when period is smaller", () => {
     // Max tolerance with 10s period = MAX_WINDOW * 10 = 1000s
-    expect(() => validateEpochTolerance(500, 10)).not.toThrow();
-    expect(() => validateEpochTolerance(501, 10)).toThrowError(EpochToleranceTooLargeError);
+    expect(() => validateEpochTolerance(1000, 10)).not.toThrow();
+    expect(() => validateEpochTolerance(1001, 10)).toThrowError(EpochToleranceTooLargeError);
   });
 });
 
@@ -1061,7 +1061,7 @@ describe("createGuardrails", () => {
     expect(g.MIN_PERIOD).toBe(1);
     expect(g.MAX_PERIOD).toBe(3600);
     expect(g.MAX_COUNTER).toBe(Number.MAX_SAFE_INTEGER);
-    expect(g.MAX_WINDOW).toBe(50);
+    expect(g.MAX_WINDOW).toBe(100);
   });
 
   it("merges custom with defaults", () => {
