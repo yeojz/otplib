@@ -132,7 +132,11 @@ const DEFAULT_GUARDRAILS: Readonly<OTPGuardrails> = Object.freeze({
  * ```
  */
 export function createGuardrails(custom?: Partial<OTPGuardrails>): Readonly<OTPGuardrails> {
-  return Object.freeze({ ...DEFAULT_GUARDRAILS, ...custom });
+  if (custom) {
+    return Object.freeze({ ...DEFAULT_GUARDRAILS, ...custom });
+  }
+
+  return DEFAULT_GUARDRAILS;
 }
 
 /**
