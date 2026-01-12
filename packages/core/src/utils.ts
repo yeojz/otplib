@@ -151,7 +151,8 @@ const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
  * Create guardrails configuration object
  *
  * Factory function that merges custom guardrails with defaults and returns
- * an immutable (frozen) object. No validation is performed on custom values.
+ * an immutable (frozen) object. Validates custom guardrails to ensure they
+ * maintain basic safety invariants.
  *
  * When called without arguments or with `undefined`, returns the default guardrails
  * singleton (optimized to avoid unnecessary allocations). When called with custom
@@ -159,6 +160,7 @@ const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
  *
  * @param custom - Optional partial guardrails to override defaults
  * @returns Frozen guardrails object
+ * @throws {Error} If custom guardrails violate safety invariants
  *
  * @example Basic usage
  * ```ts
@@ -190,15 +192,15 @@ const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
  * @see {@link hasGuardrailOverrides} to check if guardrails were customized
  */
 export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuardrails {
-  if (custom) {
-    return Object.freeze({
-      ...DEFAULT_GUARDRAILS,
-      ...custom,
-      [OVERRIDE_SYMBOL]: true,
-    });
+  if (!custom) {
+    return DEFAULT_GUARDRAILS;
   }
 
-  return DEFAULT_GUARDRAILS;
+  return Object.freeze({
+    ...DEFAULT_GUARDRAILS,
+    ...custom,
+    [OVERRIDE_SYMBOL]: true,
+  });
 }
 
 /**
