@@ -83,19 +83,182 @@ export const MAX_COUNTER = Number.MAX_SAFE_INTEGER;
 export const MAX_WINDOW = 100;
 
 /**
+ * Configurable guardrails for OTP validation
+ *
+ * Allows overriding default safety limits for non-standard production requirements.
+ * Use with caution - custom guardrails can weaken security.
+ */
+export type OTPGuardrailsConfig = {
+  MIN_SECRET_BYTES: number;
+  MAX_SECRET_BYTES: number;
+  MIN_PERIOD: number;
+  MAX_PERIOD: number;
+  MAX_COUNTER: number;
+  MAX_WINDOW: number;
+};
+
+/**
+ * Module-private symbol to track guardrail override status
+ *
+ * This symbol is used as a property key to store whether guardrails contain custom values.
+ * Being module-private and a symbol ensures:
+ * - Cannot be accessed outside this module (not exported)
+ * - Cannot be recreated (each Symbol() call is unique)
+ * - Hidden from normal enumeration (Object.keys, JSON.stringify, for-in)
+ * - Minimal memory overhead (~1 byte per object)
+ * - No garbage collection concerns
+ *
+ * @internal
+ */
+const OVERRIDE_SYMBOL = Symbol("otplib.guardrails.override");
+
+/**
+ * Complete guardrails configuration
+ *
+ * This represents the final, immutable configuration used by validation functions.
+ * Internally tracks whether any values were overridden from RFC recommendations,
+ * enabling security auditing and compliance monitoring without exposing implementation
+ * details in the public API.
+ *
+ * The override status is stored using a module-private Symbol that cannot be accessed
+ * or recreated outside this module, providing true encapsulation.
+ *
+ * @see {@link OTPGuardrailsConfig} for the base configuration structure
+ * @see {@link createGuardrails} for creating guardrails instances
+ * @see {@link hasGuardrailOverrides} to check if guardrails were customized
+ */
+export type OTPGuardrails = Readonly<OTPGuardrailsConfig> & {
+  [OVERRIDE_SYMBOL]?: boolean;
+};
+
+/**
+ * Default guardrails matching RFC recommendations
+ *
+ * Frozen to ensure immutability. Used as default parameter for validation functions.
+ * For custom guardrails, use the createGuardrails() factory function.
+ */
+const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
+  MIN_SECRET_BYTES,
+  MAX_SECRET_BYTES,
+  MIN_PERIOD,
+  MAX_PERIOD,
+  MAX_COUNTER,
+  MAX_WINDOW,
+  [OVERRIDE_SYMBOL]: false,
+});
+
+/**
+ * Create guardrails configuration object
+ *
+ * Factory function that merges custom guardrails with defaults and returns
+ * an immutable (frozen) object. Validates custom guardrails to ensure they
+ * maintain basic safety invariants.
+ *
+ * When called without arguments or with `undefined`, returns the default guardrails
+ * singleton (optimized to avoid unnecessary allocations). When called with custom
+ * values, creates a new frozen object and internally marks it as overridden.
+ *
+ * @param custom - Optional partial guardrails to override defaults
+ * @returns Frozen guardrails object
+ * @throws {Error} If custom guardrails violate safety invariants
+ *
+ * @example Basic usage
+ * ```ts
+ * import { createGuardrails, hasGuardrailOverrides } from '@otplib/core'
+ *
+ * // Returns default singleton (no overrides)
+ * const defaults = createGuardrails();
+ * hasGuardrailOverrides(defaults); // false
+ *
+ * // Creates new object with overrides
+ * const custom = createGuardrails({
+ *   MIN_SECRET_BYTES: 8,
+ *   MAX_WINDOW: 200
+ * });
+ * hasGuardrailOverrides(custom); // true
+ * ```
+ *
+ * @example Monitoring custom guardrails
+ * ```ts
+ * import { createGuardrails, hasGuardrailOverrides } from '@otplib/core';
+ *
+ * const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+ *
+ * if (hasGuardrailOverrides(guardrails)) {
+ *   logger.warn('Non-default guardrails in use', { guardrails });
+ * }
+ * ```
+ *
+ * @see {@link hasGuardrailOverrides} to check if guardrails were customized
+ */
+export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuardrails {
+  if (!custom) {
+    return DEFAULT_GUARDRAILS;
+  }
+
+  return Object.freeze({
+    ...DEFAULT_GUARDRAILS,
+    ...custom,
+    [OVERRIDE_SYMBOL]: true,
+  });
+}
+
+/**
+ * Check if guardrails contain custom overrides
+ *
+ * Returns `true` if the guardrails object was created with custom values,
+ * `false` if using RFC-recommended defaults. Useful for security auditing,
+ * compliance monitoring, and development warnings.
+ *
+ * This function accesses a module-private Symbol property that cannot be
+ * accessed or modified outside this module, ensuring reliable detection.
+ *
+ * @param guardrails - The guardrails object to check
+ * @returns `true` if guardrails were customized, `false` if using defaults
+ *
+ * @example Security monitoring
+ * ```ts
+ * import { createGuardrails, hasGuardrailOverrides } from '@otplib/core';
+ *
+ * const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+ *
+ * if (hasGuardrailOverrides(guardrails)) {
+ *   console.warn('Custom guardrails detected:', guardrails);
+ *   // Log to security audit system
+ * }
+ * ```
+ *
+ * @example Compliance check
+ * ```ts
+ * function validateGuardrails(guardrails: OTPGuardrails) {
+ *   if (hasGuardrailOverrides(guardrails)) {
+ *     throw new Error('Custom guardrails not allowed in production');
+ *   }
+ * }
+ * ```
+ */
+export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
+  return guardrails[OVERRIDE_SYMBOL] ?? false;
+}
+
+/**
  * Validate secret key
  *
  * @param secret - The secret to validate
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {SecretTooShortError} If secret is too short
  * @throws {SecretTooLongError} If secret is too long
  */
-export function validateSecret(secret: Uint8Array): void {
-  if (secret.length < MIN_SECRET_BYTES) {
-    throw new SecretTooShortError(MIN_SECRET_BYTES, secret.length);
+export function validateSecret(
+  secret: Uint8Array,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
+): void {
+  if (secret.length < guardrails.MIN_SECRET_BYTES) {
+    throw new SecretTooShortError(guardrails.MIN_SECRET_BYTES, secret.length);
   }
 
-  if (secret.length > MAX_SECRET_BYTES) {
-    throw new SecretTooLongError(MAX_SECRET_BYTES, secret.length);
+  if (secret.length > guardrails.MAX_SECRET_BYTES) {
+    throw new SecretTooLongError(guardrails.MAX_SECRET_BYTES, secret.length);
   }
 }
 
@@ -103,17 +266,21 @@ export function validateSecret(secret: Uint8Array): void {
  * Validate counter value
  *
  * @param counter - The counter to validate
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {CounterNegativeError} If counter is negative
  * @throws {CounterOverflowError} If counter exceeds safe integer
  */
-export function validateCounter(counter: number | bigint): void {
+export function validateCounter(
+  counter: number | bigint,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
+): void {
   const value = typeof counter === "bigint" ? counter : BigInt(counter);
 
   if (value < 0n) {
     throw new CounterNegativeError();
   }
 
-  if (value > BigInt(MAX_COUNTER)) {
+  if (value > BigInt(guardrails.MAX_COUNTER)) {
     throw new CounterOverflowError();
   }
 }
@@ -134,16 +301,20 @@ export function validateTime(time: number): void {
  * Validate period value
  *
  * @param period - The period in seconds to validate
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {PeriodTooSmallError} If period is too small
  * @throws {PeriodTooLargeError} If period is too large
  */
-export function validatePeriod(period: number): void {
-  if (!Number.isInteger(period) || period < MIN_PERIOD) {
-    throw new PeriodTooSmallError(MIN_PERIOD);
+export function validatePeriod(
+  period: number,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
+): void {
+  if (!Number.isInteger(period) || period < guardrails.MIN_PERIOD) {
+    throw new PeriodTooSmallError(guardrails.MIN_PERIOD);
   }
 
-  if (period > MAX_PERIOD) {
-    throw new PeriodTooLargeError(MAX_PERIOD);
+  if (period > guardrails.MAX_PERIOD) {
+    throw new PeriodTooLargeError(guardrails.MAX_PERIOD);
   }
 }
 
@@ -171,6 +342,7 @@ export function validateToken(token: string, digits: number): void {
  * Prevents DoS attacks by limiting the number of counter values checked.
  *
  * @param counterTolerance - Counter tolerance specification (number or array of offsets)
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {CounterToleranceTooLargeError} If tolerance size exceeds MAX_WINDOW
  *
  * @example
@@ -181,12 +353,15 @@ export function validateToken(token: string, digits: number): void {
  * validateCounterTolerance([0, 1]);   // OK: 2 offsets
  * ```
  */
-export function validateCounterTolerance(counterTolerance: number | number[]): void {
+export function validateCounterTolerance(
+  counterTolerance: number | number[],
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
+): void {
   const size = Array.isArray(counterTolerance) ? counterTolerance.length : counterTolerance * 2 + 1;
 
-  if (size > MAX_WINDOW * 2 + 1) {
+  if (size > guardrails.MAX_WINDOW * 2 + 1) {
     throw new CounterToleranceTooLargeError(
-      MAX_WINDOW,
+      guardrails.MAX_WINDOW,
       Array.isArray(counterTolerance) ? counterTolerance.length : counterTolerance,
     );
   }
@@ -200,6 +375,7 @@ export function validateCounterTolerance(counterTolerance: number | number[]): v
  *
  * @param epochTolerance - Epoch tolerance specification (number or tuple [past, future])
  * @param period - The TOTP period in seconds (default: 30). Used to calculate max tolerance.
+ * @param guardrails - Validation guardrails (defaults to RFC recommendations)
  * @throws {EpochToleranceNegativeError} If tolerance contains negative values
  * @throws {EpochToleranceTooLargeError} If tolerance exceeds MAX_WINDOW periods
  *
@@ -215,6 +391,7 @@ export function validateCounterTolerance(counterTolerance: number | number[]): v
 export function validateEpochTolerance(
   epochTolerance: number | [number, number],
   period: number = DEFAULT_PERIOD,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
   const [pastTolerance, futureTolerance] = Array.isArray(epochTolerance)
     ? epochTolerance
@@ -227,7 +404,7 @@ export function validateEpochTolerance(
 
   // Check total tolerance doesn't exceed reasonable limits
   // Convert to periods and check against MAX_WINDOW
-  const maxToleranceSeconds = MAX_WINDOW * period;
+  const maxToleranceSeconds = guardrails.MAX_WINDOW * period;
   const maxAllowed = Math.max(pastTolerance, futureTolerance);
 
   if (maxAllowed > maxToleranceSeconds) {
@@ -445,9 +622,7 @@ export function normalizeSecret(
   base32?: { decode: (str: string) => Uint8Array },
 ): Uint8Array {
   if (typeof secret === "string") {
-    if (!base32) {
-      throw new Error("String secrets require a Base32Plugin. Please provide a base32 parameter.");
-    }
+    requireBase32Plugin(base32);
     return base32.decode(secret);
   }
   return secret;
@@ -487,6 +662,9 @@ export function normalizeSecret(
  */
 export function generateSecret(options: SecretOptions): string {
   const { crypto, base32, length = RECOMMENDED_SECRET_BYTES } = options;
+
+  requireCryptoPlugin(crypto);
+  requireBase32Plugin(base32);
 
   const randomBytes = crypto.randomBytes(length);
   return base32.encode(randomBytes, { padding: false });

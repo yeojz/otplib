@@ -10,6 +10,8 @@ export type {
   OTPResultError,
 } from "./types.js";
 
+export type { OTPGuardrailsConfig, OTPGuardrails } from "./utils.js";
+
 export {
   OTPError,
   SecretError,
@@ -51,6 +53,8 @@ export {
 } from "./errors.js";
 
 export {
+  createGuardrails,
+  hasGuardrailOverrides,
   validateSecret,
   validateCounter,
   validateTime,

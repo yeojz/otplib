@@ -9,6 +9,8 @@ import {
   DEFAULT_PERIOD,
   MAX_COUNTER,
   MAX_WINDOW,
+  createGuardrails,
+  hasGuardrailOverrides,
   validateSecret,
   validateCounter,
   validateTime,
@@ -35,6 +37,7 @@ import {
   requireBase32String,
   wrapResult,
   wrapResultAsync,
+  type OTPGuardrails,
 } from "./utils.js";
 import {
   OTPError,
@@ -80,67 +83,153 @@ describe("Constants", () => {
   });
 });
 
+describe("createGuardrails and hasGuardrailOverrides", () => {
+  it("should return default guardrails without arguments", () => {
+    const guardrails = createGuardrails();
+    expect(guardrails.MIN_SECRET_BYTES).toBe(MIN_SECRET_BYTES);
+    expect(guardrails.MAX_SECRET_BYTES).toBe(MAX_SECRET_BYTES);
+    expect(guardrails.MIN_PERIOD).toBe(MIN_PERIOD);
+    expect(guardrails.MAX_PERIOD).toBe(MAX_PERIOD);
+    expect(guardrails.MAX_COUNTER).toBe(MAX_COUNTER);
+    expect(guardrails.MAX_WINDOW).toBe(MAX_WINDOW);
+  });
+
+  it("should return false for default guardrails", () => {
+    const guardrails = createGuardrails();
+    expect(hasGuardrailOverrides(guardrails)).toBe(false);
+  });
+
+  it("should return same object when called multiple times without arguments", () => {
+    const g1 = createGuardrails();
+    const g2 = createGuardrails();
+    expect(g1).toBe(g2); // Same reference (singleton)
+  });
+
+  it("should create custom guardrails", () => {
+    const guardrails = createGuardrails({
+      MIN_SECRET_BYTES: 10,
+      MAX_WINDOW: 20,
+    });
+    expect(guardrails.MIN_SECRET_BYTES).toBe(10);
+    expect(guardrails.MAX_WINDOW).toBe(20);
+    // Other values should be defaults
+    expect(guardrails.MAX_SECRET_BYTES).toBe(MAX_SECRET_BYTES);
+    expect(guardrails.MIN_PERIOD).toBe(MIN_PERIOD);
+  });
+
+  it("should return true for custom guardrails", () => {
+    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+    expect(hasGuardrailOverrides(guardrails)).toBe(true);
+  });
+
+  it("should return false for guardrails without override symbol", () => {
+    // Simulate a guardrails object created outside the factory
+    // (e.g., manually constructed or from older version)
+    const unknownGuardrails = Object.freeze({
+      MIN_SECRET_BYTES: 16,
+      MAX_SECRET_BYTES: 64,
+      MIN_PERIOD: 1,
+      MAX_PERIOD: 3600,
+      MAX_COUNTER: Number.MAX_SAFE_INTEGER,
+      MAX_WINDOW: 50,
+    }) as OTPGuardrails;
+    expect(hasGuardrailOverrides(unknownGuardrails)).toBe(false);
+  });
+
+  it("should hide override flag from normal enumeration", () => {
+    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+
+    // Symbol should not appear in normal enumeration
+    expect(Object.keys(guardrails)).not.toContain("OVERRIDE_SYMBOL");
+    expect(Object.getOwnPropertyNames(guardrails)).not.toContain("OVERRIDE_SYMBOL");
+
+    // Symbol should appear only in symbol enumeration
+    const symbols = Object.getOwnPropertySymbols(guardrails);
+    expect(symbols.length).toBe(1);
+
+    // JSON serialization should not include the symbol
+    const json = JSON.stringify(guardrails);
+    expect(json).not.toContain("OVERRIDE");
+    expect(json).not.toContain("override");
+  });
+
+  it("should freeze guardrails objects", () => {
+    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+    expect(Object.isFrozen(guardrails)).toBe(true);
+  });
+
+  it("should create different objects for different custom values", () => {
+    const g1 = createGuardrails({ MAX_WINDOW: 20 });
+    const g2 = createGuardrails({ MAX_WINDOW: 30 });
+    expect(g1).not.toBe(g2); // Different references
+    expect(g1.MAX_WINDOW).toBe(20);
+    expect(g2.MAX_WINDOW).toBe(30);
+  });
+});
+
 describe("validateSecret", () => {
   it("should accept valid secret", () => {
     const secret = stringToBytes("0123456789012345");
-    expect(() => validateSecret(secret)).not.toThrow();
+    expect(() => validateSecret(secret, createGuardrails())).not.toThrow();
   });
 
   it("should accept recommended secret length", () => {
     const secret = new Uint8Array(RECOMMENDED_SECRET_BYTES);
     globalThis.crypto.getRandomValues(secret);
-    expect(() => validateSecret(secret)).not.toThrow();
+    expect(() => validateSecret(secret, createGuardrails())).not.toThrow();
   });
 
   it("should throw SecretTooShortError for short secret", () => {
     const secret = new Uint8Array(MIN_SECRET_BYTES - 1);
-    expect(() => validateSecret(secret)).toThrowError(SecretTooShortError);
+    expect(() => validateSecret(secret, createGuardrails())).toThrowError(SecretTooShortError);
   });
 
   it("should throw SecretTooLongError for long secret", () => {
     const secret = new Uint8Array(MAX_SECRET_BYTES + 1);
-    expect(() => validateSecret(secret)).toThrowError(SecretTooLongError);
+    expect(() => validateSecret(secret, createGuardrails())).toThrowError(SecretTooLongError);
   });
 
   it("should accept secret with some repeated bytes", () => {
     const secret = stringToBytes("0123456789012345");
-    expect(() => validateSecret(secret)).not.toThrow();
+    expect(() => validateSecret(secret, createGuardrails())).not.toThrow();
   });
 });
 
 describe("validateCounter", () => {
   it("should accept zero counter", () => {
-    expect(() => validateCounter(0)).not.toThrow();
-    expect(() => validateCounter(0n)).not.toThrow();
+    expect(() => validateCounter(0, createGuardrails())).not.toThrow();
+    expect(() => validateCounter(0n, createGuardrails())).not.toThrow();
   });
 
   it("should accept positive counter", () => {
-    expect(() => validateCounter(1)).not.toThrow();
-    expect(() => validateCounter(1000)).not.toThrow();
-    expect(() => validateCounter(1n)).not.toThrow();
-    expect(() => validateCounter(1000n)).not.toThrow();
+    expect(() => validateCounter(1, createGuardrails())).not.toThrow();
+    expect(() => validateCounter(1000, createGuardrails())).not.toThrow();
+    expect(() => validateCounter(1n, createGuardrails())).not.toThrow();
+    expect(() => validateCounter(1000n, createGuardrails())).not.toThrow();
   });
 
   it("should accept max safe integer", () => {
-    expect(() => validateCounter(MAX_COUNTER)).not.toThrow();
+    expect(() => validateCounter(MAX_COUNTER, createGuardrails())).not.toThrow();
   });
 
   it("should throw CounterNegativeError for negative number", () => {
-    expect(() => validateCounter(-1)).toThrowError(CounterNegativeError);
+    expect(() => validateCounter(-1, createGuardrails())).toThrowError(CounterNegativeError);
   });
 
   it("should throw CounterNegativeError for negative bigint", () => {
-    expect(() => validateCounter(-1n)).toThrowError(CounterNegativeError);
+    expect(() => validateCounter(-1n, createGuardrails())).toThrowError(CounterNegativeError);
   });
 
   it("should throw CounterOverflowError for number exceeding max safe integer", () => {
-    expect(() => validateCounter(Number.MAX_SAFE_INTEGER + 1)).toThrowError(CounterOverflowError);
+    expect(() => validateCounter(Number.MAX_SAFE_INTEGER + 1, createGuardrails())).toThrowError(
+      CounterOverflowError,
+    );
   });
 
   it("should throw CounterOverflowError for bigint exceeding max safe integer", () => {
-    expect(() => validateCounter(BigInt(Number.MAX_SAFE_INTEGER) + 1n)).toThrowError(
-      CounterOverflowError,
-    );
+    expect(() =>
+      validateCounter(BigInt(Number.MAX_SAFE_INTEGER) + 1n, createGuardrails()),
+    ).toThrowError(CounterOverflowError);
   });
 });
 
@@ -161,21 +250,47 @@ describe("validateTime", () => {
 
 describe("validatePeriod", () => {
   it("should accept valid periods", () => {
-    expect(() => validatePeriod(MIN_PERIOD)).not.toThrow();
-    expect(() => validatePeriod(DEFAULT_PERIOD)).not.toThrow();
-    expect(() => validatePeriod(MAX_PERIOD)).not.toThrow();
+    expect(() => validatePeriod(MIN_PERIOD, createGuardrails())).not.toThrow();
+    expect(() => validatePeriod(DEFAULT_PERIOD, createGuardrails())).not.toThrow();
+    expect(() => validatePeriod(MAX_PERIOD, createGuardrails())).not.toThrow();
   });
 
   it("should throw PeriodTooSmallError for period less than minimum", () => {
-    expect(() => validatePeriod(MIN_PERIOD - 1)).toThrowError(PeriodTooSmallError);
+    expect(() => validatePeriod(MIN_PERIOD - 1, createGuardrails())).toThrowError(
+      PeriodTooSmallError,
+    );
   });
 
   it("should throw PeriodTooSmallError for non-integer", () => {
-    expect(() => validatePeriod(1.5)).toThrowError(PeriodTooSmallError);
+    expect(() => validatePeriod(1.5, createGuardrails())).toThrowError(PeriodTooSmallError);
   });
 
   it("should throw PeriodTooLargeError for period exceeding maximum", () => {
-    expect(() => validatePeriod(MAX_PERIOD + 1)).toThrowError(PeriodTooLargeError);
+    expect(() => validatePeriod(MAX_PERIOD + 1, createGuardrails())).toThrowError(
+      PeriodTooLargeError,
+    );
+  });
+});
+
+describe("validatePeriod with guardrails", () => {
+  it("should accept custom MIN_PERIOD", () => {
+    const g = createGuardrails({ MIN_PERIOD: 5 });
+    expect(() => validatePeriod(5, g)).not.toThrow();
+  });
+
+  it("should throw PeriodTooSmallError with custom MIN_PERIOD", () => {
+    const g = createGuardrails({ MIN_PERIOD: 10 });
+    expect(() => validatePeriod(9, g)).toThrowError(PeriodTooSmallError);
+  });
+
+  it("should accept custom MAX_PERIOD", () => {
+    const g = createGuardrails({ MAX_PERIOD: 120 });
+    expect(() => validatePeriod(120, g)).not.toThrow();
+  });
+
+  it("should throw PeriodTooLargeError with custom MAX_PERIOD", () => {
+    const g = createGuardrails({ MAX_PERIOD: 60 });
+    expect(() => validatePeriod(61, g)).toThrowError(PeriodTooLargeError);
   });
 });
 
@@ -206,26 +321,53 @@ describe("validateToken", () => {
 
 describe("validateCounterTolerance", () => {
   it("should accept valid numeric tolerance", () => {
-    expect(() => validateCounterTolerance(0)).not.toThrow();
-    expect(() => validateCounterTolerance(1)).not.toThrow();
-    expect(() => validateCounterTolerance(MAX_WINDOW)).not.toThrow();
+    expect(() => validateCounterTolerance(0, createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance(1, createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance(MAX_WINDOW, createGuardrails())).not.toThrow();
   });
 
   it("should accept valid array tolerance", () => {
-    expect(() => validateCounterTolerance([0])).not.toThrow();
-    expect(() => validateCounterTolerance([0, 1, 2])).not.toThrow();
-    expect(() => validateCounterTolerance([-1, 0, 1])).not.toThrow();
+    expect(() => validateCounterTolerance([0], createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance([0, 1, 2], createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance([-1, 0, 1], createGuardrails())).not.toThrow();
   });
 
   it("should throw CounterToleranceTooLargeError for tolerance exceeding max", () => {
-    expect(() => validateCounterTolerance(MAX_WINDOW + 1)).toThrowError(
+    expect(() => validateCounterTolerance(MAX_WINDOW + 1, createGuardrails())).toThrowError(
       CounterToleranceTooLargeError,
     );
   });
 
   it("should throw CounterToleranceTooLargeError for array with too many elements", () => {
     const largeArray = Array.from({ length: MAX_WINDOW * 2 + 2 }, (_, i) => i);
-    expect(() => validateCounterTolerance(largeArray)).toThrowError(CounterToleranceTooLargeError);
+    expect(() => validateCounterTolerance(largeArray, createGuardrails())).toThrowError(
+      CounterToleranceTooLargeError,
+    );
+  });
+});
+
+describe("validateCounterTolerance with guardrails", () => {
+  it("should accept custom MAX_WINDOW for numeric tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 5 });
+    expect(() => validateCounterTolerance(5, g)).not.toThrow();
+  });
+
+  it("should throw CounterToleranceTooLargeError with custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 3 });
+    expect(() => validateCounterTolerance(4, g)).toThrowError(CounterToleranceTooLargeError);
+  });
+
+  it("should accept custom MAX_WINDOW for array tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 2 });
+    expect(() => validateCounterTolerance([0, 1, 2, 3, 4], g)).not.toThrow(); // 5 elements <= 2*2+1
+  });
+
+  it("should throw CounterToleranceTooLargeError for array exceeding custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 2 });
+    const largeArray = Array.from({ length: 6 }, (_, i) => i); // 6 > 2*2+1
+    expect(() => validateCounterTolerance(largeArray, g)).toThrowError(
+      CounterToleranceTooLargeError,
+    );
   });
 });
 
@@ -284,6 +426,38 @@ describe("validateEpochTolerance", () => {
     // Max tolerance with 10s period = MAX_WINDOW * 10 = 1000s
     expect(() => validateEpochTolerance(1000, 10)).not.toThrow();
     expect(() => validateEpochTolerance(1001, 10)).toThrowError(EpochToleranceTooLargeError);
+  });
+});
+
+describe("validateEpochTolerance with guardrails", () => {
+  it("should accept custom MAX_WINDOW for numeric tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 5 });
+    const maxToleranceSeconds = 5 * DEFAULT_PERIOD;
+    expect(() => validateEpochTolerance(maxToleranceSeconds, DEFAULT_PERIOD, g)).not.toThrow();
+  });
+
+  it("should throw EpochToleranceTooLargeError with custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 3 });
+    const maxToleranceSeconds = 3 * DEFAULT_PERIOD;
+    expect(() => validateEpochTolerance(maxToleranceSeconds + 1, DEFAULT_PERIOD, g)).toThrowError(
+      EpochToleranceTooLargeError,
+    );
+  });
+
+  it("should accept custom MAX_WINDOW for tuple tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 2 });
+    const maxToleranceSeconds = 2 * DEFAULT_PERIOD;
+    expect(() =>
+      validateEpochTolerance([maxToleranceSeconds, maxToleranceSeconds], DEFAULT_PERIOD, g),
+    ).not.toThrow();
+  });
+
+  it("should throw EpochToleranceTooLargeError for tuple exceeding custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 2 });
+    const maxToleranceSeconds = 2 * DEFAULT_PERIOD;
+    expect(() =>
+      validateEpochTolerance([0, maxToleranceSeconds + 1], DEFAULT_PERIOD, g),
+    ).toThrowError(EpochToleranceTooLargeError);
   });
 });
 
@@ -669,9 +843,7 @@ describe("normalizeSecret", () => {
 
   it("should throw when string secret provided without base32 plugin", () => {
     const secret = BASE_SECRET_BASE32;
-    expect(() => normalizeSecret(secret)).toThrowError(
-      "String secrets require a Base32Plugin. Please provide a base32 parameter.",
-    );
+    expect(() => normalizeSecret(secret)).toThrowError("Base32 plugin is required.");
   });
 });
 
@@ -876,5 +1048,82 @@ describe("wrapResultAsync", () => {
     const result = await wrapped();
 
     expect(result).toEqual({ ok: true, value: "async result" });
+  });
+});
+
+describe("createGuardrails", () => {
+  it("returns default guardrails when no custom provided", () => {
+    const g = createGuardrails();
+    expect(g.MIN_SECRET_BYTES).toBe(16);
+    expect(g.MAX_SECRET_BYTES).toBe(64);
+    expect(g.MIN_PERIOD).toBe(1);
+    expect(g.MAX_PERIOD).toBe(3600);
+    expect(g.MAX_COUNTER).toBe(Number.MAX_SAFE_INTEGER);
+    expect(g.MAX_WINDOW).toBe(100);
+  });
+
+  it("merges custom with defaults", () => {
+    const g = createGuardrails({ MAX_WINDOW: 200, MIN_SECRET_BYTES: 8 });
+    expect(g.MAX_WINDOW).toBe(200);
+    expect(g.MIN_SECRET_BYTES).toBe(8);
+    expect(g.MAX_SECRET_BYTES).toBe(64);
+    expect(g.MIN_PERIOD).toBe(1);
+  });
+
+  it("returns frozen object", () => {
+    const g = createGuardrails();
+    expect(Object.isFrozen(g)).toBe(true);
+    expect(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (g as any).MAX_WINDOW = 999;
+    }).toThrow();
+  });
+
+  it("accepts partial guardrails", () => {
+    const g = createGuardrails({ MAX_WINDOW: 50 });
+    expect(g.MAX_WINDOW).toBe(50);
+  });
+});
+
+describe("validateSecret with guardrails", () => {
+  it("accepts secret within custom bounds", () => {
+    const secret = new Uint8Array(8);
+    const g = createGuardrails({ MIN_SECRET_BYTES: 8, MAX_SECRET_BYTES: 16 });
+    expect(() => validateSecret(secret, g)).not.toThrow();
+  });
+
+  it("rejects secret below custom minimum", () => {
+    const secret = new Uint8Array(4);
+    const g = createGuardrails({ MIN_SECRET_BYTES: 8 });
+    expect(() => validateSecret(secret, g)).toThrow(SecretTooShortError);
+  });
+
+  it("rejects secret above custom maximum", () => {
+    const secret = new Uint8Array(100);
+    const g = createGuardrails({ MAX_SECRET_BYTES: 32 });
+    expect(() => validateSecret(secret, g)).toThrow(SecretTooLongError);
+  });
+
+  it("allows extreme values without validation", () => {
+    const secret = new Uint8Array(2);
+    const g = createGuardrails({ MIN_SECRET_BYTES: 1, MAX_SECRET_BYTES: 1000 });
+    expect(() => validateSecret(secret, g)).not.toThrow();
+  });
+});
+
+describe("validateCounter with guardrails", () => {
+  it("accepts counter within custom bounds", () => {
+    const g = createGuardrails({ MAX_COUNTER: 1000 });
+    expect(() => validateCounter(500, g)).not.toThrow();
+  });
+
+  it("rejects counter above custom maximum", () => {
+    const g = createGuardrails({ MAX_COUNTER: 100 });
+    expect(() => validateCounter(101, g)).toThrow(CounterOverflowError);
+  });
+
+  it("accepts bigint counter within bounds", () => {
+    const g = createGuardrails({ MAX_COUNTER: 1000 });
+    expect(() => validateCounter(500n, g)).not.toThrow();
   });
 });

@@ -9,6 +9,7 @@
 import {
   counterToBytes,
   createCryptoContext,
+  createGuardrails,
   dynamicTruncate,
   truncateDigits,
   validateCounter,
@@ -17,6 +18,8 @@ import {
   validateCounterTolerance,
   normalizeSecret,
   normalizeCounterTolerance,
+  requireSecret,
+  requireCryptoPlugin,
 } from "@otplib/core";
 
 import type { HOTPGenerateOptions, HOTPVerifyOptions, VerifyResult } from "./types";
@@ -46,11 +49,14 @@ type HOTPGenerateOptionsInternal = {
  * @internal
  */
 function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptionsInternal {
-  const { secret, counter, algorithm = "sha1", digits = 6, crypto, base32 } = options;
+  const { secret, counter, algorithm = "sha1", digits = 6, crypto, base32, guardrails } = options;
+
+  requireSecret(secret);
+  requireCryptoPlugin(crypto);
 
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes);
-  validateCounter(counter);
+  validateSecret(secretBytes, guardrails);
+  validateCounter(counter, guardrails);
 
   const ctx = createCryptoContext(crypto);
   const counterBytes = counterToBytes(counter);
@@ -164,13 +170,17 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
     crypto,
     base32,
     counterTolerance = 0,
+    guardrails = createGuardrails(),
   } = options;
 
+  requireSecret(secret);
+  requireCryptoPlugin(crypto);
+
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes);
-  validateCounter(counter);
+  validateSecret(secretBytes, guardrails);
+  validateCounter(counter, guardrails);
   validateToken(token, digits);
-  validateCounterTolerance(counterTolerance);
+  validateCounterTolerance(counterTolerance, guardrails);
 
   const counterNum = typeof counter === "bigint" ? Number(counter) : counter;
   // Pre-filter offsets that would result in invalid counters (e.g., negative values)

@@ -11,6 +11,7 @@
  */
 
 import {
+  createGuardrails,
   normalizeSecret,
   normalizeEpochTolerance,
   validateEpochTolerance,
@@ -18,11 +19,13 @@ import {
   validateSecret,
   validateTime,
   validateToken,
+  requireSecret,
+  requireCryptoPlugin,
 } from "@otplib/core";
 import { generate as generateHOTP, generateSync as generateHOTPSync } from "@otplib/hotp";
 
 import type { TOTPGenerateOptions, TOTPVerifyOptions, VerifyResult } from "./types";
-import type { CryptoPlugin, Digits, HashAlgorithm } from "@otplib/core";
+import type { CryptoPlugin, Digits, HashAlgorithm, OTPGuardrails } from "@otplib/core";
 
 /**
  * Normalized options for TOTP generation
@@ -56,12 +59,16 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     digits = 6,
     crypto,
     base32,
+    guardrails = createGuardrails(),
   } = options;
 
+  requireSecret(secret);
+  requireCryptoPlugin(crypto);
+
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes);
+  validateSecret(secretBytes, guardrails);
   validateTime(epoch);
-  validatePeriod(period);
+  validatePeriod(period, guardrails);
 
   const counter = Math.floor((epoch - t0) / period);
 
@@ -187,14 +194,18 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     crypto,
     base32,
     epochTolerance = 0,
+    guardrails = createGuardrails(),
   } = options;
 
+  requireSecret(secret);
+  requireCryptoPlugin(crypto);
+
   const secretBytes = normalizeSecret(secret, base32);
-  validateSecret(secretBytes);
+  validateSecret(secretBytes, guardrails);
   validateTime(epoch);
-  validatePeriod(period);
+  validatePeriod(period, guardrails);
   validateToken(token, digits);
-  validateEpochTolerance(epochTolerance, period);
+  validateEpochTolerance(epochTolerance, period, guardrails);
 
   const currentCounter = Math.floor((epoch - t0) / period);
 
@@ -335,9 +346,10 @@ export function getRemainingTime(
   time: number = Math.floor(Date.now() / 1000),
   period: number = 30,
   t0: number = 0,
+  guardrails: OTPGuardrails = createGuardrails(),
 ): number {
   validateTime(time);
-  validatePeriod(period);
+  validatePeriod(period, guardrails);
 
   const counter = Math.floor((time - t0) / period);
   const nextCounter = counter + 1;
@@ -366,9 +378,10 @@ export function getTimeStepUsed(
   time: number = Math.floor(Date.now() / 1000),
   period: number = 30,
   t0: number = 0,
+  guardrails: OTPGuardrails = createGuardrails(),
 ): number {
   validateTime(time);
-  validatePeriod(period);
+  validatePeriod(period, guardrails);
 
   return Math.floor((time - t0) / period);
 }

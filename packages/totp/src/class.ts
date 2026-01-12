@@ -12,12 +12,14 @@ import {
   requireLabel,
   requireIssuer,
   requireBase32String,
+  createGuardrails,
 } from "@otplib/core";
 import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 
 import { generate as generateCode, verify as verifyCode } from "./index";
 
 import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types";
+import type { OTPGuardrails } from "@otplib/core";
 
 /**
  * TOTP class for time-based one-time password generation
@@ -42,9 +44,11 @@ import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types";
  */
 export class TOTP {
   private readonly options: TOTPOptions;
+  private readonly guardrails: OTPGuardrails;
 
   constructor(options: TOTPOptions = {}) {
     this.options = options;
+    this.guardrails = createGuardrails(options.guardrails);
   }
 
   /**
@@ -69,7 +73,6 @@ export class TOTP {
    */
   async generate(options?: Partial<TOTPOptions>): Promise<string> {
     const mergedOptions = { ...this.options, ...options };
-
     const {
       secret,
       crypto,
@@ -85,6 +88,9 @@ export class TOTP {
     requireCryptoPlugin(crypto);
     requireBase32Plugin(base32);
 
+    // Use class guardrails, or override if provided in options
+    const guardrails = options?.guardrails ?? this.guardrails;
+
     return generateCode({
       secret,
       algorithm,
@@ -94,6 +100,7 @@ export class TOTP {
       t0,
       crypto,
       base32,
+      guardrails,
     });
   }
 
@@ -109,7 +116,6 @@ export class TOTP {
     options?: Partial<Omit<TOTPVerifyOptions, "token">>,
   ): Promise<VerifyResult> {
     const mergedOptions = { ...this.options, ...options };
-
     const {
       secret,
       crypto,
@@ -126,6 +132,9 @@ export class TOTP {
     requireCryptoPlugin(crypto);
     requireBase32Plugin(base32);
 
+    // Use class guardrails, or override if provided in options
+    const guardrails = options?.guardrails ?? this.guardrails;
+
     return verifyCode({
       secret,
       token,
@@ -137,6 +146,7 @@ export class TOTP {
       epochTolerance,
       crypto,
       base32,
+      guardrails,
     });
   }
 
