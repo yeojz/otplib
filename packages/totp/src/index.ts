@@ -62,7 +62,6 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     guardrails = createGuardrails(),
   } = options;
 
-  // Validate required parameters
   requireSecret(secret);
   requireCryptoPlugin(crypto);
 
@@ -198,7 +197,6 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     guardrails = createGuardrails(),
   } = options;
 
-  // Validate required parameters
   requireSecret(secret);
   requireCryptoPlugin(crypto);
 

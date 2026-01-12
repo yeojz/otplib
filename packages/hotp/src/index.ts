@@ -51,7 +51,6 @@ type HOTPGenerateOptionsInternal = {
 function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptionsInternal {
   const { secret, counter, algorithm = "sha1", digits = 6, crypto, base32, guardrails } = options;
 
-  // Validate required parameters
   requireSecret(secret);
   requireCryptoPlugin(crypto);
 
@@ -174,7 +173,6 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
     guardrails = createGuardrails(),
   } = options;
 
-  // Validate required parameters
   requireSecret(secret);
   requireCryptoPlugin(crypto);
 
