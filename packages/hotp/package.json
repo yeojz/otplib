@@ -1,6 +1,6 @@
 {
   "name": "@otplib/hotp",
-  "version": "13.0.2",
+  "version": "13.1.0",
   "description": "RFC 4226 HOTP implementation for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
