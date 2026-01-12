@@ -136,6 +136,36 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(uri).toContain("user%2Btest%40example.com");
         expect(uri).toContain("Test%20Co");
       });
+
+      it("should generate HOTP URI when strategy is hotp", () => {
+        const uri = generateURI({
+          strategy: "hotp",
+          issuer: "ACME Co",
+          label: "john@example.com",
+          secret: TEST_SECRET,
+          counter: 5,
+        });
+
+        expect(uri).toMatch(/^otpauth:\/\/hotp\//);
+        expect(uri).toContain("ACME%20Co:john%40example.com");
+        expect(uri).toContain(`secret=${TEST_SECRET}`);
+        expect(uri).toContain("counter=5");
+      });
+
+      it("should validate bug report scenario: TOTP with strategy parameter", () => {
+        // From GitHub issue #739 - user wanted to specify strategy
+        // Our implementation uses 'strategy' not 'type'
+        const uri = generateURI({
+          strategy: "totp",
+          issuer: "MyApp",
+          label: "31@xx.com",
+          secret: "243G2YOOEZWSZSIZOYNKCSIQ5HYUZRLX",
+        });
+
+        expect(uri).toMatch(/^otpauth:\/\/totp\//);
+        expect(uri).toContain("MyApp:31%40xx.com");
+        expect(uri).toContain("secret=243G2YOOEZWSZSIZOYNKCSIQ5HYUZRLX");
+      });
     });
 
     describe("generate", () => {
@@ -372,16 +402,19 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(result.valid).toBe(true);
       });
 
-      it("should throw error when HOTP generateURI is called", () => {
+      it("should generate URI with HOTP strategy", () => {
         const otp = new OTP({ strategy: "hotp" });
 
-        expect(() =>
-          otp.generateURI({
-            issuer: "ACME Co",
-            label: "john@example.com",
-            secret: TEST_SECRET,
-          }),
-        ).toThrow("generateURI is not available for HOTP strategy");
+        const uri = otp.generateURI({
+          issuer: "ACME Co",
+          label: "john@example.com",
+          secret: TEST_SECRET,
+          counter: 5,
+        });
+
+        expect(uri).toMatch(/^otpauth:\/\/hotp\//);
+        expect(uri).toContain("counter=5");
+        expect(uri).toContain("issuer=ACME%20Co");
       });
 
       it("should work with TOTP strategy", async () => {

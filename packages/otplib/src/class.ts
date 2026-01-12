@@ -5,7 +5,6 @@
  */
 
 import { generateSecret as generateSecretCore } from "@otplib/core";
-import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 
 import { defaultCrypto, defaultBase32 } from "./defaults";
 import {
@@ -13,6 +12,7 @@ import {
   generateSync as functionalGenerateSync,
   verify as functionalVerify,
   verifySync as functionalVerifySync,
+  generateURI as functionalGenerateURI,
 } from "./functional";
 
 import type { OTPStrategy } from "./functional";
@@ -186,8 +186,15 @@ export type OTPURIGenerateOptions = {
 
   /**
    * Time step in seconds (default: 30)
+   * Used by TOTP strategy
    */
   period?: number;
+
+  /**
+   * Counter value (default: 0)
+   * Used by HOTP strategy
+   */
+  counter?: number;
 };
 
 /**
@@ -323,25 +330,15 @@ export class OTP {
   /**
    * Generate an otpauth:// URI for QR code generation
    *
-   * Only available for TOTP strategy.
+   * Supports both TOTP and HOTP strategies.
    *
    * @param options - URI generation options
    * @returns otpauth:// URI string
    */
   generateURI(options: OTPURIGenerateOptions): string {
-    if (this.strategy === "hotp") {
-      throw new Error("generateURI is not available for HOTP strategy");
-    }
-
-    const { issuer, label, secret, algorithm = "sha1", digits = 6, period = 30 } = options;
-
-    return generateTOTPURI({
-      issuer,
-      label,
-      secret,
-      algorithm,
-      digits,
-      period,
+    return functionalGenerateURI({
+      ...options,
+      strategy: this.strategy,
     });
   }
 }
