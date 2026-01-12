@@ -45,11 +45,11 @@ import type { OTPGuardrails } from "@otplib/core";
  */
 export class HOTP {
   private readonly options: HOTPOptions;
-  private readonly guardrails: Readonly<OTPGuardrails>;
+  private readonly guardrails: OTPGuardrails;
 
   constructor(options: HOTPOptions = {}) {
     this.options = options;
-    this.guardrails = options.guardrails ?? createGuardrails();
+    this.guardrails = createGuardrails(options.guardrails);
   }
 
   /**

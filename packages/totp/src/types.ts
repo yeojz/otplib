@@ -52,7 +52,7 @@ export type TOTPOptions = {
    * Must be created via createGuardrails() factory
    * Use this carefully - see danger-zone documentation
    */
-  readonly guardrails?: Readonly<OTPGuardrails>;
+  readonly guardrails?: OTPGuardrails;
 };
 
 /**

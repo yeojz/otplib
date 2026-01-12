@@ -44,11 +44,11 @@ import type { OTPGuardrails } from "@otplib/core";
  */
 export class TOTP {
   private readonly options: TOTPOptions;
-  private readonly guardrails: Readonly<OTPGuardrails>;
+  private readonly guardrails: OTPGuardrails;
 
   constructor(options: TOTPOptions = {}) {
     this.options = options;
-    this.guardrails = options.guardrails ?? createGuardrails();
+    this.guardrails = createGuardrails(options.guardrails);
   }
 
   /**

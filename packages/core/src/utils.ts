@@ -88,7 +88,7 @@ export const MAX_WINDOW = 50;
  * Allows overriding default safety limits for non-standard production requirements.
  * Use with caution - custom guardrails can weaken security.
  */
-export type OTPGuardrails = {
+export type OTPGuardrailsConfig = {
   MIN_SECRET_BYTES: number;
   MAX_SECRET_BYTES: number;
   MIN_PERIOD: number;
@@ -98,18 +98,53 @@ export type OTPGuardrails = {
 };
 
 /**
+ * Module-private symbol to track guardrail override status
+ *
+ * This symbol is used as a property key to store whether guardrails contain custom values.
+ * Being module-private and a symbol ensures:
+ * - Cannot be accessed outside this module (not exported)
+ * - Cannot be recreated (each Symbol() call is unique)
+ * - Hidden from normal enumeration (Object.keys, JSON.stringify, for-in)
+ * - Minimal memory overhead (~1 byte per object)
+ * - No garbage collection concerns
+ *
+ * @internal
+ */
+const OVERRIDE_SYMBOL = Symbol("otplib.guardrails.override");
+
+/**
+ * Complete guardrails configuration
+ *
+ * This represents the final, immutable configuration used by validation functions.
+ * Internally tracks whether any values were overridden from RFC recommendations,
+ * enabling security auditing and compliance monitoring without exposing implementation
+ * details in the public API.
+ *
+ * The override status is stored using a module-private Symbol that cannot be accessed
+ * or recreated outside this module, providing true encapsulation.
+ *
+ * @see {@link OTPGuardrailsConfig} for the base configuration structure
+ * @see {@link createGuardrails} for creating guardrails instances
+ * @see {@link hasGuardrailOverrides} to check if guardrails were customized
+ */
+export type OTPGuardrails = Readonly<OTPGuardrailsConfig> & {
+  [OVERRIDE_SYMBOL]?: boolean;
+};
+
+/**
  * Default guardrails matching RFC recommendations
  *
  * Frozen to ensure immutability. Used as default parameter for validation functions.
  * For custom guardrails, use the createGuardrails() factory function.
  */
-const DEFAULT_GUARDRAILS: Readonly<OTPGuardrails> = Object.freeze({
+const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
   MIN_SECRET_BYTES,
   MAX_SECRET_BYTES,
   MIN_PERIOD,
   MAX_PERIOD,
   MAX_COUNTER,
   MAX_WINDOW,
+  [OVERRIDE_SYMBOL]: false,
 });
 
 /**
@@ -118,25 +153,90 @@ const DEFAULT_GUARDRAILS: Readonly<OTPGuardrails> = Object.freeze({
  * Factory function that merges custom guardrails with defaults and returns
  * an immutable (frozen) object. No validation is performed on custom values.
  *
+ * When called without arguments or with `undefined`, returns the default guardrails
+ * singleton (optimized to avoid unnecessary allocations). When called with custom
+ * values, creates a new frozen object and internally marks it as overridden.
+ *
  * @param custom - Optional partial guardrails to override defaults
  * @returns Frozen guardrails object
  *
- * @example
+ * @example Basic usage
  * ```ts
- * import { createGuardrails } from '@otplib/core'
+ * import { createGuardrails, hasGuardrailOverrides } from '@otplib/core'
  *
- * const guardrails = createGuardrails({
+ * // Returns default singleton (no overrides)
+ * const defaults = createGuardrails();
+ * hasGuardrailOverrides(defaults); // false
+ *
+ * // Creates new object with overrides
+ * const custom = createGuardrails({
  *   MIN_SECRET_BYTES: 8,
  *   MAX_WINDOW: 200
- * })
+ * });
+ * hasGuardrailOverrides(custom); // true
  * ```
+ *
+ * @example Monitoring custom guardrails
+ * ```ts
+ * import { createGuardrails, hasGuardrailOverrides } from '@otplib/core';
+ *
+ * const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+ *
+ * if (hasGuardrailOverrides(guardrails)) {
+ *   logger.warn('Non-default guardrails in use', { guardrails });
+ * }
+ * ```
+ *
+ * @see {@link hasGuardrailOverrides} to check if guardrails were customized
  */
-export function createGuardrails(custom?: Partial<OTPGuardrails>): Readonly<OTPGuardrails> {
+export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuardrails {
   if (custom) {
-    return Object.freeze({ ...DEFAULT_GUARDRAILS, ...custom });
+    return Object.freeze({
+      ...DEFAULT_GUARDRAILS,
+      ...custom,
+      [OVERRIDE_SYMBOL]: true,
+    });
   }
 
   return DEFAULT_GUARDRAILS;
+}
+
+/**
+ * Check if guardrails contain custom overrides
+ *
+ * Returns `true` if the guardrails object was created with custom values,
+ * `false` if using RFC-recommended defaults. Useful for security auditing,
+ * compliance monitoring, and development warnings.
+ *
+ * This function accesses a module-private Symbol property that cannot be
+ * accessed or modified outside this module, ensuring reliable detection.
+ *
+ * @param guardrails - The guardrails object to check
+ * @returns `true` if guardrails were customized, `false` if using defaults
+ *
+ * @example Security monitoring
+ * ```ts
+ * import { createGuardrails, hasGuardrailOverrides } from '@otplib/core';
+ *
+ * const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+ *
+ * if (hasGuardrailOverrides(guardrails)) {
+ *   console.warn('Custom guardrails detected:', guardrails);
+ *   // Log to security audit system
+ * }
+ * ```
+ *
+ * @example Compliance check
+ * ```ts
+ * function validateGuardrails(guardrails: OTPGuardrails) {
+ *   if (hasGuardrailOverrides(guardrails)) {
+ *     throw new Error('Custom guardrails not allowed in production');
+ *   }
+ * }
+ * ```
+ */
+export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
+  return guardrails[OVERRIDE_SYMBOL] ?? false;
 }
 
 /**
@@ -149,7 +249,7 @@ export function createGuardrails(custom?: Partial<OTPGuardrails>): Readonly<OTPG
  */
 export function validateSecret(
   secret: Uint8Array,
-  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
   if (secret.length < guardrails.MIN_SECRET_BYTES) {
     throw new SecretTooShortError(guardrails.MIN_SECRET_BYTES, secret.length);
@@ -170,7 +270,7 @@ export function validateSecret(
  */
 export function validateCounter(
   counter: number | bigint,
-  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
   const value = typeof counter === "bigint" ? counter : BigInt(counter);
 
@@ -205,7 +305,7 @@ export function validateTime(time: number): void {
  */
 export function validatePeriod(
   period: number,
-  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
   if (!Number.isInteger(period) || period < guardrails.MIN_PERIOD) {
     throw new PeriodTooSmallError(guardrails.MIN_PERIOD);
@@ -253,7 +353,7 @@ export function validateToken(token: string, digits: number): void {
  */
 export function validateCounterTolerance(
   counterTolerance: number | number[],
-  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
   const size = Array.isArray(counterTolerance) ? counterTolerance.length : counterTolerance * 2 + 1;
 
@@ -289,7 +389,7 @@ export function validateCounterTolerance(
 export function validateEpochTolerance(
   epochTolerance: number | [number, number],
   period: number = DEFAULT_PERIOD,
-  guardrails: Readonly<OTPGuardrails> = DEFAULT_GUARDRAILS,
+  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
   const [pastTolerance, futureTolerance] = Array.isArray(epochTolerance)
     ? epochTolerance

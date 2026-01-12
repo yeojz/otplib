@@ -9,6 +9,7 @@ const mockCryptoPlugin: CryptoPlugin = {
   name: "mock",
   hmac: () => new Uint8Array(20),
   randomBytes: (length: number) => new Uint8Array(length),
+  constantTimeEqual: () => true,
 };
 
 // Mock base32 plugin for testing

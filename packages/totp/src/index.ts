@@ -338,7 +338,7 @@ export function getRemainingTime(
   time: number = Math.floor(Date.now() / 1000),
   period: number = 30,
   t0: number = 0,
-  guardrails: Readonly<OTPGuardrails> = createGuardrails(),
+  guardrails: OTPGuardrails = createGuardrails(),
 ): number {
   validateTime(time);
   validatePeriod(period, guardrails);
@@ -370,7 +370,7 @@ export function getTimeStepUsed(
   time: number = Math.floor(Date.now() / 1000),
   period: number = 30,
   t0: number = 0,
-  guardrails: Readonly<OTPGuardrails> = createGuardrails(),
+  guardrails: OTPGuardrails = createGuardrails(),
 ): number {
   validateTime(time);
   validatePeriod(period, guardrails);

@@ -10,6 +10,7 @@ import {
   MAX_COUNTER,
   MAX_WINDOW,
   createGuardrails,
+  hasGuardrailOverrides,
   validateSecret,
   validateCounter,
   validateTime,
@@ -36,6 +37,7 @@ import {
   requireBase32String,
   wrapResult,
   wrapResultAsync,
+  type OTPGuardrails,
 } from "./utils.js";
 import {
   OTPError,
@@ -78,6 +80,90 @@ describe("Constants", () => {
 
   it("should have correct window constant", () => {
     expect(MAX_WINDOW).toBe(50);
+  });
+});
+
+describe("createGuardrails and hasGuardrailOverrides", () => {
+  it("should return default guardrails without arguments", () => {
+    const guardrails = createGuardrails();
+    expect(guardrails.MIN_SECRET_BYTES).toBe(MIN_SECRET_BYTES);
+    expect(guardrails.MAX_SECRET_BYTES).toBe(MAX_SECRET_BYTES);
+    expect(guardrails.MIN_PERIOD).toBe(MIN_PERIOD);
+    expect(guardrails.MAX_PERIOD).toBe(MAX_PERIOD);
+    expect(guardrails.MAX_COUNTER).toBe(MAX_COUNTER);
+    expect(guardrails.MAX_WINDOW).toBe(MAX_WINDOW);
+  });
+
+  it("should return false for default guardrails", () => {
+    const guardrails = createGuardrails();
+    expect(hasGuardrailOverrides(guardrails)).toBe(false);
+  });
+
+  it("should return same object when called multiple times without arguments", () => {
+    const g1 = createGuardrails();
+    const g2 = createGuardrails();
+    expect(g1).toBe(g2); // Same reference (singleton)
+  });
+
+  it("should create custom guardrails", () => {
+    const guardrails = createGuardrails({
+      MIN_SECRET_BYTES: 10,
+      MAX_WINDOW: 20,
+    });
+    expect(guardrails.MIN_SECRET_BYTES).toBe(10);
+    expect(guardrails.MAX_WINDOW).toBe(20);
+    // Other values should be defaults
+    expect(guardrails.MAX_SECRET_BYTES).toBe(MAX_SECRET_BYTES);
+    expect(guardrails.MIN_PERIOD).toBe(MIN_PERIOD);
+  });
+
+  it("should return true for custom guardrails", () => {
+    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+    expect(hasGuardrailOverrides(guardrails)).toBe(true);
+  });
+
+  it("should return false for guardrails without override symbol", () => {
+    // Simulate a guardrails object created outside the factory
+    // (e.g., manually constructed or from older version)
+    const unknownGuardrails = Object.freeze({
+      MIN_SECRET_BYTES: 16,
+      MAX_SECRET_BYTES: 64,
+      MIN_PERIOD: 1,
+      MAX_PERIOD: 3600,
+      MAX_COUNTER: Number.MAX_SAFE_INTEGER,
+      MAX_WINDOW: 50,
+    }) as OTPGuardrails;
+    expect(hasGuardrailOverrides(unknownGuardrails)).toBe(false);
+  });
+
+  it("should hide override flag from normal enumeration", () => {
+    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+
+    // Symbol should not appear in normal enumeration
+    expect(Object.keys(guardrails)).not.toContain("OVERRIDE_SYMBOL");
+    expect(Object.getOwnPropertyNames(guardrails)).not.toContain("OVERRIDE_SYMBOL");
+
+    // Symbol should appear only in symbol enumeration
+    const symbols = Object.getOwnPropertySymbols(guardrails);
+    expect(symbols.length).toBe(1);
+
+    // JSON serialization should not include the symbol
+    const json = JSON.stringify(guardrails);
+    expect(json).not.toContain("OVERRIDE");
+    expect(json).not.toContain("override");
+  });
+
+  it("should freeze guardrails objects", () => {
+    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+    expect(Object.isFrozen(guardrails)).toBe(true);
+  });
+
+  it("should create different objects for different custom values", () => {
+    const g1 = createGuardrails({ MAX_WINDOW: 20 });
+    const g2 = createGuardrails({ MAX_WINDOW: 30 });
+    expect(g1).not.toBe(g2); // Different references
+    expect(g1.MAX_WINDOW).toBe(20);
+    expect(g2.MAX_WINDOW).toBe(30);
   });
 });
 
