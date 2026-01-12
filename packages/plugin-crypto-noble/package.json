@@ -1,6 +1,6 @@
 {
   "name": "@otplib/plugin-crypto-noble",
-  "version": "13.0.2",
+  "version": "13.1.0",
   "description": "Pure JavaScript crypto implementation using noble-hashes for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
