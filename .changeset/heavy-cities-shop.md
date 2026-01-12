@@ -5,4 +5,4 @@
 "@otplib/totp": minor
 ---
 
-a
+Add HOTP support to `generateURI` for both TOTP and HOTP strategies. Allow guardrails to be overridden for advanced use cases.
