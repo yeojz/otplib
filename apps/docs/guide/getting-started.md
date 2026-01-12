@@ -219,7 +219,6 @@ async function setupTwoFactor(userEmail: string) {
 
   // Create otpauth:// URI
   const uri = generateURI({
-    type: "totp",
     issuer: "MyApp",
     label: userEmail,
     secret,

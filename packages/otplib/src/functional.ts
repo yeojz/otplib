@@ -11,7 +11,7 @@ import {
   verify as verifyTOTP,
   verifySync as verifyTOTPSync,
 } from "@otplib/totp";
-import { generateTOTP as generateTOTPURI } from "@otplib/uri";
+import { generateTOTP as generateTOTPURI, generateHOTP as generateHOTURI } from "@otplib/uri";
 
 import {
   defaultCrypto,
@@ -107,7 +107,7 @@ export function generateSecret(options?: {
  * @param options - URI generation options
  * @returns otpauth:// URI string
  *
- * @example
+ * @example TOTP
  * ```ts
  * import { generateURI } from 'otplib';
  *
@@ -118,17 +118,49 @@ export function generateSecret(options?: {
  * });
  * // Returns: 'otpauth://totp/ACME%20Co:john%40example.com?secret=...'
  * ```
+ *
+ * @example HOTP
+ * ```ts
+ * import { generateURI } from 'otplib';
+ *
+ * const uri = generateURI({
+ *   strategy: 'hotp',
+ *   issuer: 'ACME Co',
+ *   label: 'john@example.com',
+ *   secret: 'JBSWY3DPEHPK3PXP',
+ *   counter: 5,
+ * });
+ * // Returns: 'otpauth://hotp/ACME%20Co:john%40example.com?secret=...&counter=5'
+ * ```
  */
 export function generateURI(options: {
+  /**
+   * OTP strategy to use (default: 'totp')
+   */
+  strategy?: OTPStrategy;
   issuer: string;
   label: string;
   secret: string;
   algorithm?: HashAlgorithm;
   digits?: Digits;
   period?: number;
+  counter?: number;
 }): string {
-  const { issuer, label, secret, algorithm = "sha1", digits = 6, period = 30 } = options;
-  return generateTOTPURI({ issuer, label, secret, algorithm, digits, period });
+  const {
+    strategy = "totp",
+    issuer,
+    label,
+    secret,
+    algorithm = "sha1",
+    digits = 6,
+    period = 30,
+    counter,
+  } = options;
+
+  return executeByStrategy(strategy, counter, {
+    totp: () => generateTOTPURI({ issuer, label, secret, algorithm, digits, period }),
+    hotp: (counter) => generateHOTURI({ issuer, label, secret, algorithm, digits, counter }),
+  });
 }
 
 /**
