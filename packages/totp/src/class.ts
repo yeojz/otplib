@@ -73,7 +73,6 @@ export class TOTP {
    */
   async generate(options?: Partial<TOTPOptions>): Promise<string> {
     const mergedOptions = { ...this.options, ...options };
-
     const {
       secret,
       crypto,
@@ -117,7 +116,6 @@ export class TOTP {
     options?: Partial<Omit<TOTPVerifyOptions, "token">>,
   ): Promise<VerifyResult> {
     const mergedOptions = { ...this.options, ...options };
-
     const {
       secret,
       crypto,

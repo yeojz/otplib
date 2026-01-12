@@ -19,6 +19,8 @@ import {
   validateSecret,
   validateTime,
   validateToken,
+  requireSecret,
+  requireCryptoPlugin,
 } from "@otplib/core";
 import { generate as generateHOTP, generateSync as generateHOTPSync } from "@otplib/hotp";
 
@@ -59,6 +61,10 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     base32,
     guardrails = createGuardrails(),
   } = options;
+
+  // Validate required parameters
+  requireSecret(secret);
+  requireCryptoPlugin(crypto);
 
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
@@ -191,6 +197,10 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     epochTolerance = 0,
     guardrails = createGuardrails(),
   } = options;
+
+  // Validate required parameters
+  requireSecret(secret);
+  requireCryptoPlugin(crypto);
 
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);

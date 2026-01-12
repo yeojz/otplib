@@ -75,7 +75,6 @@ export class HOTP {
    */
   async generate(counter: number, options?: Partial<HOTPOptions>): Promise<string> {
     const mergedOptions = { ...this.options, ...options };
-
     const { secret, crypto, base32, algorithm = "sha1", digits = 6 } = mergedOptions;
 
     requireSecret(secret);
@@ -108,7 +107,6 @@ export class HOTP {
     options?: Partial<HOTPOptions & { counterTolerance?: number | number[] }>,
   ): Promise<VerifyResult> {
     const mergedOptions = { ...this.options, ...options };
-
     const {
       secret,
       crypto,

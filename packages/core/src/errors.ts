@@ -367,11 +367,7 @@ export class PluginError extends OTPError {
  */
 export class CryptoPluginMissingError extends PluginError {
   constructor() {
-    super(
-      "Crypto plugin is required. " +
-        "Example: new TOTP({ crypto: new NodeCryptoPlugin() }) or " +
-        "new TOTP({ crypto: new WebCryptoPlugin() })",
-    );
+    super("Crypto plugin is required.");
     this.name = "CryptoPluginMissingError";
   }
 }
@@ -381,7 +377,7 @@ export class CryptoPluginMissingError extends PluginError {
  */
 export class Base32PluginMissingError extends PluginError {
   constructor() {
-    super("Base32 plugin is required. Example: new TOTP({ base32: new ScureBase32Plugin() })");
+    super("Base32 plugin is required.");
     this.name = "Base32PluginMissingError";
   }
 }

@@ -279,9 +279,7 @@ describe("PluginError", () => {
 describe("CryptoPluginMissingError", () => {
   it("should create error with helpful message", () => {
     const error = new CryptoPluginMissingError();
-    expect(error.message).toContain("Crypto plugin is required");
-    expect(error.message).toContain("NodeCryptoPlugin");
-    expect(error.message).toContain("WebCryptoPlugin");
+    expect(error.message).toBe("Crypto plugin is required.");
     expect(error.name).toBe("CryptoPluginMissingError");
     expect(error).toBeInstanceOf(PluginError);
   });
@@ -290,8 +288,7 @@ describe("CryptoPluginMissingError", () => {
 describe("Base32PluginMissingError", () => {
   it("should create error with helpful message", () => {
     const error = new Base32PluginMissingError();
-    expect(error.message).toContain("Base32 plugin is required");
-    expect(error.message).toContain("ScureBase32Plugin");
+    expect(error.message).toBe("Base32 plugin is required.");
     expect(error.name).toBe("Base32PluginMissingError");
     expect(error).toBeInstanceOf(PluginError);
   });

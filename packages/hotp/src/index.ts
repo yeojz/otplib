@@ -18,6 +18,8 @@ import {
   validateCounterTolerance,
   normalizeSecret,
   normalizeCounterTolerance,
+  requireSecret,
+  requireCryptoPlugin,
 } from "@otplib/core";
 
 import type { HOTPGenerateOptions, HOTPVerifyOptions, VerifyResult } from "./types";
@@ -48,6 +50,10 @@ type HOTPGenerateOptionsInternal = {
  */
 function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptionsInternal {
   const { secret, counter, algorithm = "sha1", digits = 6, crypto, base32, guardrails } = options;
+
+  // Validate required parameters
+  requireSecret(secret);
+  requireCryptoPlugin(crypto);
 
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
@@ -167,6 +173,10 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
     counterTolerance = 0,
     guardrails = createGuardrails(),
   } = options;
+
+  // Validate required parameters
+  requireSecret(secret);
+  requireCryptoPlugin(crypto);
 
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);

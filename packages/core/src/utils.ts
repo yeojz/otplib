@@ -620,9 +620,7 @@ export function normalizeSecret(
   base32?: { decode: (str: string) => Uint8Array },
 ): Uint8Array {
   if (typeof secret === "string") {
-    if (!base32) {
-      throw new Error("String secrets require a Base32Plugin. Please provide a base32 parameter.");
-    }
+    requireBase32Plugin(base32);
     return base32.decode(secret);
   }
   return secret;
@@ -662,6 +660,9 @@ export function normalizeSecret(
  */
 export function generateSecret(options: SecretOptions): string {
   const { crypto, base32, length = RECOMMENDED_SECRET_BYTES } = options;
+
+  requireCryptoPlugin(crypto);
+  requireBase32Plugin(base32);
 
   const randomBytes = crypto.randomBytes(length);
   return base32.encode(randomBytes, { padding: false });

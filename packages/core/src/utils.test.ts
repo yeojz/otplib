@@ -843,9 +843,7 @@ describe("normalizeSecret", () => {
 
   it("should throw when string secret provided without base32 plugin", () => {
     const secret = BASE_SECRET_BASE32;
-    expect(() => normalizeSecret(secret)).toThrowError(
-      "String secrets require a Base32Plugin. Please provide a base32 parameter.",
-    );
+    expect(() => normalizeSecret(secret)).toThrowError("Base32 plugin is required.");
   });
 });
 
