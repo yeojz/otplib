@@ -4,6 +4,7 @@ import BenchmarkTable from "../components/BenchmarkTable.vue";
 import TOTPDemo from "../components/TOTPDemo.vue";
 import HOTPDemo from "../components/HOTPDemo.vue";
 import "./custom.css";
+import "./demo-common.css";
 
 export default {
   extends: DefaultTheme,
