@@ -1,137 +1,147 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import QRCode from 'qrcode'
-import { generate as totpGenerate, verify as totpVerify, generateSecret as generateSecretFn, generateURI } from 'otplib'
+import { ref, onMounted } from "vue";
+import QRCode from "qrcode";
+import {
+  generate as hotpGenerate,
+  verify as hotpVerify,
+  generateSecret as generateSecretFn,
+  generateURI,
+} from "otplib";
 
-const issuer = ref('DemoApp')
-const label = ref('user@example.com')
-const secret = ref('')
-const token = ref('')
-const tokens = ref([])
-const userInput = ref('')
-const isValid = ref(null)
-const delta = ref(null)
-const qrCodeUrl = ref('')
-const timeElapsed = ref(0)
-const showSecret = ref(false)
-const showConfig = ref(false)
-let intervalId = null
+const issuer = ref("DemoApp");
+const label = ref("user@example.com");
+const secret = ref("");
+const clientCounter = ref(0);
+const serverCounter = ref(0);
+const currentToken = ref("");
+const userInput = ref("");
+const isValid = ref(null);
+const delta = ref(null);
+const qrCodeUrl = ref("");
+const showSecret = ref(false);
+const showConfig = ref(false);
+const setupCounter = ref(0);
 
-async function generateNewSecret() {
-  // Use otplib's generateSecret with default plugins
-  secret.value = generateSecretFn()
+async function updateSetupCounter() {
+  const val = parseInt(setupCounter.value) || 0;
+  clientCounter.value = val;
+  serverCounter.value = val;
+  await updateToken();
+  await generateQR();
 
-  await generateQR()
-  await updateToken(true)
-
-  isValid.value = null
-  userInput.value = ''
-  delta.value = null
-
-  const now = Math.floor(Date.now() / 1000)
-  timeElapsed.value = now % 30
+  isValid.value = null;
+  userInput.value = "";
+  delta.value = null;
 }
 
-async function updateToken(resetPrevious = false) {
-  if (!secret.value) return
+async function generateNewSecret() {
+  secret.value = generateSecretFn();
+  setupCounter.value = 0;
+  clientCounter.value = 0;
+  serverCounter.value = 0;
+
+  await updateToken();
+  await generateQR();
+
+  isValid.value = null;
+  userInput.value = "";
+  delta.value = null;
+}
+
+async function updateToken() {
+  if (!secret.value) return;
   try {
-    const now = Math.floor(Date.now() / 1000)
-
-    if (tokens.value.length === 0 || resetPrevious) {
-      for (let i = -1; i <= 1; i++) {
-        const tempToken = await totpGenerate({
-          secret: secret.value,
-          epoch: now + (i * 30),
-        })
-        tokens.value[i + 1] = tempToken
-      }
-    } else {
-      // Shift tokens and generate the new one
-      tokens.value.shift()
-      const newToken = await totpGenerate({
-        secret: secret.value,
-        epoch: now + (1 * 30),
-      })
-      tokens.value.push(newToken)
-    }
-
+    currentToken.value = await hotpGenerate({
+      secret: secret.value,
+      strategy: "hotp",
+      counter: clientCounter.value,
+    });
   } catch (e) {
-    console.error('Token generation error:', e)
-    token.value = 'ERROR'
+    console.error("Token generation error:", e);
+    currentToken.value = "ERROR";
   }
 }
 
+async function incrementCounter() {
+  clientCounter.value++;
+  await updateToken();
+  // Automatically fill verification input for easier demoing, or leave empty?
+  // Let's leave empty to force user action, or maybe better UX to clear validation status
+  isValid.value = null;
+  delta.value = null;
+}
+
 async function generateQR() {
-  if (!secret.value) return
+  if (!secret.value) return;
   try {
-    // Use otplib's generateURI function
     const uri = generateURI({
+      strategy: "hotp",
       issuer: issuer.value,
       label: label.value,
       secret: secret.value,
-    })
+      counter: clientCounter.value,
+    });
 
     qrCodeUrl.value = await QRCode.toDataURL(uri, {
       width: 200,
       margin: 2,
-      color: { dark: '#000000', light: '#ffffff' }
-    })
+      color: { dark: "#000000", light: "#ffffff" },
+    });
   } catch (e) {
-    console.error('QR generation error:', e)
+    console.error("QR generation error:", e);
   }
 }
 
 async function verifyToken() {
-  if (!userInput.value || !tokens.value[2]) {
-    isValid.value = null
-    delta.value = null
-    return
+  if (!userInput.value) {
+    isValid.value = null;
+    delta.value = null;
+    return;
   }
 
   try {
-    const result = await totpVerify({
+    // Verify against server counter with a window (tolerance)
+    // hotpVerify will check [counter, counter + window]
+    const window = 50;
+    const result = await hotpVerify({
+      strategy: "hotp",
       secret: secret.value,
       token: userInput.value,
-      epoch: Math.floor(Date.now() / 1000),
-      epochTolerance: 30,
-    })
+      counter: serverCounter.value,
+      counterTolerance: window, // This acts as the look-ahead window
+    });
 
-    isValid.value = result.valid
-    delta.value = result.delta
+    isValid.value = result.valid;
+    delta.value = result.valid ? result.delta : null;
+
+    if (result.valid && result.delta >= 0) {
+      // If valid, server syncs up to the used counter + 1
+      // The delta returned by otplib for HOTP is (matched_counter - initial_counter)
+      serverCounter.value = serverCounter.value + result.delta + 1;
+    }
   } catch (e) {
-    console.error('Verification error:', e)
-    isValid.value = false
-    delta.value = null
-  }
-}
-
-function updateTimer() {
-  const now = Math.floor(Date.now() / 1000)
-  timeElapsed.value = now % 30
-  if (timeElapsed.value === 0) {
-    updateToken()
+    console.error("Verification error:", e);
+    isValid.value = false;
+    delta.value = null;
   }
 }
 
 onMounted(() => {
-  generateNewSecret()
-  // Initialize timeElapsed
-  const now = Math.floor(Date.now() / 1000)
-  timeElapsed.value = now % 30
-  intervalId = setInterval(updateTimer, 1000)
-})
-
-onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId)
-})
+  generateNewSecret();
+});
 </script>
 
 <template>
-  <div class="totp-demo-container">
+  <div class="hotp-demo-container">
     <div class="card qr-config-card">
       <div class="card-header">
         <h3>Setup</h3>
-        <button :class="showConfig ? 'btn-save' : 'gear-icon'" @click="showConfig = !showConfig" title="Configuration" aria-label="Configuration">
+        <button
+          :class="showConfig ? 'btn-save' : 'gear-icon'"
+          @click="showConfig = !showConfig"
+          title="Configuration"
+          aria-label="Configuration"
+        >
           <span v-if="showConfig">Save</span>
           <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -143,7 +153,6 @@ onUnmounted(() => {
         </button>
       </div>
 
-      <!-- Configuration Panel (Hidden by Default) -->
       <div v-if="showConfig" class="config-panel">
         <div class="form-group">
           <label>Issuer</label>
@@ -153,68 +162,86 @@ onUnmounted(() => {
           <label>Label</label>
           <input v-model="label" type="text" @change="generateQR" />
         </div>
+        <div class="form-group">
+          <label>Initial Counter</label>
+          <input v-model="setupCounter" type="number" min="0" @change="updateSetupCounter" />
+        </div>
       </div>
 
-      <!-- QR Code Display (Default View) -->
       <div v-if="!showConfig && qrCodeUrl" class="qr-wrapper">
-        <img :src="qrCodeUrl" alt="TOTP QR Code" />
+        <img :src="qrCodeUrl" alt="HOTP QR Code" />
 
-        <!-- Generate New Secret Button (Always Visible) -->
-
-
-        <!-- Secret Section (Always Visible) -->
         <button class="btn-primary generate-secret-btn" @click="generateNewSecret">
           Generate New Secret
         </button>
 
         <div class="secret-section">
           <button @click="showSecret = !showSecret" class="toggle-secret">
-            {{ showSecret ? 'Hide' : 'Show' }} Secret
+            {{ showSecret ? "Hide" : "Show" }} Secret
           </button>
           <div v-if="showSecret" class="secret-value">
             {{ secret }}
           </div>
         </div>
       </div>
-
     </div>
 
     <div class="card token-card">
       <div class="card-header">
         <h3>Client (Generate)</h3>
       </div>
+
       <div class="token-display">
-        <div class="tokens">
-          <div v-for="(token, index) in tokens" :key="`token-${index}-${token}`" :class="[
-            'token-item',
-            index === 1 ? 'current-token' : 'outer-token'
-          ]">
-            <span class="token-value">{{ token }}</span>
-            <span v-if="index !== 1" class="token-label">{{
-              index === 0 ? '−30s' : '+30s'
-              }}</span>
-          </div>
+        <div class="token-container">
+          <div class="token-value">{{ currentToken }}</div>
+          <div class="counter-label">Counter: {{ clientCounter }}</div>
         </div>
       </div>
 
-      <div class="timer-bar">
-        <div class="time-text">Resets in: {{ 30 - timeElapsed }}s</div>
-        <div class="progress">
-          <div class="progress-fill" :style="{ width: (timeElapsed / 30 * 100) + '%' }"></div>
-        </div>
-      </div>
+      <button class="btn-primary increment-btn" @click="incrementCounter">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="refresh-icon"
+        >
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        Generate Next Token
+      </button>
+
+      <div class="help-text">Click to increment the counter and generate the next OTP.</div>
     </div>
 
     <div class="card verify-card">
       <div class="card-header">
         <h3>Server (Verify)</h3>
       </div>
-      <div>
+
+      <div class="server-status">
+        <div class="counter-label">Expected Counter: {{ serverCounter }}</div>
+      </div>
+
+      <div class="verify-section">
         <div class="verify-form">
-          <input v-model="userInput" type="text" placeholder="Enter 6-digit code" maxlength="6"
-            @keyup.enter="verifyToken" />
+          <input
+            v-model="userInput"
+            type="text"
+            placeholder="Enter code"
+            maxlength="6"
+            @keyup.enter="verifyToken"
+          />
           <button class="btn-verify" @click="verifyToken">Verify</button>
         </div>
+
         <div v-if="isValid === true" :class="['result', delta === 0 ? 'valid' : 'warning']">
           <div class="result-content">
             <svg v-if="delta === 0" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -230,14 +257,24 @@ onUnmounted(() => {
             </svg>
             <span>Valid!</span>
           </div>
-          <div class="sync-info" v-if="delta !== null">
-            Matched at period {{ delta > 0 ? '+' : '' }}{{ delta }}
+          <div class="sync-info" v-if="delta !== null && delta !== 0">
+             Matched at counter +{{ delta }}
           </div>
         </div>
+
         <div v-else-if="isValid === false" class="result invalid">
           <div class="result-content">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="15" y1="9" x2="9" y2="15"></line>
               <line x1="9" y1="9" x2="15" y2="15"></line>
@@ -245,13 +282,17 @@ onUnmounted(() => {
             <span>Invalid</span>
           </div>
         </div>
-        </div>
+      </div>
+
+      <div class="server-explanation">
+        The server accepts any token from the current counter up to a window ahead (resync).
       </div>
     </div>
+  </div>
 </template>
 
 <style scoped>
-.totp-demo-container {
+.hotp-demo-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
@@ -268,13 +309,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 350px;
-}
-
-.card>*:not(.card-header) {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  flex: 1;
 }
 
 .card-header {
@@ -335,13 +369,6 @@ onUnmounted(() => {
   margin-bottom: 1rem;
 }
 
-h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--vp-c-text-1);
-}
-
 .form-group {
   margin-bottom: 1rem;
 }
@@ -365,9 +392,21 @@ input[type="text"] {
   transition: border-color 0.2s;
 }
 
-input[type="text"]:focus {
+input[type="text"]:focus,
+input[type="number"]:focus {
   outline: none;
   border-color: var(--vp-c-brand);
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 6px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
 }
 
 .btn-primary {
@@ -381,6 +420,10 @@ input[type="text"]:focus {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .btn-primary:hover {
@@ -392,18 +435,19 @@ input[type="text"]:focus {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .qr-wrapper img {
   border: 4px solid white;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  ;
 }
 
 .secret-section {
   text-align: center;
+  width: 100%;
 }
 
 .toggle-secret {
@@ -416,98 +460,63 @@ input[type="text"]:focus {
 
 .secret-value {
   margin-top: 0.5rem;
-  padding: 1rem 3rem;
+  padding: 0.5rem;
   background: var(--vp-c-bg);
   border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-family: "Courier New", monospace;
+  font-size: 1rem;
   word-break: break-all;
 }
 
-.token-card {
-  text-align: center;
-}
-
 .token-display {
-  margin-bottom: 1rem;
-}
-
-.tokens {
-  background: var(--vp-c-bg);
-  border: 2px solid var(--vp-c-border);
-  border-radius: 12px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.token-item {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 8px;
+  margin-bottom: 1rem;
 }
 
-.current-token {
-  background: var(--vp-button-brand-bg);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-.outer-token {
-  background: var(--vp-c-bg-soft);
-  transform: scale(0.9);
+.token-container {
+  text-align: center;
+  background: var(--vp-c-bg);
+  border: 2px solid var(--vp-c-border);
+  border-radius: 12px;
+  padding: 2rem;
+  min-width: 200px;
 }
 
 .token-value {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
+  font-size: 2.5rem;
   font-weight: 700;
-  letter-spacing: 0.2em;
-}
-
-.current-token .token-value {
-  font-size: 2rem;
-  color: white;
-}
-
-.outer-token .token-value {
-  font-size: 1.2rem;
-  color: var(--vp-c-text-2);
-}
-
-.token-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.1);
-  color: var(--vp-c-text-2);
-}
-
-.timer-bar {
-  font-size: 0.875rem;
-  color: var(--vp-c-text-2);
-}
-
-.time-text {
+  color: var(--vp-c-brand);
+  letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
 }
 
-.progress {
-  height: 6px;
-  background: var(--vp-c-bg);
-  border-radius: 3px;
-  overflow: hidden;
+.counter-label {
+  font-size: 0.875rem;
+  color: var(--vp-c-text-2);
+  font-weight: 600;
 }
 
-.progress-fill {
-  height: 100%;
-  background: var(--vp-button-brand-bg);
-  transition: width 0.3s ease;
+.increment-btn {
+  margin-top: 1rem;
+}
+
+.help-text {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--vp-c-text-2);
+  margin-top: 1rem;
+}
+
+.server-status {
+  text-align: center;
+  padding: 1rem;
+  background: var(--vp-c-bg);
+  border-radius: 8px;
+  margin-bottom: 1rem;
 }
 
 .verify-form {
@@ -541,6 +550,7 @@ input[type="text"]:focus {
   border-radius: 6px;
   font-weight: 600;
   font-size: 0.875rem;
+  margin-top: 1rem;
 }
 
 .result-content {
@@ -548,10 +558,6 @@ input[type="text"]:focus {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-}
-
-.result-content svg {
-  flex-shrink: 0;
 }
 
 .result.valid {
@@ -579,44 +585,17 @@ input[type="text"]:focus {
   opacity: 0.9;
 }
 
+.server-explanation {
+  margin-top: auto;
+  font-size: 0.8rem;
+  color: var(--vp-c-text-2);
+  text-align: center;
+  padding-top: 1rem;
+}
+
 @media (max-width: 768px) {
-  .totp-demo-container {
+  .hotp-demo-container {
     grid-template-columns: 1fr;
   }
-
-  .qr-config-card {
-    grid-row: span 1;
-    min-height: 350px;
-  }
-
-  .card {
-    min-height: auto;
-  }
-
-  .current-token .token-value {
-    font-size: 1.8rem;
-  }
-
-  .outer-token .token-value {
-    font-size: 1rem;
-  }
-
-  .tokens {
-    min-height: 240px;
-  }
-}
-
-.server-status {
-  text-align: center;
-  padding: 1rem;
-  background: var(--vp-c-bg);
-  border-radius: 8px;
-  margin-top: 1rem;
-}
-
-.counter-label {
-  font-size: 0.875rem;
-  color: var(--vp-c-text-2);
-  font-weight: 600;
 }
 </style>

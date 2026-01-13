@@ -20,4 +20,10 @@ hero:
 
 ## Try It {#demo}
 
+### Time-based OTP (TOTP)
+
 <TOTPDemo />
+
+### HMAC-based OTP (HOTP)
+
+<HOTPDemo />
