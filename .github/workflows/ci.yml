@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  id-token: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -109,7 +110,7 @@ jobs:
         if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
           slug: yeojz/otplib
           report_type: coverage
 
@@ -117,7 +118,7 @@ jobs:
         if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
           slug: yeojz/otplib
           report_type: test_results
           files: reports/junit.xml
@@ -231,6 +232,17 @@ jobs:
       - name: Check bundle size
         run: pnpm run size
 
+      - name: Create bundle analyzer config
+        run: |
+          cat > /tmp/codecov-bundle-config.json << 'EOF'
+          {
+            "gitService": "github",
+            "oidc": {
+              "useGitHubOIDC": true
+            }
+          }
+          EOF
+
       - name: Upload bundle analysis to Codecov
         env:
           CODECOV_SLUG: yeojz/otplib
@@ -240,7 +252,7 @@ jobs:
             name=$(jq -r '.name' "$pkg_dir/package.json")
             pnpm exec bundle-analyzer "$pkg" \
               --bundle-name="$name" \
-              --upload-token=${{ secrets.CODECOV_TOKEN }}
+              --config-file=/tmp/codecov-bundle-config.json
           done
 
       - name: Upload build artifacts
