@@ -20,10 +20,18 @@ hero:
 
 ## Try It {#demo}
 
-### Time-based OTP (TOTP)
+<div class="demo-section">
+
+<DemoHeader title="TOTP" description="Generates a new token every 30 seconds based on the current time." />
 
 <TOTPDemo />
 
-### HMAC-based OTP (HOTP)
+</div>
+
+<div class="demo-section">
+
+<DemoHeader title="HOTP" description="Generates a new token every time the counter is incremented." />
 
 <HOTPDemo />
+
+</div>

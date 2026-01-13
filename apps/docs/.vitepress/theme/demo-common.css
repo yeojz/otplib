@@ -1,7 +1,7 @@
 /* Shared container layout */
 .demo-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -306,4 +306,17 @@ input[type="number"]:focus {
   font-size: 0.8rem;
   color: var(--vp-c-text-2);
   margin-top: 1rem;
+}
+
+/* Demo Section Wrapper */
+.demo-section {
+  border: 1px solid var(--vp-c-border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin-bottom: 3rem;
+  background: var(--vp-c-bg-alt);
+}
+
+.demo-section:last-child {
+  margin-bottom: 0;
 }
