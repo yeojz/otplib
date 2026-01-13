@@ -264,12 +264,21 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
  * ```
  */
 export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> {
-  const { token, counterNum, past, future, crypto, getGenerateOptions } =
+  const { token, counterNum, past, totalChecks, crypto, getGenerateOptions } =
     getHOTPVerifyOptions(options);
 
-  for (let offset = -past; offset <= future; offset++) {
+  // Optimization: Skip iterations that would produce negative counters
+  // If counterNum=2 and past=5: startI = 3 (skip first 3 iterations)
+  // If counterNum=10 and past=5: startI = 0 (no skip needed)
+  const startI = Math.max(0, past - counterNum);
+
+  // Use positive loop index to avoid -0 edge cases and negative loop variables
+  // Map index [startI...totalChecks-1] to offset [startI-past...future]
+  for (let i = startI; i < totalChecks; i++) {
+    const offset = i - past;
     const currentCounter = counterNum + offset;
-    if (currentCounter < 0) continue;
+    // currentCounter is guaranteed >= 0 due to startI optimization
+
     const expected = await generate(getGenerateOptions(currentCounter));
     if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: offset | 0 }; // Bitwise OR converts -0 to +0
@@ -308,12 +317,21 @@ export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> 
  * ```
  */
 export function verifySync(options: HOTPVerifyOptions): VerifyResult {
-  const { token, counterNum, past, future, crypto, getGenerateOptions } =
+  const { token, counterNum, past, totalChecks, crypto, getGenerateOptions } =
     getHOTPVerifyOptions(options);
 
-  for (let offset = -past; offset <= future; offset++) {
+  // Optimization: Skip iterations that would produce negative counters
+  // If counterNum=2 and past=5: startI = 3 (skip first 3 iterations)
+  // If counterNum=10 and past=5: startI = 0 (no skip needed)
+  const startI = Math.max(0, past - counterNum);
+
+  // Use positive loop index to avoid -0 edge cases and negative loop variables
+  // Map index [startI...totalChecks-1] to offset [startI-past...future]
+  for (let i = startI; i < totalChecks; i++) {
+    const offset = i - past;
     const currentCounter = counterNum + offset;
-    if (currentCounter < 0) continue;
+    // currentCounter is guaranteed >= 0 due to startI optimization
+
     const expected = generateSync(getGenerateOptions(currentCounter));
     if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: offset | 0 }; // Bitwise OR converts -0 to +0
