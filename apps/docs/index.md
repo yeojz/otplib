@@ -20,4 +20,18 @@ hero:
 
 ## Try It {#demo}
 
+<div class="demo-section">
+
+<DemoHeader title="TOTP" description="Generates a new token every 30 seconds based on the current time." />
+
 <TOTPDemo />
+
+</div>
+
+<div class="demo-section">
+
+<DemoHeader title="HOTP" description="Generates a new token every time the counter is incremented." />
+
+<HOTPDemo />
+
+</div>
