@@ -213,6 +213,9 @@ importers:
         specifier: workspace:*
         version: link:../uri
     devDependencies:
+      '@otplib/plugin-base32-scure':
+        specifier: workspace:*
+        version: link:../plugin-base32-scure
       '@otplib/plugin-crypto-node':
         specifier: workspace:*
         version: link:../plugin-crypto-node

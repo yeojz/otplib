@@ -2,7 +2,13 @@
  * Type definitions for otplib package
  */
 
-import type { CryptoPlugin, Base32Plugin, Digits, HashAlgorithm } from "@otplib/core";
+import type {
+  CryptoPlugin,
+  Base32Plugin,
+  Digits,
+  HashAlgorithm,
+  OTPGuardrails,
+} from "@otplib/core";
 import type { HOTPOptions } from "@otplib/hotp";
 import type { TOTPOptions } from "@otplib/totp";
 
@@ -57,6 +63,11 @@ export type OTPGenerateOptions = {
    * Base32 plugin to use (default: ScureBase32Plugin)
    */
   base32?: Base32Plugin;
+
+  /**
+   * Validation guardrails
+   */
+  guardrails?: OTPGuardrails;
 
   /**
    * Hash algorithm (default: 'sha1')

@@ -18,7 +18,7 @@ export type ExpectMatchers<T> = {
   toBeLessThan(expected: number): void;
   toBeLessThanOrEqual(expected: number): void;
   toBeInstanceOf(expected: new (...args: unknown[]) => unknown): void;
-  toThrow(expected?: string | RegExp | Error): void;
+  toThrow(expected?: string | RegExp | Error | (new (...args: any[]) => any)): void;
   toContain(expected: string): void;
   toBeTruthy(): void;
   not: ExpectMatchers<T>;

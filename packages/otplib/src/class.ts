@@ -6,17 +6,23 @@
 
 import { generateSecret as generateSecretCore } from "@otplib/core";
 
-import { defaultCrypto, defaultBase32 } from "./defaults";
+import { defaultCrypto, defaultBase32 } from "./defaults.js";
 import {
   generate as functionalGenerate,
   generateSync as functionalGenerateSync,
   verify as functionalVerify,
   verifySync as functionalVerifySync,
   generateURI as functionalGenerateURI,
-} from "./functional";
+} from "./functional.js";
 
-import type { OTPStrategy } from "./functional";
-import type { CryptoPlugin, Digits, HashAlgorithm, Base32Plugin } from "@otplib/core";
+import type { OTPStrategy } from "./functional.js";
+import type {
+  CryptoPlugin,
+  Digits,
+  HashAlgorithm,
+  Base32Plugin,
+  OTPGuardrails,
+} from "@otplib/core";
 import type { VerifyResult as HOTPVerifyResult } from "@otplib/hotp";
 import type { VerifyResult as TOTPVerifyResult } from "@otplib/totp";
 
@@ -89,6 +95,11 @@ export type OTPGenerateOptions = {
    * Used by HOTP strategy (required)
    */
   counter?: number;
+
+  /**
+   * Validation guardrails
+   */
+  guardrails?: OTPGuardrails;
 };
 
 /**
@@ -153,6 +164,11 @@ export type OTPVerifyOptions = {
    * - Array: asymmetric window
    */
   counterTolerance?: number | number[];
+
+  /**
+   * Validation guardrails
+   */
+  guardrails?: OTPGuardrails;
 };
 
 /**

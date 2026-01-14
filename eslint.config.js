@@ -46,6 +46,7 @@ export default [
       "apps/**/vitest.config.ts",
       "**/*.test.ts",
       "**/*.spec.ts",
+      "**/*-test.ts",
       "**/.vitepress/**",
     ],
     plugins: {

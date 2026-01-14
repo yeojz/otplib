@@ -22,7 +22,7 @@ import {
   requireCryptoPlugin,
 } from "@otplib/core";
 
-import type { HOTPGenerateOptions, HOTPVerifyOptions, VerifyResult } from "./types";
+import type { HOTPGenerateOptions, HOTPVerifyOptions, VerifyResult } from "./types.js";
 import type { CryptoContext } from "@otplib/core";
 import type { Digits, HashAlgorithm, CryptoPlugin } from "@otplib/core";
 
@@ -199,6 +199,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
       algorithm,
       digits,
       crypto,
+      guardrails,
     }),
   };
 }
@@ -324,9 +325,9 @@ export type {
   VerifyResult,
   VerifyResultValid,
   VerifyResultInvalid,
-} from "./types";
+} from "./types.js";
 
-export { HOTP } from "./class";
+export { HOTP } from "./class.js";
 
 // Result wrapping utilities for users who want safe variants
 export { wrapResult, wrapResultAsync } from "@otplib/core";

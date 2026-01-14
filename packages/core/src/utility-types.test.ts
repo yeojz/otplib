@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { BASE_SECRET_BASE32 } from "@repo/testing";
-import { hasPlugins, hasCrypto, hasBase32 } from "./utility-types";
-import type { CryptoPlugin, Base32Plugin } from "./types";
-import { stringToBytes } from "./utils";
+import { hasPlugins, hasCrypto, hasBase32 } from "./utility-types.js";
+import type { CryptoPlugin, Base32Plugin } from "./types.js";
+import { stringToBytes } from "./utils.js";
 
 // Mock crypto plugin for testing
 const mockCryptoPlugin: CryptoPlugin = {

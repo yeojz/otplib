@@ -10,9 +10,9 @@ import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { generateHOTP as generateHOTPURI } from "@otplib/uri";
 
-import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types";
+import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
-import type { HOTPOptions, SecretKey, ResolvedHOTPOptions } from "./types";
+import type { HOTPOptions, SecretKey, ResolvedHOTPOptions } from "./types.js";
 import type { Digits } from "@otplib/core";
 
 const defaultCrypto = new NobleCryptoPlugin();

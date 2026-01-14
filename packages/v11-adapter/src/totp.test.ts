@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { TOTP, HashAlgorithms, type TOTPOptions } from "./index";
+import { TOTP, HashAlgorithms, type TOTPOptions } from "./index.js";
 import { RFC6238_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
 import { CryptoPlugin } from "@otplib/core";
 

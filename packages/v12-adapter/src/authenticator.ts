@@ -10,8 +10,8 @@ import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { generateSync as totpGenerateSync, verifySync as totpVerifySync } from "@otplib/totp";
 
-import { TOTP } from "./totp";
-import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types";
+import { TOTP } from "./totp.js";
+import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
 import type {
   AuthenticatorOptions,
@@ -19,7 +19,7 @@ import type {
   SecretKey,
   KeyEncodings,
   ResolvedAuthenticatorOptions,
-} from "./types";
+} from "./types.js";
 import type { Digits } from "@otplib/core";
 
 /**

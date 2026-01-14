@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { base32 } from "@scure/base";
-import { ScureBase32Plugin } from "./index";
+import { ScureBase32Plugin } from "./index.js";
 
 describe("ScureBase32Plugin", () => {
   const plugin = new ScureBase32Plugin();

@@ -5,10 +5,16 @@
  * by injecting the test framework (describe, it, expect) and crypto plugin.
  */
 
-import { stringToBytes } from "@otplib/core";
+import {
+  stringToBytes,
+  createGuardrails,
+  SecretTooLongError,
+  CounterOverflowError,
+  CounterToleranceTooLargeError,
+} from "@otplib/core";
 import { RFC4226_VECTORS, BASE_SECRET } from "@repo/testing";
 
-import { generate, generateSync, verify, verifySync } from "./index";
+import { generate, generateSync, verify, verifySync } from "./index.ts";
 
 import type { CryptoPlugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
@@ -737,6 +743,212 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
           if (result.valid) {
             expect(result.delta).toBe(3);
           }
+        });
+      });
+    });
+
+    describe("guardrails parameter pass-through", () => {
+      describe("generate", () => {
+        it("should respect custom guardrails for secret validation", async () => {
+          const restrictiveGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 8,
+            MAX_SECRET_BYTES: 10,
+          });
+
+          const longSecret = new Uint8Array(20);
+
+          await expect(
+            generate({
+              secret: longSecret,
+              counter: 0,
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).rejects.toThrow(SecretTooLongError);
+        });
+
+        it("should respect custom guardrails for counter validation", async () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_COUNTER: 100,
+          });
+
+          await expect(
+            generate({
+              secret,
+              counter: 101,
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).rejects.toThrow(CounterOverflowError);
+        });
+
+        it("should allow values that pass custom guardrails but would fail defaults", async () => {
+          const lenientGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 1,
+          });
+
+          const shortSecret = new Uint8Array(5);
+
+          const result = await generate({
+            secret: shortSecret,
+            counter: 0,
+            crypto,
+            guardrails: lenientGuardrails,
+          });
+
+          expect(result).toMatch(/^\d{6}$/);
+        });
+      });
+
+      describe("generateSync", () => {
+        it("should respect custom guardrails for secret validation", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 8,
+            MAX_SECRET_BYTES: 10,
+          });
+
+          const longSecret = new Uint8Array(20);
+
+          expect(() =>
+            generateSync({
+              secret: longSecret,
+              counter: 0,
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).toThrow(SecretTooLongError);
+        });
+
+        it("should respect custom guardrails for counter validation", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_COUNTER: 100,
+          });
+
+          expect(() =>
+            generateSync({
+              secret,
+              counter: 101,
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).toThrow(CounterOverflowError);
+        });
+      });
+
+      describe("verify", () => {
+        it("should respect custom guardrails for counterTolerance validation", async () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_WINDOW: 5,
+          });
+
+          const token = await generate({
+            secret,
+            counter: 0,
+            crypto,
+          });
+
+          await expect(
+            verify({
+              secret,
+              counter: 0,
+              token,
+              crypto,
+              counterTolerance: 10,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).rejects.toThrow(CounterToleranceTooLargeError);
+        });
+
+        it("should pass guardrails to nested generate calls", async () => {
+          const restrictiveGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 8,
+            MAX_SECRET_BYTES: 10,
+          });
+
+          const longSecret = new Uint8Array(20);
+
+          await expect(
+            verify({
+              secret: longSecret,
+              counter: 0,
+              token: "123456",
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).rejects.toThrow(SecretTooLongError);
+        });
+
+        it("should use custom guardrails throughout verification with tolerance", async () => {
+          const lenientGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 1,
+            MAX_WINDOW: 10,
+          });
+
+          const shortSecret = new Uint8Array(5);
+          const token = await generate({
+            secret: shortSecret,
+            counter: 5,
+            crypto,
+            guardrails: lenientGuardrails,
+          });
+
+          const result = await verify({
+            secret: shortSecret,
+            counter: 0,
+            token,
+            crypto,
+            counterTolerance: 10,
+            guardrails: lenientGuardrails,
+          });
+
+          expect(result.valid).toBe(true);
+          if (result.valid) {
+            expect(result.delta).toBe(5);
+          }
+        });
+      });
+
+      describe("verifySync", () => {
+        it("should respect custom guardrails for counterTolerance validation", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_WINDOW: 5,
+          });
+
+          const token = generateSync({
+            secret,
+            counter: 0,
+            crypto,
+          });
+
+          expect(() =>
+            verifySync({
+              secret,
+              counter: 0,
+              token,
+              crypto,
+              counterTolerance: 10,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).toThrow(CounterToleranceTooLargeError);
+        });
+
+        it("should pass guardrails to nested generateSync calls", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 8,
+            MAX_SECRET_BYTES: 10,
+          });
+
+          const longSecret = new Uint8Array(20);
+
+          expect(() =>
+            verifySync({
+              secret: longSecret,
+              counter: 0,
+              token: "123456",
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).toThrow(SecretTooLongError);
         });
       });
     });
