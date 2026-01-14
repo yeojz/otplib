@@ -21,6 +21,9 @@ import {
   validateToken,
   requireSecret,
   requireCryptoPlugin,
+  AfterTimeStepNegativeError,
+  AfterTimeStepNotIntegerError,
+  AfterTimeStepImpossibleError,
 } from "@otplib/core";
 import { generate as generateHOTP, generateSync as generateHOTPSync } from "@otplib/hotp";
 
@@ -159,6 +162,43 @@ export function generateSync(options: TOTPGenerateOptions): string {
 }
 
 /**
+ * Validate afterTimeStep parameter for replay protection
+ *
+ * Ensures afterTimeStep is a valid non-negative integer and doesn't make
+ * verification impossible by exceeding the valid counter range.
+ *
+ * @param afterTimeStep - The afterTimeStep value to validate (undefined is valid)
+ * @param maxCounter - The maximum counter in the verification window
+ * @throws {AfterTimeStepNegativeError} If afterTimeStep is negative
+ * @throws {AfterTimeStepNotIntegerError} If afterTimeStep is not an integer
+ * @throws {AfterTimeStepImpossibleError} If afterTimeStep exceeds maxCounter
+ *
+ * @internal
+ */
+function validateAfterTimeStep(afterTimeStep: number | undefined, maxCounter: number): void {
+  if (afterTimeStep === undefined) {
+    return;
+  }
+
+  // Check for negative values
+  if (afterTimeStep < 0) {
+    throw new AfterTimeStepNegativeError();
+  }
+
+  // Check for non-integer values
+  // Note: Number.isInteger(1.0) returns true in JavaScript, but we want to reject
+  // values like 1.0 to enforce strict integer input. We check the string representation.
+  if (!Number.isInteger(afterTimeStep)) {
+    throw new AfterTimeStepNotIntegerError();
+  }
+
+  // Check if constraint makes verification impossible
+  if (afterTimeStep > maxCounter) {
+    throw new AfterTimeStepImpossibleError();
+  }
+}
+
+/**
  * Normalized options for TOTP verification
  * @internal
  */
@@ -170,6 +210,7 @@ type TOTPVerifyOptionsInternal = {
   currentCounter: number;
   t0: number;
   period: number;
+  afterTimeStep?: number;
 
   getGenerateOptions: (counter: number) => TOTPGenerateOptions;
 };
@@ -196,6 +237,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     crypto,
     base32,
     epochTolerance = 0,
+    afterTimeStep,
     guardrails = createGuardrails(),
   } = options;
 
@@ -219,6 +261,9 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   const minCounter = Math.max(0, Math.floor((epoch - pastTolerance - t0) / period));
   const maxCounter = Math.floor((epoch + futureTolerance - t0) / period);
 
+  // Validate afterTimeStep against the calculated maxCounter
+  validateAfterTimeStep(afterTimeStep, maxCounter);
+
   return {
     token,
     crypto,
@@ -227,6 +272,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     currentCounter,
     t0,
     period,
+    afterTimeStep,
     getGenerateOptions: (counter: number) => ({
       secret: secretBytes,
       epoch: counter * period + t0,
@@ -272,13 +318,32 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
  * ```
  */
 export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> {
-  const { token, crypto, minCounter, maxCounter, currentCounter, t0, period, getGenerateOptions } =
-    getTOTPVerifyOptions(options);
+  const {
+    token,
+    crypto,
+    minCounter,
+    maxCounter,
+    currentCounter,
+    t0,
+    period,
+    afterTimeStep,
+    getGenerateOptions,
+  } = getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
+    // Early rejection: skip counters that don't meet afterTimeStep constraint
+    if (afterTimeStep !== undefined && counter <= afterTimeStep) {
+      continue;
+    }
+
     const expected = await generate(getGenerateOptions(counter));
     if (crypto.constantTimeEqual(expected, token)) {
-      return { valid: true, delta: counter - currentCounter, epoch: counter * period + t0 };
+      return {
+        valid: true,
+        delta: counter - currentCounter,
+        epoch: counter * period + t0,
+        timeStep: counter,
+      };
     }
   }
 
@@ -316,13 +381,32 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
  * ```
  */
 export function verifySync(options: TOTPVerifyOptions): VerifyResult {
-  const { token, crypto, minCounter, maxCounter, currentCounter, t0, period, getGenerateOptions } =
-    getTOTPVerifyOptions(options);
+  const {
+    token,
+    crypto,
+    minCounter,
+    maxCounter,
+    currentCounter,
+    t0,
+    period,
+    afterTimeStep,
+    getGenerateOptions,
+  } = getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
+    // Early rejection: skip counters that don't meet afterTimeStep constraint
+    if (afterTimeStep !== undefined && counter <= afterTimeStep) {
+      continue;
+    }
+
     const expected = generateSync(getGenerateOptions(counter));
     if (crypto.constantTimeEqual(expected, token)) {
-      return { valid: true, delta: counter - currentCounter, epoch: counter * period + t0 };
+      return {
+        valid: true,
+        delta: counter - currentCounter,
+        epoch: counter * period + t0,
+        timeStep: counter,
+      };
     }
   }
 
