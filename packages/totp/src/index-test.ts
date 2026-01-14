@@ -51,7 +51,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             period: 30,
             crypto,
           });
-          expect(result).toBe(expected);
+          expect(result.token).toBe(expected);
         });
       });
     });
@@ -67,7 +67,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             period: 30,
             crypto,
           });
-          expect(result).toBe(expected);
+          expect(result.token).toBe(expected);
         });
       });
     });
@@ -83,7 +83,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             period: 30,
             crypto,
           });
-          expect(result).toBe(expected);
+          expect(result.token).toBe(expected);
         });
       });
     });
@@ -131,7 +131,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result1).toBe(result2);
+        expect(result1.token).toBe(result2.token);
       });
 
       it("should use default epoch parameter (current time)", async () => {
@@ -142,8 +142,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(8);
-        expect(result).toMatch(/^\d{8}$/);
+        expect(result.token).toHaveLength(8);
+        expect(result.token).toMatch(/^\d{8}$/);
       });
 
       it("should use default digits parameter (6)", async () => {
@@ -154,8 +154,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(6);
-        expect(result).toMatch(/^\d{6}$/);
+        expect(result.token).toHaveLength(6);
+        expect(result.token).toMatch(/^\d{6}$/);
       });
 
       it("should generate different codes for different times", async () => {
@@ -175,7 +175,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result1).not.toBe(result2);
+        expect(result1.token).not.toBe(result2.token);
       });
 
       it("should generate 6-digit codes", async () => {
@@ -187,8 +187,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(6);
-        expect(result).toMatch(/^\d{6}$/);
+        expect(result.token).toHaveLength(6);
+        expect(result.token).toMatch(/^\d{6}$/);
       });
 
       it("should generate 7-digit codes", async () => {
@@ -200,8 +200,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(7);
-        expect(result).toMatch(/^\d{7}$/);
+        expect(result.token).toHaveLength(7);
+        expect(result.token).toMatch(/^\d{7}$/);
       });
 
       it("should generate 8-digit codes", async () => {
@@ -213,8 +213,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(8);
-        expect(result).toMatch(/^\d{8}$/);
+        expect(result.token).toHaveLength(8);
+        expect(result.token).toMatch(/^\d{8}$/);
       });
 
       it("should support SHA256", async () => {
@@ -226,8 +226,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(8);
-        expect(result).toMatch(/^\d{8}$/);
+        expect(result.token).toHaveLength(8);
+        expect(result.token).toMatch(/^\d{8}$/);
       });
 
       it("should support SHA512", async () => {
@@ -239,8 +239,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(8);
-        expect(result).toMatch(/^\d{8}$/);
+        expect(result.token).toHaveLength(8);
+        expect(result.token).toMatch(/^\d{8}$/);
       });
 
       it("should support different time periods", async () => {
@@ -264,7 +264,59 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           crypto,
         });
 
-        expect(result1).toBe(result2);
+        expect(result1.token).toBe(result2.token);
+      });
+
+      it("should return token and timeStep for standardization", async () => {
+        const epoch = 1234567890;
+        const period = 30;
+        const t0 = 0;
+        const expectedTimeStep = Math.floor((epoch - t0) / period);
+
+        const result = await generate({
+          secret,
+          epoch,
+          algorithm: "sha1",
+          digits: 8,
+          period,
+          crypto,
+        });
+
+        // Result should be an object with token and timeStep properties
+        expect(typeof result.token).toBe("string");
+        expect(typeof result.timeStep).toBe("number");
+        expect(result.timeStep).toBe(expectedTimeStep);
+      });
+
+      it("should calculate correct timeStep for different epochs", async () => {
+        const period = 30;
+
+        // Epoch 59 should give timeStep 1
+        const result1 = await generate({
+          secret,
+          epoch: 59,
+          period,
+          crypto,
+        });
+        expect(result1.timeStep).toBe(1);
+
+        // Epoch 30 should also give timeStep 1
+        const result2 = await generate({
+          secret,
+          epoch: 30,
+          period,
+          crypto,
+        });
+        expect(result2.timeStep).toBe(1);
+
+        // Epoch 60 should give timeStep 2
+        const result3 = await generate({
+          secret,
+          epoch: 60,
+          period,
+          crypto,
+        });
+        expect(result3.timeStep).toBe(2);
       });
     });
 
@@ -272,7 +324,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
       it("should verify valid TOTP code", async () => {
         const epoch = 59;
 
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch,
           algorithm: "sha1",
@@ -297,7 +349,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         // Use fixed epoch for deterministic test
         const epoch = 59;
 
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch,
           period: 30,
@@ -317,7 +369,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should use default epoch parameter (current time) in verify", async () => {
         // Generate token using current time (default epoch)
-        const token = await generate({
+        const { token } = await generate({
           secret,
           period: 30,
           crypto,
@@ -349,7 +401,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should verify with window - past", async () => {
         // Generate token for previous period (time 59)
-        const tokenPast = await generate({
+        const { token: tokenPast } = await generate({
           secret,
           epoch: 59,
           algorithm: "sha1",
@@ -376,7 +428,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const epoch = 59;
 
         // Generate token for current period
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch,
           algorithm: "sha1",
@@ -400,7 +452,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should handle bidirectional window", async () => {
         // Generate token for counter 1 (time 30-59)
-        const tokenPast = await generate({
+        const { token: tokenPast } = await generate({
           secret,
           epoch: 59,
           algorithm: "sha1",
@@ -410,7 +462,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
 
         // Generate token for counter 3 (time 90-119)
-        const tokenFuture = await generate({
+        const { token: tokenFuture } = await generate({
           secret,
           epoch: 90,
           algorithm: "sha1",
@@ -448,7 +500,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should support larger windows", async () => {
         // Generate token for 2 periods ago
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch: 60,
           digits: 8,
@@ -470,7 +522,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should reject when token is outside window", async () => {
         // Generate token for far in the past
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch: 30,
           digits: 8,
@@ -579,8 +631,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(6);
-        expect(result).toMatch(/^\d{6}$/);
+        expect(result.token).toHaveLength(6);
+        expect(result.token).toMatch(/^\d{6}$/);
       });
 
       it("should handle very large time values", async () => {
@@ -592,8 +644,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           crypto,
         });
-        expect(result).toHaveLength(8);
-        expect(result).toMatch(/^\d{8}$/);
+        expect(result.token).toHaveLength(8);
+        expect(result.token).toMatch(/^\d{8}$/);
       });
 
       it("should handle minimum period (1 second)", async () => {
@@ -605,8 +657,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 1,
           crypto,
         });
-        expect(result).toHaveLength(6);
-        expect(result).toMatch(/^\d{6}$/);
+        expect(result.token).toHaveLength(6);
+        expect(result.token).toMatch(/^\d{6}$/);
 
         // Verify different seconds produce different codes
         const result2 = await generate({
@@ -629,8 +681,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 3600,
           crypto,
         });
-        expect(result).toHaveLength(6);
-        expect(result).toMatch(/^\d{6}$/);
+        expect(result.token).toHaveLength(6);
+        expect(result.token).toMatch(/^\d{6}$/);
 
         // Same code for entire hour
         const result2 = await generate({
@@ -641,12 +693,13 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 3600,
           crypto,
         });
-        expect(result).toBe(result2);
+        expect(result.token).toBe(result2.token);
+        expect(result.timeStep).toBe(result2.timeStep);
       });
 
       it("should handle time exactly at period boundary", async () => {
         // Time exactly at boundary (30 seconds)
-        const atBoundary = await generate({
+        const { token: atBoundary } = await generate({
           secret,
           epoch: 30,
           algorithm: "sha1",
@@ -656,7 +709,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
 
         // Time just before boundary (29 seconds)
-        const beforeBoundary = await generate({
+        const { token: beforeBoundary } = await generate({
           secret,
           epoch: 29,
           algorithm: "sha1",
@@ -666,7 +719,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
 
         // Time just after boundary (31 seconds)
-        const afterBoundary = await generate({
+        const { token: afterBoundary } = await generate({
           secret,
           epoch: 31,
           algorithm: "sha1",
@@ -683,7 +736,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should verify token at period boundary with window", async () => {
         // Generate token for time step 0 (0-29 seconds)
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch: 29,
           algorithm: "sha1",
@@ -714,7 +767,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         // At epoch 10 with period 30, counter is 0
         // With window 1, offsets are [-1, 0, 1]
         // Offset -1 would give counter -1, which should be skipped
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch: 10,
           algorithm: "sha1",
@@ -742,7 +795,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should handle t0 offset correctly", async () => {
         // With t0=10, time 40 should be in the same step as time 30 with t0=0
-        const withT0 = await generate({
+        const { token: withT0 } = await generate({
           secret,
           epoch: 40,
           t0: 10,
@@ -752,7 +805,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           crypto,
         });
 
-        const withoutT0 = await generate({
+        const { token: withoutT0 } = await generate({
           secret,
           epoch: 30,
           t0: 0,
@@ -789,7 +842,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           crypto,
         });
 
-        expect(result1).toBe(result2);
+        expect(result1.token).toBe(result2.token);
+        expect(result1.timeStep).toBe(result2.timeStep);
       });
 
       it("should handle large t0 values", async () => {
@@ -816,14 +870,15 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           crypto,
         });
 
-        expect(result).toBe(expected);
+        expect(result.token).toBe(expected.token);
+        expect(result.timeStep).toBe(expected.timeStep);
       });
 
       it("should verify tokens correctly with t0 offset", async () => {
         const t0 = 100;
         const epoch = 160; // counter = floor((160-100)/30) = 2
 
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch,
           t0,
@@ -851,7 +906,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
       it("should handle t0 at period boundary", async () => {
         // t0 = 30 (exactly one period)
         // epoch = 60, counter = floor((60-30)/30) = 1
-        const withT0 = await generate({
+        const { token: withT0 } = await generate({
           secret,
           epoch: 60,
           t0: 30,
@@ -861,7 +916,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
 
         // Should equal counter 1 with t0=0
-        const withoutT0 = await generate({
+        const { token: withoutT0 } = await generate({
           secret,
           epoch: 30, // counter = floor(30/30) = 1
           t0: 0,
@@ -897,7 +952,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         // counter1 = floor(100/30) = 3
         // counter2 = floor((100-10)/30) = floor(90/30) = 3
         // Both have counter 3, so they should be equal
-        expect(result1).toBe(result2);
+        expect(result1.token).toBe(result2.token);
+        expect(result1.timeStep).toBe(result2.timeStep);
 
         // But with t0=40, counter = floor((100-40)/30) = 2
         const result3 = await generate({
@@ -940,7 +996,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const period = 30;
 
         // Generate token at counter 2 (epoch = 100 + 60 = 160, counter = floor(60/30) = 2)
-        const tokenCounter2 = await generate({
+        const { token: tokenCounter2 } = await generate({
           secret,
           epoch: 160,
           t0,
@@ -990,7 +1046,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           crypto,
         });
 
-        expect(result).toBe(expected);
+        expect(result.token).toBe(expected.token);
+        expect(result.timeStep).toBe(expected.timeStep);
       });
 
       it("should reject epoch less than t0 (negative counter)", async () => {
@@ -1017,7 +1074,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
     describe("tolerance option (time-based verification)", () => {
       it("should accept current period token with epochTolerance: 0", async () => {
         const epoch = 1000; // Middle of a period
-        const token = await generate({ secret, epoch, period: 30, digits: 6, crypto });
+        const { token } = await generate({ secret, epoch, period: 30, digits: 6, crypto });
 
         const result = await verify({
           secret,
@@ -1038,7 +1095,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
       it("should reject previous period token with epochTolerance: 0", async () => {
         const epoch = 1000;
         const previousPeriodEpoch = epoch - 30; // Previous period
-        const token = await generate({
+        const { token } = await generate({
           secret,
           epoch: previousPeriodEpoch,
           period: 30,
@@ -1065,7 +1122,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const currentPeriodStart = 990; // Period starts at 990
         const epoch = currentPeriodStart + 3; // 3 seconds into period
 
-        const previousToken = await generate({
+        const { token: previousToken } = await generate({
           secret,
           epoch: currentPeriodStart - period, // Previous period
           period,
@@ -1095,7 +1152,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const currentPeriodStart = 990;
         const epoch = currentPeriodStart + 10; // 10 seconds into period
 
-        const previousToken = await generate({
+        const { token: previousToken } = await generate({
           secret,
           epoch: currentPeriodStart - period,
           period,
@@ -1122,7 +1179,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const currentPeriodStart = 990;
         const epoch = currentPeriodStart + 27; // 27 seconds into period (3 before end)
 
-        const nextToken = await generate({
+        const { token: nextToken } = await generate({
           secret,
           epoch: currentPeriodStart + period, // Next period
           period,
@@ -1152,7 +1209,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const currentPeriodStart = 990;
         const epoch = currentPeriodStart + 20; // 20 seconds into period
 
-        const nextToken = await generate({
+        const { token: nextToken } = await generate({
           secret,
           epoch: currentPeriodStart + period,
           period,
@@ -1183,7 +1240,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const period = 30;
         const epoch = 24;
 
-        const tokenTime30 = await generate({
+        const { token: tokenTime30 } = await generate({
           secret,
           epoch: 30, // 6 seconds in the future (next period)
           period,
@@ -1210,7 +1267,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const period = 30;
         const epoch = 25; // 5 seconds before period boundary at 30
 
-        const tokenTime30 = await generate({
+        const { token: tokenTime30 } = await generate({
           secret,
           epoch: 30, // Exactly 5 seconds in the future
           period,
@@ -1244,7 +1301,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
         // Token from Time 29 is C0.
         // Diff is 6s (35 - 29).
-        const tokenTime29 = await generate({
+        const { token: tokenTime29 } = await generate({
           secret,
           epoch: 29,
           period,
@@ -1272,7 +1329,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const currentPeriodStart = 30;
         const epoch = currentPeriodStart + 5; // 35
 
-        const tokenTime30 = await generate({
+        const { token: tokenTime30 } = await generate({
           secret,
           epoch: 30, // Exactly 5 seconds in the past
           period,
@@ -1301,15 +1358,21 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const epoch = 1000;
 
         // With tolerance = 30 (full period), should accept current and adjacent periods
-        const currentToken = await generate({ secret, epoch, period, digits: 6, crypto });
-        const previousToken = await generate({
+        const { token: currentToken } = await generate({
+          secret,
+          epoch,
+          period,
+          digits: 6,
+          crypto,
+        });
+        const { token: previousToken } = await generate({
           secret,
           epoch: epoch - period,
           period,
           digits: 6,
           crypto,
         });
-        const nextToken = await generate({
+        const { token: nextToken } = await generate({
           secret,
           epoch: epoch + period,
           period,
@@ -1353,7 +1416,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should throw error for negative tolerance", async () => {
         const epoch = 1000;
-        const token = await generate({ secret, epoch, period: 30, digits: 6, crypto });
+        const { token } = await generate({ secret, epoch, period: 30, digits: 6, crypto });
 
         await expect(
           verify({
@@ -1370,7 +1433,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
       it("should throw error for negative tolerance in tuple", async () => {
         const epoch = 1000;
-        const token = await generate({ secret, epoch, period: 30, digits: 6, crypto });
+        const { token } = await generate({ secret, epoch, period: 30, digits: 6, crypto });
 
         await expect(
           verify({
@@ -1390,7 +1453,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const currentPeriodStart = 990;
         const epoch = currentPeriodStart + 3; // 3 seconds into current period
 
-        const previousToken = await generate({
+        const { token: previousToken } = await generate({
           secret,
           epoch: currentPeriodStart - period,
           period,
@@ -1398,7 +1461,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           crypto,
         });
 
-        const nextToken = await generate({
+        const { token: nextToken } = await generate({
           secret,
           epoch: currentPeriodStart + period,
           period,
@@ -1436,7 +1499,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const currentPeriodStart = 990;
         const epoch = currentPeriodStart + 27; // 27 seconds into current period (3 sec from end)
 
-        const previousToken = await generate({
+        const { token: previousToken } = await generate({
           secret,
           epoch: currentPeriodStart - period,
           period,
@@ -1444,7 +1507,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           crypto,
         });
 
-        const nextToken = await generate({
+        const { token: nextToken } = await generate({
           secret,
           epoch: currentPeriodStart + period,
           period,
@@ -1488,7 +1551,13 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const period = 30;
         const currentPeriodStart = 30;
         const epoch = currentPeriodStart + 5; // 35
-        const tokenTime29 = await generate({ secret, epoch: 29, period, digits: 6, crypto });
+        const { token: tokenTime29 } = await generate({
+          secret,
+          epoch: 29,
+          period,
+          digits: 6,
+          crypto,
+        });
 
         const result = await verify({
           secret,
@@ -1514,7 +1583,13 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const period = 30;
         const epoch = 25; // 5s before end of C0
 
-        const tokenTime30 = await generate({ secret, epoch: 30, period, digits: 6, crypto });
+        const { token: tokenTime30 } = await generate({
+          secret,
+          epoch: 30,
+          period,
+          digits: 6,
+          crypto,
+        });
 
         const result = await verify({
           secret,
@@ -1535,7 +1610,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const epoch = 130 + 3; // 3 seconds into period starting at 130 (counter 1)
 
         // Previous period (counter 0) starts at t0=100, ends at 130
-        const previousToken = await generate({
+        const { token: previousToken } = await generate({
           secret,
           epoch: t0, // Previous period start (counter 0)
           t0,
@@ -1567,7 +1642,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const currentPeriodStart = 990;
 
         // Generate token from previous period
-        const previousToken = await generate({
+        const { token: previousToken } = await generate({
           secret,
           epoch: currentPeriodStart - period,
           period,
@@ -1626,7 +1701,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         const tolerance = 5;
 
         // Token from epoch 59: 1 second before server (should accept)
-        const token59 = await generate({
+        const { token: token59 } = await generate({
           secret,
           epoch: 59,
           period,
@@ -1635,7 +1710,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
 
         // Token from epoch 54: 6 seconds before server (outside 5s tolerance, but same counter!)
-        const token54 = await generate({
+        const { token: token54 } = await generate({
           secret,
           epoch: 54,
           period,
@@ -1701,7 +1776,8 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             period: 30,
             crypto,
           });
-          expect(syncResult).toBe(asyncResult);
+          expect(syncResult.token).toBe(asyncResult.token);
+          expect(syncResult.timeStep).toBe(asyncResult.timeStep);
         });
 
         RFC6238_VECTORS.sha1.vectors.forEach(({ epoch, expected }) => {
@@ -1714,7 +1790,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
               period: 30,
               crypto,
             });
-            expect(result).toBe(expected);
+            expect(result.token).toBe(expected);
           });
         });
 
@@ -1722,16 +1798,16 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           const result6 = generateSync({ secret, epoch: 59, digits: 6, period: 30, crypto });
           const result7 = generateSync({ secret, epoch: 59, digits: 7, period: 30, crypto });
           const result8 = generateSync({ secret, epoch: 59, digits: 8, period: 30, crypto });
-          expect(result6).toHaveLength(6);
-          expect(result7).toHaveLength(7);
-          expect(result8).toHaveLength(8);
+          expect(result6.token).toHaveLength(6);
+          expect(result7.token).toHaveLength(7);
+          expect(result8.token).toHaveLength(8);
         });
       });
 
       describe("verifySync", () => {
         it("should verify valid code synchronously", () => {
           const epoch = 59;
-          const token = generateSync({
+          const { token } = generateSync({
             secret,
             epoch,
             algorithm: "sha1",
@@ -1768,7 +1844,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
 
         it("should respect epochTolerance", () => {
-          const tokenPast = generateSync({
+          const { token: tokenPast } = generateSync({
             secret,
             epoch: 59,
             algorithm: "sha1",

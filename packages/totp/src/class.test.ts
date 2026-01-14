@@ -23,11 +23,12 @@ describe("TOTP Class", () => {
       base32,
     });
 
-    const token = await totp.generate();
+    const result = await totp.generate();
 
-    expect(token).toBeTruthy();
-    expect(typeof token).toBe("string");
-    expect(token.length).toBe(6);
+    expect(result.token).toBeTruthy();
+    expect(typeof result.token).toBe("string");
+    expect(result.token.length).toBe(6);
+    expect(typeof result.timeStep).toBe("number");
   });
 
   it("should generate a URI", () => {
@@ -55,9 +56,9 @@ describe("TOTP Class", () => {
       base32,
     });
 
-    const token = await totp.generate({ digits: 8 });
+    const result = await totp.generate({ digits: 8 });
 
-    expect(token.length).toBe(8);
+    expect(result.token.length).toBe(8);
   });
 
   it("should allow options override in verify", async () => {
@@ -67,7 +68,7 @@ describe("TOTP Class", () => {
       base32,
     });
 
-    const token = await totp.generate();
+    const { token } = await totp.generate();
     const result = await totp.verify(token, { epochTolerance: 30 });
 
     expect(result.valid).toBe(true);
@@ -92,7 +93,7 @@ describe("TOTP Class", () => {
     });
 
     // Should use instance's secret and crypto, override digits
-    const token = await totp.generate({ digits: 8 });
-    expect(token.length).toBe(8);
+    const result = await totp.generate({ digits: 8 });
+    expect(result.token.length).toBe(8);
   });
 });

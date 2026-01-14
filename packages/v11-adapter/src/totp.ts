@@ -72,7 +72,7 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
     const opts = this.allOptions();
     const secretBytes = secretToBytes(secret, opts.encoding);
 
-    return totpGenerateSync({
+    const result = totpGenerateSync({
       secret: secretBytes,
       algorithm: opts.algorithm,
       digits: opts.digits as Digits,
@@ -81,6 +81,7 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
       t0: 0,
       crypto: opts.crypto,
     });
+    return result.token;
   }
 
   check(token: string, secret: SecretKey): boolean {

@@ -215,14 +215,17 @@ export async function generate(options: OTPGenerateOptions): Promise<string> {
   const commonOptions = { secret, crypto, base32, algorithm, digits };
 
   return executeByStrategy(opts.strategy, opts.counter, {
-    totp: () =>
-      generateTOTP({
+    totp: async () => {
+      const result = await generateTOTP({
         ...commonOptions,
         period: opts.period,
         epoch: opts.epoch,
         t0: opts.t0,
         guardrails: opts.guardrails,
-      }),
+      });
+      // Extract token from GenerateResult
+      return result.token;
+    },
     hotp: (counter) =>
       generateHOTP({
         ...commonOptions,
@@ -257,14 +260,17 @@ export function generateSync(options: OTPGenerateOptions): string {
   const commonOptions = { secret, crypto, base32, algorithm, digits };
 
   return executeByStrategy(opts.strategy, opts.counter, {
-    totp: () =>
-      generateTOTPSync({
+    totp: () => {
+      const result = generateTOTPSync({
         ...commonOptions,
         period: opts.period,
         epoch: opts.epoch,
         t0: opts.t0,
         guardrails: opts.guardrails,
-      }),
+      });
+      // Extract token from GenerateResult
+      return result.token;
+    },
     hotp: (counter) =>
       generateHOTPSync({
         ...commonOptions,
