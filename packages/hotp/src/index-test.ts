@@ -14,7 +14,7 @@ import {
 } from "@otplib/core";
 import { RFC4226_VECTORS, BASE_SECRET } from "@repo/testing";
 
-import { generate, generateSync, verify, verifySync } from "./index";
+import { generate, generateSync, verify, verifySync } from "./index.ts";
 
 import type { CryptoPlugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";

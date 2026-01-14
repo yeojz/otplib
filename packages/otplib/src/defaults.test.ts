@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { defaultCrypto, defaultBase32 } from "./defaults";
+import { defaultCrypto, defaultBase32 } from "./defaults.js";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 

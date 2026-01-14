@@ -3,7 +3,7 @@ export type {
   TOTPOptions,
   OTPGenerateOptions as OTPFunctionalOptions,
   OTPVerifyOptions as OTPVerifyFunctionalOptions,
-} from "./types";
+} from "./types.js";
 
 export {
   generateSecret,
@@ -13,7 +13,7 @@ export {
   verify,
   verifySync,
   type OTPStrategy,
-} from "./functional";
+} from "./functional.js";
 
 export {
   OTP,
@@ -21,9 +21,16 @@ export {
   type OTPGenerateOptions,
   type OTPVerifyOptions,
   type OTPURIGenerateOptions,
-} from "./class";
+} from "./class.js";
 
-export type { Base32Plugin, CryptoPlugin, HashAlgorithm, OTPResult } from "@otplib/core";
+export type {
+  Base32Plugin,
+  CryptoPlugin,
+  HashAlgorithm,
+  OTPResult,
+  OTPGuardrails,
+} from "@otplib/core";
+export { createGuardrails } from "@otplib/core";
 export type { VerifyResult } from "@otplib/totp";
 
 export { HOTP } from "@otplib/hotp";

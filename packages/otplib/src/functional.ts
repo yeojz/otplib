@@ -216,11 +216,13 @@ export async function generate(options: OTPGenerateOptions): Promise<string> {
         period: opts.period,
         epoch: opts.epoch,
         t0: opts.t0,
+        guardrails: opts.guardrails,
       }),
     hotp: (counter) =>
       generateHOTP({
         ...commonOptions,
         counter,
+        guardrails: opts.guardrails,
       }),
   });
 }
@@ -256,11 +258,13 @@ export function generateSync(options: OTPGenerateOptions): string {
         period: opts.period,
         epoch: opts.epoch,
         t0: opts.t0,
+        guardrails: opts.guardrails,
       }),
     hotp: (counter) =>
       generateHOTPSync({
         ...commonOptions,
         counter,
+        guardrails: opts.guardrails,
       }),
   });
 }
@@ -325,12 +329,14 @@ export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
         epoch: opts.epoch,
         t0: opts.t0,
         epochTolerance: opts.epochTolerance,
+        guardrails: opts.guardrails,
       }),
     hotp: (counter) =>
       verifyHOTP({
         ...commonOptions,
         counter,
         counterTolerance: opts.counterTolerance,
+        guardrails: opts.guardrails,
       }),
   });
 }
@@ -368,12 +374,14 @@ export function verifySync(options: OTPVerifyOptions): VerifyResult {
         epoch: opts.epoch,
         t0: opts.t0,
         epochTolerance: opts.epochTolerance,
+        guardrails: opts.guardrails,
       }),
     hotp: (counter) =>
       verifyHOTPSync({
         ...commonOptions,
         counter,
         counterTolerance: opts.counterTolerance,
+        guardrails: opts.guardrails,
       }),
   });
 }

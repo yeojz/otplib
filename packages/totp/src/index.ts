@@ -24,7 +24,7 @@ import {
 } from "@otplib/core";
 import { generate as generateHOTP, generateSync as generateHOTPSync } from "@otplib/hotp";
 
-import type { TOTPGenerateOptions, TOTPVerifyOptions, VerifyResult } from "./types";
+import type { TOTPGenerateOptions, TOTPVerifyOptions, VerifyResult } from "./types.js";
 import type { CryptoPlugin, Digits, HashAlgorithm, OTPGuardrails } from "@otplib/core";
 
 /**

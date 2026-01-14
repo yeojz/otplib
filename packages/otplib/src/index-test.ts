@@ -8,7 +8,7 @@
 // Import actual function signatures using typeof
 import { TOTP } from "@otplib/totp";
 
-import { OTP } from "./class";
+import { OTP } from "./class.ts";
 import {
   generateSecret,
   generateURI,
@@ -16,7 +16,7 @@ import {
   generateSync,
   verify,
   verifySync,
-} from "./functional";
+} from "./functional.ts";
 
 import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";

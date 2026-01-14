@@ -22,7 +22,7 @@ import {
   verifySync,
   getRemainingTime,
   getTimeStepUsed,
-} from "./index";
+} from "./index.ts";
 
 import type { CryptoPlugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";

@@ -4,6 +4,7 @@
  * Shared across functional and class APIs to ensure singleton behavior
  * and reduce memory overhead.
  */
+import { createGuardrails } from "@otplib/core";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 
@@ -44,6 +45,7 @@ export function normalizeGenerateOptions(
     epoch: options.epoch ?? Math.floor(Date.now() / 1000),
     t0: options.t0 ?? 0,
     counter: options.counter,
+    guardrails: options.guardrails ?? createGuardrails(),
   };
 }
 
