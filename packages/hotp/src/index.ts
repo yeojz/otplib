@@ -199,6 +199,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
       algorithm,
       digits,
       crypto,
+      guardrails,
     }),
   };
 }

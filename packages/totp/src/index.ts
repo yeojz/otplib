@@ -37,6 +37,7 @@ type TOTPGenerateOptionsInternal = {
   algorithm: HashAlgorithm;
   digits: Digits;
   crypto: CryptoPlugin;
+  guardrails: OTPGuardrails;
 };
 
 /**
@@ -78,6 +79,7 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     algorithm,
     digits,
     crypto,
+    guardrails,
   };
 }
 
@@ -233,6 +235,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
       algorithm,
       digits,
       crypto,
+      guardrails,
     }),
   };
 }

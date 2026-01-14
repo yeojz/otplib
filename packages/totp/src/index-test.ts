@@ -5,7 +5,14 @@
  * by injecting the test framework (describe, it, expect) and crypto plugin.
  */
 
-import { stringToBytes } from "@otplib/core";
+import {
+  stringToBytes,
+  createGuardrails,
+  SecretTooLongError,
+  SecretTooShortError,
+  PeriodTooLargeError,
+  EpochToleranceTooLargeError,
+} from "@otplib/core";
 import { RFC6238_VECTORS, BASE_SECRET, hexToNumber } from "@repo/testing";
 
 import {
@@ -1780,6 +1787,352 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             epochTolerance: 30,
           });
           expect(result.valid).toBe(true);
+        });
+      });
+    });
+
+    describe("guardrails parameter pass-through", () => {
+      describe("generate", () => {
+        it("should respect custom guardrails for secret validation", async () => {
+          const restrictiveGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 8,
+            MAX_SECRET_BYTES: 10,
+          });
+
+          const longSecret = new Uint8Array(20);
+
+          await expect(
+            generate({
+              secret: longSecret,
+              epoch: 59,
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).rejects.toThrow(SecretTooLongError);
+        });
+
+        it("should respect custom guardrails for period validation", async () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_PERIOD: 60,
+          });
+
+          await expect(
+            generate({
+              secret,
+              epoch: 59,
+              period: 120,
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).rejects.toThrow(PeriodTooLargeError);
+        });
+
+        it("should pass guardrails to underlying HOTP generation", async () => {
+          const lenientGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 1,
+          });
+
+          const shortSecret = new Uint8Array(5);
+
+          const result = await generate({
+            secret: shortSecret,
+            epoch: 59,
+            crypto,
+            guardrails: lenientGuardrails,
+          });
+
+          expect(result).toMatch(/^\d{6}$/);
+        });
+
+        it("should fail if guardrails not passed to HOTP (would use defaults)", async () => {
+          const lenientGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 1,
+          });
+
+          const shortSecret = new Uint8Array(5);
+
+          const resultWithGuardrails = await generate({
+            secret: shortSecret,
+            epoch: 59,
+            crypto,
+            guardrails: lenientGuardrails,
+          });
+
+          expect(resultWithGuardrails).toMatch(/^\d{6}$/);
+
+          await expect(
+            generate({
+              secret: shortSecret,
+              epoch: 59,
+              crypto,
+            }),
+          ).rejects.toThrow(SecretTooShortError);
+        });
+      });
+
+      describe("generateSync", () => {
+        it("should respect custom guardrails for secret validation", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 8,
+            MAX_SECRET_BYTES: 10,
+          });
+
+          const longSecret = new Uint8Array(20);
+
+          expect(() =>
+            generateSync({
+              secret: longSecret,
+              epoch: 59,
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).toThrow(SecretTooLongError);
+        });
+
+        it("should respect custom guardrails for period validation", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_PERIOD: 60,
+          });
+
+          expect(() =>
+            generateSync({
+              secret,
+              epoch: 59,
+              period: 120,
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).toThrow(PeriodTooLargeError);
+        });
+
+        it("should pass guardrails to underlying HOTP generation", () => {
+          const lenientGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 1,
+          });
+
+          const shortSecret = new Uint8Array(5);
+
+          const result = generateSync({
+            secret: shortSecret,
+            epoch: 59,
+            crypto,
+            guardrails: lenientGuardrails,
+          });
+
+          expect(result).toMatch(/^\d{6}$/);
+        });
+      });
+
+      describe("verify", () => {
+        it("should respect custom guardrails for epochTolerance validation", async () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_WINDOW: 5,
+          });
+
+          const token = await generate({
+            secret,
+            epoch: 59,
+            crypto,
+          });
+
+          await expect(
+            verify({
+              secret,
+              epoch: 59,
+              token,
+              period: 30,
+              crypto,
+              epochTolerance: 300,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).rejects.toThrow(EpochToleranceTooLargeError);
+        });
+
+        it("should pass guardrails to nested generate calls", async () => {
+          const restrictiveGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 8,
+            MAX_SECRET_BYTES: 10,
+          });
+
+          const longSecret = new Uint8Array(20);
+
+          await expect(
+            verify({
+              secret: longSecret,
+              epoch: 59,
+              token: "123456",
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).rejects.toThrow(SecretTooLongError);
+        });
+
+        it("should use custom guardrails throughout verification with tolerance", async () => {
+          const lenientGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 1,
+            MAX_WINDOW: 10,
+          });
+
+          const shortSecret = new Uint8Array(5);
+          const token = await generate({
+            secret: shortSecret,
+            epoch: 100,
+            period: 30,
+            crypto,
+            guardrails: lenientGuardrails,
+          });
+
+          const result = await verify({
+            secret: shortSecret,
+            epoch: 190,
+            token,
+            period: 30,
+            crypto,
+            epochTolerance: 150,
+            guardrails: lenientGuardrails,
+          });
+
+          expect(result.valid).toBe(true);
+        });
+
+        it("should pass guardrails through TOTP->HOTP call chain", async () => {
+          const customGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 1,
+            MAX_COUNTER: 1000,
+          });
+
+          const shortSecret = new Uint8Array(5);
+          const token = await generate({
+            secret: shortSecret,
+            epoch: 59,
+            crypto,
+            guardrails: customGuardrails,
+          });
+
+          const result = await verify({
+            secret: shortSecret,
+            epoch: 59,
+            token,
+            crypto,
+            guardrails: customGuardrails,
+          });
+
+          expect(result.valid).toBe(true);
+        });
+      });
+
+      describe("verifySync", () => {
+        it("should respect custom guardrails for epochTolerance validation", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_WINDOW: 5,
+          });
+
+          const token = generateSync({
+            secret,
+            epoch: 59,
+            crypto,
+          });
+
+          expect(() =>
+            verifySync({
+              secret,
+              epoch: 59,
+              token,
+              period: 30,
+              crypto,
+              epochTolerance: 300,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).toThrow(EpochToleranceTooLargeError);
+        });
+
+        it("should pass guardrails to nested generateSync calls", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 8,
+            MAX_SECRET_BYTES: 10,
+          });
+
+          const longSecret = new Uint8Array(20);
+
+          expect(() =>
+            verifySync({
+              secret: longSecret,
+              epoch: 59,
+              token: "123456",
+              crypto,
+              guardrails: restrictiveGuardrails,
+            }),
+          ).toThrow(SecretTooLongError);
+        });
+
+        it("should pass guardrails through TOTP->HOTP call chain synchronously", () => {
+          const customGuardrails = createGuardrails({
+            MIN_SECRET_BYTES: 1,
+            MAX_COUNTER: 1000,
+          });
+
+          const shortSecret = new Uint8Array(5);
+          const token = generateSync({
+            secret: shortSecret,
+            epoch: 59,
+            crypto,
+            guardrails: customGuardrails,
+          });
+
+          const result = verifySync({
+            secret: shortSecret,
+            epoch: 59,
+            token,
+            crypto,
+            guardrails: customGuardrails,
+          });
+
+          expect(result.valid).toBe(true);
+        });
+      });
+
+      describe("getRemainingTime", () => {
+        it("should respect custom guardrails for period validation", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_PERIOD: 60,
+          });
+
+          expect(() => getRemainingTime(59, 120, 0, restrictiveGuardrails)).toThrow(
+            "Period must not exceed 60 seconds",
+          );
+        });
+
+        it("should work with custom lenient guardrails", () => {
+          const lenientGuardrails = createGuardrails({
+            MIN_PERIOD: 1,
+            MAX_PERIOD: 1000,
+          });
+
+          const remaining = getRemainingTime(59, 120, 0, lenientGuardrails);
+          expect(remaining).toBeGreaterThan(0);
+          expect(remaining).toBeLessThanOrEqual(120);
+        });
+      });
+
+      describe("getTimeStepUsed", () => {
+        it("should respect custom guardrails for period validation", () => {
+          const restrictiveGuardrails = createGuardrails({
+            MAX_PERIOD: 60,
+          });
+
+          expect(() => getTimeStepUsed(59, 120, 0, restrictiveGuardrails)).toThrow(
+            "Period must not exceed 60 seconds",
+          );
+        });
+
+        it("should work with custom lenient guardrails", () => {
+          const lenientGuardrails = createGuardrails({
+            MIN_PERIOD: 1,
+            MAX_PERIOD: 1000,
+          });
+
+          const counter = getTimeStepUsed(59, 120, 0, lenientGuardrails);
+          expect(counter).toBe(0);
         });
       });
     });
