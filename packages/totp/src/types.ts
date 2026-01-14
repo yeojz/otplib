@@ -118,6 +118,54 @@ export type TOTPVerifyOptions = TOTPGenerateOptions & {
    * ```
    */
   readonly epochTolerance?: number | [number, number];
+  /**
+   * Minimum time step for replay protection (optional)
+   *
+   * Specifies an exclusive lower bound for valid time steps. Time steps less than
+   * or equal to this value will be rejected during verification. This prevents
+   * reuse of TOTP codes from previously verified time steps.
+   *
+   * Per RFC 6238, time step T = floor((CurrentUnixTime - T0) / X), where X is the period.
+   * This is the time step number, not a Unix timestamp.
+   *
+   * **Validation:**
+   * - Must be a non-negative integer
+   * - Cannot be greater than current time step plus window
+   * - Throws on invalid values (fail-fast for development)
+   *
+   * **Use case:** Track the time step from each successful verification and pass it
+   * as `afterTimeStep` in subsequent verifications to prevent replay attacks.
+   *
+   * @example Replay protection flow
+   * ```typescript
+   * // First verification
+   * const result1 = await verify({ secret, token, crypto });
+   * // result1 = { valid: true, delta: 0, timeStep: 41152263, epoch: 1234578900 }
+   * await saveLastTimeStep(result1.timeStep);
+   *
+   * // Subsequent verification - rejects codes from time step 41152263 and earlier
+   * const lastTimeStep = await getLastTimeStep();
+   * const result2 = await verify({
+   *   secret,
+   *   token: newToken,
+   *   crypto,
+   *   afterTimeStep: lastTimeStep, // Reject timeStep <= 41152263
+   * });
+   * ```
+   *
+   * @example With epochTolerance
+   * ```typescript
+   * // Current time step: 41152263, window: 1
+   * verify({
+   *   secret,
+   *   token,
+   *   crypto,
+   *   afterTimeStep: 41152262, // Rejects 41152262 and earlier
+   *   epochTolerance: 30,       // Allows 41152263, 41152264 (within window)
+   * });
+   * ```
+   */
+  readonly afterTimeStep?: number;
 };
 
 /**
@@ -150,6 +198,34 @@ export type VerifyResultValid = {
    * ```
    */
   readonly epoch: number;
+  /**
+   * The time step number (per RFC 6238) used for verification.
+   *
+   * Per RFC 6238, time step T = floor((CurrentUnixTime - T0) / X), where X is the period.
+   * This is the actual time step counter value, not a Unix timestamp.
+   *
+   * This value is always included in successful verifications and can be used for
+   * replay attack prevention by passing it as `afterTimeStep` in subsequent verifications.
+   *
+   * @example Replay protection
+   * ```typescript
+   * const result = await verify({ secret, token, crypto });
+   * if (result.valid) {
+   *   // Save timeStep to prevent reuse
+   *   await db.saveLastTimeStep(userId, result.timeStep);
+   * }
+   *
+   * // Later: verify with replay protection
+   * const lastTimeStep = await db.getLastTimeStep(userId);
+   * const result2 = await verify({
+   *   secret,
+   *   token: newToken,
+   *   crypto,
+   *   afterTimeStep: lastTimeStep, // Rejects timeStep <= lastTimeStep
+   * });
+   * ```
+   */
+  readonly timeStep: number;
 };
 
 /**
