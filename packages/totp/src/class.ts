@@ -16,9 +16,9 @@ import {
 } from "@otplib/core";
 import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 
-import { generate as generateCode, verify as verifyCode } from "./index";
+import { generate as generateCode, verify as verifyCode } from "./index.js";
 
-import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types";
+import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types.js";
 import type { OTPGuardrails } from "@otplib/core";
 
 /**

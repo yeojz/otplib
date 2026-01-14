@@ -14,10 +14,10 @@ import {
 } from "@otplib/totp";
 import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 
-import { HOTP, secretToBytes } from "./hotp";
-import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types";
+import { HOTP, secretToBytes } from "./hotp.js";
+import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
-import type { TOTPOptions, SecretKey, ResolvedTOTPOptions } from "./types";
+import type { TOTPOptions, SecretKey, ResolvedTOTPOptions } from "./types.js";
 import type { Digits } from "@otplib/core";
 
 /**

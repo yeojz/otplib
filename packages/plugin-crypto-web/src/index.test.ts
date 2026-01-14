@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
-import { WebCryptoPlugin } from "./index";
+import { WebCryptoPlugin } from "./index.js";
 import { stringToBytes } from "@otplib/core";
 import { testRFC4226HMAC } from "@repo/testing";
 

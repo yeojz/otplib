@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { HOTP } from "./class";
+import { HOTP } from "./class.js";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 

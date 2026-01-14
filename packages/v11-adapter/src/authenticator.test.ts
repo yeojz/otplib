@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Authenticator } from "./index";
+import { Authenticator } from "./index.js";
 import { BASE_SECRET_BASE32 } from "@repo/testing";
 import { CryptoPlugin } from "@otplib/core";
 

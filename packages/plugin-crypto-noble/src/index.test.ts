@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { NobleCryptoPlugin } from "./index";
+import { NobleCryptoPlugin } from "./index.js";
 import { stringToBytes } from "@otplib/core";
 import { testRFC4226HMAC } from "@repo/testing";
 

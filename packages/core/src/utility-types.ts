@@ -7,7 +7,7 @@
  * - Helper types for option extraction
  */
 
-import type { CryptoPlugin, Base32Plugin } from "./types";
+import type { CryptoPlugin, Base32Plugin } from "./types.js";
 
 /**
  * Brand type for creating nominal types from primitives

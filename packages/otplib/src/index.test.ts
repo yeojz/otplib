@@ -17,7 +17,7 @@ import {
   OTP,
   createGuardrails,
 } from "./index.js";
-import { createOtplibTests } from "./index-test.js";
+import { createOtplibTests } from "./index-test.ts";
 
 createOtplibTests({
   describe,

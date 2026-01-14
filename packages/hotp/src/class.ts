@@ -16,9 +16,9 @@ import {
 } from "@otplib/core";
 import { generateHOTP as generateHOTPURI } from "@otplib/uri";
 
-import { generate as generateCode, verify as verifyCode } from "./index";
+import { generate as generateCode, verify as verifyCode } from "./index.js";
 
-import type { VerifyResult, HOTPOptions } from "./types";
+import type { VerifyResult, HOTPOptions } from "./types.js";
 import type { OTPGuardrails } from "@otplib/core";
 
 /**

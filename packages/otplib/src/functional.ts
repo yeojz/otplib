@@ -18,9 +18,14 @@ import {
   defaultBase32,
   normalizeGenerateOptions,
   normalizeVerifyOptions,
-} from "./defaults";
+} from "./defaults.js";
 
-import type { OTPGenerateOptions, OTPVerifyOptions, OTPStrategy, StrategyHandlers } from "./types";
+import type {
+  OTPGenerateOptions,
+  OTPVerifyOptions,
+  OTPStrategy,
+  StrategyHandlers,
+} from "./types.js";
 import type { CryptoPlugin, Base32Plugin, Digits, HashAlgorithm } from "@otplib/core";
 import type { VerifyResult as HOTPVerifyResult } from "@otplib/hotp";
 import type { VerifyResult as TOTPVerifyResult } from "@otplib/totp";

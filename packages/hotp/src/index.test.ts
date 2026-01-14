@@ -5,7 +5,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { createHOTPTests } from "./index-test";
+import { createHOTPTests } from "./index-test.ts";
 
 createHOTPTests({
   describe,

@@ -27,15 +27,15 @@
  */
 
 // Classes
-export { HOTP } from "./hotp";
-export { TOTP } from "./totp";
-export { Authenticator } from "./authenticator";
+export { HOTP } from "./hotp.js";
+export { TOTP } from "./totp.js";
+export { Authenticator } from "./authenticator.js";
 
 // Functional exports (v12-style)
-export { hotpDigestToToken } from "./hotp";
+export { hotpDigestToToken } from "./hotp.js";
 
 // Constants (v12-style)
-export { HashAlgorithms, KeyEncodings } from "./types";
+export { HashAlgorithms, KeyEncodings } from "./types.js";
 
 // Types
 export type {
@@ -49,12 +49,12 @@ export type {
   CreateRandomBytes,
   KeyEncoder,
   KeyDecoder,
-} from "./types";
+} from "./types.js";
 
 // Pre-configured instances (v12 style)
-import { Authenticator } from "./authenticator";
-import { HOTP } from "./hotp";
-import { TOTP } from "./totp";
+import { Authenticator } from "./authenticator.js";
+import { HOTP } from "./hotp.js";
+import { TOTP } from "./totp.js";
 
 /**
  * Pre-configured HOTP instance

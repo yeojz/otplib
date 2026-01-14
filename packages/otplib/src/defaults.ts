@@ -13,7 +13,7 @@ import type {
   OTPVerifyOptions,
   OTPGenerateOptionsWithDefaults,
   OTPVerifyOptionsWithDefaults,
-} from "./types";
+} from "./types.js";
 
 /**
  * Default crypto plugin instance (Noble Hashes)

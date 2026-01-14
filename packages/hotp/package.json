@@ -58,6 +58,7 @@
     "@otplib/uri": "workspace:*"
   },
   "devDependencies": {
+    "@otplib/plugin-base32-scure": "workspace:*",
     "@otplib/plugin-crypto-node": "workspace:*",
     "@repo/testing": "workspace:*",
     "tsup": "^8.0.1",

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateTOTP, generateHOTP, parse, generate } from "./index";
+import { generateTOTP, generateHOTP, parse, generate } from "./index.js";
 import { formatErrorMessage } from "./parse.js";
 import { BASE_SECRET_BASE32 } from "@repo/testing";
 
