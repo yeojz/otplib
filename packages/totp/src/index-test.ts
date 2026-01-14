@@ -1910,14 +1910,14 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
           const shortSecret = new Uint8Array(5);
 
-          const result = await generate({
+          const { token } = await generate({
             secret: shortSecret,
             epoch: 59,
             crypto,
             guardrails: lenientGuardrails,
           });
 
-          expect(result).toMatch(/^\d{6}$/);
+          expect(token).toMatch(/^\d{6}$/);
         });
 
         it("should fail if guardrails not passed to HOTP (would use defaults)", async () => {
@@ -1927,7 +1927,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
           const shortSecret = new Uint8Array(5);
 
-          const resultWithGuardrails = await generate({
+          const { token: resultWithGuardrails } = await generate({
             secret: shortSecret,
             epoch: 59,
             crypto,
@@ -1988,14 +1988,14 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
           const shortSecret = new Uint8Array(5);
 
-          const result = generateSync({
+          const { token } = generateSync({
             secret: shortSecret,
             epoch: 59,
             crypto,
             guardrails: lenientGuardrails,
           });
 
-          expect(result).toMatch(/^\d{6}$/);
+          expect(token).toMatch(/^\d{6}$/);
         });
       });
 
@@ -2005,7 +2005,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             MAX_WINDOW: 5,
           });
 
-          const token = await generate({
+          const { token } = await generate({
             secret,
             epoch: 59,
             crypto,
@@ -2050,7 +2050,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           });
 
           const shortSecret = new Uint8Array(5);
-          const token = await generate({
+          const { token } = await generate({
             secret: shortSecret,
             epoch: 100,
             period: 30,
@@ -2078,7 +2078,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           });
 
           const shortSecret = new Uint8Array(5);
-          const token = await generate({
+          const { token } = await generate({
             secret: shortSecret,
             epoch: 59,
             crypto,
@@ -2103,7 +2103,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             MAX_WINDOW: 5,
           });
 
-          const token = generateSync({
+          const { token } = generateSync({
             secret,
             epoch: 59,
             crypto,
@@ -2148,7 +2148,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           });
 
           const shortSecret = new Uint8Array(5);
-          const token = generateSync({
+          const { token } = generateSync({
             secret: shortSecret,
             epoch: 59,
             crypto,
