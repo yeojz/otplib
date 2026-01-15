@@ -264,7 +264,7 @@ interface TOTPOptions {
 ```typescript
 interface HOTPVerifyOptions extends HOTPOptions {
   token: string;
-  counterTolerance?: number | number[]; // Look-ahead window
+  counterTolerance?: number | [number, number]; // Number: [0, n] look-ahead; Tuple: [past, future]
 }
 
 interface TOTPVerifyOptions extends TOTPOptions {

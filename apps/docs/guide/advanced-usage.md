@@ -173,10 +173,11 @@ const result = await verify({
 
 #### HOTP (Counter-Based) - counterTolerance
 
-For HOTP, `counterTolerance` defines how many counters ahead to check:
+For HOTP, `counterTolerance` defines the verification window:
+
+**Number format** (look-ahead only, recommended):
 
 ```typescript
-// Use HOTP strategy
 import { verify } from "otplib";
 
 const result = await verify({
@@ -184,15 +185,26 @@ const result = await verify({
   token,
   strategy: "hotp",
   counter: currentCounter,
-  counterTolerance: 10,
+  counterTolerance: 10, // Checks current + 10 future counters
 });
 
 if (result.valid) {
-  // Remember to implement a counter increment function
-  // to prevent replay
+  // Update counter to prevent replay
   const newCounter = currentCounter + result.delta + 1;
   await updateCounter(userId, newCounter);
 }
+```
+
+**Tuple format** (explicit control):
+
+```typescript
+const result = await verify({
+  secret,
+  token,
+  strategy: "hotp",
+  counter: currentCounter,
+  counterTolerance: [5, 5], // Check ±5 counters (symmetric)
+});
 ```
 
 ## Configuration & formats
