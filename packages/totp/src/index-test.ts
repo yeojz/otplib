@@ -1926,7 +1926,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
       describe("verify", () => {
         it("should respect custom guardrails for epochTolerance validation", async () => {
           const restrictiveGuardrails = createGuardrails({
-            MAX_WINDOW: 5,
+            MAX_WINDOW_TOTP: 5,
           });
 
           const token = await generate({
@@ -1970,7 +1970,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         it("should use custom guardrails throughout verification with tolerance", async () => {
           const lenientGuardrails = createGuardrails({
             MIN_SECRET_BYTES: 1,
-            MAX_WINDOW: 10,
+            MAX_WINDOW_TOTP: 10,
           });
 
           const shortSecret = new Uint8Array(5);
@@ -2024,7 +2024,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
       describe("verifySync", () => {
         it("should respect custom guardrails for epochTolerance validation", () => {
           const restrictiveGuardrails = createGuardrails({
-            MAX_WINDOW: 5,
+            MAX_WINDOW_TOTP: 5,
           });
 
           const token = generateSync({

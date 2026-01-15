@@ -73,15 +73,25 @@ export const DEFAULT_PERIOD = 30;
 export const MAX_COUNTER = Number.MAX_SAFE_INTEGER;
 
 /**
- * Maximum verification window size
+ * Maximum HOTP verification window size (total HMAC computations)
  *
- * Limits the number of HMAC computations during verification to prevent DoS attacks.
- * A window of 100 means up to 201 HMAC computations ([-100, +100] range).
+ * Odd number allows symmetric window: MAX_WINDOW_HOTP = past + 1 + future
+ * Example: 51 = 25 past + current counter + 25 future
  *
- * For TOTP: window=1 is typically sufficient (allows +-30 seconds clock drift)
- * For HOTP: window=10-50 handles reasonable counter desynchronization
+ * Limits the number of HMAC computations during HOTP verification to prevent DoS attacks.
+ * Default behavior favors look-ahead only (future counters) for improved security.
  */
-export const MAX_WINDOW = 100;
+export const MAX_WINDOW_HOTP = 51;
+
+/**
+ * Maximum TOTP verification window size (total period checks)
+ *
+ * Odd number allows symmetric window: MAX_WINDOW_TOTP = past + 1 + future
+ * Example: 21 periods = 10 past + current + 10 future (±5 min at 30s period)
+ *
+ * Limits the time range checked during TOTP verification to prevent DoS attacks.
+ */
+export const MAX_WINDOW_TOTP = 21;
 
 /**
  * Configurable guardrails for OTP validation
@@ -95,7 +105,8 @@ export type OTPGuardrailsConfig = {
   MIN_PERIOD: number;
   MAX_PERIOD: number;
   MAX_COUNTER: number;
-  MAX_WINDOW: number;
+  MAX_WINDOW_HOTP: number;
+  MAX_WINDOW_TOTP: number;
 };
 
 /**
@@ -144,7 +155,8 @@ const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
   MIN_PERIOD,
   MAX_PERIOD,
   MAX_COUNTER,
-  MAX_WINDOW,
+  MAX_WINDOW_HOTP,
+  MAX_WINDOW_TOTP,
   [OVERRIDE_SYMBOL]: false,
 });
 
@@ -344,14 +356,14 @@ export function validateToken(token: string, digits: number): void {
  *
  * @param counterTolerance - Counter tolerance specification (number or array of offsets)
  * @param guardrails - Validation guardrails (defaults to RFC recommendations)
- * @throws {CounterToleranceTooLargeError} If tolerance size exceeds MAX_WINDOW
+ * @throws {CounterToleranceTooLargeError} If tolerance size exceeds MAX_WINDOW_HOTP
  *
  * @example
  * ```ts
- * validateCounterTolerance(1);        // OK: 3 offsets [-1, 0, 1]
- * validateCounterTolerance(100);      // OK: 201 offsets [-100, ..., 100]
- * validateCounterTolerance(101);      // Throws: exceeds MAX_WINDOW
- * validateCounterTolerance([0, 1]);   // OK: 2 offsets
+ * validateCounterTolerance(1);        // OK: 2 checks [0, 1]
+ * validateCounterTolerance(25);       // OK: 26 checks [0, 25]
+ * validateCounterTolerance(26);       // Throws: exceeds MAX_WINDOW_HOTP
+ * validateCounterTolerance([0, 1]);   // OK: 2 checks
  * ```
  */
 export function validateCounterTolerance(
@@ -366,8 +378,8 @@ export function validateCounterTolerance(
 
   const totalChecks = past + future + 1;
 
-  if (totalChecks > guardrails.MAX_WINDOW) {
-    throw new CounterToleranceTooLargeError(guardrails.MAX_WINDOW, totalChecks);
+  if (totalChecks > guardrails.MAX_WINDOW_HOTP) {
+    throw new CounterToleranceTooLargeError(guardrails.MAX_WINDOW_HOTP, totalChecks);
   }
 }
 
@@ -407,8 +419,8 @@ export function validateEpochTolerance(
   }
 
   // Check total tolerance doesn't exceed reasonable limits
-  // Convert to periods and check against MAX_WINDOW
-  const maxToleranceSeconds = guardrails.MAX_WINDOW * period;
+  // Convert to periods and check against MAX_WINDOW_TOTP
+  const maxToleranceSeconds = guardrails.MAX_WINDOW_TOTP * period;
   const maxAllowed = Math.max(pastTolerance, futureTolerance);
 
   if (maxAllowed > maxToleranceSeconds) {

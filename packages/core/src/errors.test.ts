@@ -229,9 +229,9 @@ describe("CounterToleranceError", () => {
 
 describe("CounterToleranceTooLargeError", () => {
   it("should create error with max tolerance and actual value", () => {
-    const error = new CounterToleranceTooLargeError(100, 150);
+    const error = new CounterToleranceTooLargeError(51, 52);
     expect(error.message).toBe(
-      "Counter tolerance validation failed: total checks (150) exceeds MAX_WINDOW (100)",
+      "Counter tolerance validation failed: total checks (52) exceeds MAX_WINDOW_HOTP (51)",
     );
     expect(error.name).toBe("CounterToleranceTooLargeError");
     expect(error).toBeInstanceOf(CounterToleranceError);
@@ -258,9 +258,9 @@ describe("EpochToleranceNegativeError", () => {
 
 describe("EpochToleranceTooLargeError", () => {
   it("should create error with max tolerance and actual value", () => {
-    const error = new EpochToleranceTooLargeError(3000, 5000);
+    const error = new EpochToleranceTooLargeError(630, 700);
     expect(error.message).toBe(
-      "Epoch tolerance must not exceed 3000 seconds, got 5000. Large tolerances can cause performance issues.",
+      "Epoch tolerance validation failed: tolerance (700s) exceeds MAX_WINDOW_TOTP (630s)",
     );
     expect(error.name).toBe("EpochToleranceTooLargeError");
     expect(error).toBeInstanceOf(EpochToleranceError);
