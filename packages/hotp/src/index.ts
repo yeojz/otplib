@@ -144,7 +144,9 @@ export function generateSync(options: HOTPGenerateOptions): string {
 type HOTPVerifyOptionsInternal = {
   token: string;
   counterNum: number;
-  offsets: number[];
+  past: number;
+  future: number;
+  totalChecks: number;
   crypto: CryptoPlugin;
 
   getGenerateOptions: (counter: number) => HOTPGenerateOptions;
@@ -183,15 +185,15 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   validateCounterTolerance(counterTolerance, guardrails);
 
   const counterNum = typeof counter === "bigint" ? Number(counter) : counter;
-  // Pre-filter offsets that would result in invalid counters (e.g., negative values)
-  const offsets = normalizeCounterTolerance(counterTolerance).filter(
-    (offset) => counterNum + offset >= 0,
-  );
+  const [past, future] = normalizeCounterTolerance(counterTolerance);
+  const totalChecks = past + future + 1;
 
   return {
     token,
     counterNum,
-    offsets,
+    past,
+    future,
+    totalChecks,
     crypto,
     getGenerateOptions: (cnt: number) => ({
       secret: secretBytes,
@@ -262,10 +264,12 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
  * ```
  */
 export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> {
-  const { token, counterNum, offsets, crypto, getGenerateOptions } = getHOTPVerifyOptions(options);
+  const { token, counterNum, past, future, crypto, getGenerateOptions } =
+    getHOTPVerifyOptions(options);
 
-  for (const offset of offsets) {
+  for (let offset = -past; offset <= future; offset++) {
     const currentCounter = counterNum + offset;
+    if (currentCounter < 0) continue;
     const expected = await generate(getGenerateOptions(currentCounter));
     if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: offset };
@@ -304,10 +308,12 @@ export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> 
  * ```
  */
 export function verifySync(options: HOTPVerifyOptions): VerifyResult {
-  const { token, counterNum, offsets, crypto, getGenerateOptions } = getHOTPVerifyOptions(options);
+  const { token, counterNum, past, future, crypto, getGenerateOptions } =
+    getHOTPVerifyOptions(options);
 
-  for (const offset of offsets) {
+  for (let offset = -past; offset <= future; offset++) {
     const currentCounter = counterNum + offset;
+    if (currentCounter < 0) continue;
     const expected = generateSync(getGenerateOptions(currentCounter));
     if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: offset };
