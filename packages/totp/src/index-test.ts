@@ -2136,5 +2136,490 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
       });
     });
+
+    describe("afterTimeStep (replay protection)", () => {
+      it("should accept token when timeStep > afterTimeStep", async () => {
+        // Generate token for time step 2 (epoch 60)
+        const token = await generate({ secret, epoch: 60, period: 30, digits: 6, crypto });
+
+        // Verify at epoch 60 (time step 2) with afterTimeStep: 1
+        // Should accept because token's time step (2) > afterTimeStep (1)
+        const result = await verify({
+          secret,
+          token,
+          epoch: 60,
+          period: 30,
+          digits: 6,
+          crypto,
+          afterTimeStep: 1, // Reject timeStep <= 1, allows 2, 3
+        });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.timeStep).toBe(2);
+        }
+      });
+
+      it("should reject token when timeStep <= afterTimeStep", async () => {
+        // Generate token for time step 1 (epoch 30)
+        const token = await generate({ secret, epoch: 30, period: 30, digits: 6, crypto });
+
+        // Verify with afterTimeStep: 1
+        // Should reject because token's time step (1) <= afterTimeStep (1)
+        const result = await verify({
+          secret,
+          token,
+          epoch: 60,
+          period: 30,
+          digits: 6,
+          crypto,
+          afterTimeStep: 1, // Reject timeStep <= 1
+        });
+
+        expect(result.valid).toBe(false);
+      });
+
+      it("should include timeStep in successful verification result", async () => {
+        const epoch = 59;
+        const token = await generate({ secret, epoch, period: 30, digits: 6, crypto });
+
+        const result = await verify({
+          secret,
+          token,
+          epoch,
+          period: 30,
+          digits: 6,
+          crypto,
+        });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.timeStep).toBe(Math.floor(epoch / 30)); // Should be 1
+        }
+      });
+
+      it("should work with epochTolerance and afterTimeStep combined", async () => {
+        const period = 30;
+
+        // Generate tokens for time steps 1, 2, 3
+        const token1 = await generate({ secret, epoch: 30, period, digits: 6, crypto }); // time step 1
+        const token2 = await generate({ secret, epoch: 60, period, digits: 6, crypto }); // time step 2
+        const token3 = await generate({ secret, epoch: 90, period, digits: 6, crypto }); // time step 3
+
+        // Verify at epoch 90 (time step 3) with tolerance 30 and afterTimeStep: 1
+        // Should accept tokens from time steps 2 and 3, reject time step 1
+        const result1 = await verify({
+          secret,
+          token: token1,
+          epoch: 90,
+          period,
+          digits: 6,
+          crypto,
+          epochTolerance: 30,
+          afterTimeStep: 1, // Reject timeStep <= 1
+        });
+
+        const result2 = await verify({
+          secret,
+          token: token2,
+          epoch: 90,
+          period,
+          digits: 6,
+          crypto,
+          epochTolerance: 30,
+          afterTimeStep: 1,
+        });
+
+        const result3 = await verify({
+          secret,
+          token: token3,
+          epoch: 90,
+          period,
+          digits: 6,
+          crypto,
+          epochTolerance: 30,
+          afterTimeStep: 1,
+        });
+
+        expect(result1.valid).toBe(false); // time step 1 <= afterTimeStep 1
+        expect(result2.valid).toBe(true); // time step 2 > afterTimeStep 1
+        expect(result3.valid).toBe(true); // time step 3 > afterTimeStep 1
+      });
+
+      it("should allow afterTimeStep at current time step boundary", async () => {
+        // At epoch 120, current time step is 4
+        // Generate token for time step 4
+        const token = await generate({ secret, epoch: 120, period: 30, digits: 6, crypto });
+
+        // Verify with afterTimeStep: 3 (previous time step)
+        // Should accept because token's time step (4) > afterTimeStep (3)
+        const result = await verify({
+          secret,
+          token,
+          epoch: 120,
+          period: 30,
+          digits: 6,
+          crypto,
+          afterTimeStep: 3, // Reject timeStep <= 3
+        });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.timeStep).toBe(4);
+        }
+      });
+
+      it("should reject when afterTimeStep equals current time step", async () => {
+        // At epoch 90, current time step is 3
+        // Generate token for current time step 3
+        const token = await generate({ secret, epoch: 90, period: 30, digits: 6, crypto });
+
+        // Verify with afterTimeStep: 3 (current time step)
+        // Should reject because token's time step (3) <= afterTimeStep (3)
+        const result = await verify({
+          secret,
+          token,
+          epoch: 90,
+          period: 30,
+          digits: 6,
+          crypto,
+          afterTimeStep: 3, // Reject timeStep <= 3
+        });
+
+        expect(result.valid).toBe(false);
+      });
+
+      it("should accept afterTimeStep = 0 (no effective restriction)", async () => {
+        const token = await generate({ secret, epoch: 30, period: 30, digits: 6, crypto });
+
+        // afterTimeStep: 0 rejects timeStep <= 0, so allows all time steps >= 1
+        // Token from epoch 30 has time step 1
+        const result = await verify({
+          secret,
+          token,
+          epoch: 30,
+          period: 30,
+          digits: 6,
+          crypto,
+          afterTimeStep: 0,
+        });
+
+        expect(result.valid).toBe(true);
+      });
+
+      it("should throw on negative afterTimeStep", async () => {
+        const token = await generate({ secret, epoch: 30, period: 30, digits: 6, crypto });
+
+        await expect(
+          verify({
+            secret,
+            token,
+            epoch: 60,
+            period: 30,
+            digits: 6,
+            crypto,
+            afterTimeStep: -1,
+          }),
+        ).rejects.toThrow("afterTimeStep must be >= 0");
+      });
+
+      it("should throw on non-integer afterTimeStep (.5)", async () => {
+        const token = await generate({ secret, epoch: 30, period: 30, digits: 6, crypto });
+
+        await expect(
+          verify({
+            secret,
+            token,
+            epoch: 60,
+            period: 30,
+            digits: 6,
+            crypto,
+            afterTimeStep: 1.5,
+          }),
+        ).rejects.toThrow("Invalid afterTimeStep: non-integer value");
+      });
+
+      it("should throw when afterTimeStep exceeds max possible time step", async () => {
+        const token = await generate({ secret, epoch: 30, period: 30, digits: 6, crypto });
+
+        // At epoch 60 with period 30, current counter is 2
+        // With no tolerance, max counter is 2
+        // afterTimeStep: 3 makes verification impossible
+        await expect(
+          verify({
+            secret,
+            token,
+            epoch: 60,
+            period: 30,
+            digits: 6,
+            crypto,
+            afterTimeStep: 3,
+          }),
+        ).rejects.toThrow(
+          "Invalid afterTimeStep: cannot be greater than current time step plus window",
+        );
+      });
+
+      it("should demonstrate replay protection flow", async () => {
+        const period = 30;
+
+        // First verification - user provides token
+        const token1 = await generate({ secret, epoch: 60, period, digits: 6, crypto });
+        const result1 = await verify({
+          secret,
+          token: token1,
+          epoch: 60,
+          period,
+          digits: 6,
+          crypto,
+        });
+
+        expect(result1.valid).toBe(true);
+        if (result1.valid) {
+          const savedTimeStep = result1.timeStep; // Save for replay protection
+
+          // Second verification - same token should be rejected
+          const result2 = await verify({
+            secret,
+            token: token1,
+            epoch: 90,
+            period,
+            digits: 6,
+            crypto,
+            afterTimeStep: savedTimeStep, // Reject timeStep <= savedTimeStep
+          });
+
+          expect(result2.valid).toBe(false); // Replay rejected!
+
+          // New token should be accepted
+          const token2 = await generate({ secret, epoch: 90, period, digits: 6, crypto });
+          const result3 = await verify({
+            secret,
+            token: token2,
+            epoch: 90,
+            period,
+            digits: 6,
+            crypto,
+            afterTimeStep: savedTimeStep,
+          });
+
+          expect(result3.valid).toBe(true); // New token accepted
+        }
+      });
+
+      describe("edge cases", () => {
+        it("should handle afterTimeStep at window boundary", async () => {
+          const period = 30;
+          const currentEpoch = 60; // Time step 2
+
+          // With tolerance 30, window covers time steps [1, 2, 3]
+          // afterTimeStep: 2 should reject 1 and 2, allow 3
+          const tokenPast = await generate({ secret, epoch: 30, period, digits: 6, crypto }); // step 1
+          const tokenCurrent = await generate({ secret, epoch: 60, period, digits: 6, crypto }); // step 2
+          const tokenFuture = await generate({ secret, epoch: 90, period, digits: 6, crypto }); // step 3
+
+          const resultPast = await verify({
+            secret,
+            token: tokenPast,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 30,
+            afterTimeStep: 2,
+          });
+
+          const resultCurrent = await verify({
+            secret,
+            token: tokenCurrent,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 30,
+            afterTimeStep: 2,
+          });
+
+          const resultFuture = await verify({
+            secret,
+            token: tokenFuture,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 30,
+            afterTimeStep: 2,
+          });
+
+          expect(resultPast.valid).toBe(false); // 1 <= 2
+          expect(resultCurrent.valid).toBe(false); // 2 <= 2
+          expect(resultFuture.valid).toBe(true); // 3 > 2
+        });
+
+        it("should work with large window and afterTimeStep", async () => {
+          const period = 30;
+          const currentEpoch = 90; // Time step 3
+
+          // With tolerance 60, window covers time steps [1, 2, 3, 4, 5]
+          // afterTimeStep: 3 should reject 1, 2, 3, allow 4, 5
+          const tokens = await Promise.all([
+            generate({ secret, epoch: 30, period, digits: 6, crypto }), // step 1
+            generate({ secret, epoch: 60, period, digits: 6, crypto }), // step 2
+            generate({ secret, epoch: 90, period, digits: 6, crypto }), // step 3
+            generate({ secret, epoch: 120, period, digits: 6, crypto }), // step 4
+            generate({ secret, epoch: 150, period, digits: 6, crypto }), // step 5
+          ]);
+
+          const results = await Promise.all(
+            tokens.map((token) =>
+              verify({
+                secret,
+                token,
+                epoch: currentEpoch,
+                period,
+                digits: 6,
+                crypto,
+                epochTolerance: 60,
+                afterTimeStep: 3,
+              }),
+            ),
+          );
+
+          expect(results[0].valid).toBe(false); // 1 <= 3
+          expect(results[1].valid).toBe(false); // 2 <= 3
+          expect(results[2].valid).toBe(false); // 3 <= 3
+          expect(results[3].valid).toBe(true); // 4 > 3
+          expect(results[4].valid).toBe(true); // 5 > 3
+        });
+
+        it("should handle afterTimeStep with t0 offset", async () => {
+          const t0 = 100;
+          const period = 30;
+          const epoch = 160; // counter = floor((160-100)/30) = 2
+
+          const token = await generate({ secret, epoch, t0, period, digits: 6, crypto });
+
+          // Verify with afterTimeStep: 1
+          // Token's counter is 2, which is > 1, so should accept
+          const result = await verify({
+            secret,
+            token,
+            epoch,
+            t0,
+            period,
+            digits: 6,
+            crypto,
+            afterTimeStep: 1,
+          });
+
+          expect(result.valid).toBe(true);
+          if (result.valid) {
+            expect(result.timeStep).toBe(2);
+          }
+        });
+      });
+
+      describe("synchronous API", () => {
+        it("should work with verifySync", () => {
+          const token = generateSync({ secret, epoch: 60, period: 30, digits: 6, crypto });
+
+          // Should accept
+          const result = verifySync({
+            secret,
+            token,
+            epoch: 60,
+            period: 30,
+            digits: 6,
+            crypto,
+            afterTimeStep: 1,
+          });
+
+          expect(result.valid).toBe(true);
+          if (result.valid) {
+            expect(result.timeStep).toBe(2);
+          }
+        });
+
+        it("should reject with verifySync", () => {
+          const token = generateSync({ secret, epoch: 30, period: 30, digits: 6, crypto });
+
+          const result = verifySync({
+            secret,
+            token,
+            epoch: 60,
+            period: 30,
+            digits: 6,
+            crypto,
+            afterTimeStep: 1,
+          });
+
+          expect(result.valid).toBe(false);
+        });
+
+        it("should throw validation errors with verifySync", () => {
+          const token = generateSync({ secret, epoch: 30, period: 30, digits: 6, crypto });
+
+          expect(() =>
+            verifySync({
+              secret,
+              token,
+              epoch: 60,
+              period: 30,
+              digits: 6,
+              crypto,
+              afterTimeStep: -1,
+            }),
+          ).toThrow("afterTimeStep must be >= 0");
+        });
+
+        it("should skip old counters with large window and afterTimeStep", () => {
+          const period = 30;
+          const currentEpoch = 90; // Time step 3
+
+          // With tolerance 60, window covers time steps [1, 2, 3, 4, 5]
+          // afterTimeStep: 2 should reject 1, 2, allow 3, 4, 5
+          const tokenOld = generateSync({ secret, epoch: 30, period, digits: 6, crypto }); // step 1
+          const tokenCurrent = generateSync({ secret, epoch: 90, period, digits: 6, crypto }); // step 3
+          const tokenFuture = generateSync({ secret, epoch: 120, period, digits: 6, crypto }); // step 4
+
+          const resultOld = verifySync({
+            secret,
+            token: tokenOld,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 60,
+            afterTimeStep: 2,
+          });
+
+          const resultCurrent = verifySync({
+            secret,
+            token: tokenCurrent,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 60,
+            afterTimeStep: 2,
+          });
+
+          const resultFuture = verifySync({
+            secret,
+            token: tokenFuture,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 60,
+            afterTimeStep: 2,
+          });
+
+          expect(resultOld.valid).toBe(false); // 1 <= 2
+          expect(resultCurrent.valid).toBe(true); // 3 > 2
+          expect(resultFuture.valid).toBe(true); // 4 > 2
+        });
+      });
+    });
   });
 }

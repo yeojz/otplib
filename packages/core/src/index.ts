@@ -49,6 +49,10 @@ export {
   LabelMissingError,
   IssuerMissingError,
   SecretTypeError,
+  AfterTimeStepError,
+  AfterTimeStepNegativeError,
+  AfterTimeStepNotIntegerError,
+  AfterTimeStepImpossibleError,
   type OTPErrorOptions,
 } from "./errors.js";
 
