@@ -2571,6 +2571,54 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             }),
           ).toThrow("afterTimeStep must be >= 0");
         });
+
+        it("should skip old counters with large window and afterTimeStep", () => {
+          const period = 30;
+          const currentEpoch = 90; // Time step 3
+
+          // With tolerance 60, window covers time steps [1, 2, 3, 4, 5]
+          // afterTimeStep: 2 should reject 1, 2, allow 3, 4, 5
+          const tokenOld = generateSync({ secret, epoch: 30, period, digits: 6, crypto }); // step 1
+          const tokenCurrent = generateSync({ secret, epoch: 90, period, digits: 6, crypto }); // step 3
+          const tokenFuture = generateSync({ secret, epoch: 120, period, digits: 6, crypto }); // step 4
+
+          const resultOld = verifySync({
+            secret,
+            token: tokenOld,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 60,
+            afterTimeStep: 2,
+          });
+
+          const resultCurrent = verifySync({
+            secret,
+            token: tokenCurrent,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 60,
+            afterTimeStep: 2,
+          });
+
+          const resultFuture = verifySync({
+            secret,
+            token: tokenFuture,
+            epoch: currentEpoch,
+            period,
+            digits: 6,
+            crypto,
+            epochTolerance: 60,
+            afterTimeStep: 2,
+          });
+
+          expect(resultOld.valid).toBe(false); // 1 <= 2
+          expect(resultCurrent.valid).toBe(true); // 3 > 2
+          expect(resultFuture.valid).toBe(true); // 4 > 2
+        });
       });
     });
   });
