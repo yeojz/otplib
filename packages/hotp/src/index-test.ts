@@ -897,7 +897,7 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
             counter: 0,
             token,
             crypto,
-            counterTolerance: 10,
+            counterTolerance: 9, // [0, 9] = 10 total checks ≤ MAX_WINDOW
             guardrails: lenientGuardrails,
           });
 

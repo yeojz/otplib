@@ -272,7 +272,7 @@ export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> 
     if (currentCounter < 0) continue;
     const expected = await generate(getGenerateOptions(currentCounter));
     if (crypto.constantTimeEqual(expected, token)) {
-      return { valid: true, delta: offset };
+      return { valid: true, delta: offset | 0 }; // Bitwise OR converts -0 to +0
     }
   }
 
@@ -316,7 +316,7 @@ export function verifySync(options: HOTPVerifyOptions): VerifyResult {
     if (currentCounter < 0) continue;
     const expected = generateSync(getGenerateOptions(currentCounter));
     if (crypto.constantTimeEqual(expected, token)) {
-      return { valid: true, delta: offset };
+      return { valid: true, delta: offset | 0 }; // Bitwise OR converts -0 to +0
     }
   }
 
