@@ -319,6 +319,16 @@ export class CounterToleranceTooLargeError extends CounterToleranceError {
 }
 
 /**
+ * Error thrown when counter tolerance contains negative values
+ */
+export class CounterToleranceNegativeError extends CounterToleranceError {
+  constructor() {
+    super("Counter tolerance cannot contain negative values");
+    this.name = "CounterToleranceNegativeError";
+  }
+}
+
+/**
  * Error thrown when epoch tolerance is invalid
  */
 export class EpochToleranceError extends OTPError {

@@ -10,6 +10,7 @@ import {
   TokenLengthError,
   TokenFormatError,
   CounterToleranceTooLargeError,
+  CounterToleranceNegativeError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
@@ -358,6 +359,11 @@ export function validateCounterTolerance(
   guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
   const [past, future] = normalizeCounterTolerance(counterTolerance);
+
+  if (past < 0 || future < 0) {
+    throw new CounterToleranceNegativeError();
+  }
+
   const totalChecks = past + future + 1;
 
   if (totalChecks > guardrails.MAX_WINDOW) {

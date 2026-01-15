@@ -38,6 +38,7 @@ export {
   Base32DecodeError,
   CounterToleranceError,
   CounterToleranceTooLargeError,
+  CounterToleranceNegativeError,
   EpochToleranceError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
