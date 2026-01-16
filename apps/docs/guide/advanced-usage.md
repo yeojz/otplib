@@ -2,16 +2,18 @@
 
 This guide covers advanced topics for managing secrets, verifying tokens, and configuring internal behavior.
 
-## Secret Management
+## Secret Handling
 
-### Secret Normalization
+### Base32 by Default
 
-The built-in Base32 plugin (`ScureBase32Plugin`) automatically handles secret normalization:
+**Important:** String secrets are **ALWAYS** treated as Base32-encoded strings by default.
+
+The library assumes any string passed as a secret is Base32 encoded and will attempt to decode it to bytes. The built-in Base32 plugin (`ScureBase32Plugin`) handles normalization automatically:
 
 - **Case Insensitivity**: Converts input to uppercase.
 - **Padding**: Adds or ignores `=` padding as needed.
 
-This means you can strictly pass the secret string without manual preprocessing:
+This means you can pass the Base32 string with or without formatting:
 
 ```typescript
 import { generate } from "otplib";
@@ -22,9 +24,31 @@ await generate({ secret: "jbswy3dpehpk3pxpjbswy3dpeq", ... }); // Lowercase
 await generate({ secret: "JBSWY3DPEHPK3PXPJBSWY3DPEQ====", ... }); // Padded
 ```
 
+### Non-Base32 Secrets (Passphrases)
+
+If your secret is a "random string", passphrase, or any text that is **NOT** Base32 encoded, you **MUST** convert it to a `Uint8Array` (bytes) before passing it to the library.
+
+If you pass a plain string like `"my-super-secret-password"`, the library will try to decode it as Base32, which will likely fail or result in incorrect bytes.
+
+```typescript
+import { generate, stringToBytes } from "otplib";
+
+// WRONG: Treating a passphrase as a direct string
+// This will fail because it's likely not valid Base32
+await generate({ secret: "my-super-secret-password", ... });
+
+// CORRECT: Convert string to bytes first
+const secretBytes = stringToBytes("my-super-secret-password");
+
+await generate({
+  secret: secretBytes, // Library uses bytes directly
+  // ...
+});
+```
+
 ### Input Validation
 
-To validate user input before processing:
+To validate if a user's input is valid Base32 before processing:
 
 ```typescript
 function isValidBase32(value: string): boolean {

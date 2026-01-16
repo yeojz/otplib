@@ -546,6 +546,9 @@ export function getDigestSize(algorithm: HashAlgorithm): number {
  * This utility function normalizes input to Uint8Array, converting strings
  * using UTF-8 encoding. Uint8Array inputs are returned as-is.
  *
+ * Use this to convert raw secret strings (passphrases) to Uint8Array
+ * before passing them to generation or verification functions.
+ *
  * @param value - The value to convert (string or Uint8Array)
  * @returns The value as a Uint8Array (UTF-8 encoded for strings)
  *
@@ -598,7 +601,11 @@ export function hexToBytes(hex: string): Uint8Array {
  * Accepts either a Base32-encoded string or Uint8Array and returns Uint8Array.
  * If a Base32Plugin is provided, string secrets will be automatically decoded.
  *
- * @param secret - The secret to normalize (string or Uint8Array)
+ * **WARNING**: All strings are assumed to be Base32 encoded!
+ * If you have a raw string secret (e.g. a passphrase), you MUST convert it
+ * to a Uint8Array using {@link stringToBytes} before calling this function.
+ *
+ * @param secret - The secret to normalize (Base32 string or Uint8Array)
  * @param base32 - Optional Base32Plugin to decode string secrets
  * @returns The secret as Uint8Array
  * @throws {Error} If secret is a string but no Base32Plugin is provided

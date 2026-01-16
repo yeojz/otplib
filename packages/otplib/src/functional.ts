@@ -145,6 +145,12 @@ export function generateURI(options: {
   strategy?: OTPStrategy;
   issuer: string;
   label: string;
+  /**
+   * Base32-encoded secret key
+   *
+   * **WARNING**: If you provide a string, it is assumed to be Base32-encoded!
+   * If you have a raw string/passphrase, you must convert it to Uint8Array first.
+   */
   secret: string;
   algorithm?: HashAlgorithm;
   digits?: Digits;
