@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { BypassBase32Plugin, StringBypassPlugin } from "./index.js";
+import { BypassBase32Plugin, StringBypassPlugin, HexBypassPlugin } from "./index.js";
 
 describe("BypassBase32Plugin", () => {
   it("should use custom encode function", () => {
@@ -61,5 +61,33 @@ describe("StringBypassPlugin", () => {
 
   it("should have name 'string-bypass'", () => {
     expect(plugin.name).toBe("string-bypass");
+  });
+});
+
+describe("HexBypassPlugin", () => {
+  const plugin = new HexBypassPlugin();
+
+  it("should decode hex string to bytes", () => {
+    const result = plugin.decode("48656c6c6f");
+    expect(result).toEqual(new Uint8Array([72, 101, 108, 108, 111]));
+  });
+
+  it("should encode bytes to hex string", () => {
+    const result = plugin.encode(new Uint8Array([72, 101, 108, 108, 111]));
+    expect(result).toBe("48656c6c6f");
+  });
+
+  it("should handle uppercase hex input", () => {
+    const result = plugin.decode("48656C6C6F");
+    expect(result).toEqual(new Uint8Array([72, 101, 108, 108, 111]));
+  });
+
+  it("should handle empty string", () => {
+    expect(plugin.decode("")).toEqual(new Uint8Array([]));
+    expect(plugin.encode(new Uint8Array([]))).toBe("");
+  });
+
+  it("should have name 'hex-bypass'", () => {
+    expect(plugin.name).toBe("hex-bypass");
   });
 });

@@ -4,7 +4,7 @@
  * Bypass plugins for otplib - use raw string or hex secrets without Base32 encoding.
  */
 
-import { stringToBytes, bytesToString } from "@otplib/core";
+import { stringToBytes, bytesToString, hexToBytes, bytesToHex } from "@otplib/core";
 
 import type { Base32Plugin, Base32EncodeOptions } from "@otplib/core";
 
@@ -70,6 +70,32 @@ export class StringBypassPlugin extends BypassBase32Plugin {
     super({
       encode: bytesToString,
       decode: stringToBytes,
+    });
+  }
+}
+
+/**
+ * Hex string bypass - treats secrets as hex-encoded bytes
+ *
+ * Use this when your secret is a hex string that should be
+ * converted to bytes without Base32 encoding.
+ *
+ * @example
+ * ```ts
+ * import { HexBypassPlugin } from '@otplib/plugin-base32-bypass';
+ * import { generate } from '@otplib/totp';
+ *
+ * const plugin = new HexBypassPlugin();
+ * await generate({ secret: "4d79736563726574", base32: plugin, crypto });
+ * ```
+ */
+export class HexBypassPlugin extends BypassBase32Plugin {
+  override readonly name = "hex-bypass";
+
+  constructor() {
+    super({
+      encode: bytesToHex,
+      decode: hexToBytes,
     });
   }
 }
