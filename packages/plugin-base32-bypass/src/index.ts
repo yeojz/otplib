@@ -8,12 +8,12 @@ import { stringToBytes, bytesToString, hexToBytes, bytesToHex } from "@otplib/co
 
 import type { Base32Plugin, Base32EncodeOptions } from "@otplib/core";
 
-type BypassEncodeFunction = (data: Uint8Array) => string;
-type BypassDecodeFunction = (str: string) => Uint8Array;
+type BypassEncoder = (data: Uint8Array) => string;
+type BypassDecode = (str: string) => Uint8Array;
 
 type BypassBase32PluginOptions = {
-  encode: BypassEncodeFunction;
-  decode: BypassDecodeFunction;
+  encode: BypassEncoder;
+  decode: BypassDecode;
 };
 
 /**
@@ -31,8 +31,8 @@ type BypassBase32PluginOptions = {
  */
 export class BypassBase32Plugin implements Base32Plugin {
   readonly name: string = "bypass";
-  private readonly encodeFn: BypassEncodeFunction;
-  private readonly decodeFn: BypassDecodeFunction;
+  private readonly encodeFn: BypassEncoder;
+  private readonly decodeFn: BypassDecode;
 
   constructor(options: BypassBase32PluginOptions) {
     this.encodeFn = options.encode;
@@ -124,4 +124,4 @@ export const stringBypass: Base32Plugin = Object.freeze(new StringBypassPlugin()
  */
 export const hexBypass: Base32Plugin = Object.freeze(new HexBypassPlugin());
 
-export type { BypassBase32PluginOptions, BypassEncodeFunction, BypassDecodeFunction };
+export type { BypassBase32PluginOptions, BypassEncoder, BypassDecode };
