@@ -72,6 +72,7 @@ export {
   stringToBytes,
   bytesToString,
   hexToBytes,
+  bytesToHex,
   normalizeSecret,
   normalizeCounterTolerance,
   normalizeEpochTolerance,

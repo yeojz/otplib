@@ -618,6 +618,26 @@ export function hexToBytes(hex: string): Uint8Array {
 }
 
 /**
+ * Convert bytes to lowercase hex string
+ *
+ * Each byte is converted to a 2-character hex string.
+ *
+ * @param bytes - Uint8Array to convert
+ * @returns Lowercase hex string
+ *
+ * @example
+ * ```ts
+ * const hex = bytesToHex(new Uint8Array([72, 101, 108, 108, 111]));
+ * // hex === "48656c6c6f"
+ * ```
+ */
+export function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/**
  * Normalize secret input to Uint8Array
  *
  * Accepts either a Base32-encoded string or Uint8Array and returns Uint8Array.
