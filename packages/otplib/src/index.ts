@@ -30,14 +30,18 @@ export type {
   OTPResult,
   OTPGuardrails,
 } from "@otplib/core";
-export { createGuardrails } from "@otplib/core";
 export type { VerifyResult } from "@otplib/totp";
 
 export { HOTP } from "@otplib/hotp";
 export { TOTP } from "@otplib/totp";
 
-// Result wrapping utilities
-export { wrapResult, wrapResultAsync } from "@otplib/core";
+export {
+  createGuardrails,
+  hexToBytes,
+  stringToBytes,
+  wrapResult,
+  wrapResultAsync,
+} from "@otplib/core";
 
 // Default Plugins
 export { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
