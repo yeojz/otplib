@@ -100,4 +100,28 @@ export class HexBypassPlugin extends BypassBase32Plugin {
   }
 }
 
+/**
+ * Frozen singleton instance of StringBypassPlugin
+ *
+ * @example
+ * ```ts
+ * import { stringBypass } from '@otplib/plugin-base32-bypass';
+ *
+ * await generate({ secret: "mysecret", base32: stringBypass, crypto });
+ * ```
+ */
+export const stringBypass: Base32Plugin = Object.freeze(new StringBypassPlugin());
+
+/**
+ * Frozen singleton instance of HexBypassPlugin
+ *
+ * @example
+ * ```ts
+ * import { hexBypass } from '@otplib/plugin-base32-bypass';
+ *
+ * await generate({ secret: "4d79736563726574", base32: hexBypass, crypto });
+ * ```
+ */
+export const hexBypass: Base32Plugin = Object.freeze(new HexBypassPlugin());
+
 export type { BypassBase32PluginOptions, BypassEncodeFunction, BypassDecodeFunction };
