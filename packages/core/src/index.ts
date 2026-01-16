@@ -70,6 +70,7 @@ export {
   constantTimeEqual,
   getDigestSize,
   stringToBytes,
+  bytesToString,
   hexToBytes,
   normalizeSecret,
   normalizeCounterTolerance,

@@ -572,6 +572,24 @@ export function stringToBytes(value: string | Uint8Array): Uint8Array {
 }
 
 /**
+ * Convert bytes to UTF-8 string
+ *
+ * Uses TextDecoder for proper UTF-8 handling.
+ *
+ * @param bytes - Uint8Array to convert
+ * @returns UTF-8 string
+ *
+ * @example
+ * ```ts
+ * const str = bytesToString(new Uint8Array([104, 101, 108, 108, 111]));
+ * // str === "hello"
+ * ```
+ */
+export function bytesToString(bytes: Uint8Array): string {
+  return new TextDecoder().decode(bytes);
+}
+
+/**
  * Convert a hex string to a Uint8Array
  *
  * This is useful for working with RFC test vectors and debugging HMAC outputs,

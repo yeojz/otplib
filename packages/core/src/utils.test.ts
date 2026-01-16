@@ -24,6 +24,7 @@ import {
   constantTimeEqual,
   getDigestSize,
   stringToBytes,
+  bytesToString,
   hexToBytes,
   generateSecret,
   normalizeSecret,
@@ -775,6 +776,29 @@ describe("hexToBytes", () => {
   it("should handle all zeros", () => {
     const result = hexToBytes("0000000000");
     expect(result).toEqual(new Uint8Array([0, 0, 0, 0, 0]));
+  });
+});
+
+describe("bytesToString", () => {
+  it("should convert bytes to UTF-8 string", () => {
+    const bytes = new Uint8Array([104, 101, 108, 108, 111]);
+    expect(bytesToString(bytes)).toBe("hello");
+  });
+
+  it("should handle empty array", () => {
+    const bytes = new Uint8Array([]);
+    expect(bytesToString(bytes)).toBe("");
+  });
+
+  it("should handle unicode characters", () => {
+    const bytes = new Uint8Array([104, 195, 169, 108, 108, 111]); // "héllo" in UTF-8
+    expect(bytesToString(bytes)).toBe("héllo");
+  });
+
+  it("should round-trip with stringToBytes", () => {
+    const original = "Hello, World! 🌍";
+    const bytes = stringToBytes(original);
+    expect(bytesToString(bytes)).toBe(original);
   });
 });
 
