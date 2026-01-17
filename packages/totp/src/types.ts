@@ -176,3 +176,40 @@ export type VerifyResultInvalid = {
  * ```
  */
 export type VerifyResult = VerifyResultValid | VerifyResultInvalid;
+
+/**
+ * Result of TOTP generation
+ *
+ * Contains both the generated token and the time step used for generation.
+ * This provides consistency with the verification return type and allows
+ * applications to track which time step was used.
+ *
+ * @example
+ * ```typescript
+ * const result = await generate({ secret, crypto });
+ * console.log(`Token: ${result.token}`);
+ * console.log(`Time step: ${result.timeStep}`);
+ * ```
+ */
+export type GenerateResult = {
+  /** The generated TOTP code */
+  readonly token: string;
+  /**
+   * The time step number (per RFC 6238) used for generation.
+   *
+   * Per RFC 6238, time step T = floor((CurrentUnixTime - T0) / X), where X is the period.
+   * This is the actual time step counter value, not a Unix timestamp.
+   *
+   * @example
+   * ```typescript
+   * const result = await generate({
+   *   secret,
+   *   epoch: 1234567890,
+   *   period: 30,
+   *   crypto,
+   * });
+   * console.log(result.timeStep); // 41152263
+   * ```
+   */
+  readonly timeStep: number;
+};

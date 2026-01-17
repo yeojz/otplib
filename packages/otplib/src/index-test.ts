@@ -353,7 +353,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
           secret: TEST_SECRET,
         });
 
-        const token = await totp.generate();
+        const { token } = await totp.generate();
         expect(token).toHaveLength(6);
 
         const result = await totp.verify(token);

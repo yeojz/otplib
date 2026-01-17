@@ -87,7 +87,7 @@ export class Authenticator<T extends AuthenticatorOptions = AuthenticatorOptions
     // Generate using decoded secret (as raw bytes)
     const secretBytes = defaultBase32.decode(secret);
 
-    return totpGenerateSync({
+    const result = totpGenerateSync({
       secret: secretBytes,
       algorithm: opts.algorithm,
       digits: opts.digits as Digits,
@@ -96,6 +96,7 @@ export class Authenticator<T extends AuthenticatorOptions = AuthenticatorOptions
       t0: 0,
       crypto: opts.crypto,
     });
+    return result.token;
   }
 
   override check(token: string, secret: Base32SecretKey): boolean {

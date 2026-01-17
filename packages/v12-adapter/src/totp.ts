@@ -107,7 +107,7 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
     // v12 uses epoch in milliseconds, always convert to seconds
     const epochSeconds = Math.floor(opts.epoch / 1000);
 
-    return totpGenerateSync({
+    const result = totpGenerateSync({
       secret: secretBytes,
       algorithm: opts.algorithm,
       digits: opts.digits as Digits,
@@ -116,6 +116,7 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
       t0: 0,
       crypto: opts.crypto,
     });
+    return result.token;
   }
 
   /**
