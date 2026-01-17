@@ -224,6 +224,13 @@ describe("HOTP (v12-adapter)", () => {
       expect(token).toBe(tokenAscii);
     });
 
+    it("should reject hex secrets with 0x prefix", () => {
+      const hexSecret = "0x3132333435363738393031323334353637383930";
+      const hotp = new HOTP({ encoding: KeyEncodings.HEX });
+
+      expect(() => hotp.generate(hexSecret, 0)).toThrow();
+    });
+
     it("should handle hex secrets with spaces", () => {
       // Same hex with spaces
       const hexSecretWithSpaces = "31 32 33 34 35 36 37 38 39 30 31 32 33 34 35 36 37 38 39 30";
