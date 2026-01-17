@@ -10,6 +10,7 @@ import {
   TokenLengthError,
   TokenFormatError,
   CounterToleranceTooLargeError,
+  CounterToleranceNegativeError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
@@ -354,16 +355,19 @@ export function validateToken(token: string, digits: number): void {
  * ```
  */
 export function validateCounterTolerance(
-  counterTolerance: number | number[],
+  counterTolerance: number | [number, number],
   guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
-  const size = Array.isArray(counterTolerance) ? counterTolerance.length : counterTolerance * 2 + 1;
+  const [past, future] = normalizeCounterTolerance(counterTolerance);
 
-  if (size > guardrails.MAX_WINDOW * 2 + 1) {
-    throw new CounterToleranceTooLargeError(
-      guardrails.MAX_WINDOW,
-      Array.isArray(counterTolerance) ? counterTolerance.length : counterTolerance,
-    );
+  if (past < 0 || future < 0) {
+    throw new CounterToleranceNegativeError();
+  }
+
+  const totalChecks = past + future + 1;
+
+  if (totalChecks > guardrails.MAX_WINDOW) {
+    throw new CounterToleranceTooLargeError(guardrails.MAX_WINDOW, totalChecks);
   }
 }
 
@@ -671,35 +675,30 @@ export function generateSecret(options: SecretOptions): string {
 }
 
 /**
- * Normalize counter tolerance to an array of offsets
+ * Normalize counter tolerance to [past, future] tuple
  *
- * Converts a number or array counter tolerance specification into an array of offsets
- * - Number: creates symmetric range [-tolerance, +tolerance]
- * - Array: uses the array as-is (already contains specific offsets)
+ * Converts a number or tuple counter tolerance specification into a [past, future] tuple
+ * - Number: creates look-ahead only tolerance [0, tolerance] (default for security)
+ * - Tuple: uses the tuple as-is (past, future)
  *
- * @param counterTolerance - Counter tolerance specification (number or array of offsets)
- * @returns Array of offsets to check
+ * The default behavior (number → look-ahead only) improves security by preventing
+ * replay attacks. HOTP counters should only move forward in normal operation.
+ *
+ * @param counterTolerance - Counter tolerance specification (number or tuple [past, future])
+ * @returns Tuple [past, future] representing counters to check
  *
  * @example
  * ```ts
- * normalizeCounterTolerance(0)  // [0]
- * normalizeCounterTolerance(1)  // [-1, 0, 1]
- * normalizeCounterTolerance(2)  // [-2, -1, 0, 1, 2]
- * normalizeCounterTolerance([0, 1])  // [0, 1]
- * normalizeCounterTolerance([-1, 0, 1])  // [-1, 0, 1]
+ * normalizeCounterTolerance(0)        // [0, 0]
+ * normalizeCounterTolerance(5)        // [0, 5] - look-ahead only (secure default)
+ * normalizeCounterTolerance([10, 5])  // [10, 5] - explicit past/future
+ * normalizeCounterTolerance([5, 5])   // [5, 5] - explicit symmetric (use with caution)
  * ```
  */
-export function normalizeCounterTolerance(counterTolerance: number | number[] = 0): number[] {
-  if (Array.isArray(counterTolerance)) {
-    return counterTolerance;
-  }
-
-  const result: number[] = [];
-  for (let i = -counterTolerance; i <= counterTolerance; i++) {
-    // Bitwise OR with 0 converts -0 to 0 and preserves other integers
-    result.push(i | 0);
-  }
-  return result;
+export function normalizeCounterTolerance(
+  counterTolerance: number | [number, number] = 0,
+): [number, number] {
+  return Array.isArray(counterTolerance) ? counterTolerance : [0, counterTolerance];
 }
 
 /**

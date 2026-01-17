@@ -530,6 +530,90 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
           expect(result.delta).toBe(1);
         }
       });
+
+      it("should optimize loop start when counter is small with past tolerance", async () => {
+        // Generate token at counter 0
+        const token = await generate({
+          secret,
+          counter: 0,
+          algorithm: "sha1",
+          digits: 6,
+          crypto,
+        });
+
+        // Verify at counter 0 with large past tolerance [10, 0]
+        // Optimization should skip all negative counter iterations
+        const result = await verify({
+          secret,
+          counter: 0,
+          token,
+          algorithm: "sha1",
+          digits: 6,
+          crypto,
+          counterTolerance: [10, 0], // past=10, future=0
+        });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.delta).toBe(0);
+        }
+      });
+
+      it("should optimize loop start for small counter with symmetric tolerance", async () => {
+        // Generate token at counter 2
+        const token = await generate({
+          secret,
+          counter: 2,
+          algorithm: "sha1",
+          digits: 6,
+          crypto,
+        });
+
+        // Verify at counter 2 with tolerance [5, 5]
+        // Would check -3 to 7, but optimization skips -3,-2,-1
+        const result = await verify({
+          secret,
+          counter: 2,
+          token,
+          algorithm: "sha1",
+          digits: 6,
+          crypto,
+          counterTolerance: [5, 5],
+        });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.delta).toBe(0);
+        }
+      });
+
+      it("should find token in past with optimized loop", async () => {
+        // Generate token at counter 0
+        const token = await generate({
+          secret,
+          counter: 0,
+          algorithm: "sha1",
+          digits: 6,
+          crypto,
+        });
+
+        // Verify at counter 1 with tolerance [5, 0]
+        // Would check -4 to 1, optimization skips -4,-3,-2,-1
+        const result = await verify({
+          secret,
+          counter: 1,
+          token,
+          algorithm: "sha1",
+          digits: 6,
+          crypto,
+          counterTolerance: [5, 0],
+        });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.delta).toBe(-1);
+        }
+      });
     });
 
     describe("Edge Cases - Counter Boundaries", () => {
@@ -897,7 +981,7 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
             counter: 0,
             token,
             crypto,
-            counterTolerance: 10,
+            counterTolerance: 9, // [0, 9] = 10 total checks ≤ MAX_WINDOW
             guardrails: lenientGuardrails,
           });
 

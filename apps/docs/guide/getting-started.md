@@ -181,7 +181,8 @@ const result = await verify({
   token: "123456",
   strategy: "hotp",
   counter: 0,
-  counterTolerance: 5, // Look-ahead window (check counters 0-5)
+  counterTolerance: 5, // Look-ahead: checks current + 5 future counters [0, 5]
+  // counterTolerance: [5, 5], // Use tuple for symmetric window: ±5 counters
 });
 ```
 

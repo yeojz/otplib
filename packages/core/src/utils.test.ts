@@ -51,6 +51,7 @@ import {
   TokenLengthError,
   TokenFormatError,
   CounterToleranceTooLargeError,
+  CounterToleranceNegativeError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
@@ -323,24 +324,48 @@ describe("validateCounterTolerance", () => {
   it("should accept valid numeric tolerance", () => {
     expect(() => validateCounterTolerance(0, createGuardrails())).not.toThrow();
     expect(() => validateCounterTolerance(1, createGuardrails())).not.toThrow();
-    expect(() => validateCounterTolerance(MAX_WINDOW, createGuardrails())).not.toThrow();
+    // Number n normalizes to [0, n], so total = 0 + n + 1 = n + 1
+    // MAX_WINDOW = 100, so max valid n is 99 (total checks = 100)
+    expect(() => validateCounterTolerance(MAX_WINDOW - 1, createGuardrails())).not.toThrow();
   });
 
-  it("should accept valid array tolerance", () => {
-    expect(() => validateCounterTolerance([0], createGuardrails())).not.toThrow();
-    expect(() => validateCounterTolerance([0, 1, 2], createGuardrails())).not.toThrow();
-    expect(() => validateCounterTolerance([-1, 0, 1], createGuardrails())).not.toThrow();
+  it("should accept valid tuple tolerance", () => {
+    expect(() => validateCounterTolerance([0, 0], createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance([1, 1], createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance([10, 5], createGuardrails())).not.toThrow();
+    // [past, future] with past + future + 1 ≤ MAX_WINDOW
+    expect(() => validateCounterTolerance([49, 49], createGuardrails())).not.toThrow(); // 99 checks
+  });
+
+  it("should throw CounterToleranceNegativeError for negative values", () => {
+    expect(() => validateCounterTolerance([-5, 0], createGuardrails())).toThrowError(
+      CounterToleranceNegativeError,
+    );
+    expect(() => validateCounterTolerance([0, -5], createGuardrails())).toThrowError(
+      CounterToleranceNegativeError,
+    );
+    expect(() => validateCounterTolerance([-5, -5], createGuardrails())).toThrowError(
+      CounterToleranceNegativeError,
+    );
   });
 
   it("should throw CounterToleranceTooLargeError for tolerance exceeding max", () => {
+    // n=100 → [0, 100] → 101 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance(MAX_WINDOW, createGuardrails())).toThrowError(
+      CounterToleranceTooLargeError,
+    );
     expect(() => validateCounterTolerance(MAX_WINDOW + 1, createGuardrails())).toThrowError(
       CounterToleranceTooLargeError,
     );
   });
 
-  it("should throw CounterToleranceTooLargeError for array with too many elements", () => {
-    const largeArray = Array.from({ length: MAX_WINDOW * 2 + 2 }, (_, i) => i);
-    expect(() => validateCounterTolerance(largeArray, createGuardrails())).toThrowError(
+  it("should throw CounterToleranceTooLargeError for tuple exceeding max", () => {
+    // [50, 50] → 101 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance([50, 50], createGuardrails())).toThrowError(
+      CounterToleranceTooLargeError,
+    );
+    // [0, 100] → 101 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance([0, MAX_WINDOW], createGuardrails())).toThrowError(
       CounterToleranceTooLargeError,
     );
   });
@@ -349,25 +374,31 @@ describe("validateCounterTolerance", () => {
 describe("validateCounterTolerance with guardrails", () => {
   it("should accept custom MAX_WINDOW for numeric tolerance", () => {
     const g = createGuardrails({ MAX_WINDOW: 5 });
-    expect(() => validateCounterTolerance(5, g)).not.toThrow();
+    // n=4 → [0, 4] → 5 checks ≤ MAX_WINDOW
+    expect(() => validateCounterTolerance(4, g)).not.toThrow();
   });
 
   it("should throw CounterToleranceTooLargeError with custom MAX_WINDOW", () => {
     const g = createGuardrails({ MAX_WINDOW: 3 });
+    // n=3 → [0, 3] → 4 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance(3, g)).toThrowError(CounterToleranceTooLargeError);
     expect(() => validateCounterTolerance(4, g)).toThrowError(CounterToleranceTooLargeError);
   });
 
-  it("should accept custom MAX_WINDOW for array tolerance", () => {
-    const g = createGuardrails({ MAX_WINDOW: 2 });
-    expect(() => validateCounterTolerance([0, 1, 2, 3, 4], g)).not.toThrow(); // 5 elements <= 2*2+1
+  it("should accept custom MAX_WINDOW for tuple tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW: 5 });
+    // [2, 2] → 5 checks ≤ MAX_WINDOW
+    expect(() => validateCounterTolerance([2, 2], g)).not.toThrow();
+    // [0, 4] → 5 checks ≤ MAX_WINDOW
+    expect(() => validateCounterTolerance([0, 4], g)).not.toThrow();
   });
 
-  it("should throw CounterToleranceTooLargeError for array exceeding custom MAX_WINDOW", () => {
-    const g = createGuardrails({ MAX_WINDOW: 2 });
-    const largeArray = Array.from({ length: 6 }, (_, i) => i); // 6 > 2*2+1
-    expect(() => validateCounterTolerance(largeArray, g)).toThrowError(
-      CounterToleranceTooLargeError,
-    );
+  it("should throw CounterToleranceTooLargeError for tuple exceeding custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 5 });
+    // [3, 3] → 7 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance([3, 3], g)).toThrowError(CounterToleranceTooLargeError);
+    // [0, 5] → 6 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance([0, 5], g)).toThrowError(CounterToleranceTooLargeError);
   });
 });
 
@@ -462,19 +493,21 @@ describe("validateEpochTolerance with guardrails", () => {
 });
 
 describe("normalizeCounterTolerance", () => {
-  it("should return default [0] for undefined", () => {
-    expect(normalizeCounterTolerance()).toEqual([0]);
+  it("should return default [0, 0] for undefined", () => {
+    expect(normalizeCounterTolerance()).toEqual([0, 0]);
   });
 
-  it("should return array as-is", () => {
-    expect(normalizeCounterTolerance([0, 1, 2])).toEqual([0, 1, 2]);
-    expect(normalizeCounterTolerance([-1, 0, 1])).toEqual([-1, 0, 1]);
+  it("should return tuple as-is", () => {
+    expect(normalizeCounterTolerance([0, 0])).toEqual([0, 0]);
+    expect(normalizeCounterTolerance([5, 5])).toEqual([5, 5]);
+    expect(normalizeCounterTolerance([10, 5])).toEqual([10, 5]);
   });
 
-  it("should generate symmetric range for number", () => {
-    expect(normalizeCounterTolerance(0)).toEqual([0]);
-    expect(normalizeCounterTolerance(1)).toEqual([-1, 0, 1]);
-    expect(normalizeCounterTolerance(2)).toEqual([-2, -1, 0, 1, 2]);
+  it("should generate look-ahead only window for number", () => {
+    expect(normalizeCounterTolerance(0)).toEqual([0, 0]);
+    expect(normalizeCounterTolerance(1)).toEqual([0, 1]);
+    expect(normalizeCounterTolerance(5)).toEqual([0, 5]);
+    expect(normalizeCounterTolerance(10)).toEqual([0, 10]);
   });
 });
 

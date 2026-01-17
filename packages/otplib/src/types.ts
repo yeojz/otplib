@@ -125,10 +125,10 @@ export type OTPVerifyOptions = OTPGenerateOptions & {
 
   /**
    * Counter tolerance for HOTP verification (default: 0)
-   * - Number: symmetric look-ahead window
-   * - Array: asymmetric window
+   * - Number: creates look-ahead only tolerance [0, n]
+   * - Tuple [past, future]: explicit window control
    */
-  counterTolerance?: number | number[];
+  counterTolerance?: number | [number, number];
 };
 
 /**

@@ -231,7 +231,7 @@ describe("CounterToleranceTooLargeError", () => {
   it("should create error with max tolerance and actual value", () => {
     const error = new CounterToleranceTooLargeError(100, 150);
     expect(error.message).toBe(
-      "Counter tolerance size must not exceed 100, got 150. Large tolerances can cause performance issues.",
+      "Counter tolerance validation failed: total checks (150) exceeds MAX_WINDOW (100)",
     );
     expect(error.name).toBe("CounterToleranceTooLargeError");
     expect(error).toBeInstanceOf(CounterToleranceError);
