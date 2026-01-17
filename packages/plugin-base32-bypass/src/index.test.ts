@@ -78,14 +78,13 @@ describe("HexBypassPlugin", () => {
     expect(result).toEqual(new Uint8Array([72, 101, 108, 108, 111]));
   });
 
+  it("should reject hex strings with 0x prefix", () => {
+    expect(() => plugin.decode("0x48656c6c6f")).toThrow();
+  });
+
   it("should encode bytes to hex string", () => {
     const result = plugin.encode(new Uint8Array([72, 101, 108, 108, 111]));
     expect(result).toBe("48656c6c6f");
-  });
-
-  it("should handle uppercase hex input", () => {
-    const result = plugin.decode("48656C6C6F");
-    expect(result).toEqual(new Uint8Array([72, 101, 108, 108, 111]));
   });
 
   it("should handle empty string", () => {

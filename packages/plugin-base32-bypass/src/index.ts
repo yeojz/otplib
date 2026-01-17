@@ -4,7 +4,8 @@
  * Bypass plugins for otplib - use raw string or hex secrets without Base32 encoding.
  */
 
-import { stringToBytes, bytesToString, hexToBytes, bytesToHex } from "@otplib/core";
+import { stringToBytes, bytesToString } from "@otplib/core";
+import { hex } from "@scure/base";
 
 import type { Base32Plugin, Base32EncodeOptions } from "@otplib/core";
 
@@ -94,8 +95,8 @@ export class HexBypassPlugin extends BypassBase32Plugin {
 
   constructor() {
     super({
-      encode: bytesToHex,
-      decode: hexToBytes,
+      encode: hex.encode,
+      decode: hex.decode,
     });
   }
 }
