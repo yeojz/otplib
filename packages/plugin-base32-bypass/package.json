@@ -1,7 +1,7 @@
 {
   "name": "@otplib/plugin-base32-bypass",
   "version": "13.1.1",
-  "description": "Bypass plugins for otplib - use raw string or hex secrets without Base32 encoding",
+  "description": "Bypass Base32 encoding plugins for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
   "homepage": "https://otplib.yeojz.dev",
@@ -52,8 +52,7 @@
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "dependencies": {
-    "@otplib/core": "workspace:*",
-    "@scure/base": "^2.0.0"
+    "@otplib/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.0.6",
