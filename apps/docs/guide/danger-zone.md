@@ -56,13 +56,14 @@ For example, setting `MIN_SECRET_BYTES` to a value higher than `MAX_SECRET_BYTES
 
 ### Overridable Guardrails
 
-| Setting              | Default               | Risk                                                                                              | When to modify                                                                        |
-| :------------------- | :-------------------- | :------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------ |
-| **MIN_SECRET_BYTES** | 16 bytes (128 bits)   | Secrets become vulnerable to brute-force attacks. A 10-byte secret has only 2^80 possible values. | Only when integrating with legacy systems that cannot be upgraded.                    |
-| **MAX_SECRET_BYTES** | 1024 bytes            | Potential DoS attacks through excessive memory consumption.                                       | Rarely needed. Standard secrets are 20-32 bytes.                                      |
-| **MIN_PERIOD**       | 1 second              | Below 1 second, TOTP, behaviour will become unpredicatable.                                       | Use HOTP instead if you need event-based OTPs.                                        |
-| **MAX_PERIOD**       | 3600 seconds (1 hour) | Tokens remain valid longer, increasing replay attack window.                                      | Specialized systems with coarse time granularity (e.g., daily batch processes).       |
-| **MAX_WINDOW**       | 99 total checks       | Larger verification windows increase replay attack surface exponentially.                         | Systems with extreme desynchronization. Consider fixing the underlying issue instead. |
+| Setting              | Default               | Risk                                                                                              | When to modify                                                                  |
+| :------------------- | :-------------------- | :------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------ |
+| **MIN_SECRET_BYTES** | 16 bytes (128 bits)   | Secrets become vulnerable to brute-force attacks. A 10-byte secret has only 2^80 possible values. | Only when integrating with legacy systems that cannot be upgraded.              |
+| **MAX_SECRET_BYTES** | 1024 bytes            | Potential DoS attacks through excessive memory consumption.                                       | Rarely needed. Standard secrets are 20-32 bytes.                                |
+| **MIN_PERIOD**       | 1 second              | Below 1 second, TOTP, behaviour will become unpredicatable.                                       | Use HOTP instead if you need event-based OTPs.                                  |
+| **MAX_PERIOD**       | 3600 seconds (1 hour) | Tokens remain valid longer, increasing replay attack window.                                      | Specialized systems with coarse time granularity (e.g., daily batch processes). |
+
+| **MAX_WINDOW** | 99 total checks | Larger verification windows increase replay attack surface exponentially. | Systems with extreme desynchronization. Consider fixing the underlying issue instead. |
 
 ### Usage Examples
 
