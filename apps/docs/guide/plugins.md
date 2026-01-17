@@ -159,6 +159,81 @@ const decoded = base32.decode("JBSWY3DPEHPK3PXP");
 
 [Full documentation →](/api/@otplib/plugin-base32-scure/)
 
+### @otplib/plugin-base32-bypass
+
+::: warning Security Notice
+This plugin bypasses Base32 encoding/decoding. Ensure your secrets are compatible with the expected input format (e.g., already random bytes or specific strings if using custom logic).
+:::
+
+Bypass plugins allow you to use raw string secrets or custom transformations without standard Base32 encoding.
+
+#### String Bypass
+
+Use `stringBypass` or `StringBypassPlugin` when you have a plain UTF-8 string secret that should be converted directly to bytes.
+
+```typescript
+import { generate } from "otplib";
+import { stringBypass } from "@otplib/plugin-base32-bypass";
+
+// Using the singleton instance
+const token = await generate({
+  secret: "my-plain-text-secret",
+  base32: stringBypass,
+});
+
+// Or creating a new instance
+import { StringBypassPlugin } from "@otplib/plugin-base32-bypass";
+const token2 = await generate({
+  secret: "another-secret",
+  base32: new StringBypassPlugin(),
+});
+```
+
+#### Custom Bypass Logic
+
+Use `BypassBase32Plugin` when you need custom encoding/decoding logic that isn't standard Base32.
+
+```typescript
+import { generate } from "otplib";
+import { BypassBase32Plugin } from "@otplib/plugin-base32-bypass";
+
+const customBypass = new BypassBase32Plugin({
+  encode: (data) => {
+    // Custom encoding logic returning string
+    return "encoded_string";
+  },
+  decode: (str) => {
+    // Custom decoding logic returning Uint8Array
+    return new Uint8Array([1, 2, 3]);
+  },
+});
+
+const token = await generate({
+  secret: "custom-secret-format",
+  base32: customBypass,
+});
+```
+
+**Example: Hex-encoded secrets**
+
+```typescript
+import { generate } from "otplib";
+import { BypassBase32Plugin } from "@otplib/plugin-base32-bypass";
+import { hex } from "@scure/base";
+
+const hexBypass = new BypassBase32Plugin({
+  encode: hex.encode,
+  decode: hex.decode,
+});
+
+const token = await generate({
+  secret: "4d79736563726574", // "Mysecret" in hex
+  base32: hexBypass,
+});
+```
+
+[Full documentation →](/api/@otplib/plugin-base32-bypass/)
+
 ## Creating Custom Plugins
 
 ### Plugin Architecture
