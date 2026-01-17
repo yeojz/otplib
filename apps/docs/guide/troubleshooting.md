@@ -364,6 +364,9 @@ import type { HOTPGenerateOptions, TOTPVerifyOptions } from "otplib";
 // TOTPGenerateOptions requires: secret, crypto
 // HOTPVerifyOptions requires: secret, counter, token, crypto
 // TOTPVerifyOptions requires: secret, token, crypto
+
+// Secret can be Base32 string or Uint8Array for generate/verify options.
+// generateURI always requires a Base32 string.
 ```
 
 ## Debugging Tips

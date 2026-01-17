@@ -63,7 +63,7 @@ export type OTPGenerateOptions = {
    * **WARNING**: If you provide a string, it is assumed to be Base32-encoded!
    * If you have a raw string/passphrase, you must convert it to Uint8Array first.
    */
-  secret: string;
+  secret: string | Uint8Array;
 
   /**
    * Hash algorithm (default: 'sha1')
@@ -115,7 +115,7 @@ export type OTPVerifyOptions = {
    * **WARNING**: If you provide a string, it is assumed to be Base32-encoded!
    * If you have a raw string/passphrase, you must convert it to Uint8Array first.
    */
-  secret: string;
+  secret: string | Uint8Array;
 
   /**
    * OTP code to verify
