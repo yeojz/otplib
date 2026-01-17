@@ -14,6 +14,7 @@ You can use the following helper to normalize your secret string:
 
 ```javascript
 // This is not included in this library.
+// Common normalisation undertaken in past Google Authenticators.
 function normaliseCharset(input) {
   return input
     .toUpperCase()
@@ -22,10 +23,8 @@ function normaliseCharset(input) {
     .replace(/0/g, "O"); // Replace '0' with 'O' (capital o)
 }
 
-const secret = normaliseCharset("1234567123456712");
-
 const token = generate({
-  secret: stringToBytes(secret),
+  secret: normaliseCharset("1234567123456712");
   // ... other options
 });
 ```
