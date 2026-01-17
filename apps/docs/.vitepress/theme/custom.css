@@ -1,59 +1,258 @@
 /**
  * Custom Theme for otplib docs
- * Palette: "Authoritative Trust"
- * Design goal: Convey reliability, security, and professional-grade quality
- *              befitting a foundational security library.
+ * Palette: "Cipher Terminal"
+ * Design goal: Evoke cryptographic precision and security vault aesthetics
+ *              with electric teal accents against deep charcoal.
  *
- * Color Psychology:
- * - Deep navy/slate blues signal stability and institutional trust
- * - Subtle gradients add sophistication without appearing "startup playful"
- * - High contrast ratios ensure WCAG AAA compliance
+ * Typography: JetBrains Mono for display, Plus Jakarta Sans for body
+ * Color Psychology: Teal/cyan evokes "verified", "secure", "active"
  */
 
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
 :root {
-  /* Brand Colors - Deep authoritative blues */
-  /* Navy-leaning palette for gravitas and institutional trust */
-  --vp-c-brand-1: #1e5a9e; /* Primary - Authoritative Navy Blue */
-  --vp-c-brand-2: #164a87; /* Hover state - Deeper */
-  --vp-c-brand-3: #0f3a6e; /* Active state - Deepest */
-  --vp-c-brand-soft: rgba(30, 90, 158, 0.12);
+  /* Cipher Terminal Palette - Light mode */
+  --vp-c-brand-1: #0891b2; /* Primary - Cyber Teal */
+  --vp-c-brand-2: #0e7490; /* Hover state */
+  --vp-c-brand-3: #155e75; /* Active state */
+  --vp-c-brand-soft: rgba(8, 145, 178, 0.1);
 
-  /* Home Hero - Sophisticated slate-to-navy gradient */
-  /* Avoids the "startup vibrant" feel, emphasizes stability */
+  /* Hero gradient - Teal to cyan spectrum */
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(135deg, #1e3a5f 0%, #2563a8 50%, #1e5a9e 100%);
+  --vp-home-hero-name-background: linear-gradient(
+    135deg,
+    #0891b2 0%,
+    #06b6d4 50%,
+    #22d3ee 100%
+  );
 
-  /* Tip/Info callout colors - cohesive with brand */
+  /* Tip/Info callout colors */
   --vp-custom-block-tip-border: var(--vp-c-brand-1);
   --vp-custom-block-tip-text: var(--vp-c-brand-1);
+
+  /* Typography */
+  --vp-font-family-base: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --vp-font-family-mono: "JetBrains Mono", ui-monospace, "Cascadia Code",
+    "Source Code Pro", Menlo, monospace;
+
+  /* Custom tokens for landing page */
+  --cipher-accent: #0891b2;
+  --cipher-accent-glow: rgba(8, 145, 178, 0.4);
+  --cipher-bg-pattern: rgba(8, 145, 178, 0.03);
+  --cipher-grid-color: rgba(8, 145, 178, 0.08);
+  --cipher-surface: rgba(8, 145, 178, 0.04);
 }
 
 .dark {
-  /* Dark mode - Lighter blues for readability against dark backgrounds */
-  /* Slightly desaturated for a calm, professional appearance */
-  --vp-c-brand-1: #6ba3d6; /* Primary - Accessible sky blue */
-  --vp-c-brand-2: #5a94c9; /* Hover state */
-  --vp-c-brand-3: #4a85bb; /* Active state */
-  --vp-c-brand-soft: rgba(107, 163, 214, 0.14);
+  /* Dark mode - Electric teal for high contrast */
+  --vp-c-brand-1: #22d3ee; /* Primary - Electric Cyan */
+  --vp-c-brand-2: #06b6d4; /* Hover state */
+  --vp-c-brand-3: #0891b2; /* Active state */
+  --vp-c-brand-soft: rgba(34, 211, 238, 0.12);
 
-  /* Ensure button text has strong contrast (WCAG AAA: 7:1+) */
-  --vp-button-brand-text: #0a1929;
+  /* Button text contrast */
+  --vp-button-brand-text: #0a1419;
+  --vp-button-brand-bg: #22d3ee;
 
-  /* Dark mode hero gradient - sophisticated and calm */
-  --vp-home-hero-name-background: linear-gradient(135deg, #6ba3d6 0%, #82b5e0 50%, #5a94c9 100%);
+  /* Dark hero gradient */
+  --vp-home-hero-name-background: linear-gradient(
+    135deg,
+    #06b6d4 0%,
+    #22d3ee 40%,
+    #67e8f9 100%
+  );
+
+  /* Dark mode background enhancements */
+  --vp-c-bg: #0a0f14;
+  --vp-c-bg-soft: #111921;
+  --vp-c-bg-alt: #0d1318;
+
+  /* Custom tokens for dark landing page */
+  --cipher-accent: #22d3ee;
+  --cipher-accent-glow: rgba(34, 211, 238, 0.3);
+  --cipher-bg-pattern: rgba(34, 211, 238, 0.02);
+  --cipher-grid-color: rgba(34, 211, 238, 0.06);
+  --cipher-surface: rgba(34, 211, 238, 0.05);
 }
 
-/* Button styling for solid, trustworthy appearance */
+/* === TYPOGRAPHY OVERRIDES === */
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3 {
+  font-family: var(--vp-font-family-mono);
+  letter-spacing: -0.02em;
+}
+
+/* === BUTTON STYLING === */
 .VPButton.brand {
-  border-radius: 6px; /* Professional, not too rounded */
+  border-radius: 4px;
+  font-family: var(--vp-font-family-mono);
   font-weight: 600;
-  letter-spacing: 0.01em;
-  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.VPButton.brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.VPButton.brand:hover::before {
+  transform: translateX(100%);
 }
 
 .VPButton.brand:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--cipher-accent-glow);
+}
+
+.dark .VPButton.brand {
+  color: #0a1419;
+  box-shadow: 0 0 20px var(--cipher-accent-glow);
+}
+
+.dark .VPButton.brand:hover {
+  box-shadow: 0 0 30px var(--cipher-accent-glow),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Alt button - Terminal style */
+.VPButton.alt {
+  border-radius: 4px;
+  font-family: var(--vp-font-family-mono);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border: 1px solid var(--cipher-accent);
+  background: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.VPButton.alt:hover {
+  background: var(--cipher-surface);
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+  box-shadow: 0 0 12px var(--cipher-accent-glow);
+}
+
+/* === HOME PAGE HERO === */
+.VPHome {
+  position: relative;
+}
+
+/* Animated grid background */
+.VPHome::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background-image: linear-gradient(
+      var(--cipher-grid-color) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, var(--cipher-grid-color) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    black 20%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Gradient orb behind hero */
+.VPHome::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(
+    ellipse at center,
+    var(--cipher-accent-glow) 0%,
+    transparent 70%
+  );
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.VPHomeHero {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hero title styling */
+.VPHomeHero .name {
+  font-family: var(--vp-font-family-mono);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.VPHomeHero .text {
+  font-family: var(--vp-font-family-mono);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.VPHomeHero .tagline {
+  font-family: var(--vp-font-family-base);
+  font-weight: 400;
+  opacity: 0.85;
+  max-width: 560px;
+}
+
+/* Hero image glow effect */
+.VPHomeHero .image-container {
+  position: relative;
+}
+
+.VPHomeHero .image-container::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    circle at center,
+    var(--cipher-accent-glow) 0%,
+    transparent 60%
+  );
+  filter: blur(40px);
+  z-index: -1;
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 
 @media (max-width: 1000px) {
@@ -62,22 +261,211 @@
   }
 }
 
-.dark .VPButton.brand:hover {
-  box-shadow: 0 4px 12px rgba(107, 163, 214, 0.2);
+/* === FEATURES SECTION === */
+.features-section {
+  position: relative;
+  z-index: 1;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
 }
 
-.dark .VPButton.brand {
-  color: #fff;
+.features-header {
+  text-align: center;
+  margin-bottom: 3rem;
 }
 
-/* Alt button refinement for consistency */
-.VPButton.alt {
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.VPButton.alt:hover {
-  border-color: var(--vp-c-brand-1);
+.features-header h2 {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: var(--vp-c-brand-1);
+  margin: 0 0 0.5rem;
+}
+
+.features-header p {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--vp-c-text-1);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  position: relative;
+  background: var(--cipher-surface);
+  border: 1px solid var(--cipher-grid-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--cipher-accent) 0%,
+    transparent 50%,
+    transparent 100%
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.dark .feature-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 20px var(--cipher-accent-glow);
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cipher-surface);
+  border: 1px solid var(--cipher-grid-color);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.feature-card h3 {
+  font-family: var(--vp-font-family-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.feature-card p {
+  font-size: 0.875rem;
+  color: var(--vp-c-text-2);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* === DEMO SECTION HEADER === */
+.demo-section-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.demo-intro {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.demo-intro h2 {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--vp-c-brand-1);
+  margin: 0 0 0.5rem;
+}
+
+.demo-intro p {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--vp-c-text-1);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* === SCROLL INDICATOR === */
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  opacity: 0.6;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.scroll-indicator span {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-2);
+}
+
+.scroll-indicator svg {
+  width: 24px;
+  height: 24px;
+  color: var(--vp-c-brand-1);
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+/* === CODE BADGE === */
+.code-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: var(--cipher-surface);
+  border: 1px solid var(--cipher-grid-color);
+  border-radius: 100px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.75rem;
+  color: var(--vp-c-text-2);
+  margin-bottom: 1rem;
+}
+
+.code-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--vp-c-brand-1);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
