@@ -80,7 +80,7 @@ describe("Constants", () => {
   });
 
   it("should have correct window constant", () => {
-    expect(MAX_WINDOW).toBe(100);
+    expect(MAX_WINDOW).toBe(99);
   });
 });
 
@@ -325,7 +325,7 @@ describe("validateCounterTolerance", () => {
     expect(() => validateCounterTolerance(0, createGuardrails())).not.toThrow();
     expect(() => validateCounterTolerance(1, createGuardrails())).not.toThrow();
     // Number n normalizes to [0, n], so total = 0 + n + 1 = n + 1
-    // MAX_WINDOW = 100, so max valid n is 99 (total checks = 100)
+    // MAX_WINDOW = 99, so max valid n is 98 (total checks = 99)
     expect(() => validateCounterTolerance(MAX_WINDOW - 1, createGuardrails())).not.toThrow();
   });
 
@@ -334,7 +334,7 @@ describe("validateCounterTolerance", () => {
     expect(() => validateCounterTolerance([1, 1], createGuardrails())).not.toThrow();
     expect(() => validateCounterTolerance([10, 5], createGuardrails())).not.toThrow();
     // [past, future] with past + future + 1 ≤ MAX_WINDOW
-    expect(() => validateCounterTolerance([49, 49], createGuardrails())).not.toThrow(); // 99 checks
+    expect(() => validateCounterTolerance([49, 48], createGuardrails())).not.toThrow(); // 98 checks
   });
 
   it("should throw CounterToleranceNegativeError for negative values", () => {
@@ -454,9 +454,11 @@ describe("validateEpochTolerance", () => {
   });
 
   it("should have lower max tolerance when period is smaller", () => {
-    // Max tolerance with 10s period = MAX_WINDOW * 10 = 1000s
-    expect(() => validateEpochTolerance(1000, 10)).not.toThrow();
-    expect(() => validateEpochTolerance(1001, 10)).toThrowError(EpochToleranceTooLargeError);
+    // Max tolerance with 10s period = MAX_WINDOW * 10 = 990s
+    expect(() => validateEpochTolerance(MAX_WINDOW * 10, 10)).not.toThrow();
+    expect(() => validateEpochTolerance(MAX_WINDOW * 10 + 1, 10)).toThrowError(
+      EpochToleranceTooLargeError,
+    );
   });
 });
 
@@ -1081,7 +1083,7 @@ describe("createGuardrails", () => {
     expect(g.MIN_PERIOD).toBe(1);
     expect(g.MAX_PERIOD).toBe(3600);
     expect(g.MAX_COUNTER).toBe(Number.MAX_SAFE_INTEGER);
-    expect(g.MAX_WINDOW).toBe(100);
+    expect(g.MAX_WINDOW).toBe(99);
   });
 
   it("merges custom with defaults", () => {
