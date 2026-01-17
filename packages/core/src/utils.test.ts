@@ -25,7 +25,6 @@ import {
   getDigestSize,
   stringToBytes,
   bytesToString,
-  bytesToHex,
   generateSecret,
   normalizeSecret,
   normalizeCounterTolerance,
@@ -765,23 +764,6 @@ describe("bytesToString", () => {
     const original = "Hello, World! 🌍";
     const bytes = stringToBytes(original);
     expect(bytesToString(bytes)).toBe(original);
-  });
-});
-
-describe("bytesToHex", () => {
-  it("should convert bytes to lowercase hex string", () => {
-    const bytes = new Uint8Array([72, 101, 108, 108, 111]);
-    expect(bytesToHex(bytes)).toBe("48656c6c6f");
-  });
-
-  it("should handle empty array", () => {
-    const bytes = new Uint8Array([]);
-    expect(bytesToHex(bytes)).toBe("");
-  });
-
-  it("should pad single-digit hex values with zero", () => {
-    const bytes = new Uint8Array([0, 1, 15, 16]);
-    expect(bytesToHex(bytes)).toBe("00010f10");
   });
 });
 

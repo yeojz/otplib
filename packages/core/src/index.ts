@@ -71,7 +71,6 @@ export {
   getDigestSize,
   stringToBytes,
   bytesToString,
-  bytesToHex,
   normalizeSecret,
   normalizeCounterTolerance,
   normalizeEpochTolerance,

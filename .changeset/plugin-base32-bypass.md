@@ -12,4 +12,4 @@
 "otplib": minor
 ---
 
-Add new `@otplib/plugin-base32-bypass` package for using raw string or hex-encoded secrets without Base32 encoding. Standardize adapters (v11/v12) on `@scure/base` for improved hex input validation. Remove `hexToBytes` from `@otplib/core` public API (replaced with inverse utilities `bytesToString` and `bytesToHex`).
+Add new `@otplib/plugin-base32-bypass` package for using raw string or hex-encoded secrets without Base32 encoding. Standardize adapters (v11/v12) on `@scure/base` for improved hex input validation. Remove `hexToBytes` from `@otplib/core` public API.

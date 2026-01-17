@@ -35,6 +35,11 @@ import type {
 const textEncoder = new TextEncoder();
 
 /**
+ * Singleton TextDecoder instance to avoid repeated allocations
+ */
+const textDecoder = new TextDecoder();
+
+/**
  * Minimum secret length in bytes (128 bits as per RFC 4226)
  */
 export const MIN_SECRET_BYTES = 16;
@@ -76,7 +81,7 @@ export const MAX_COUNTER = Number.MAX_SAFE_INTEGER;
  * Maximum verification window size
  *
  * Limits the number of HMAC computations during verification to prevent DoS attacks.
- * A window of 100 means up to 201 HMAC computations ([-100, +100] range).
+ * A window of 100 means up to 100 HMAC computations (total checks including current counter).
  *
  * For TOTP: window=1 is typically sufficient (allows +-30 seconds clock drift)
  * For HOTP: window=10-50 handles reasonable counter desynchronization
@@ -586,27 +591,7 @@ export function stringToBytes(value: string | Uint8Array): Uint8Array {
  * ```
  */
 export function bytesToString(bytes: Uint8Array): string {
-  return new TextDecoder().decode(bytes);
-}
-
-/**
- * Convert bytes to lowercase hex string
- *
- * Each byte is converted to a 2-character hex string.
- *
- * @param bytes - Uint8Array to convert
- * @returns Lowercase hex string
- *
- * @example
- * ```ts
- * const hex = bytesToHex(new Uint8Array([72, 101, 108, 108, 111]));
- * // hex === "48656c6c6f"
- * ```
- */
-export function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return textDecoder.decode(bytes);
 }
 
 /**
