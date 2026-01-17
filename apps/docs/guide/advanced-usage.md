@@ -2,29 +2,44 @@
 
 This guide covers advanced topics for managing secrets, verifying tokens, and configuring internal behavior.
 
-## Secret Management
+## Secret Handling
 
-### Secret Normalization
+### Base32 by Default
 
-The built-in Base32 plugin (`ScureBase32Plugin`) automatically handles secret normalization:
+::: warning Important
+String secrets are treated as Base32-encoded strings by default.
+:::
 
-- **Case Insensitivity**: Converts input to uppercase.
-- **Padding**: Adds or ignores `=` padding as needed.
+This aligns with mainstream authenticator apps that expect Base32 secrets.
 
-This means you can strictly pass the secret string without manual preprocessing:
+### Non-Base32 Secrets (Passphrases)
+
+If your secret is a "random string", passphrase, or any text that is **NOT** Base32 encoded,
+you **MUST** convert it to a `Uint8Array` (bytes) before passing it to the library.
+This bypasses the Base32 decoding step.
+
+If you pass a plain string like `"my-super-secret-password"`, the library will try to decode it as Base32,
+which will likely fail or result in incorrect bytes.
 
 ```typescript
-import { generate } from "otplib";
+import { generate, stringToBytes } from "otplib";
 
-// All these work identically:
-await generate({ secret: "JBSWY3DPEHPK3PXPJBSWY3DPEQ", ... });
-await generate({ secret: "jbswy3dpehpk3pxpjbswy3dpeq", ... }); // Lowercase
-await generate({ secret: "JBSWY3DPEHPK3PXPJBSWY3DPEQ====", ... }); // Padded
+// WRONG: Treating a passphrase as a direct string
+// This will fail because it's likely not valid Base32
+await generate({ secret: "my-super-secret-password", ... });
+
+// CORRECT: Convert string to bytes first
+const secretBytes = stringToBytes("my-super-secret-password");
+
+await generate({
+  secret: secretBytes, // Library uses bytes directly
+  // ...
+});
 ```
 
 ### Input Validation
 
-To validate user input before processing:
+To validate if a user's input is valid Base32 before processing:
 
 ```typescript
 function isValidBase32(value: string): boolean {

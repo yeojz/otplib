@@ -44,8 +44,11 @@ export type OTPAuthOptions = {
 export type OTPGenerateOptions = {
   /**
    * Base32-encoded secret key
+   *
+   * **Note**: By default, strings are assumed to be Base32 encoded.
+   * If you have a raw string/passphrase, you must convert it to Uint8Array first.
    */
-  secret: string;
+  secret: string | Uint8Array;
 
   /**
    * OTP strategy to use (default: 'totp')
