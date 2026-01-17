@@ -25,7 +25,6 @@ import {
   getDigestSize,
   stringToBytes,
   bytesToString,
-  hexToBytes,
   bytesToHex,
   generateSecret,
   normalizeSecret,
@@ -746,40 +745,6 @@ describe("getDigestSize", () => {
   });
 });
 
-describe("hexToBytes", () => {
-  it("should convert lowercase hex string to bytes", () => {
-    const result = hexToBytes("cc93cf18");
-    expect(result).toEqual(new Uint8Array([0xcc, 0x93, 0xcf, 0x18]));
-  });
-
-  it("should convert uppercase hex string to bytes", () => {
-    const result = hexToBytes("CC93CF18");
-    expect(result).toEqual(new Uint8Array([0xcc, 0x93, 0xcf, 0x18]));
-  });
-
-  it("should convert RFC 4226 test vector HMAC", () => {
-    const result = hexToBytes("cc93cf18508d94934c64b65d8ba7667fb7cde4b0");
-    expect(result.length).toBe(20);
-    expect(result[0]).toBe(0xcc);
-    expect(result[19]).toBe(0xb0);
-  });
-
-  it("should handle empty string", () => {
-    const result = hexToBytes("");
-    expect(result).toEqual(new Uint8Array(0));
-  });
-
-  it("should handle single byte", () => {
-    const result = hexToBytes("ff");
-    expect(result).toEqual(new Uint8Array([0xff]));
-  });
-
-  it("should handle all zeros", () => {
-    const result = hexToBytes("0000000000");
-    expect(result).toEqual(new Uint8Array([0, 0, 0, 0, 0]));
-  });
-});
-
 describe("bytesToString", () => {
   it("should convert bytes to UTF-8 string", () => {
     const bytes = new Uint8Array([104, 101, 108, 108, 111]);
@@ -817,12 +782,6 @@ describe("bytesToHex", () => {
   it("should pad single-digit hex values with zero", () => {
     const bytes = new Uint8Array([0, 1, 15, 16]);
     expect(bytesToHex(bytes)).toBe("00010f10");
-  });
-
-  it("should round-trip with hexToBytes", () => {
-    const original = "48656c6c6f576f726c64";
-    const bytes = hexToBytes(original);
-    expect(bytesToHex(bytes)).toBe(original);
   });
 });
 

@@ -590,34 +590,6 @@ export function bytesToString(bytes: Uint8Array): string {
 }
 
 /**
- * Convert a hex string to a Uint8Array
- *
- * This is useful for working with RFC test vectors and debugging HMAC outputs,
- * which are commonly represented as hexadecimal strings.
- *
- * If your environment supports it, consider using `Uint8Array.fromHex()` instead.
- *
- * @param hex - The hex string to convert (lowercase or uppercase, no 0x prefix)
- * @returns The bytes as a Uint8Array
- *
- * @example
- * ```ts
- * import { hexToBytes } from '@otplib/core'
- *
- * // Convert RFC 4226 HMAC test vector
- * const hmac = hexToBytes('cc93cf18508d94934c64b65d8ba7667fb7cde4b0')
- * // Returns: Uint8Array([0xcc, 0x93, 0xcf, ...])
- * ```
- */
-export function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
-  }
-  return bytes;
-}
-
-/**
  * Convert bytes to lowercase hex string
  *
  * Each byte is converted to a 2-character hex string.
