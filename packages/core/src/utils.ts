@@ -81,12 +81,13 @@ export const MAX_COUNTER = Number.MAX_SAFE_INTEGER;
  * Maximum verification window size
  *
  * Limits the number of HMAC computations during verification to prevent DoS attacks.
- * A window of 100 means up to 100 HMAC computations (total checks including current counter).
+ * A window of 99 means up to 99 HMAC computations (total checks including current counter).
+ * Odd number to cater for equal distribution of time drift + current.
  *
  * For TOTP: window=1 is typically sufficient (allows +-30 seconds clock drift)
  * For HOTP: window=10-50 handles reasonable counter desynchronization
  */
-export const MAX_WINDOW = 100;
+export const MAX_WINDOW = 99;
 
 /**
  * Configurable guardrails for OTP validation
