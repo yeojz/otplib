@@ -271,6 +271,9 @@ importers:
       '@otplib/core':
         specifier: workspace:*
         version: link:../core
+      '@scure/base':
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@types/node':
         specifier: ^25.0.6
@@ -428,6 +431,9 @@ importers:
       '@otplib/uri':
         specifier: workspace:*
         version: link:../uri
+      '@scure/base':
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@repo/testing':
         specifier: workspace:*
@@ -462,6 +468,9 @@ importers:
       '@otplib/uri':
         specifier: workspace:*
         version: link:../uri
+      '@scure/base':
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@repo/testing':
         specifier: workspace:*
