@@ -40,6 +40,19 @@ export default defineConfig({
           exclude: ["**/node_modules/**", "dist/**", "**/*.bun.test.ts", "**/*.deno.test.ts"],
         },
       }),
+      defineProject({
+        resolve: {
+          alias,
+        },
+        test: {
+          name: "internal",
+          root: path.resolve(__dirname, "internal"),
+          globals: true,
+          environment: "node",
+          include: ["testing/**/*.test.ts"],
+          exclude: ["**/node_modules/**", "dist/**"],
+        },
+      }),
     ],
     // Global coverage settings
     coverage: {
