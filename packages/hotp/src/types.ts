@@ -66,11 +66,11 @@ export type HOTPVerifyOptions = HOTPGenerateOptions & {
   readonly token: string;
   /**
    * Counter tolerance for verification (default: 0)
-   * - Number: symmetric look-ahead window [counter, counter + counterTolerance]
-   * - Array: asymmetric window, where positive values are look-ahead and negative values are look-back
-   *   Examples: [0, 1] allows counter and counter+1; [-1, 0, 1] allows counter-1, counter, counter+1
+   * - Number: creates look-ahead only tolerance [0, n] (secure default per RFC 4226)
+   * - Tuple [past, future]: explicit window control
+   *   Examples: [0, 5] allows 5 future counters; [5, 5] allows ±5 symmetric
    */
-  readonly counterTolerance?: number | number[];
+  readonly counterTolerance?: number | [number, number];
 };
 
 /**

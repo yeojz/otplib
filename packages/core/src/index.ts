@@ -38,6 +38,7 @@ export {
   Base32DecodeError,
   CounterToleranceError,
   CounterToleranceTooLargeError,
+  CounterToleranceNegativeError,
   EpochToleranceError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
@@ -89,7 +90,8 @@ export {
   MAX_PERIOD,
   DEFAULT_PERIOD,
   MAX_COUNTER,
-  MAX_WINDOW,
+  MAX_WINDOW_HOTP,
+  MAX_WINDOW_TOTP,
 } from "./utils.js";
 
 export { CryptoContext, createCryptoContext } from "./crypto-context.js";

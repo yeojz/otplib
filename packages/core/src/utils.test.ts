@@ -8,7 +8,8 @@ import {
   MAX_PERIOD,
   DEFAULT_PERIOD,
   MAX_COUNTER,
-  MAX_WINDOW,
+  MAX_WINDOW_HOTP,
+  MAX_WINDOW_TOTP,
   createGuardrails,
   hasGuardrailOverrides,
   validateSecret,
@@ -51,6 +52,7 @@ import {
   TokenLengthError,
   TokenFormatError,
   CounterToleranceTooLargeError,
+  CounterToleranceNegativeError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
@@ -79,7 +81,8 @@ describe("Constants", () => {
   });
 
   it("should have correct window constant", () => {
-    expect(MAX_WINDOW).toBe(100);
+    expect(MAX_WINDOW_HOTP).toBe(51);
+    expect(MAX_WINDOW_TOTP).toBe(21);
   });
 });
 
@@ -91,7 +94,8 @@ describe("createGuardrails and hasGuardrailOverrides", () => {
     expect(guardrails.MIN_PERIOD).toBe(MIN_PERIOD);
     expect(guardrails.MAX_PERIOD).toBe(MAX_PERIOD);
     expect(guardrails.MAX_COUNTER).toBe(MAX_COUNTER);
-    expect(guardrails.MAX_WINDOW).toBe(MAX_WINDOW);
+    expect(guardrails.MAX_WINDOW_HOTP).toBe(MAX_WINDOW_HOTP);
+    expect(guardrails.MAX_WINDOW_TOTP).toBe(MAX_WINDOW_TOTP);
   });
 
   it("should return false for default guardrails", () => {
@@ -108,17 +112,17 @@ describe("createGuardrails and hasGuardrailOverrides", () => {
   it("should create custom guardrails", () => {
     const guardrails = createGuardrails({
       MIN_SECRET_BYTES: 10,
-      MAX_WINDOW: 20,
+      MAX_WINDOW_HOTP: 20,
     });
     expect(guardrails.MIN_SECRET_BYTES).toBe(10);
-    expect(guardrails.MAX_WINDOW).toBe(20);
+    expect(guardrails.MAX_WINDOW_HOTP).toBe(20);
     // Other values should be defaults
     expect(guardrails.MAX_SECRET_BYTES).toBe(MAX_SECRET_BYTES);
     expect(guardrails.MIN_PERIOD).toBe(MIN_PERIOD);
   });
 
   it("should return true for custom guardrails", () => {
-    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+    const guardrails = createGuardrails({ MAX_WINDOW_HOTP: 20 });
     expect(hasGuardrailOverrides(guardrails)).toBe(true);
   });
 
@@ -131,13 +135,13 @@ describe("createGuardrails and hasGuardrailOverrides", () => {
       MIN_PERIOD: 1,
       MAX_PERIOD: 3600,
       MAX_COUNTER: Number.MAX_SAFE_INTEGER,
-      MAX_WINDOW: 50,
+      MAX_WINDOW_HOTP: 50,
     }) as OTPGuardrails;
     expect(hasGuardrailOverrides(unknownGuardrails)).toBe(false);
   });
 
   it("should hide override flag from normal enumeration", () => {
-    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+    const guardrails = createGuardrails({ MAX_WINDOW_HOTP: 20 });
 
     // Symbol should not appear in normal enumeration
     expect(Object.keys(guardrails)).not.toContain("OVERRIDE_SYMBOL");
@@ -154,16 +158,16 @@ describe("createGuardrails and hasGuardrailOverrides", () => {
   });
 
   it("should freeze guardrails objects", () => {
-    const guardrails = createGuardrails({ MAX_WINDOW: 20 });
+    const guardrails = createGuardrails({ MAX_WINDOW_HOTP: 20 });
     expect(Object.isFrozen(guardrails)).toBe(true);
   });
 
   it("should create different objects for different custom values", () => {
-    const g1 = createGuardrails({ MAX_WINDOW: 20 });
-    const g2 = createGuardrails({ MAX_WINDOW: 30 });
+    const g1 = createGuardrails({ MAX_WINDOW_HOTP: 20 });
+    const g2 = createGuardrails({ MAX_WINDOW_HOTP: 30 });
     expect(g1).not.toBe(g2); // Different references
-    expect(g1.MAX_WINDOW).toBe(20);
-    expect(g2.MAX_WINDOW).toBe(30);
+    expect(g1.MAX_WINDOW_HOTP).toBe(20);
+    expect(g2.MAX_WINDOW_HOTP).toBe(30);
   });
 });
 
@@ -323,24 +327,48 @@ describe("validateCounterTolerance", () => {
   it("should accept valid numeric tolerance", () => {
     expect(() => validateCounterTolerance(0, createGuardrails())).not.toThrow();
     expect(() => validateCounterTolerance(1, createGuardrails())).not.toThrow();
-    expect(() => validateCounterTolerance(MAX_WINDOW, createGuardrails())).not.toThrow();
+    // Number n normalizes to [0, n], so total = 0 + n + 1 = n + 1
+    // MAX_WINDOW_HOTP = 51, so max valid n is 50 (total checks = 51)
+    expect(() => validateCounterTolerance(MAX_WINDOW_HOTP - 1, createGuardrails())).not.toThrow();
   });
 
-  it("should accept valid array tolerance", () => {
-    expect(() => validateCounterTolerance([0], createGuardrails())).not.toThrow();
-    expect(() => validateCounterTolerance([0, 1, 2], createGuardrails())).not.toThrow();
-    expect(() => validateCounterTolerance([-1, 0, 1], createGuardrails())).not.toThrow();
+  it("should accept valid tuple tolerance", () => {
+    expect(() => validateCounterTolerance([0, 0], createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance([1, 1], createGuardrails())).not.toThrow();
+    expect(() => validateCounterTolerance([10, 5], createGuardrails())).not.toThrow();
+    // [past, future] with past + future + 1 ≤ MAX_WINDOW_HOTP
+    expect(() => validateCounterTolerance([25, 25], createGuardrails())).not.toThrow(); // 51 checks
+  });
+
+  it("should throw CounterToleranceNegativeError for negative values", () => {
+    expect(() => validateCounterTolerance([-5, 0], createGuardrails())).toThrowError(
+      CounterToleranceNegativeError,
+    );
+    expect(() => validateCounterTolerance([0, -5], createGuardrails())).toThrowError(
+      CounterToleranceNegativeError,
+    );
+    expect(() => validateCounterTolerance([-5, -5], createGuardrails())).toThrowError(
+      CounterToleranceNegativeError,
+    );
   });
 
   it("should throw CounterToleranceTooLargeError for tolerance exceeding max", () => {
-    expect(() => validateCounterTolerance(MAX_WINDOW + 1, createGuardrails())).toThrowError(
+    // n=51 → [0, 51] → 52 checks > MAX_WINDOW_HOTP
+    expect(() => validateCounterTolerance(MAX_WINDOW_HOTP, createGuardrails())).toThrowError(
+      CounterToleranceTooLargeError,
+    );
+    expect(() => validateCounterTolerance(MAX_WINDOW_HOTP + 1, createGuardrails())).toThrowError(
       CounterToleranceTooLargeError,
     );
   });
 
-  it("should throw CounterToleranceTooLargeError for array with too many elements", () => {
-    const largeArray = Array.from({ length: MAX_WINDOW * 2 + 2 }, (_, i) => i);
-    expect(() => validateCounterTolerance(largeArray, createGuardrails())).toThrowError(
+  it("should throw CounterToleranceTooLargeError for tuple exceeding max", () => {
+    // [26, 26] → 53 checks > MAX_WINDOW_HOTP
+    expect(() => validateCounterTolerance([26, 26], createGuardrails())).toThrowError(
+      CounterToleranceTooLargeError,
+    );
+    // [0, 51] → 52 checks > MAX_WINDOW_HOTP
+    expect(() => validateCounterTolerance([0, MAX_WINDOW_HOTP], createGuardrails())).toThrowError(
       CounterToleranceTooLargeError,
     );
   });
@@ -348,26 +376,32 @@ describe("validateCounterTolerance", () => {
 
 describe("validateCounterTolerance with guardrails", () => {
   it("should accept custom MAX_WINDOW for numeric tolerance", () => {
-    const g = createGuardrails({ MAX_WINDOW: 5 });
-    expect(() => validateCounterTolerance(5, g)).not.toThrow();
+    const g = createGuardrails({ MAX_WINDOW_HOTP: 5 });
+    // n=4 → [0, 4] → 5 checks ≤ MAX_WINDOW
+    expect(() => validateCounterTolerance(4, g)).not.toThrow();
   });
 
   it("should throw CounterToleranceTooLargeError with custom MAX_WINDOW", () => {
-    const g = createGuardrails({ MAX_WINDOW: 3 });
+    const g = createGuardrails({ MAX_WINDOW_HOTP: 3 });
+    // n=3 → [0, 3] → 4 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance(3, g)).toThrowError(CounterToleranceTooLargeError);
     expect(() => validateCounterTolerance(4, g)).toThrowError(CounterToleranceTooLargeError);
   });
 
-  it("should accept custom MAX_WINDOW for array tolerance", () => {
-    const g = createGuardrails({ MAX_WINDOW: 2 });
-    expect(() => validateCounterTolerance([0, 1, 2, 3, 4], g)).not.toThrow(); // 5 elements <= 2*2+1
+  it("should accept custom MAX_WINDOW for tuple tolerance", () => {
+    const g = createGuardrails({ MAX_WINDOW_HOTP: 5 });
+    // [2, 2] → 5 checks ≤ MAX_WINDOW
+    expect(() => validateCounterTolerance([2, 2], g)).not.toThrow();
+    // [0, 4] → 5 checks ≤ MAX_WINDOW
+    expect(() => validateCounterTolerance([0, 4], g)).not.toThrow();
   });
 
-  it("should throw CounterToleranceTooLargeError for array exceeding custom MAX_WINDOW", () => {
-    const g = createGuardrails({ MAX_WINDOW: 2 });
-    const largeArray = Array.from({ length: 6 }, (_, i) => i); // 6 > 2*2+1
-    expect(() => validateCounterTolerance(largeArray, g)).toThrowError(
-      CounterToleranceTooLargeError,
-    );
+  it("should throw CounterToleranceTooLargeError for tuple exceeding custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW_HOTP: 5 });
+    // [3, 3] → 7 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance([3, 3], g)).toThrowError(CounterToleranceTooLargeError);
+    // [0, 5] → 6 checks > MAX_WINDOW
+    expect(() => validateCounterTolerance([0, 5], g)).toThrowError(CounterToleranceTooLargeError);
   });
 });
 
@@ -375,7 +409,7 @@ describe("validateEpochTolerance", () => {
   it("should accept valid numeric tolerance", () => {
     expect(() => validateEpochTolerance(0)).not.toThrow();
     expect(() => validateEpochTolerance(30)).not.toThrow();
-    expect(() => validateEpochTolerance(MAX_WINDOW * DEFAULT_PERIOD)).not.toThrow();
+    expect(() => validateEpochTolerance(MAX_WINDOW_TOTP * DEFAULT_PERIOD)).not.toThrow();
   });
 
   it("should accept valid tuple tolerance", () => {
@@ -391,7 +425,7 @@ describe("validateEpochTolerance", () => {
   });
 
   it("should throw EpochToleranceTooLargeError for tolerance exceeding max", () => {
-    const maxToleranceSeconds = MAX_WINDOW * DEFAULT_PERIOD;
+    const maxToleranceSeconds = MAX_WINDOW_TOTP * DEFAULT_PERIOD;
     expect(() => validateEpochTolerance(maxToleranceSeconds + 1)).toThrowError(
       EpochToleranceTooLargeError,
     );
@@ -401,9 +435,9 @@ describe("validateEpochTolerance", () => {
   });
 
   it("should accept higher tolerance when period is larger", () => {
-    // With default period 30s, max tolerance is MAX_WINDOW * 30 = 3000s
-    // With period 60s, max tolerance is MAX_WINDOW * 60 = 6000s
-    const toleranceExceedingDefault = MAX_WINDOW * DEFAULT_PERIOD + 1;
+    // With default period 30s, max tolerance is MAX_WINDOW_TOTP * 30 = 630s
+    // With period 60s, max tolerance is MAX_WINDOW_TOTP * 60 = 1260s
+    const toleranceExceedingDefault = MAX_WINDOW_TOTP * DEFAULT_PERIOD + 1;
 
     // Should throw with default period
     expect(() => validateEpochTolerance(toleranceExceedingDefault)).toThrowError(
@@ -415,29 +449,29 @@ describe("validateEpochTolerance", () => {
   });
 
   it("should use actual period for max tolerance calculation", () => {
-    // Max tolerance with 60s period = MAX_WINDOW * 60 = 6000s
-    expect(() => validateEpochTolerance(MAX_WINDOW * 60, 60)).not.toThrow();
-    expect(() => validateEpochTolerance(MAX_WINDOW * 60 + 1, 60)).toThrowError(
+    // Max tolerance with 60s period = MAX_WINDOW_TOTP * 60 = 1260s
+    expect(() => validateEpochTolerance(MAX_WINDOW_TOTP * 60, 60)).not.toThrow();
+    expect(() => validateEpochTolerance(MAX_WINDOW_TOTP * 60 + 1, 60)).toThrowError(
       EpochToleranceTooLargeError,
     );
   });
 
   it("should have lower max tolerance when period is smaller", () => {
-    // Max tolerance with 10s period = MAX_WINDOW * 10 = 1000s
-    expect(() => validateEpochTolerance(1000, 10)).not.toThrow();
-    expect(() => validateEpochTolerance(1001, 10)).toThrowError(EpochToleranceTooLargeError);
+    // Max tolerance with 10s period = MAX_WINDOW_TOTP * 10 = 210s
+    expect(() => validateEpochTolerance(210, 10)).not.toThrow();
+    expect(() => validateEpochTolerance(211, 10)).toThrowError(EpochToleranceTooLargeError);
   });
 });
 
 describe("validateEpochTolerance with guardrails", () => {
   it("should accept custom MAX_WINDOW for numeric tolerance", () => {
-    const g = createGuardrails({ MAX_WINDOW: 5 });
+    const g = createGuardrails({ MAX_WINDOW_TOTP: 5 });
     const maxToleranceSeconds = 5 * DEFAULT_PERIOD;
     expect(() => validateEpochTolerance(maxToleranceSeconds, DEFAULT_PERIOD, g)).not.toThrow();
   });
 
   it("should throw EpochToleranceTooLargeError with custom MAX_WINDOW", () => {
-    const g = createGuardrails({ MAX_WINDOW: 3 });
+    const g = createGuardrails({ MAX_WINDOW_TOTP: 3 });
     const maxToleranceSeconds = 3 * DEFAULT_PERIOD;
     expect(() => validateEpochTolerance(maxToleranceSeconds + 1, DEFAULT_PERIOD, g)).toThrowError(
       EpochToleranceTooLargeError,
@@ -445,7 +479,7 @@ describe("validateEpochTolerance with guardrails", () => {
   });
 
   it("should accept custom MAX_WINDOW for tuple tolerance", () => {
-    const g = createGuardrails({ MAX_WINDOW: 2 });
+    const g = createGuardrails({ MAX_WINDOW_TOTP: 2 });
     const maxToleranceSeconds = 2 * DEFAULT_PERIOD;
     expect(() =>
       validateEpochTolerance([maxToleranceSeconds, maxToleranceSeconds], DEFAULT_PERIOD, g),
@@ -453,7 +487,7 @@ describe("validateEpochTolerance with guardrails", () => {
   });
 
   it("should throw EpochToleranceTooLargeError for tuple exceeding custom MAX_WINDOW", () => {
-    const g = createGuardrails({ MAX_WINDOW: 2 });
+    const g = createGuardrails({ MAX_WINDOW_TOTP: 2 });
     const maxToleranceSeconds = 2 * DEFAULT_PERIOD;
     expect(() =>
       validateEpochTolerance([0, maxToleranceSeconds + 1], DEFAULT_PERIOD, g),
@@ -462,19 +496,21 @@ describe("validateEpochTolerance with guardrails", () => {
 });
 
 describe("normalizeCounterTolerance", () => {
-  it("should return default [0] for undefined", () => {
-    expect(normalizeCounterTolerance()).toEqual([0]);
+  it("should return default [0, 0] for undefined", () => {
+    expect(normalizeCounterTolerance()).toEqual([0, 0]);
   });
 
-  it("should return array as-is", () => {
-    expect(normalizeCounterTolerance([0, 1, 2])).toEqual([0, 1, 2]);
-    expect(normalizeCounterTolerance([-1, 0, 1])).toEqual([-1, 0, 1]);
+  it("should return tuple as-is", () => {
+    expect(normalizeCounterTolerance([0, 0])).toEqual([0, 0]);
+    expect(normalizeCounterTolerance([5, 5])).toEqual([5, 5]);
+    expect(normalizeCounterTolerance([10, 5])).toEqual([10, 5]);
   });
 
-  it("should generate symmetric range for number", () => {
-    expect(normalizeCounterTolerance(0)).toEqual([0]);
-    expect(normalizeCounterTolerance(1)).toEqual([-1, 0, 1]);
-    expect(normalizeCounterTolerance(2)).toEqual([-2, -1, 0, 1, 2]);
+  it("should generate look-ahead only window for number", () => {
+    expect(normalizeCounterTolerance(0)).toEqual([0, 0]);
+    expect(normalizeCounterTolerance(1)).toEqual([0, 1]);
+    expect(normalizeCounterTolerance(5)).toEqual([0, 5]);
+    expect(normalizeCounterTolerance(10)).toEqual([0, 10]);
   });
 });
 
@@ -1059,12 +1095,13 @@ describe("createGuardrails", () => {
     expect(g.MIN_PERIOD).toBe(1);
     expect(g.MAX_PERIOD).toBe(3600);
     expect(g.MAX_COUNTER).toBe(Number.MAX_SAFE_INTEGER);
-    expect(g.MAX_WINDOW).toBe(100);
+    expect(g.MAX_WINDOW_HOTP).toBe(51);
+    expect(g.MAX_WINDOW_TOTP).toBe(21);
   });
 
   it("merges custom with defaults", () => {
-    const g = createGuardrails({ MAX_WINDOW: 200, MIN_SECRET_BYTES: 8 });
-    expect(g.MAX_WINDOW).toBe(200);
+    const g = createGuardrails({ MAX_WINDOW_HOTP: 200, MIN_SECRET_BYTES: 8 });
+    expect(g.MAX_WINDOW_HOTP).toBe(200);
     expect(g.MIN_SECRET_BYTES).toBe(8);
     expect(g.MAX_SECRET_BYTES).toBe(64);
     expect(g.MIN_PERIOD).toBe(1);
@@ -1075,13 +1112,13 @@ describe("createGuardrails", () => {
     expect(Object.isFrozen(g)).toBe(true);
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (g as any).MAX_WINDOW = 999;
+      (g as any).MAX_WINDOW_HOTP = 999;
     }).toThrow();
   });
 
   it("accepts partial guardrails", () => {
-    const g = createGuardrails({ MAX_WINDOW: 50 });
-    expect(g.MAX_WINDOW).toBe(50);
+    const g = createGuardrails({ MAX_WINDOW_HOTP: 50 });
+    expect(g.MAX_WINDOW_HOTP).toBe(50);
   });
 });
 

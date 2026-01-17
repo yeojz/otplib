@@ -104,7 +104,7 @@ export class HOTP {
    */
   async verify(
     params: { token: string; counter: number },
-    options?: Partial<HOTPOptions & { counterTolerance?: number | number[] }>,
+    options?: Partial<HOTPOptions & { counterTolerance?: number | [number, number] }>,
   ): Promise<VerifyResult> {
     const mergedOptions = { ...this.options, ...options };
     const {

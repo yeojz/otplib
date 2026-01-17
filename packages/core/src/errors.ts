@@ -310,12 +310,21 @@ export class CounterToleranceError extends OTPError {
  * Error thrown when counter tolerance is too large
  */
 export class CounterToleranceTooLargeError extends CounterToleranceError {
-  constructor(maxTolerance: number, actualSize: number) {
+  constructor(maxWindow: number, totalChecks: number) {
     super(
-      `Counter tolerance size must not exceed ${maxTolerance}, got ${actualSize}. ` +
-        `Large tolerances can cause performance issues.`,
+      `Counter tolerance validation failed: total checks (${totalChecks}) exceeds MAX_WINDOW_HOTP (${maxWindow})`,
     );
     this.name = "CounterToleranceTooLargeError";
+  }
+}
+
+/**
+ * Error thrown when counter tolerance contains negative values
+ */
+export class CounterToleranceNegativeError extends CounterToleranceError {
+  constructor() {
+    super("Counter tolerance cannot contain negative values");
+    this.name = "CounterToleranceNegativeError";
   }
 }
 
@@ -345,8 +354,7 @@ export class EpochToleranceNegativeError extends EpochToleranceError {
 export class EpochToleranceTooLargeError extends EpochToleranceError {
   constructor(maxTolerance: number, actualValue: number) {
     super(
-      `Epoch tolerance must not exceed ${maxTolerance} seconds, got ${actualValue}. ` +
-        `Large tolerances can cause performance issues.`,
+      `Epoch tolerance validation failed: tolerance (${actualValue}s) exceeds MAX_WINDOW_TOTP (${maxTolerance}s)`,
     );
     this.name = "EpochToleranceTooLargeError";
   }
