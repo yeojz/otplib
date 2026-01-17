@@ -601,8 +601,8 @@ export function hexToBytes(hex: string): Uint8Array {
  * Accepts either a Base32-encoded string or Uint8Array and returns Uint8Array.
  * If a Base32Plugin is provided, string secrets will be automatically decoded.
  *
- * **WARNING**: All strings are assumed to be Base32 encoded!
- * If you have a raw string secret (e.g. a passphrase), you MUST convert it
+ * **Note**: By default, strings are assumed to be Base32 encoded.
+ * If you have a raw string secret (e.g. a passphrase), you must convert it
  * to a Uint8Array using {@link stringToBytes} before calling this function.
  *
  * @param secret - The secret to normalize (Base32 string or Uint8Array)

@@ -60,7 +60,7 @@ export type OTPGenerateOptions = {
   /**
    * Base32-encoded secret key
    *
-   * **WARNING**: If you provide a string, it is assumed to be Base32-encoded!
+   * **Note**: By default, strings are assumed to be Base32 encoded.
    * If you have a raw string/passphrase, you must convert it to Uint8Array first.
    */
   secret: string | Uint8Array;
@@ -112,7 +112,7 @@ export type OTPVerifyOptions = {
   /**
    * Base32-encoded secret key
    *
-   * **WARNING**: If you provide a string, it is assumed to be Base32-encoded!
+   * **Note**: By default, strings are assumed to be Base32 encoded.
    * If you have a raw string/passphrase, you must convert it to Uint8Array first.
    */
   secret: string | Uint8Array;
@@ -194,7 +194,7 @@ export type OTPURIGenerateOptions = {
   /**
    * Base32-encoded secret key
    *
-   * **WARNING**: If you provide a string, it is assumed to be Base32-encoded!
+   * **Note**: By default, strings are assumed to be Base32 encoded.
    * If you have a raw string/passphrase, you must convert it to Uint8Array first.
    */
   secret: string;

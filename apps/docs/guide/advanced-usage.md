@@ -6,29 +6,20 @@ This guide covers advanced topics for managing secrets, verifying tokens, and co
 
 ### Base32 by Default
 
-**Important:** String secrets are **ALWAYS** treated as Base32-encoded strings by default.
+::: warning Important
+String secrets are treated as Base32-encoded strings by default.
+:::
 
-The library assumes any string passed as a secret is Base32 encoded and will attempt to decode it to bytes. The built-in Base32 plugin (`ScureBase32Plugin`) handles normalization automatically:
-
-- **Case Insensitivity**: Converts input to uppercase.
-- **Padding**: Adds or ignores `=` padding as needed.
-
-This means you can pass the Base32 string with or without formatting:
-
-```typescript
-import { generate } from "otplib";
-
-// All these work identically:
-await generate({ secret: "JBSWY3DPEHPK3PXPJBSWY3DPEQ", ... });
-await generate({ secret: "jbswy3dpehpk3pxpjbswy3dpeq", ... }); // Lowercase
-await generate({ secret: "JBSWY3DPEHPK3PXPJBSWY3DPEQ====", ... }); // Padded
-```
+This aligns with mainstream authenticator apps that expect Base32 secrets.
 
 ### Non-Base32 Secrets (Passphrases)
 
-If your secret is a "random string", passphrase, or any text that is **NOT** Base32 encoded, you **MUST** convert it to a `Uint8Array` (bytes) before passing it to the library.
+If your secret is a "random string", passphrase, or any text that is **NOT** Base32 encoded,
+you **MUST** convert it to a `Uint8Array` (bytes) before passing it to the library.
+This bypasses the Base32 decoding step.
 
-If you pass a plain string like `"my-super-secret-password"`, the library will try to decode it as Base32, which will likely fail or result in incorrect bytes.
+If you pass a plain string like `"my-super-secret-password"`, the library will try to decode it as Base32,
+which will likely fail or result in incorrect bytes.
 
 ```typescript
 import { generate, stringToBytes } from "otplib";
