@@ -62,3 +62,6 @@ yarn-error.log*
 
 # Test Reports
 reports/
+
+# Misc
+/docs
