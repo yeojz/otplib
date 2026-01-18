@@ -187,9 +187,9 @@ const token = await generate({
 
 ## Creating Custom Plugins
 
-If you need a custom crypto or Base32 implementation, use the `createCryptoPlugin` and `createBase32Plugin` helpers from `@otplib/core`. Keep the implementation minimal and focus only on the required methods.
+If you need a custom crypto or Base32 implementation, use the `createCryptoPlugin` and `createBase32Plugin` helpers from `@otplib/core`.
 
-### Custom Crypto (Skeleton)
+### Custom Crypto
 
 ```typescript
 import { createCryptoPlugin } from "@otplib/core";
@@ -211,7 +211,7 @@ const customCrypto = createCryptoPlugin({
 });
 ```
 
-### Custom Base32 (Skeleton)
+### Custom Base32
 
 ```typescript
 import { createBase32Plugin } from "@otplib/core";
@@ -227,6 +227,51 @@ const customBase32 = createBase32Plugin({
     return new Uint8Array();
   },
 });
+```
+
+### Class Extension
+
+For more advanced behavior (stateful configuration, shared helpers, or multiple methods), you can extend a class that implements the plugin interface instead of using the factories. This is useful when you need lifecycle setup or richer internal structure.
+
+```typescript
+import type { CryptoPlugin } from "@otplib/core";
+
+class CustomCryptoPlugin implements CryptoPlugin {
+  name = "custom";
+
+  hmac(algorithm, key, data) {
+    // your HMAC implementation here
+    return new Uint8Array();
+  }
+
+  randomBytes(length) {
+    // your random bytes implementation here
+    return new Uint8Array(length);
+  }
+
+  constantTimeEqual(a, b) {
+    // your constant time implementation here
+    return true;
+  }
+}
+```
+
+```typescript
+import type { Base32Plugin } from "@otplib/core";
+
+class CustomBase32Plugin implements Base32Plugin {
+  name = "custom-base32";
+
+  encode(data) {
+    // your Base32 encode implementation here
+    return "";
+  }
+
+  decode(str) {
+    // your Base32 decode implementation here
+    return new Uint8Array();
+  }
+}
 ```
 
 For full API details, see the core documentation.
