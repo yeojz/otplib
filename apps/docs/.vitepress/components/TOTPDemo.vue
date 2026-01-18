@@ -172,7 +172,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* Only TOTP-specific styles remain */
+/* TOTP-specific styles - Cipher Terminal aesthetic */
 .token-card {
   text-align: center;
 }
@@ -182,16 +182,41 @@ onUnmounted(() => {
 }
 
 .tokens {
-  background: var(--vp-c-bg);
-  border: 2px solid var(--vp-c-border);
-  border-radius: 12px;
-  padding: 1rem;
+  background: var(--cipher-surface);
+  border: 1px solid var(--cipher-grid-color);
+  border-radius: 8px;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: center;
   min-height: 240px;
   width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scan line effect */
+.tokens::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--cipher-accent) 50%,
+    transparent 100%
+  );
+  animation: scan 4s linear infinite;
+  opacity: 0.4;
+}
+
+@keyframes scan {
+  0% { top: 0; }
+  100% { top: 100%; }
 }
 
 .token-item {
@@ -199,78 +224,91 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 8px;
+  padding: 0.875rem;
+  border-radius: 6px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .current-token {
-  background: var(--vp-button-brand-bg);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  background: var(--cipher-accent);
+  box-shadow: 0 0 24px var(--cipher-accent-glow),
+    0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .outer-token {
-  background: var(--vp-c-bg-soft);
-  transform: scale(0.9);
+  background: var(--vp-c-bg);
+  border: 1px solid var(--cipher-grid-color);
+  transform: scale(0.92);
+  opacity: 0.7;
 }
 
 .token-value {
-  font-family: 'Courier New', monospace;
+  font-family: var(--vp-font-family-mono);
   font-weight: 700;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
 }
 
 .current-token .token-value {
   font-size: 2rem;
-  color: white;
+  color: #0a1419;
 }
 
 .outer-token .token-value {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: var(--vp-c-text-2);
 }
 
 .token-label {
-  font-size: 0.75rem;
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.65rem;
   font-weight: 600;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.1);
-  color: var(--vp-c-text-2);
+  background: var(--cipher-surface);
+  border: 1px solid var(--cipher-grid-color);
+  color: var(--cipher-text-muted);
+  letter-spacing: 0.05em;
 }
 
 .timer-bar {
-  font-size: 0.875rem;
-  color: var(--vp-c-text-2);
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.8rem;
+  color: var(--cipher-text-muted);
+  letter-spacing: 0.02em;
 }
 
 .time-text {
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
 }
 
 .progress {
-  height: 6px;
-  background: var(--vp-c-bg);
-  border-radius: 3px;
+  height: 4px;
+  background: var(--cipher-surface);
+  border: 1px solid var(--cipher-grid-color);
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: var(--vp-button-brand-bg);
+  background: linear-gradient(90deg, var(--cipher-accent) 0%, var(--vp-c-brand-2) 100%);
+  box-shadow: 0 0 8px var(--cipher-accent-glow);
   transition: width 0.3s ease;
 }
 
 @media (max-width: 768px) {
   .current-token .token-value {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
   }
 
   .outer-token .token-value {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .tokens {
-    min-height: 240px;
+    min-height: 220px;
+    padding: 1rem;
   }
 }
 </style>
