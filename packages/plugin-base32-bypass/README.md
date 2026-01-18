@@ -1,6 +1,6 @@
 # @otplib/plugin-base32-bypass
 
-Bypass plugins for otplib - use raw string secrets without Base32 encoding.
+Bypass plugins for otplib - accept raw string secrets without Base32 encoding.
 
 ## Installation
 
@@ -10,11 +10,11 @@ npm install @otplib/plugin-base32-bypass
 
 ## Why?
 
-Google Authenticator and similar apps expect Base32-encoded secrets, but the HOTP/TOTP RFCs work with raw bytes. If your secrets are already raw strings (passphrases), this plugin lets you bypass Base32 encoding.
+Google Authenticator and similar apps expect Base32-encoded secrets, but the HOTP/TOTP RFCs work with raw bytes. When secrets are already raw strings (passphrases), this plugin keeps them as-is and skips Base32 encoding.
 
 ## Usage
 
-### UTF-8 String Secrets
+### UTF-8 string secrets
 
 ```typescript
 import { stringBypass } from "@otplib/plugin-base32-bypass";
@@ -30,7 +30,7 @@ const token = await generate({
 
 ### Custom Transformations
 
-For hex-encoded or other formats, use `createBase32Plugin` with custom functions:
+For hex-encoded or other formats, `createBase32Plugin` can be paired with custom functions:
 
 ```typescript
 import { createBase32Plugin } from "@otplib/plugin-base32-bypass";
@@ -56,7 +56,7 @@ const base64Bypass = createBase32Plugin({
 ### Exports
 
 - `stringBypass` - Frozen plugin for UTF-8 string to bytes conversion
-- `createBase32Plugin` - Factory function to create custom bypass plugins (re-exported from `@otplib/core`)
+- `createBase32Plugin` - Factory for custom bypass plugins (re-exported from `@otplib/core`)
 
 ### Types
 
