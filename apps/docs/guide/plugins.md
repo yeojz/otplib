@@ -162,48 +162,40 @@ const decoded = base32.decode("JBSWY3DPEHPK3PXP");
 ### @otplib/plugin-base32-bypass
 
 ::: warning Security Notice
-This plugin bypasses Base32 encoding/decoding. Ensure your secrets are compatible with the expected input format (e.g., already random bytes or specific strings if using custom logic).
+This plugin bypasses Base32 encoding/decoding. Secrets provided through this plugin are treated as non-Base32 inputs for the lifetime of the instance.
 :::
 
-Bypass plugins allow you to use raw string secrets or custom transformations without standard Base32 encoding.
+Bypass plugins allow working with raw string secrets or custom transformations without Base32 encoding.
+
+Note: URI generation still expects Base32 secrets, so otpauth URIs continue to require Base32-encoded values.
 
 #### String Bypass
 
-Use `stringBypass` or `StringBypassPlugin` when you have a plain UTF-8 string secret that should be converted directly to bytes.
+`stringBypass` is a singleton plugin for UTF-8 string secrets that should be converted directly to bytes.
 
 ```typescript
 import { generate } from "otplib";
 import { stringBypass } from "@otplib/plugin-base32-bypass";
 
-// Using the singleton instance
 const token = await generate({
   secret: "my-plain-text-secret",
   base32: stringBypass,
-});
-
-// Or creating a new instance
-import { StringBypassPlugin } from "@otplib/plugin-base32-bypass";
-const token2 = await generate({
-  secret: "another-secret",
-  base32: new StringBypassPlugin(),
 });
 ```
 
 #### Custom Bypass Logic
 
-Use `BypassBase32Plugin` when you need custom encoding/decoding logic that isn't standard Base32.
+`createBase32Plugin` can define custom encode/decode logic for formats that are not Base32.
 
 ```typescript
 import { generate } from "otplib";
-import { BypassBase32Plugin } from "@otplib/plugin-base32-bypass";
+import { createBase32Plugin } from "@otplib/plugin-base32-bypass";
 
-const customBypass = new BypassBase32Plugin({
+const customBypass = createBase32Plugin({
   encode: (data) => {
-    // Custom encoding logic returning string
     return "encoded_string";
   },
   decode: (str) => {
-    // Custom decoding logic returning Uint8Array
     return new Uint8Array([1, 2, 3]);
   },
 });
@@ -218,10 +210,10 @@ const token = await generate({
 
 ```typescript
 import { generate } from "otplib";
-import { BypassBase32Plugin } from "@otplib/plugin-base32-bypass";
+import { createBase32Plugin } from "@otplib/plugin-base32-bypass";
 import { hex } from "@scure/base";
 
-const hexBypass = new BypassBase32Plugin({
+const hexBypass = createBase32Plugin({
   encode: hex.encode,
   decode: hex.decode,
 });
@@ -292,7 +284,22 @@ const customCrypto: CryptoPlugin = {
   randomBytes: (length: number) => {
     // Your cryptographically secure random byte generation
     // Must return a Uint8Array of the specified length
-    return crypto.getRandomValues(new Uint8Array(length));
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    return bytes;
+  },
+  constantTimeEqual: (a: string | Uint8Array, b: string | Uint8Array) => {
+    const encoder = new TextEncoder();
+    const aBytes = typeof a === "string" ? encoder.encode(a) : a;
+    const bBytes = typeof b === "string" ? encoder.encode(b) : b;
+    if (aBytes.length !== bBytes.length) {
+      return false;
+    }
+    let diff = 0;
+    for (let i = 0; i < aBytes.length; i += 1) {
+      diff |= aBytes[i] ^ bBytes[i];
+    }
+    return diff === 0;
   },
 };
 
@@ -329,7 +336,23 @@ class WebCryptoPlugin implements CryptoPlugin {
   }
 
   randomBytes(length: number): Uint8Array {
-    return crypto.getRandomValues(new Uint8Array(length));
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    return bytes;
+  }
+
+  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
+    const encoder = new TextEncoder();
+    const aBytes = typeof a === "string" ? encoder.encode(a) : a;
+    const bBytes = typeof b === "string" ? encoder.encode(b) : b;
+    if (aBytes.length !== bBytes.length) {
+      return false;
+    }
+    let diff = 0;
+    for (let i = 0; i < aBytes.length; i += 1) {
+      diff |= aBytes[i] ^ bBytes[i];
+    }
+    return diff === 0;
   }
 }
 ```

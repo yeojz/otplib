@@ -24,13 +24,13 @@ function normaliseCharset(input) {
 }
 
 const token = generate({
-  secret: normaliseCharset("1234567123456712");
+  secret: normaliseCharset("1234567123456712"),
   // ... other options
 });
 ```
 
 :::tip
-You might need to adjust the library guardrails to allow for shorter secrets. See [Danger Zone - Guardrails](/guide/danger-zone.md#guardrails) for more information.
+You might need to adjust the library guardrails to allow for shorter secrets. See [Danger Zone - Guardrails](/guide/danger-zone#guardrails) for more information.
 :::
 
 ## Token Verification Failures
@@ -75,24 +75,7 @@ if (result.valid) {
 
 **3. Secret Encoding Issues**
 
-Ensure the secret format matches what's expected:
-
-```typescript
-// If secret is Base32 string, ensure base32 plugin is provided
-const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
-  token,
-  crypto: new NodeCryptoPlugin(),
-  base32: new ScureBase32Plugin(), // Required for string secrets
-});
-
-// If using raw bytes, no base32 plugin needed
-const result = await verify({
-  secret: new Uint8Array([...]),
-  token,
-  crypto: new NodeCryptoPlugin(),
-});
-```
+If you need to accept secrets that are not Base32-encoded or configure Base32 decoding, see the plugins guide for the Base32 bypass option and plugin setup details. See [Plugins](/guide/plugins) for the latest guidance.
 
 **4. Algorithm Mismatch**
 

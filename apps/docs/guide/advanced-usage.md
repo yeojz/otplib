@@ -14,28 +14,7 @@ This aligns with mainstream authenticator apps that expect Base32 secrets.
 
 ### Non-Base32 Secrets (Passphrases)
 
-If your secret is a "random string", passphrase, or any text that is **NOT** Base32 encoded,
-you **MUST** convert it to a `Uint8Array` (bytes) before passing it to the library.
-This bypasses the Base32 decoding step.
-
-If you pass a plain string like `"my-super-secret-password"`, the library will try to decode it as Base32,
-which will likely fail or result in incorrect bytes.
-
-```typescript
-import { generate, stringToBytes } from "otplib";
-
-// WRONG: Treating a passphrase as a direct string
-// This will fail because it's likely not valid Base32
-await generate({ secret: "my-super-secret-password", ... });
-
-// CORRECT: Convert string to bytes first
-const secretBytes = stringToBytes("my-super-secret-password");
-
-await generate({
-  secret: secretBytes, // Library uses bytes directly
-  // ...
-});
-```
+String secrets are treated as Base32 by default. For non-Base32 strings, a Base32 bypass plugin can handle the conversion; see [Base32 bypass plugins](/guide/plugins#otplibplugin-base32-bypass) for details.
 
 ### Input Validation
 
@@ -43,7 +22,7 @@ To validate if a user's input is valid Base32 before processing:
 
 ```typescript
 function isValidBase32(value: string): boolean {
-  // Base32 alphabet: A-Z (excluding I, L, O, U) and 2-7
+  // Base32 alphabet: A-Z and 2-7 (RFC 4648)
   const base32Regex = /^[A-Z2-7]+=*$/;
   return value && base32Regex.test(value.toUpperCase());
 }
