@@ -10,23 +10,7 @@ This guide covers advanced topics for managing secrets, verifying tokens, and co
 String secrets are treated as Base32-encoded strings by default.
 :::
 
-This aligns with mainstream authenticator apps that expect Base32 secrets.
-
-### Non-Base32 Secrets (Passphrases)
-
-String secrets are treated as Base32 by default. For non-Base32 strings, a Base32 bypass plugin can handle the conversion; see [Base32 bypass plugins](/guide/plugins#otplibplugin-base32-bypass) for details.
-
-### Input Validation
-
-To validate if a user's input is valid Base32 before processing:
-
-```typescript
-function isValidBase32(value: string): boolean {
-  // Base32 alphabet: A-Z and 2-7 (RFC 4648)
-  const base32Regex = /^[A-Z2-7]+=*$/;
-  return value && base32Regex.test(value.toUpperCase());
-}
-```
+This aligns with mainstream authenticator apps that expect Base32 secrets. For passphrases or other non-Base32 strings, use a Base32 bypass plugin; see [Base32 bypass plugins](/guide/plugins#otplibplugin-base32-bypass) for details.
 
 ## Token Verification
 
@@ -429,32 +413,6 @@ try {
     // → Error: Invalid character at position 7 (from @scure/base)
   }
 }
-```
-
-### Debugging with Error Chains
-
-For complex debugging scenarios, you can traverse the error chain:
-
-```typescript
-function logErrorChain(error: Error, depth = 0): void {
-  const indent = "  ".repeat(depth);
-  console.log(`${indent}${error.name}: ${error.message}`);
-
-  if (error.cause instanceof Error) {
-    logErrorChain(error.cause, depth + 1);
-  }
-}
-
-try {
-  await generate({ secret: "invalid", crypto });
-} catch (error) {
-  if (error instanceof Error) {
-    logErrorChain(error);
-  }
-}
-// Output:
-// Base32DecodeError: Base32 decoding failed: Invalid character
-//   Error: Invalid character at position 5
 ```
 
 ### Error Types Reference

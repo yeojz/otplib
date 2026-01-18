@@ -183,242 +183,53 @@ const token = await generate({
 });
 ```
 
-#### Custom Bypass Logic
-
-`createBase32Plugin` can define custom encode/decode logic for formats that are not Base32.
-
-```typescript
-import { generate } from "otplib";
-import { createBase32Plugin } from "@otplib/plugin-base32-bypass";
-
-const customBypass = createBase32Plugin({
-  encode: (data) => {
-    return "encoded_string";
-  },
-  decode: (str) => {
-    return new Uint8Array([1, 2, 3]);
-  },
-});
-
-const token = await generate({
-  secret: "custom-secret-format",
-  base32: customBypass,
-});
-```
-
-**Example: Hex-encoded secrets**
-
-```typescript
-import { generate } from "otplib";
-import { createBase32Plugin } from "@otplib/plugin-base32-bypass";
-import { hex } from "@scure/base";
-
-const hexBypass = createBase32Plugin({
-  encode: hex.encode,
-  decode: hex.decode,
-});
-
-const token = await generate({
-  secret: "4d79736563726574", // "Mysecret" in hex
-  base32: hexBypass,
-});
-```
-
 [Full documentation →](/api/@otplib/plugin-base32-bypass/)
 
 ## Creating Custom Plugins
 
-### Plugin Architecture
+If you need a custom crypto or Base32 implementation, use the `createCryptoPlugin` and `createBase32Plugin` helpers from `@otplib/core`. Keep the implementation minimal and focus only on the required methods.
 
-otplib uses a plugin architecture for both cryptographic operations and Base32 encoding:
-
-#### Crypto Plugin Interface
+### Custom Crypto (Skeleton)
 
 ```typescript
-import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
+import { createCryptoPlugin } from "@otplib/core";
 
-type CryptoPlugin = {
-  name: string;
-  hmac(
-    algorithm: HashAlgorithm,
-    key: Uint8Array,
-    data: Uint8Array,
-  ): Uint8Array | Promise<Uint8Array>;
-  randomBytes(length: number): Uint8Array;
-  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean;
-};
-```
-
-#### Base32 Plugin Interface
-
-```typescript
-import type { Base32Plugin } from "@otplib/core";
-
-type Base32Plugin = {
-  name: string;
-  encode(data: Uint8Array, options?: Base32EncodeOptions): string;
-  decode(str: string): Uint8Array;
-};
-
-type Base32EncodeOptions = {
-  padding?: boolean; // Whether to add padding characters (default: true)
-};
-```
-
-### Custom Crypto
-
-Implement a custom crypto backend for specialized environments or requirements:
-
-```typescript
-import { generate } from "otplib";
-import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
-
-// Custom crypto plugin
-const customCrypto: CryptoPlugin = {
+const customCrypto = createCryptoPlugin({
   name: "custom",
-  hmac: async (algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array) => {
-    // Your HMAC implementation
-    // Must return a Uint8Array with the digest
-    return digest;
+  hmac: async (algorithm, key, data) => {
+    // your HMAC implementation here
+    return new Uint8Array();
   },
-  randomBytes: (length: number) => {
-    // Your cryptographically secure random byte generation
-    // Must return a Uint8Array of the specified length
-    const bytes = new Uint8Array(length);
-    crypto.getRandomValues(bytes);
-    return bytes;
+  randomBytes: (length) => {
+    // your random bytes implementation here
+    return new Uint8Array(length);
   },
-  constantTimeEqual: (a: string | Uint8Array, b: string | Uint8Array) => {
-    const encoder = new TextEncoder();
-    const aBytes = typeof a === "string" ? encoder.encode(a) : a;
-    const bBytes = typeof b === "string" ? encoder.encode(b) : b;
-    if (aBytes.length !== bBytes.length) {
-      return false;
-    }
-    let diff = 0;
-    for (let i = 0; i < aBytes.length; i += 1) {
-      diff |= aBytes[i] ^ bBytes[i];
-    }
-    return diff === 0;
+  constantTimeEqual: (a, b) => {
+    // your constant time implementation here
+    return true;
   },
-};
-
-// Use with otplib
-const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
-  crypto: customCrypto,
 });
 ```
 
-#### Potential Use Cases for Custom Crypto
-
-- **Legacy Systems** - Integrate with existing crypto infrastructure
-- **Compliance Requirements** - Meet specific regulatory or security requirements
-
-#### Example: Web Crypto Backend implementation
-
-The built-in `WebCryptoPlugin` demonstrates a custom crypto implementation:
+### Custom Base32 (Skeleton)
 
 ```typescript
-import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
+import { createBase32Plugin } from "@otplib/core";
 
-class WebCryptoPlugin implements CryptoPlugin {
-  name = "web-crypto";
-
-  async hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
-    const subtle = crypto.subtle;
-    const algo = { name: "HMAC", hash: `SHA-${algorithm.slice(3)}` };
-
-    const cryptoKey = await subtle.importKey("raw", key, algo, false, ["sign"]);
-
-    const signature = await subtle.sign(algo, cryptoKey, data);
-    return new Uint8Array(signature);
-  }
-
-  randomBytes(length: number): Uint8Array {
-    const bytes = new Uint8Array(length);
-    crypto.getRandomValues(bytes);
-    return bytes;
-  }
-
-  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
-    const encoder = new TextEncoder();
-    const aBytes = typeof a === "string" ? encoder.encode(a) : a;
-    const bBytes = typeof b === "string" ? encoder.encode(b) : b;
-    if (aBytes.length !== bBytes.length) {
-      return false;
-    }
-    let diff = 0;
-    for (let i = 0; i < aBytes.length; i += 1) {
-      diff |= aBytes[i] ^ bBytes[i];
-    }
-    return diff === 0;
-  }
-}
-```
-
-### Custom Base32
-
-Implement a custom Base32 encoder for specialized encoding requirements:
-
-```typescript
-import { generate } from "otplib";
-import type { Base32Plugin } from "@otplib/core";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-
-// Custom Base32 plugin
-const customBase32: Base32Plugin = {
+const customBase32 = createBase32Plugin({
   name: "custom-base32",
-  encode: (data: Uint8Array, options?: { padding?: boolean }) => {
-    // Your Base32 encoding implementation
-    // Must return a string
-    return encodedString;
+  encode: (data) => {
+    // your Base32 encode implementation here
+    return "";
   },
-  decode: (str: string) => {
-    // Your Base32 decoding implementation
-    // Must return a Uint8Array
-    return decodedData;
+  decode: (str) => {
+    // your Base32 decode implementation here
+    return new Uint8Array();
   },
-};
-
-// Use with otplib
-const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
-  crypto: new NodeCryptoPlugin(),
-  base32: customBase32,
 });
 ```
 
-#### Potential Use Cases for Custom Base32
-
-- **Custom Alphabets** - Use different character sets for compatibility
-- **Legacy Formats** - Integrate with existing Base32 formats
-- **Performance Optimization** - Optimize for specific use cases
-- **Specialized Requirements** - Meet specific encoding/decoding needs
-
-#### Example: Alternative Alphabet
-
-```typescript
-import type { Base32Plugin } from "@otplib/core";
-
-class CustomBase32Plugin implements Base32Plugin {
-  name = "custom-alphabet";
-
-  private readonly alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"; // Standard RFC 4648
-  // Or use a custom alphabet like Crockford's Base32
-  // private readonly alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-
-  encode(data: Uint8Array, options?: { padding?: boolean }): string {
-    // Your encoding logic
-    return encoded;
-  }
-
-  decode(str: string): Uint8Array {
-    // Your decoding logic
-    return decoded;
-  }
-}
-```
+For full API details, see the core documentation.
 
 ## License
 
