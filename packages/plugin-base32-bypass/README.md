@@ -30,20 +30,22 @@ const token = await generate({
 
 ### Custom Transformations
 
-For hex-encoded or other formats, use `BypassBase32Plugin` with custom functions:
+For hex-encoded or other formats, use `createBase32Plugin` with custom functions:
 
 ```typescript
-import { BypassBase32Plugin } from "@otplib/plugin-base32-bypass";
+import { createBase32Plugin } from "@otplib/plugin-base32-bypass";
 import { hex } from "@scure/base";
 
 // Hex bypass
-const hexBypass = new BypassBase32Plugin({
+const hexBypass = createBase32Plugin({
+  name: "hex-bypass",
   encode: hex.encode,
   decode: hex.decode,
 });
 
 // Base64 bypass
-const base64Bypass = new BypassBase32Plugin({
+const base64Bypass = createBase32Plugin({
+  name: "base64-bypass",
   encode: (data) => btoa(String.fromCharCode(...data)),
   decode: (str) => new Uint8Array([...atob(str)].map((c) => c.charCodeAt(0))),
 });
@@ -51,14 +53,14 @@ const base64Bypass = new BypassBase32Plugin({
 
 ## API
 
-### Classes
+### Exports
 
-- `BypassBase32Plugin` - Generic bypass with custom encode/decode functions
-- `StringBypassPlugin` - UTF-8 string to bytes conversion
+- `stringBypass` - Frozen plugin for UTF-8 string to bytes conversion
+- `createBase32Plugin` - Factory function to create custom bypass plugins (re-exported from `@otplib/core`)
 
-### Singletons
+### Types
 
-- `stringBypass` - Frozen instance of `StringBypassPlugin`
+- `CreateBase32PluginOptions` - Options for `createBase32Plugin`
 
 ## License
 
