@@ -47,6 +47,10 @@ The `check` and `verify` methods swallow errors and return `false`, matching v11
 
 Strict secret length checks (> 16 bytes) are enforced due to security requirements in the v13 core.
 
+::: warning Legacy Secrets
+If your existing secrets are shorter than 16 bytes, you may need to override guardrails for backward compatibility. This is not done by default to preserve security. See [Danger Zone - Guardrails](/guide/danger-zone#guardrails) for details.
+:::
+
 ::: tip See Also
 For a comprehensive overview of v13 changes, breaking changes, and detailed migration patterns, refer to the [v12 Adapter Migration Guide](./v12-adapter.md).
 :::

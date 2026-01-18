@@ -2,16 +2,6 @@
 
 This guide covers advanced topics for managing secrets, verifying tokens, and configuring internal behavior.
 
-## Secret Handling
-
-### Base32 by Default
-
-::: warning Important
-String secrets are treated as Base32-encoded strings by default.
-:::
-
-This aligns with mainstream authenticator apps that expect Base32 secrets. For passphrases or other non-Base32 strings, use a Base32 bypass plugin; see [Base32 bypass plugins](/guide/plugins#otplibplugin-base32-bypass) for details.
-
 ## Token Verification
 
 ### Verification Tolerance

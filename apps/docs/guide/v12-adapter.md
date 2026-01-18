@@ -184,6 +184,14 @@ await generate({
 });
 ```
 
+### 6. Secret Length Guardrails
+
+v13 enforces a minimum secret length of 16 bytes. Older deployments may have shorter secrets.
+
+::: warning Legacy Secrets
+If your existing secrets are shorter than 16 bytes, you may need to override guardrails for backward compatibility. This is not done by default to preserve security. See [Danger Zone - Guardrails](/guide/danger-zone#guardrails) for details.
+:::
+
 ### 6. Class-Based API Changes
 
 The class API has been updated:
