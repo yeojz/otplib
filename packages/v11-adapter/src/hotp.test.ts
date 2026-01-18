@@ -34,6 +34,15 @@ describe("HOTP (v11-adapter)", () => {
     expect(hotp.check(token, secret, 0)).toBe(true);
   });
 
+  it("should reject hex encoding with 0x prefix", () => {
+    const hotp = new HOTP();
+    const secret = "0x48656c6c6f2148656c6c6f2148656c6c";
+
+    hotp.options = { encoding: "hex" };
+
+    expect(() => hotp.generate(secret, 0)).toThrow();
+  });
+
   it("should support base32 encoding", () => {
     const hotp = new HOTP();
     // > 16 bytes

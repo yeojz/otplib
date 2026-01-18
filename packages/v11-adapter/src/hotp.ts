@@ -4,11 +4,12 @@
  * v11-compatible HOTP class implementation.
  */
 
-import { stringToBytes, hexToBytes } from "@otplib/core";
+import { stringToBytes } from "@otplib/core";
 import { generateSync as hotpGenerateSync, verifySync as hotpVerifySync } from "@otplib/hotp";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { generateHOTP as generateHOTPURI } from "@otplib/uri";
+import { hex } from "@scure/base";
 
 import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
@@ -26,7 +27,7 @@ export function secretToBytes(secret: SecretKey, encoding?: string): Uint8Array 
     return defaultBase32.decode(secret);
   }
   if (encoding === KeyEncodingsConst.HEX || encoding === "hex") {
-    return hexToBytes(secret.replace(/\s/g, ""));
+    return hex.decode(secret.replace(/\s/g, ""));
   }
   return stringToBytes(secret);
 }

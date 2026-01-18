@@ -379,7 +379,7 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
         expect(result1.valid).toBe(true);
 
         // After moving counter past the window, token is rejected
-        // Counter 13 with window 2 checks [11, 12, 13, 14, 15] - token for 10 is outside
+        // Counter 13 with counterTolerance 2 checks [13, 14, 15] - token for 10 is outside
         const result2 = await verify({
           secret,
           counter: 13,

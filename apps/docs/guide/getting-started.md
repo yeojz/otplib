@@ -130,6 +130,10 @@ console.log("Valid:", result.valid);
 - **`totp`**: Time-based OTP (default) - Uses timestamp to generate tokens
 - **`hotp`**: HMAC-based OTP - Uses a counter to generate tokens
 
+::: warning Base32 Secrets
+String secrets are treated as Base32-encoded by default. For passphrases or other non-Base32 strings, use a Base32 bypass plugin. See [Base32 bypass plugins](/guide/plugins#otplibplugin-base32-bypass).
+:::
+
 ::: info Note on Google Authenticator vs RFC4648 (TOTP)
 
 **Google Authenticator** requires specific settings for compatibility:

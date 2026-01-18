@@ -5,11 +5,12 @@
  * Provides synchronous API wrapper around v13's HOTP implementation.
  */
 
-import { stringToBytes, hexToBytes, dynamicTruncate, truncateDigits } from "@otplib/core";
+import { stringToBytes, dynamicTruncate, truncateDigits } from "@otplib/core";
 import { generateSync as hotpGenerateSync, verifySync as hotpVerifySync } from "@otplib/hotp";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { generateHOTP as generateHOTPURI } from "@otplib/uri";
+import { hex } from "@scure/base";
 
 import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
@@ -35,7 +36,7 @@ export function secretToBytes(secret: SecretKey, encoding?: string): Uint8Array 
     return defaultBase32.decode(secret);
   }
   if (encoding === KeyEncodingsConst.HEX || encoding === "hex") {
-    return hexToBytes(secret.replace(/\s/g, ""));
+    return hex.decode(secret.replace(/\s/g, ""));
   }
   // Default: treat as ASCII/UTF-8
   return stringToBytes(secret);
@@ -46,7 +47,7 @@ export function secretToBytes(secret: SecretKey, encoding?: string): Uint8Array 
  * Uses dynamicTruncate and truncateDigits from core.
  */
 export function hotpDigestToToken(hexDigest: string, digits: number): string {
-  const digestBytes = hexToBytes(hexDigest);
+  const digestBytes = hex.decode(hexDigest);
   const truncated = dynamicTruncate(digestBytes);
   return truncateDigits(truncated, digits);
 }

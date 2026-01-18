@@ -8,13 +8,13 @@
  * This is the single source of truth for all test vectors across all runtimes.
  */
 
+import { hexToNumber } from "./utils.js";
+
 /**
  * Convert hex string to number
  * Used for comparing against RFC 6238 intermediate T (time step) values
  */
-export function hexToNumber(hex: string): number {
-  return parseInt(hex, 16);
-}
+export { hexToNumber };
 
 /**
  * Base secret from RFC specifications
