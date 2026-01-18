@@ -266,14 +266,14 @@ onUnmounted(() => {
   border-radius: 4px;
   background: var(--cipher-surface);
   border: 1px solid var(--cipher-grid-color);
-  color: var(--vp-c-text-3);
+  color: var(--cipher-text-muted);
   letter-spacing: 0.05em;
 }
 
 .timer-bar {
   font-family: var(--vp-font-family-mono);
-  font-size: 0.75rem;
-  color: var(--vp-c-text-2);
+  font-size: 0.8rem;
+  color: var(--cipher-text-muted);
   letter-spacing: 0.02em;
 }
 

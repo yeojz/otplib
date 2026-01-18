@@ -10,6 +10,10 @@
 
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   /* Cipher Terminal Palette - Light mode */
   --vp-c-brand-1: #0891b2; /* Primary - Cyber Teal */
@@ -42,6 +46,10 @@
   --cipher-bg-pattern: rgba(8, 145, 178, 0.03);
   --cipher-grid-color: rgba(8, 145, 178, 0.08);
   --cipher-surface: rgba(8, 145, 178, 0.04);
+  --cipher-border: rgba(8, 145, 178, 0.15);
+  --cipher-shadow: rgba(0, 0, 0, 0.06);
+  --cipher-text-muted: #4b5563;
+  --cipher-text-interactive: #374151;
 }
 
 .dark {
@@ -74,6 +82,10 @@
   --cipher-bg-pattern: rgba(34, 211, 238, 0.02);
   --cipher-grid-color: rgba(34, 211, 238, 0.06);
   --cipher-surface: rgba(34, 211, 238, 0.05);
+  --cipher-border: rgba(34, 211, 238, 0.12);
+  --cipher-shadow: rgba(0, 0, 0, 0.3);
+  --cipher-text-muted: #94a3b8;
+  --cipher-text-interactive: #cbd5e1;
 }
 
 /* === TYPOGRAPHY OVERRIDES === */
@@ -305,39 +317,6 @@
   border: 1px solid var(--cipher-grid-color);
   border-radius: 8px;
   padding: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.feature-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 8px;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    var(--cipher-accent) 0%,
-    transparent 50%,
-    transparent 100%
-  );
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.feature-card:hover::before {
-  opacity: 1;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-}
-
-.dark .feature-card:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
-    0 0 20px var(--cipher-accent-glow);
 }
 
 .feature-icon {
@@ -350,7 +329,21 @@
   border: 1px solid var(--cipher-grid-color);
   border-radius: 8px;
   margin-bottom: 1rem;
-  font-size: 1.25rem;
+}
+
+.feature-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background-color: var(--vp-c-text-1);
+  mask-image: var(--icon-url);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-image: var(--icon-url);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 }
 
 .feature-card h3 {
@@ -364,7 +357,7 @@
 
 .feature-card p {
   font-size: 0.875rem;
-  color: var(--vp-c-text-2);
+  color: var(--cipher-text-muted);
   margin: 0;
   line-height: 1.6;
 }
@@ -417,7 +410,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--vp-c-text-2);
+  color: var(--cipher-text-muted);
 }
 
 .scroll-indicator svg {
@@ -447,7 +440,7 @@
   border-radius: 100px;
   font-family: var(--vp-font-family-mono);
   font-size: 0.75rem;
-  color: var(--vp-c-text-2);
+  color: var(--cipher-text-muted);
   margin-bottom: 1rem;
 }
 
