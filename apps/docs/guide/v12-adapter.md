@@ -462,12 +462,13 @@ const result = await verify({
 });
 
 if (result.valid) {
-  // Remember to implement a counter increment function
-  // to prevent replay
-  const nextCounter = 10 + result.delta + 1;
-  await updateCounter(userId, nextCounter);
+  // Update and persist your counter to prevent replay
 }
 ```
+
+::: info Replay Prevention
+After successful HOTP verification, persist the updated counter in your system. See [Replay Attack Prevention](/guide/security#replay-attack-prevention).
+:::
 
 ### Recommended Tolerance Values
 
