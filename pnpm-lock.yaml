@@ -7,6 +7,7 @@ settings:
 overrides:
   preact@>=10.28.0 <10.28.2: '>=10.28.2'
   esbuild@<=0.24.2: '>=0.25.0'
+  undici@<6.23.0: '>=6.23.0'
 
 importers:
 
@@ -506,14 +507,14 @@ packages:
       '@octokit/plugin-rest-endpoint-methods': 10.4.1(@octokit/core@5.2.2)
       '@octokit/request': 8.4.1
       '@octokit/request-error': 5.1.1
-      undici: 5.29.0
+      undici: 7.18.2
     dev: true
 
   /@actions/http-client@2.2.3:
     resolution: {integrity: sha512-mx8hyJi/hjFvbPokCg4uRd4ZX78t+YyRPtnKWwIl+RzNaVuFpQHfmlGVfsKEJN8LwTCvL+DfVgAM04XaHkm6bA==}
     dependencies:
       tunnel: 0.0.6
-      undici: 5.29.0
+      undici: 7.18.2
     dev: true
 
   /@actions/io@1.1.3:
@@ -1284,11 +1285,6 @@ packages:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
-    dev: true
-
-  /@fastify/busboy@2.1.1:
-    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
-    engines: {node: '>=14'}
     dev: true
 
   /@gerrit0/mini-shiki@3.21.0:
@@ -5315,11 +5311,9 @@ packages:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
     dev: true
 
-  /undici@5.29.0:
-    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
-    engines: {node: '>=14.0'}
-    dependencies:
-      '@fastify/busboy': 2.1.1
+  /undici@7.18.2:
+    resolution: {integrity: sha512-y+8YjDFzWdQlSE9N5nzKMT3g4a5UBX1HKowfdXh0uvAnTaqqwqB92Jt4UXBAeKekDs5IaDKyJFR4X1gYVCgXcw==}
+    engines: {node: '>=20.18.1'}
     dev: true
 
   /unist-util-is@6.0.1:
