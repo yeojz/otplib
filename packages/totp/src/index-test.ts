@@ -2133,6 +2133,10 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
           const counter = getTimeStepUsed(59, 120, 0, lenientGuardrails);
           expect(counter).toBe(0);
+        });
+      });
+    });
+
     describe("afterTimeStep (replay protection)", () => {
       it("should accept token when timeStep > afterTimeStep", async () => {
         // Generate token for time step 2 (epoch 60)
