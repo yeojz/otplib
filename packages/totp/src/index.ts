@@ -24,7 +24,12 @@ import {
 } from "@otplib/core";
 import { generate as generateHOTP, generateSync as generateHOTPSync } from "@otplib/hotp";
 
-import type { TOTPGenerateOptions, TOTPVerifyOptions, VerifyResult } from "./types.js";
+import type {
+  TOTPGenerateOptions,
+  TOTPVerifyOptions,
+  VerifyResult,
+  GenerateResult,
+} from "./types.js";
 import type { CryptoPlugin, Digits, HashAlgorithm, OTPGuardrails } from "@otplib/core";
 
 /**
@@ -102,26 +107,27 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
  * @see {@link https://tools.ietf.org/html/rfc6238#section-4.1 | RFC 6238 Section 4.1 - Parameters}
  *
  * @param options - TOTP generation options
- * @returns The TOTP code as a string
+ * @returns Object containing the TOTP code and the time step used
  *
  * @example
  * ```ts
  * import { generate } from '@otplib/totp';
  * import { NodeCryptoPlugin } from '@otplib/plugin-crypto-node';
  *
- * const totp = generate({
+ * const result = generate({
  *   secret: new Uint8Array([1, 2, 3, 4, 5]),
- *   time: Date.now() / 1000,
+ *   epoch: Date.now() / 1000,
  *   period: 30,
  *   digits: 6,
  *   crypto: new NodeCryptoPlugin(),
  * });
- * // Returns: '123456'
+ * // Returns: { token: '123456', timeStep: 41152263 }
  * ```
  */
-export async function generate(options: TOTPGenerateOptions): Promise<string> {
+export async function generate(options: TOTPGenerateOptions): Promise<GenerateResult> {
   const opt = getTOTPGenerateOptions(options);
-  return generateHOTP(opt);
+  const token = await generateHOTP(opt);
+  return { token, timeStep: opt.counter };
 }
 
 /**
@@ -135,7 +141,7 @@ export async function generate(options: TOTPGenerateOptions): Promise<string> {
  * @see {@link https://tools.ietf.org/html/rfc6238#section-4 | RFC 6238 Section 4}
  *
  * @param options - TOTP generation options
- * @returns The TOTP code as a string
+ * @returns Object containing the TOTP code and the time step used
  * @throws {HMACError} If the crypto plugin doesn't support sync operations
  *
  * @example
@@ -143,19 +149,20 @@ export async function generate(options: TOTPGenerateOptions): Promise<string> {
  * import { generateSync } from '@otplib/totp';
  * import { NodeCryptoPlugin } from '@otplib/plugin-crypto-node';
  *
- * const totp = generateSync({
+ * const result = generateSync({
  *   secret: new Uint8Array([1, 2, 3, 4, 5]),
  *   epoch: Math.floor(Date.now() / 1000),
  *   period: 30,
  *   digits: 6,
  *   crypto: new NodeCryptoPlugin(),
  * });
- * // Returns: '123456'
+ * // Returns: { token: '123456', timeStep: 41152263 }
  * ```
  */
-export function generateSync(options: TOTPGenerateOptions): string {
+export function generateSync(options: TOTPGenerateOptions): GenerateResult {
   const opt = getTOTPGenerateOptions(options);
-  return generateHOTPSync(opt);
+  const token = generateHOTPSync(opt);
+  return { token, timeStep: opt.counter };
 }
 
 /**
@@ -276,7 +283,7 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
     getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
-    const expected = await generate(getGenerateOptions(counter));
+    const { token: expected } = await generate(getGenerateOptions(counter));
     if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: counter - currentCounter, epoch: counter * period + t0 };
     }
@@ -320,7 +327,7 @@ export function verifySync(options: TOTPVerifyOptions): VerifyResult {
     getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
-    const expected = generateSync(getGenerateOptions(counter));
+    const { token: expected } = generateSync(getGenerateOptions(counter));
     if (crypto.constantTimeEqual(expected, token)) {
       return { valid: true, delta: counter - currentCounter, epoch: counter * period + t0 };
     }
@@ -397,6 +404,7 @@ export type {
   VerifyResult,
   VerifyResultValid,
   VerifyResultInvalid,
+  GenerateResult,
 } from "./types";
 
 export { TOTP } from "./class";

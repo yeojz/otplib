@@ -18,7 +18,7 @@ import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 
 import { generate as generateCode, verify as verifyCode } from "./index.js";
 
-import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types.js";
+import type { VerifyResult, GenerateResult, TOTPOptions, TOTPVerifyOptions } from "./types.js";
 import type { OTPGuardrails } from "@otplib/core";
 
 /**
@@ -69,9 +69,9 @@ export class TOTP {
    * Generate a TOTP code
    *
    * @param options - Optional overrides
-   * @returns The TOTP code
+   * @returns Object containing the TOTP code and the time step used
    */
-  async generate(options?: Partial<TOTPOptions>): Promise<string> {
+  async generate(options?: Partial<TOTPOptions>): Promise<GenerateResult> {
     const mergedOptions = { ...this.options, ...options };
     const {
       secret,

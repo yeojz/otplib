@@ -112,7 +112,7 @@ export class Authenticator<T extends AuthenticatorOptions = AuthenticatorOptions
     const epoch = opts.epoch;
     const epochSeconds = epoch >= 1e12 ? Math.floor(epoch / 1000) : epoch;
 
-    return totpGenerateSync({
+    const result = totpGenerateSync({
       secret: secretBytes,
       algorithm: opts.algorithm,
       digits: opts.digits as Digits,
@@ -121,6 +121,7 @@ export class Authenticator<T extends AuthenticatorOptions = AuthenticatorOptions
       t0: 0,
       crypto: opts.crypto,
     });
+    return result.token;
   }
 
   /**
