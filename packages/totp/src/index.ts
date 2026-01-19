@@ -180,19 +180,14 @@ function validateAfterTimeStep(afterTimeStep: number | undefined, maxCounter: nu
     return;
   }
 
-  // Check for negative values
   if (afterTimeStep < 0) {
     throw new AfterTimeStepNegativeError();
   }
 
-  // Check for non-integer values
-  // Note: Number.isInteger(1.0) returns true in JavaScript, but we want to reject
-  // values like 1.0 to enforce strict integer input. We check the string representation.
-  if (!Number.isInteger(afterTimeStep)) {
+  if (!Number.isSafeInteger(afterTimeStep)) {
     throw new AfterTimeStepNotIntegerError();
   }
 
-  // Check if constraint makes verification impossible
   if (afterTimeStep > maxCounter) {
     throw new AfterTimeStepImpossibleError();
   }

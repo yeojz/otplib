@@ -2722,18 +2722,19 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         expect(result.valid).toBe(false);
       });
 
-      it("should accept afterTimeStep = 0 (no effective restriction)", async () => {
-        const token = await generate({ secret, epoch: 30, period: 30, digits: 6, crypto });
+      it("should allow afterTimeStep below window min", async () => {
+        const token = await generate({ secret, epoch: 60, period: 30, digits: 6, crypto });
 
-        // afterTimeStep: 0 rejects timeStep <= 0, so allows all time steps >= 1
-        // Token from epoch 30 has time step 1
+        // At epoch 60 with tolerance 30, window is [1, 2, 3]
+        // afterTimeStep: 0 is below minCounter (1) but should be allowed
         const result = await verify({
           secret,
           token,
-          epoch: 30,
+          epoch: 60,
           period: 30,
           digits: 6,
           crypto,
+          epochTolerance: 30,
           afterTimeStep: 0,
         });
 
