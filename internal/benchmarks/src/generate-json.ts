@@ -8,8 +8,8 @@ import {
   dynamicTruncate,
   truncateDigits,
   stringToBytes,
-  hexToBytes,
 } from "@otplib/core";
+import { hexToBytes } from "@repo/testing";
 import { generate as generateHOTP } from "@otplib/hotp";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";

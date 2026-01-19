@@ -62,7 +62,7 @@ For example, setting `MIN_SECRET_BYTES` to a value higher than `MAX_SECRET_BYTES
 | **MAX_SECRET_BYTES** | 1024 bytes            | Potential DoS attacks through excessive memory consumption.                                       | Rarely needed. Standard secrets are 20-32 bytes.                                      |
 | **MIN_PERIOD**       | 1 second              | Below 1 second, TOTP, behaviour will become unpredicatable.                                       | Use HOTP instead if you need event-based OTPs.                                        |
 | **MAX_PERIOD**       | 3600 seconds (1 hour) | Tokens remain valid longer, increasing replay attack window.                                      | Specialized systems with coarse time granularity (e.g., daily batch processes).       |
-| **MAX_WINDOW**       | 100 total checks      | Larger verification windows increase replay attack surface exponentially.                         | Systems with extreme desynchronization. Consider fixing the underlying issue instead. |
+| **MAX_WINDOW**       | 99 total checks       | Larger verification windows increase replay attack surface exponentially.                         | Systems with extreme desynchronization. Consider fixing the underlying issue instead. |
 
 ### Usage Examples
 

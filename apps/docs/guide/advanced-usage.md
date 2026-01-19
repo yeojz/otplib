@@ -2,53 +2,6 @@
 
 This guide covers advanced topics for managing secrets, verifying tokens, and configuring internal behavior.
 
-## Secret Handling
-
-### Base32 by Default
-
-::: warning Important
-String secrets are treated as Base32-encoded strings by default.
-:::
-
-This aligns with mainstream authenticator apps that expect Base32 secrets.
-
-### Non-Base32 Secrets (Passphrases)
-
-If your secret is a "random string", passphrase, or any text that is **NOT** Base32 encoded,
-you **MUST** convert it to a `Uint8Array` (bytes) before passing it to the library.
-This bypasses the Base32 decoding step.
-
-If you pass a plain string like `"my-super-secret-password"`, the library will try to decode it as Base32,
-which will likely fail or result in incorrect bytes.
-
-```typescript
-import { generate, stringToBytes } from "otplib";
-
-// WRONG: Treating a passphrase as a direct string
-// This will fail because it's likely not valid Base32
-await generate({ secret: "my-super-secret-password", ... });
-
-// CORRECT: Convert string to bytes first
-const secretBytes = stringToBytes("my-super-secret-password");
-
-await generate({
-  secret: secretBytes, // Library uses bytes directly
-  // ...
-});
-```
-
-### Input Validation
-
-To validate if a user's input is valid Base32 before processing:
-
-```typescript
-function isValidBase32(value: string): boolean {
-  // Base32 alphabet: A-Z (excluding I, L, O, U) and 2-7
-  const base32Regex = /^[A-Z2-7]+=*$/;
-  return value && base32Regex.test(value.toUpperCase());
-}
-```
-
 ## Token Verification
 
 ### Verification Tolerance
@@ -204,11 +157,13 @@ const result = await verify({
 });
 
 if (result.valid) {
-  // Update counter to prevent replay
-  const newCounter = currentCounter + result.delta + 1;
-  await updateCounter(userId, newCounter);
+  // Update and persist your counter to prevent replay
 }
 ```
+
+::: info Replay Prevention
+After successful HOTP verification, persist the updated counter in your system. See [Replay Attack Prevention](/guide/security#replay-attack-prevention).
+:::
 
 **Tuple format** (explicit control):
 
@@ -452,32 +407,6 @@ try {
 }
 ```
 
-### Debugging with Error Chains
-
-For complex debugging scenarios, you can traverse the error chain:
-
-```typescript
-function logErrorChain(error: Error, depth = 0): void {
-  const indent = "  ".repeat(depth);
-  console.log(`${indent}${error.name}: ${error.message}`);
-
-  if (error.cause instanceof Error) {
-    logErrorChain(error.cause, depth + 1);
-  }
-}
-
-try {
-  await generate({ secret: "invalid", crypto });
-} catch (error) {
-  if (error instanceof Error) {
-    logErrorChain(error);
-  }
-}
-// Output:
-// Base32DecodeError: Base32 decoding failed: Invalid character
-//   Error: Invalid character at position 5
-```
-
 ### Error Types Reference
 
 | Error Class                     | When Thrown                              |
@@ -486,13 +415,24 @@ try {
 | `Base32DecodeError`             | Base32 decoding fails (invalid input)    |
 | `Base32EncodeError`             | Base32 encoding fails                    |
 | `Base32PluginMissingError`      | String secret but no Base32 plugin       |
-| `CounterToleranceTooLargeError` | Counter tolerance exceeds maximum (100)  |
+| `CounterNegativeError`          | Counter is negative                      |
+| `CounterOverflowError`          | Counter exceeds max safe integer         |
+| `CounterToleranceNegativeError` | Counter tolerance contains negatives     |
+| `CounterToleranceTooLargeError` | Counter tolerance exceeds maximum        |
 | `CryptoPluginMissingError`      | No crypto plugin provided                |
 | `DigitsError`                   | Invalid digits configuration (not 6-8)   |
-| `EpochToleranceTooLargeError`   | Tolerance exceeds maximum (3000 seconds) |
+| `EpochToleranceNegativeError`   | Epoch tolerance contains negatives       |
+| `EpochToleranceTooLargeError`   | Tolerance exceeds maximum                |
 | `HMACError`                     | HMAC computation fails in crypto plugin  |
+| `IssuerMissingError`            | Missing issuer for URI generation        |
+| `LabelMissingError`             | Missing label for URI generation         |
+| `PeriodTooLargeError`           | Period exceeds maximum                   |
+| `PeriodTooSmallError`           | Period below minimum                     |
 | `RandomBytesError`              | Random byte generation fails             |
+| `SecretMissingError`            | Secret missing from options              |
 | `SecretTooLongError`            | Secret exceeds 64 bytes                  |
 | `SecretTooShortError`           | Secret is less than 16 bytes             |
+| `SecretTypeError`               | Secret must be Base32 string for class   |
+| `TimeNegativeError`             | Time is negative                         |
 | `TokenFormatError`              | Token contains non-numeric characters    |
 | `TokenLengthError`              | Token doesn't match expected digit count |

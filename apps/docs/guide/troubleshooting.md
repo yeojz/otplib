@@ -24,13 +24,13 @@ function normaliseCharset(input) {
 }
 
 const token = generate({
-  secret: normaliseCharset("1234567123456712");
+  secret: normaliseCharset("1234567123456712"),
   // ... other options
 });
 ```
 
 :::tip
-You might need to adjust the library guardrails to allow for shorter secrets. See [Danger Zone - Guardrails](/guide/danger-zone.md#guardrails) for more information.
+You might need to adjust the library guardrails to allow for shorter secrets. See [Danger Zone - Guardrails](/guide/danger-zone#guardrails) for more information.
 :::
 
 ## Token Verification Failures
@@ -66,33 +66,17 @@ const result = await verify({
 });
 
 if (result.valid) {
-  // Remember to implement a counter increment function
-  // to prevent replay
-  const newCounter = serverCounter + result.delta + 1;
-  await updateCounter(userId, newCounter);
+  // Update and persist your counter to prevent replay
 }
 ```
 
+::: info Replay Prevention
+After successful HOTP verification, persist the updated counter in your system. See [Replay Attack Prevention](/guide/security#replay-attack-prevention).
+:::
+
 **3. Secret Encoding Issues**
 
-Ensure the secret format matches what's expected:
-
-```typescript
-// If secret is Base32 string, ensure base32 plugin is provided
-const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
-  token,
-  crypto: new NodeCryptoPlugin(),
-  base32: new ScureBase32Plugin(), // Required for string secrets
-});
-
-// If using raw bytes, no base32 plugin needed
-const result = await verify({
-  secret: new Uint8Array([...]),
-  token,
-  crypto: new NodeCryptoPlugin(),
-});
-```
+If you need to accept secrets that are not Base32-encoded or configure Base32 decoding, see [Plugins](/guide/plugins) for Base32 plugin setup and bypass options.
 
 **4. Algorithm Mismatch**
 
@@ -167,7 +151,8 @@ Secrets must not exceed 64 bytes (512 bits):
 
 ### "String secrets require a Base32Plugin"
 
-When using Base32-encoded string secrets, you must provide a base32 plugin:
+When using Base32-encoded string secrets, you must provide a base32 plugin.
+You may also choose to use a bypass if you want utilise non-base32 strings.
 
 ```typescript
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
@@ -341,82 +326,7 @@ const uri = generateURI({
 // Works!
 ```
 
-## TypeScript Issues
-
-### "Property 'X' is missing in type"
-
-The functional API requires specific properties. Use the correct options type:
-
-```typescript
-import type { HOTPGenerateOptions, TOTPVerifyOptions } from "otplib";
-
-// HOTPGenerateOptions requires: secret, counter, crypto
-// TOTPGenerateOptions requires: secret, crypto
-// HOTPVerifyOptions requires: secret, counter, token, crypto
-// TOTPVerifyOptions requires: secret, token, crypto
-
-// Secret can be Base32 string or Uint8Array for generate/verify options.
-// generateURI always requires a Base32 string.
-```
-
 ## Debugging Tips
-
-### Enable Verbose Logging
-
-Check the actual values being used:
-
-```typescript
-const options = {
-  secret: "JBSWY3DPEHPK3PXP",
-  epoch: Math.floor(Date.now() / 1000),
-  period: 30,
-  algorithm: "sha1",
-  digits: 6,
-};
-
-console.log("Epoch:", options.epoch);
-console.log("Counter:", Math.floor(options.epoch / options.period));
-
-const token = await generate({ ...options, crypto, base32 });
-console.log("Generated token:", token);
-```
-
-### Verify Time Synchronization
-
-For TOTP, check if clocks are synchronized:
-
-```typescript
-// Server time
-console.log("Server time:", new Date().toISOString());
-console.log("Server epoch:", Math.floor(Date.now() / 1000));
-
-// Check time step
-const epoch = Math.floor(Date.now() / 1000);
-const counter = Math.floor(epoch / 30);
-console.log("Current time step:", counter);
-```
-
-### Test with Known Values
-
-Use RFC test vectors to verify your setup:
-
-```typescript
-// RFC 4226 test vector (HOTP)
-const testSecret = new Uint8Array([
-  0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
-  0x37, 0x38, 0x39, 0x30,
-]); // "12345678901234567890"
-
-// Counter 0 should produce "755224"
-const token = await generate({
-  secret: testSecret,
-  counter: 0,
-  digits: 6,
-  algorithm: "sha1",
-  crypto: new NodeCryptoPlugin(),
-});
-console.log("Expected: 755224, Got:", token);
-```
 
 ### Inspecting Error Causes
 

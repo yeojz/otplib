@@ -159,168 +159,122 @@ const decoded = base32.decode("JBSWY3DPEHPK3PXP");
 
 [Full documentation →](/api/@otplib/plugin-base32-scure/)
 
-## Creating Custom Plugins
+### @otplib/plugin-base32-bypass
 
-### Plugin Architecture
+::: warning Security Notice
+This plugin bypasses Base32 encoding/decoding. Secrets provided through this plugin are treated as non-Base32 inputs for the lifetime of the instance.
+:::
 
-otplib uses a plugin architecture for both cryptographic operations and Base32 encoding:
+Bypass plugins allow working with raw string secrets or custom transformations without Base32 encoding.
 
-#### Crypto Plugin Interface
+Note: URI generation still expects Base32 secrets, so otpauth URIs continue to require Base32-encoded values.
 
-```typescript
-import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
+#### String Bypass
 
-type CryptoPlugin = {
-  name: string;
-  hmac(
-    algorithm: HashAlgorithm,
-    key: Uint8Array,
-    data: Uint8Array,
-  ): Uint8Array | Promise<Uint8Array>;
-  randomBytes(length: number): Uint8Array;
-  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean;
-};
-```
-
-#### Base32 Plugin Interface
-
-```typescript
-import type { Base32Plugin } from "@otplib/core";
-
-type Base32Plugin = {
-  name: string;
-  encode(data: Uint8Array, options?: Base32EncodeOptions): string;
-  decode(str: string): Uint8Array;
-};
-
-type Base32EncodeOptions = {
-  padding?: boolean; // Whether to add padding characters (default: true)
-};
-```
-
-### Custom Crypto
-
-Implement a custom crypto backend for specialized environments or requirements:
+`stringBypass` is a singleton plugin for UTF-8 string secrets that should be converted directly to bytes.
 
 ```typescript
 import { generate } from "otplib";
-import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
+import { stringBypass } from "@otplib/plugin-base32-bypass";
 
-// Custom crypto plugin
-const customCrypto: CryptoPlugin = {
-  name: "custom",
-  hmac: async (algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array) => {
-    // Your HMAC implementation
-    // Must return a Uint8Array with the digest
-    return digest;
-  },
-  randomBytes: (length: number) => {
-    // Your cryptographically secure random byte generation
-    // Must return a Uint8Array of the specified length
-    return crypto.getRandomValues(new Uint8Array(length));
-  },
-};
-
-// Use with otplib
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
-  crypto: customCrypto,
+  secret: "my-plain-text-secret",
+  base32: stringBypass,
 });
 ```
 
-#### Potential Use Cases for Custom Crypto
+[Full documentation →](/api/@otplib/plugin-base32-bypass/)
 
-- **Legacy Systems** - Integrate with existing crypto infrastructure
-- **Compliance Requirements** - Meet specific regulatory or security requirements
+## Creating Custom Plugins
 
-#### Example: Web Crypto Backend implementation
+If you need a custom crypto or Base32 implementation, use the `createCryptoPlugin` and `createBase32Plugin` helpers from `@otplib/core`.
 
-The built-in `WebCryptoPlugin` demonstrates a custom crypto implementation:
+### Custom Crypto
 
 ```typescript
-import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
+import { createCryptoPlugin } from "@otplib/core";
 
-class WebCryptoPlugin implements CryptoPlugin {
-  name = "web-crypto";
-
-  async hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
-    const subtle = crypto.subtle;
-    const algo = { name: "HMAC", hash: `SHA-${algorithm.slice(3)}` };
-
-    const cryptoKey = await subtle.importKey("raw", key, algo, false, ["sign"]);
-
-    const signature = await subtle.sign(algo, cryptoKey, data);
-    return new Uint8Array(signature);
-  }
-
-  randomBytes(length: number): Uint8Array {
-    return crypto.getRandomValues(new Uint8Array(length));
-  }
-}
+const customCrypto = createCryptoPlugin({
+  name: "custom",
+  hmac: async (algorithm, key, data) => {
+    // your HMAC implementation here
+    return new Uint8Array();
+  },
+  randomBytes: (length) => {
+    // your random bytes implementation here
+    return new Uint8Array(length);
+  },
+  constantTimeEqual: (a, b) => {
+    // your constant time implementation here
+    return true;
+  },
+});
 ```
 
 ### Custom Base32
 
-Implement a custom Base32 encoder for specialized encoding requirements:
-
 ```typescript
-import { generate } from "otplib";
-import type { Base32Plugin } from "@otplib/core";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { createBase32Plugin } from "@otplib/core";
 
-// Custom Base32 plugin
-const customBase32: Base32Plugin = {
+const customBase32 = createBase32Plugin({
   name: "custom-base32",
-  encode: (data: Uint8Array, options?: { padding?: boolean }) => {
-    // Your Base32 encoding implementation
-    // Must return a string
-    return encodedString;
+  encode: (data) => {
+    // your Base32 encode implementation here
+    return "";
   },
-  decode: (str: string) => {
-    // Your Base32 decoding implementation
-    // Must return a Uint8Array
-    return decodedData;
+  decode: (str) => {
+    // your Base32 decode implementation here
+    return new Uint8Array();
   },
-};
-
-// Use with otplib
-const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
-  crypto: new NodeCryptoPlugin(),
-  base32: customBase32,
 });
 ```
 
-#### Potential Use Cases for Custom Base32
+### Class Extension
 
-- **Custom Alphabets** - Use different character sets for compatibility
-- **Legacy Formats** - Integrate with existing Base32 formats
-- **Performance Optimization** - Optimize for specific use cases
-- **Specialized Requirements** - Meet specific encoding/decoding needs
+For more advanced behavior (stateful configuration, shared helpers, or multiple methods), you can extend a class that implements the plugin interface instead of using the factories. This is useful when you need lifecycle setup or richer internal structure.
 
-#### Example: Alternative Alphabet
+```typescript
+import type { CryptoPlugin } from "@otplib/core";
+
+class CustomCryptoPlugin implements CryptoPlugin {
+  name = "custom";
+
+  hmac(algorithm, key, data) {
+    // your HMAC implementation here
+    return new Uint8Array();
+  }
+
+  randomBytes(length) {
+    // your random bytes implementation here
+    return new Uint8Array(length);
+  }
+
+  constantTimeEqual(a, b) {
+    // your constant time implementation here
+    return true;
+  }
+}
+```
 
 ```typescript
 import type { Base32Plugin } from "@otplib/core";
 
 class CustomBase32Plugin implements Base32Plugin {
-  name = "custom-alphabet";
+  name = "custom-base32";
 
-  private readonly alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"; // Standard RFC 4648
-  // Or use a custom alphabet like Crockford's Base32
-  // private readonly alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-
-  encode(data: Uint8Array, options?: { padding?: boolean }): string {
-    // Your encoding logic
-    return encoded;
+  encode(data) {
+    // your Base32 encode implementation here
+    return "";
   }
 
-  decode(str: string): Uint8Array {
-    // Your decoding logic
-    return decoded;
+  decode(str) {
+    // your Base32 decode implementation here
+    return new Uint8Array();
   }
 }
 ```
+
+For full API details, see the core documentation.
 
 ## License
 

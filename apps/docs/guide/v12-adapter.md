@@ -184,6 +184,14 @@ await generate({
 });
 ```
 
+### 6. Secret Length Guardrails
+
+v13 enforces a minimum secret length of 16 bytes. Older deployments may have shorter secrets.
+
+::: warning Legacy Secrets
+If your existing secrets are shorter than 16 bytes, you may need to override guardrails for backward compatibility. This is not done by default to preserve security. See [Danger Zone - Guardrails](/guide/danger-zone#guardrails) for details.
+:::
+
 ### 6. Class-Based API Changes
 
 The class API has been updated:
@@ -454,12 +462,13 @@ const result = await verify({
 });
 
 if (result.valid) {
-  // Remember to implement a counter increment function
-  // to prevent replay
-  const nextCounter = 10 + result.delta + 1;
-  await updateCounter(userId, nextCounter);
+  // Update and persist your counter to prevent replay
 }
 ```
+
+::: info Replay Prevention
+After successful HOTP verification, persist the updated counter in your system. See [Replay Attack Prevention](/guide/security#replay-attack-prevention).
+:::
 
 ### Recommended Tolerance Values
 

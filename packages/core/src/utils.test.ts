@@ -24,7 +24,7 @@ import {
   constantTimeEqual,
   getDigestSize,
   stringToBytes,
-  hexToBytes,
+  bytesToString,
   generateSecret,
   normalizeSecret,
   normalizeCounterTolerance,
@@ -80,7 +80,7 @@ describe("Constants", () => {
   });
 
   it("should have correct window constant", () => {
-    expect(MAX_WINDOW).toBe(100);
+    expect(MAX_WINDOW).toBe(99);
   });
 });
 
@@ -325,7 +325,7 @@ describe("validateCounterTolerance", () => {
     expect(() => validateCounterTolerance(0, createGuardrails())).not.toThrow();
     expect(() => validateCounterTolerance(1, createGuardrails())).not.toThrow();
     // Number n normalizes to [0, n], so total = 0 + n + 1 = n + 1
-    // MAX_WINDOW = 100, so max valid n is 99 (total checks = 100)
+    // MAX_WINDOW = 99, so max valid n is 98 (total checks = 99)
     expect(() => validateCounterTolerance(MAX_WINDOW - 1, createGuardrails())).not.toThrow();
   });
 
@@ -334,7 +334,7 @@ describe("validateCounterTolerance", () => {
     expect(() => validateCounterTolerance([1, 1], createGuardrails())).not.toThrow();
     expect(() => validateCounterTolerance([10, 5], createGuardrails())).not.toThrow();
     // [past, future] with past + future + 1 ≤ MAX_WINDOW
-    expect(() => validateCounterTolerance([49, 49], createGuardrails())).not.toThrow(); // 99 checks
+    expect(() => validateCounterTolerance([49, 48], createGuardrails())).not.toThrow(); // 98 checks
   });
 
   it("should throw CounterToleranceNegativeError for negative values", () => {
@@ -454,9 +454,11 @@ describe("validateEpochTolerance", () => {
   });
 
   it("should have lower max tolerance when period is smaller", () => {
-    // Max tolerance with 10s period = MAX_WINDOW * 10 = 1000s
-    expect(() => validateEpochTolerance(1000, 10)).not.toThrow();
-    expect(() => validateEpochTolerance(1001, 10)).toThrowError(EpochToleranceTooLargeError);
+    // Max tolerance with 10s period = MAX_WINDOW * 10 = 990s
+    expect(() => validateEpochTolerance(MAX_WINDOW * 10, 10)).not.toThrow();
+    expect(() => validateEpochTolerance(MAX_WINDOW * 10 + 1, 10)).toThrowError(
+      EpochToleranceTooLargeError,
+    );
   });
 });
 
@@ -744,37 +746,26 @@ describe("getDigestSize", () => {
   });
 });
 
-describe("hexToBytes", () => {
-  it("should convert lowercase hex string to bytes", () => {
-    const result = hexToBytes("cc93cf18");
-    expect(result).toEqual(new Uint8Array([0xcc, 0x93, 0xcf, 0x18]));
+describe("bytesToString", () => {
+  it("should convert bytes to UTF-8 string", () => {
+    const bytes = new Uint8Array([104, 101, 108, 108, 111]);
+    expect(bytesToString(bytes)).toBe("hello");
   });
 
-  it("should convert uppercase hex string to bytes", () => {
-    const result = hexToBytes("CC93CF18");
-    expect(result).toEqual(new Uint8Array([0xcc, 0x93, 0xcf, 0x18]));
+  it("should handle empty array", () => {
+    const bytes = new Uint8Array([]);
+    expect(bytesToString(bytes)).toBe("");
   });
 
-  it("should convert RFC 4226 test vector HMAC", () => {
-    const result = hexToBytes("cc93cf18508d94934c64b65d8ba7667fb7cde4b0");
-    expect(result.length).toBe(20);
-    expect(result[0]).toBe(0xcc);
-    expect(result[19]).toBe(0xb0);
+  it("should handle unicode characters", () => {
+    const bytes = new Uint8Array([104, 195, 169, 108, 108, 111]); // "héllo" in UTF-8
+    expect(bytesToString(bytes)).toBe("héllo");
   });
 
-  it("should handle empty string", () => {
-    const result = hexToBytes("");
-    expect(result).toEqual(new Uint8Array(0));
-  });
-
-  it("should handle single byte", () => {
-    const result = hexToBytes("ff");
-    expect(result).toEqual(new Uint8Array([0xff]));
-  });
-
-  it("should handle all zeros", () => {
-    const result = hexToBytes("0000000000");
-    expect(result).toEqual(new Uint8Array([0, 0, 0, 0, 0]));
+  it("should round-trip with stringToBytes", () => {
+    const original = "Hello, World! 🌍";
+    const bytes = stringToBytes(original);
+    expect(bytesToString(bytes)).toBe(original);
   });
 });
 
@@ -1092,7 +1083,7 @@ describe("createGuardrails", () => {
     expect(g.MIN_PERIOD).toBe(1);
     expect(g.MAX_PERIOD).toBe(3600);
     expect(g.MAX_COUNTER).toBe(Number.MAX_SAFE_INTEGER);
-    expect(g.MAX_WINDOW).toBe(100);
+    expect(g.MAX_WINDOW).toBe(99);
   });
 
   it("merges custom with defaults", () => {

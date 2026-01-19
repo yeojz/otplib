@@ -8,13 +8,8 @@
  * - Digit truncation
  */
 
-import {
-  constantTimeEqual,
-  counterToBytes,
-  dynamicTruncate,
-  truncateDigits,
-  hexToBytes,
-} from "@otplib/core";
+import { constantTimeEqual, counterToBytes, dynamicTruncate, truncateDigits } from "@otplib/core";
+import { hexToBytes } from "@repo/testing";
 import { Bench } from "tinybench";
 
 const bench = new Bench({ time: 1000 });

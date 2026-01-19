@@ -35,6 +35,11 @@ import type {
 const textEncoder = new TextEncoder();
 
 /**
+ * Singleton TextDecoder instance to avoid repeated allocations
+ */
+const textDecoder = new TextDecoder();
+
+/**
  * Minimum secret length in bytes (128 bits as per RFC 4226)
  */
 export const MIN_SECRET_BYTES = 16;
@@ -76,12 +81,13 @@ export const MAX_COUNTER = Number.MAX_SAFE_INTEGER;
  * Maximum verification window size
  *
  * Limits the number of HMAC computations during verification to prevent DoS attacks.
- * A window of 100 means up to 201 HMAC computations ([-100, +100] range).
+ * A window of 99 means up to 99 HMAC computations (total checks including current counter).
+ * Odd number to cater for equal distribution of time drift + current.
  *
  * For TOTP: window=1 is typically sufficient (allows +-30 seconds clock drift)
  * For HOTP: window=10-50 handles reasonable counter desynchronization
  */
-export const MAX_WINDOW = 100;
+export const MAX_WINDOW = 99;
 
 /**
  * Configurable guardrails for OTP validation
@@ -572,31 +578,21 @@ export function stringToBytes(value: string | Uint8Array): Uint8Array {
 }
 
 /**
- * Convert a hex string to a Uint8Array
+ * Convert bytes to UTF-8 string
  *
- * This is useful for working with RFC test vectors and debugging HMAC outputs,
- * which are commonly represented as hexadecimal strings.
+ * Uses TextDecoder for proper UTF-8 handling.
  *
- * If your environment supports it, consider using `Uint8Array.fromHex()` instead.
- *
- * @param hex - The hex string to convert (lowercase or uppercase, no 0x prefix)
- * @returns The bytes as a Uint8Array
+ * @param bytes - Uint8Array to convert
+ * @returns UTF-8 string
  *
  * @example
  * ```ts
- * import { hexToBytes } from '@otplib/core'
- *
- * // Convert RFC 4226 HMAC test vector
- * const hmac = hexToBytes('cc93cf18508d94934c64b65d8ba7667fb7cde4b0')
- * // Returns: Uint8Array([0xcc, 0x93, 0xcf, ...])
+ * const str = bytesToString(new Uint8Array([104, 101, 108, 108, 111]));
+ * // str === "hello"
  * ```
  */
-export function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
-  }
-  return bytes;
+export function bytesToString(bytes: Uint8Array): string {
+  return textDecoder.decode(bytes);
 }
 
 /**

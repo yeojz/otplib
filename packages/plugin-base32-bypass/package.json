@@ -1,28 +1,24 @@
 {
-  "name": "@otplib/preset-v11",
+  "name": "@otplib/plugin-base32-bypass",
   "version": "13.1.1",
-  "description": "v11 compatibility preset for otplib",
+  "description": "Bypass Base32 encoding plugins for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
   "homepage": "https://otplib.yeojz.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yeojz/otplib.git",
-    "directory": "packages/v11-adapter"
+    "directory": "packages/plugin-base32-bypass"
   },
   "bugs": {
     "url": "https://github.com/yeojz/otplib/issues"
   },
   "keywords": [
     "otp",
-    "hotp",
-    "totp",
-    "2fa",
-    "mfa",
-    "authenticator",
-    "migration",
-    "v11",
-    "adapter"
+    "base32",
+    "bypass",
+    "encoding",
+    "plugin"
   ],
   "sideEffects": false,
   "type": "module",
@@ -56,19 +52,13 @@
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "dependencies": {
-    "@otplib/core": "workspace:*",
-    "@otplib/hotp": "workspace:*",
-    "@otplib/totp": "workspace:*",
-    "@otplib/uri": "workspace:*",
-    "@otplib/plugin-crypto-noble": "workspace:*",
-    "@otplib/plugin-base32-scure": "workspace:*",
-    "@scure/base": "^2.0.0"
+    "@otplib/core": "workspace:*"
   },
   "devDependencies": {
-    "tsup": "^8.0.1",
-    "typescript": "^5.3.3",
-    "vitest": "^4.0.16",
-    "@repo/testing": "workspace:*"
+    "@types/node": "^25.0.6",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   },
   "publishConfig": {
     "access": "public"

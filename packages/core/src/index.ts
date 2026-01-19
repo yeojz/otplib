@@ -70,7 +70,7 @@ export {
   constantTimeEqual,
   getDigestSize,
   stringToBytes,
-  hexToBytes,
+  bytesToString,
   normalizeSecret,
   normalizeCounterTolerance,
   normalizeEpochTolerance,
@@ -96,6 +96,10 @@ export {
 export { CryptoContext, createCryptoContext } from "./crypto-context.js";
 
 export { Base32Context, createBase32Context } from "./base32-context.js";
+
+export { createBase32Plugin, createCryptoPlugin } from "./plugin-factories.js";
+
+export type { CreateBase32PluginOptions, CreateCryptoPluginOptions } from "./plugin-factories.js";
 
 // Utility types for enhanced developer experience
 export type {
