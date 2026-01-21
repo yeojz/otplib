@@ -23,6 +23,17 @@ The verification process checks:
 
 If the token matches any of these periods, it is considered valid.
 
+##### Reference Window Examples
+
+| epochTolerance | period | Effective window (seconds)  | Typical meaning            |
+| -------------- | ------ | --------------------------- | -------------------------- |
+| `0`            | `30`   | `[epoch, epoch]`            | Exact period only          |
+| `5`            | `30`   | `epoch ± 5`                 | Small clock drift          |
+| `30`           | `30`   | `epoch ± 30`                | One adjacent period        |
+| `60`           | `30`   | `epoch ± 60`                | Two adjacent periods       |
+| `[5, 0]`       | `30`   | `epoch - 5` to `epoch`      | Past-only (RFC-aligned)    |
+| `[5, 30]`      | `30`   | `epoch - 5` to `epoch + 30` | Asymmetric drift allowance |
+
 **Basic usage:**
 
 ```typescript
@@ -101,10 +112,12 @@ Using a smaller tolerance (e.g., 5 seconds) restricts the acceptance window more
 
 ##### Recommended Values
 
-- **Maximum Security**: `epochTolerance: 0` (Accepts only the current period; requires synchronized clocks).
-- **High Security**: `epochTolerance: 5` or `[5, 0]` (Allows for small network delays; RFC 6238 recommends avoiding future tolerance).
-- **Standard**: `epochTolerance: 30` (Balances security and user convenience).
-- **Lenient**: `epochTolerance: 60` (Useful for environments with poor network conditions or unsynchronized clocks).
+| Use Case         | TOTP epochTolerance | HOTP counterTolerance |
+| ---------------- | ------------------- | --------------------- |
+| Maximum security | `0`                 | `0`                   |
+| High security    | `5` or `[5, 0]`     | `0`                   |
+| Standard 2FA     | `30`                | `5`                   |
+| Lenient (mobile) | `60`                | `10`                  |
 
 ##### Asymmetric Tolerance (RFC-Compliant)
 
