@@ -373,125 +373,6 @@ if (result.valid) {
 }
 ```
 
-#### Combined with epochTolerance
-
-The `afterTimeStep` parameter works seamlessly with `epochTolerance`:
-
-```typescript
-// At epoch 90 (time step 3) with tolerance 30
-// Window covers time steps [1, 2, 3, 4, 5]
-
-const result = await verify({
-  secret,
-  token,
-  epoch: 90,
-  epochTolerance: 30, // Allow time steps [1, 2, 3, 4, 5]
-  afterTimeStep: 2, // Reject time steps <= 2, allowing only [3, 4, 5]
-});
-
-// Result: Tokens from time steps 1 and 2 are rejected
-//         Tokens from time steps 3, 4, 5 are accepted
-```
-
-#### Validation Rules
-
-The `afterTimeStep` parameter is validated according to these rules:
-
-| Condition                       | Error                                                                         |
-| ------------------------------- | ----------------------------------------------------------------------------- |
-| Negative value                  | `afterTimeStep must be >= 0`                                                  |
-| Non-integer value (e.g., `1.5`) | `Invalid afterTimeStep: non-integer value`                                    |
-| Exceeds max possible time step  | `Invalid afterTimeStep: cannot be greater than current time step plus window` |
-
-Note: Values below the current window are allowed; they simply reject older time steps.
-
-```typescript
-// Throws: afterTimeStep must be >= 0
-await verify({ secret, token, afterTimeStep: -1 });
-
-// Throws: Invalid afterTimeStep: non-integer value
-await verify({ secret, token, afterTimeStep: 1.5 });
-
-// Throws: Invalid afterTimeStep: cannot be greater than current time step plus window
-// (when current time step + window < 100)
-await verify({ secret, token, afterTimeStep: 100 });
-```
-
-#### Complete Example with Database
-
-Here's a complete example showing how to implement replay protection in a real application:
-
-```typescript
-import { verify, generate } from "otplib";
-import { Database } from "your-database";
-
-const db = new Database();
-
-async function login(userId: string, token: string): Promise<boolean> {
-  // Get user's secret and last used time step
-  const { secret, lastTimeStep } = await db.getUser(userId);
-
-  // Verify token with replay protection
-  const result = await verify({
-    secret,
-    token,
-    afterTimeStep: lastTimeStep, // Reject previously used time steps
-  });
-
-  if (result.valid) {
-    // Update last used time step to prevent reuse
-    await db.updateLastTimeStep(userId, result.timeStep);
-    return true;
-  }
-
-  return false;
-}
-
-// Usage
-const success = await login("user-123", "123456");
-if (success) {
-  console.log("Login successful!");
-} else {
-  console.log("Invalid token or token already used");
-}
-```
-
-#### Security Considerations
-
-**State Management**: The application is responsible for storing and managing the `lastTimeStep` value. Common approaches:
-
-- **Database**: Store in user table (recommended for production)
-- **Session**: Store in session memory (for simple applications)
-- **Cache**: Redis/Memcached (for high-traffic scenarios)
-
-**Race Conditions**: `afterTimeStep` does not prevent concurrent verification race conditions. If two verification requests arrive simultaneously with the same token, both might succeed. Use database transactions or locks to prevent this:
-
-```typescript
-import { verify } from "otplib";
-import { Transaction } from "your-database";
-
-async function verifyWithLock(userId: string, token: string) {
-  return Transaction.run(async (tx) => {
-    // Lock user row during verification
-    const user = await tx.users.lock(userId);
-
-    const result = await verify({
-      secret: user.secret,
-      token,
-      afterTimeStep: user.lastTimeStep,
-    });
-
-    if (result.valid) {
-      await tx.users.update(userId, { lastTimeStep: result.timeStep });
-    }
-
-    return result.valid;
-  });
-}
-```
-
-**Clock Synchronization**: For proper replay protection, ensure your server clock is synchronized via NTP. Incorrect server time can cause `afterTimeStep` to reject valid tokens or accept expired ones.
-
 ## Configuration & formats
 
 ### Padding Control
@@ -738,13 +619,24 @@ try {
 | `Base32DecodeError`             | Base32 decoding fails (invalid input)            |
 | `Base32EncodeError`             | Base32 encoding fails                            |
 | `Base32PluginMissingError`      | String secret but no Base32 plugin               |
+| `CounterNegativeError`          | Counter is negative                              |
+| `CounterOverflowError`          | Counter exceeds max safe integer                 |
+| `CounterToleranceNegativeError` | Counter tolerance contains negatives             |
 | `CounterToleranceTooLargeError` | Counter tolerance exceeds maximum (100)          |
 | `CryptoPluginMissingError`      | No crypto plugin provided                        |
 | `DigitsError`                   | Invalid digits configuration (not 6-8)           |
+| `EpochToleranceNegativeError`   | Epoch tolerance contains negatives               |
 | `EpochToleranceTooLargeError`   | Tolerance exceeds maximum (3000 seconds)         |
 | `HMACError`                     | HMAC computation fails in crypto plugin          |
+| `IssuerMissingError`            | Missing issuer for URI generation                |
+| `LabelMissingError`             | Missing label for URI generation                 |
+| `PeriodTooLargeError`           | Period exceeds maximum                           |
+| `PeriodTooSmallError`           | Period below minimum                             |
 | `RandomBytesError`              | Random byte generation fails                     |
+| `SecretMissingError`            | Secret missing from options                      |
 | `SecretTooLongError`            | Secret exceeds 64 bytes                          |
 | `SecretTooShortError`           | Secret is less than 16 bytes                     |
+| `SecretTypeError`               | Secret must be Base32 string for class           |
+| `TimeNegativeError`             | Time is negative                                 |
 | `TokenFormatError`              | Token contains non-numeric characters            |
 | `TokenLengthError`              | Token doesn't match expected digit count         |
