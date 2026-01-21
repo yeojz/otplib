@@ -155,17 +155,7 @@ const result = await verify({
   counter: currentCounter,
   counterTolerance: 10, // Checks current + 10 future counters
 });
-
-if (result.valid) {
-  // Update counter to prevent replay
-  const newCounter = currentCounter + result.delta + 1;
-  await updateCounter(userId, newCounter);
-}
 ```
-
-::: info Replay Prevention
-After successful HOTP verification, persist the updated counter in your system. See [Replay Attack Prevention](/guide/security#replay-attack-prevention).
-:::
 
 **Tuple format** (explicit control):
 
@@ -179,6 +169,18 @@ const result = await verify({
   counter: currentCounter,
   counterTolerance: [5, 5], // Check ±5 counters (symmetric)
 });
+```
+
+### Replay Protection (HOTP)
+
+After successful HOTP verification, persist the updated counter in your system.
+
+```typescript
+if (result.valid) {
+  // Update and persist your counter to prevent replay
+  // Example:
+  updateCounter(currentCounter + result.delta + 1);
+}
 ```
 
 ### Replay Protection (TOTP)
