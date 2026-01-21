@@ -560,7 +560,7 @@ OTPError (base class)
 ├── AfterTimeStepError
 │   ├── AfterTimeStepNegativeError
 │   ├── AfterTimeStepNotIntegerError
-│   └── AfterTimeStepImpossibleError
+│   └── AfterTimeStepRangeExceededError
 ├── PluginError
 │   ├── CryptoPluginMissingError
 │   └── Base32PluginMissingError
@@ -624,34 +624,34 @@ try {
 
 ### Error Types Reference
 
-| Error Class                     | When Thrown                                      |
-| ------------------------------- | ------------------------------------------------ |
-| `AlgorithmError`                | Invalid algorithm (not sha1/sha256/etc)          |
-| `AfterTimeStepImpossibleError`  | `afterTimeStep` exceeds max possible time step   |
-| `AfterTimeStepNegativeError`    | `afterTimeStep` is negative                      |
-| `AfterTimeStepNotIntegerError`  | `afterTimeStep` is not an integer (e.g., 1.5)    |
-| `AfterTimeStepError`            | Base class for `afterTimeStep` validation errors |
-| `Base32DecodeError`             | Base32 decoding fails (invalid input)            |
-| `Base32EncodeError`             | Base32 encoding fails                            |
-| `Base32PluginMissingError`      | String secret but no Base32 plugin               |
-| `CounterNegativeError`          | Counter is negative                              |
-| `CounterOverflowError`          | Counter exceeds max safe integer                 |
-| `CounterToleranceNegativeError` | Counter tolerance contains negatives             |
-| `CounterToleranceTooLargeError` | Counter tolerance exceeds maximum (100)          |
-| `CryptoPluginMissingError`      | No crypto plugin provided                        |
-| `DigitsError`                   | Invalid digits configuration (not 6-8)           |
-| `EpochToleranceNegativeError`   | Epoch tolerance contains negatives               |
-| `EpochToleranceTooLargeError`   | Tolerance exceeds maximum (3000 seconds)         |
-| `HMACError`                     | HMAC computation fails in crypto plugin          |
-| `IssuerMissingError`            | Missing issuer for URI generation                |
-| `LabelMissingError`             | Missing label for URI generation                 |
-| `PeriodTooLargeError`           | Period exceeds maximum                           |
-| `PeriodTooSmallError`           | Period below minimum                             |
-| `RandomBytesError`              | Random byte generation fails                     |
-| `SecretMissingError`            | Secret missing from options                      |
-| `SecretTooLongError`            | Secret exceeds 64 bytes                          |
-| `SecretTooShortError`           | Secret is less than 16 bytes                     |
-| `SecretTypeError`               | Secret must be Base32 string for class           |
-| `TimeNegativeError`             | Time is negative                                 |
-| `TokenFormatError`              | Token contains non-numeric characters            |
-| `TokenLengthError`              | Token doesn't match expected digit count         |
+| Error Class                       | When Thrown                                      |
+| --------------------------------- | ------------------------------------------------ |
+| `AlgorithmError`                  | Invalid algorithm (not sha1/sha256/etc)          |
+| `AfterTimeStepRangeExceededError` | `afterTimeStep` exceeds max possible time step   |
+| `AfterTimeStepNegativeError`      | `afterTimeStep` is negative                      |
+| `AfterTimeStepNotIntegerError`    | `afterTimeStep` is not an integer (e.g., 1.5)    |
+| `AfterTimeStepError`              | Base class for `afterTimeStep` validation errors |
+| `Base32DecodeError`               | Base32 decoding fails (invalid input)            |
+| `Base32EncodeError`               | Base32 encoding fails                            |
+| `Base32PluginMissingError`        | String secret but no Base32 plugin               |
+| `CounterNegativeError`            | Counter is negative                              |
+| `CounterOverflowError`            | Counter exceeds max safe integer                 |
+| `CounterToleranceNegativeError`   | Counter tolerance contains negatives             |
+| `CounterToleranceTooLargeError`   | Counter tolerance exceeds maximum (100)          |
+| `CryptoPluginMissingError`        | No crypto plugin provided                        |
+| `DigitsError`                     | Invalid digits configuration (not 6-8)           |
+| `EpochToleranceNegativeError`     | Epoch tolerance contains negatives               |
+| `EpochToleranceTooLargeError`     | Tolerance exceeds maximum (3000 seconds)         |
+| `HMACError`                       | HMAC computation fails in crypto plugin          |
+| `IssuerMissingError`              | Missing issuer for URI generation                |
+| `LabelMissingError`               | Missing label for URI generation                 |
+| `PeriodTooLargeError`             | Period exceeds maximum                           |
+| `PeriodTooSmallError`             | Period below minimum                             |
+| `RandomBytesError`                | Random byte generation fails                     |
+| `SecretMissingError`              | Secret missing from options                      |
+| `SecretTooLongError`              | Secret exceeds 64 bytes                          |
+| `SecretTooShortError`             | Secret is less than 16 bytes                     |
+| `SecretTypeError`                 | Secret must be Base32 string for class           |
+| `TimeNegativeError`               | Time is negative                                 |
+| `TokenFormatError`                | Token contains non-numeric characters            |
+| `TokenLengthError`                | Token doesn't match expected digit count         |

@@ -53,7 +53,7 @@ export {
   AfterTimeStepError,
   AfterTimeStepNegativeError,
   AfterTimeStepNotIntegerError,
-  AfterTimeStepImpossibleError,
+  AfterTimeStepRangeExceededError,
   type OTPErrorOptions,
 } from "./errors.js";
 

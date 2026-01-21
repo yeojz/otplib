@@ -23,7 +23,7 @@ import {
   requireCryptoPlugin,
   AfterTimeStepNegativeError,
   AfterTimeStepNotIntegerError,
-  AfterTimeStepImpossibleError,
+  AfterTimeStepRangeExceededError,
 } from "@otplib/core";
 import { generate as generateHOTP, generateSync as generateHOTPSync } from "@otplib/hotp";
 
@@ -171,7 +171,7 @@ export function generateSync(options: TOTPGenerateOptions): string {
  * @param maxCounter - The maximum counter in the verification window
  * @throws {AfterTimeStepNegativeError} If afterTimeStep is negative
  * @throws {AfterTimeStepNotIntegerError} If afterTimeStep is not an integer
- * @throws {AfterTimeStepImpossibleError} If afterTimeStep exceeds maxCounter
+ * @throws {AfterTimeStepRangeExceededError} If afterTimeStep exceeds maxCounter
  *
  * @internal
  */
@@ -189,8 +189,16 @@ function validateAfterTimeStep(afterTimeStep: number | undefined, maxCounter: nu
   }
 
   if (afterTimeStep > maxCounter) {
-    throw new AfterTimeStepImpossibleError();
+    throw new AfterTimeStepRangeExceededError();
   }
+}
+
+/**
+ * Check if a counter should be skipped based on afterTimeStep
+ * @internal
+ */
+function shouldSkipAfterTimeStep(counter: number, afterTimeStep: number | undefined): boolean {
+  return afterTimeStep !== undefined && counter <= afterTimeStep;
 }
 
 /**
@@ -327,7 +335,7 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
     // Early rejection: skip counters that don't meet afterTimeStep constraint
-    if (afterTimeStep !== undefined && counter <= afterTimeStep) {
+    if (shouldSkipAfterTimeStep(counter, afterTimeStep)) {
       continue;
     }
 
@@ -390,7 +398,7 @@ export function verifySync(options: TOTPVerifyOptions): VerifyResult {
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
     // Early rejection: skip counters that don't meet afterTimeStep constraint
-    if (afterTimeStep !== undefined && counter <= afterTimeStep) {
+    if (shouldSkipAfterTimeStep(counter, afterTimeStep)) {
       continue;
     }
 

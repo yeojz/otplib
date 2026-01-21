@@ -478,11 +478,11 @@ export class AfterTimeStepNotIntegerError extends AfterTimeStepError {
 }
 
 /**
- * Error thrown when afterTimeStep makes verification impossible
+ * Error thrown when afterTimeStep exceeds the verification range
  */
-export class AfterTimeStepImpossibleError extends AfterTimeStepError {
+export class AfterTimeStepRangeExceededError extends AfterTimeStepError {
   constructor() {
     super("Invalid afterTimeStep: cannot be greater than current time step plus window");
-    this.name = "AfterTimeStepImpossibleError";
+    this.name = "AfterTimeStepRangeExceededError";
   }
 }
