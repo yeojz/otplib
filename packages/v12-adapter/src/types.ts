@@ -5,7 +5,7 @@
  * These types mirror the v12 API to provide drop-in compatibility.
  */
 
-import type { CryptoPlugin, Base32Plugin, HashAlgorithm } from "@otplib/core";
+import type { CryptoPlugin, Base32Plugin, HashAlgorithm, OTPGuardrails } from "@otplib/core";
 
 /**
  * v12-style hash algorithms constant
@@ -94,6 +94,8 @@ export type HOTPOptions<T = string> = {
   crypto?: CryptoPlugin;
   /** v13 base32 plugin (internal use) */
   base32?: Base32Plugin;
+  /** Validation guardrails */
+  guardrails?: OTPGuardrails;
 };
 
 /**
@@ -129,6 +131,7 @@ export type ResolvedHOTPOptions = {
   encoding: KeyEncodings;
   crypto: CryptoPlugin;
   base32: Base32Plugin;
+  guardrails?: OTPGuardrails;
 };
 
 /**

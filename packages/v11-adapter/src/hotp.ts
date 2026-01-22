@@ -54,7 +54,7 @@ export class HOTP<T extends HOTPOptions = HOTPOptions> {
   }
 
   set defaultOptions(value: Partial<T>) {
-    this._defaultOptions = value;
+    this._defaultOptions = { ...value };
   }
 
   get optionsAll(): Readonly<ResolvedHOTPOptions> {
@@ -93,6 +93,7 @@ export class HOTP<T extends HOTPOptions = HOTPOptions> {
       algorithm: opts.algorithm,
       digits: opts.digits as Digits,
       crypto: opts.crypto,
+      guardrails: opts.guardrails,
     });
   }
 
@@ -109,6 +110,7 @@ export class HOTP<T extends HOTPOptions = HOTPOptions> {
         digits: opts.digits as Digits,
         counterTolerance: 0,
         crypto: opts.crypto,
+        guardrails: opts.guardrails,
       });
 
       return result.valid;

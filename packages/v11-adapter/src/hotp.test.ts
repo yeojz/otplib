@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
+import { CryptoPlugin, createGuardrails } from "@otplib/core";
 import { HOTP, HashAlgorithms, type HOTPOptions } from "./index.js";
 import { RFC4226_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
-import { CryptoPlugin } from "@otplib/core";
 
 describe("HOTP (v11-adapter)", () => {
   it("should match RFC 4226 vectors", () => {
@@ -52,6 +52,13 @@ describe("HOTP (v11-adapter)", () => {
     const token = hotp.generate(secret, 0);
 
     expect(hotp.check(token, secret, 0)).toBe(true);
+  });
+
+  it("should apply guardrails from constructor", () => {
+    const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100 });
+    const hotp = new HOTP({ guardrails: strictGuardrails });
+
+    expect(() => hotp.generate(BASE_SECRET, 0)).toThrow();
   });
 
   it("should manage options", () => {
