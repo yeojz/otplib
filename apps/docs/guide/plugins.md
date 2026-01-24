@@ -159,31 +159,31 @@ const decoded = base32.decode("JBSWY3DPEHPK3PXP");
 
 [Full documentation →](/api/@otplib/plugin-base32-scure/)
 
-### @otplib/plugin-base32-bypass
+### @otplib/plugin-base32-alt
 
 ::: warning Security Notice
 This plugin bypasses Base32 encoding/decoding. Secrets provided through this plugin are treated as non-Base32 inputs for the lifetime of the instance.
 :::
 
-Bypass plugins allow working with raw string secrets or custom transformations without Base32 encoding.
+Alternative encoding plugins allow working with raw string secrets or custom transformations without Base32 encoding.
 
 Note: URI generation still expects Base32 secrets, so otpauth URIs continue to require Base32-encoded values.
 
 #### String Bypass
 
-`stringBypass` is a singleton plugin for UTF-8 string secrets that should be converted directly to bytes.
+`bypassAsString` is a singleton plugin for UTF-8 string secrets that should be converted directly to bytes.
 
 ```typescript
 import { generate } from "otplib";
-import { stringBypass } from "@otplib/plugin-base32-bypass";
+import { bypassAsString } from "@otplib/plugin-base32-alt";
 
 const token = await generate({
   secret: "my-plain-text-secret",
-  base32: stringBypass,
+  base32: bypassAsString,
 });
 ```
 
-[Full documentation →](/api/@otplib/plugin-base32-bypass/)
+[Full documentation →](/api/@otplib/plugin-base32-alt/)
 
 ## Creating Custom Plugins
 

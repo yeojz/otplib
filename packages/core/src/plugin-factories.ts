@@ -1,3 +1,4 @@
+import { Base32DecodeError, Base32EncodeError } from "./errors.js";
 import { constantTimeEqual } from "./utils.js";
 
 import type { Base32EncodeOptions, Base32Plugin, CryptoPlugin, HashAlgorithm } from "./types.js";
@@ -62,8 +63,8 @@ export type CreateCryptoPluginOptions = {
  * import { createBase32Plugin, stringToBytes, bytesToString } from '@otplib/core';
  *
  * // UTF-8 string bypass (no Base32)
- * const stringBypass = createBase32Plugin({
- *   name: 'string-bypass',
+ * const bypassAsString = createBase32Plugin({
+ *   name: 'bypass-as-string',
  *   encode: bytesToString,
  *   decode: stringToBytes,
  * });
@@ -81,8 +82,22 @@ export function createBase32Plugin(options: CreateBase32PluginOptions): Base32Pl
 
   return Object.freeze({
     name,
-    encode: (data: Uint8Array, _options?: Base32EncodeOptions) => encode(data),
-    decode: (str: string) => decode(str),
+    encode: (data: Uint8Array, _options?: Base32EncodeOptions) => {
+      try {
+        return encode(data);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Base32EncodeError(message, { cause: error });
+      }
+    },
+    decode: (str: string) => {
+      try {
+        return decode(str);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Base32DecodeError(message, { cause: error });
+      }
+    },
   });
 }
 

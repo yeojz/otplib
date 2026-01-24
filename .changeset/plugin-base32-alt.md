@@ -1,5 +1,5 @@
 ---
-"@otplib/plugin-base32-bypass": minor
+"@otplib/plugin-base32-alt": minor
 "@otplib/core": minor
 "@otplib/hotp": minor
 "@otplib/plugin-base32-scure": minor
@@ -13,4 +13,4 @@
 "otplib": minor
 ---
 
-Add new `@otplib/plugin-base32-bypass` package for raw string secrets, including string and custom bypass plugins, plus `createBase32Plugin`/`createCryptoPlugin` factories. Standardize v11/v12 adapters on `@scure/base` for stricter hex handling, update counterTolerance semantics with MAX_WINDOW set to 99, add `bytesToString`, and remove `hexToBytes` from `@otplib/core` public API.
+Add new `@otplib/plugin-base32-alt` package for raw string secrets, including string and custom encoding plugins, plus `createBase32Plugin`/`createCryptoPlugin` factories. Standardize v11/v12 adapters on `@scure/base` for stricter hex handling, update counterTolerance semantics with MAX_WINDOW set to 99, add `bytesToString`, and remove `hexToBytes` from `@otplib/core` public API.

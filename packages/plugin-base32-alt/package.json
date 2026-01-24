@@ -1,14 +1,14 @@
 {
-  "name": "@otplib/plugin-base32-bypass",
+  "name": "@otplib/plugin-base32-alt",
   "version": "13.1.1",
-  "description": "Bypass Base32 encoding plugins for otplib",
+  "description": "Alternative encoding plugins for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
   "homepage": "https://otplib.yeojz.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yeojz/otplib.git",
-    "directory": "packages/plugin-base32-bypass"
+    "directory": "packages/plugin-base32-alt"
   },
   "bugs": {
     "url": "https://github.com/yeojz/otplib/issues"
@@ -16,7 +16,7 @@
   "keywords": [
     "otp",
     "base32",
-    "bypass",
+    "alternative",
     "encoding",
     "plugin"
   ],
