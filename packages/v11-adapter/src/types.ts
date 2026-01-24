@@ -58,7 +58,7 @@ export type ResolvedHOTPOptions = {
   encoding: KeyEncodings;
   crypto: CryptoPlugin;
   base32: Base32Plugin;
-  guardrails?: OTPGuardrails;
+  guardrails: OTPGuardrails;
 };
 
 export type ResolvedTOTPOptions = ResolvedHOTPOptions & {

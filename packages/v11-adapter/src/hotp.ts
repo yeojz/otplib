@@ -4,7 +4,7 @@
  * v11-compatible HOTP class implementation.
  */
 
-import { stringToBytes } from "@otplib/core";
+import { stringToBytes, createGuardrails } from "@otplib/core";
 import { generateSync as hotpGenerateSync, verifySync as hotpVerifySync } from "@otplib/hotp";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
@@ -37,7 +37,10 @@ export class HOTP<T extends HOTPOptions = HOTPOptions> {
   protected _defaultOptions: Partial<T> = {};
 
   constructor(defaultOptions: Partial<T> = {}) {
-    this._defaultOptions = { ...defaultOptions };
+    this._defaultOptions = {
+      ...defaultOptions,
+      guardrails: createGuardrails(defaultOptions.guardrails),
+    } as Partial<T>;
     this._options = {};
   }
 
