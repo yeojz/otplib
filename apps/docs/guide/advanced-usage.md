@@ -471,14 +471,14 @@ These utilities return an `OTPResult` object which discriminates on the `ok` pro
 
 ### Synchronous Usage
 
-Wrap synchronous functions like `otp.generate` or `otp.verify` (when used with synchronous plugins):
+Wrap synchronous functions like `otp.generateSync` or `otp.verifySync` (when used with synchronous plugins):
 
 ```typescript
-import { wrapResult, generate, OTPError } from "otplib";
+import { wrapResult, generateSync, OTPError } from "otplib";
 
 // 1. Create your wrapped function
 // Note: Types are automatically inferred
-const safeGenerate = wrapResult(generate);
+const safeGenerate = wrapResult(generateSync);
 
 // 2. Call it
 const result = safeGenerate({ secret: "too-short" });
