@@ -344,7 +344,3 @@ class CustomBase32Plugin implements Base32Plugin {
 ```
 
 For full API details, see the core documentation.
-
-## License
-
-MIT

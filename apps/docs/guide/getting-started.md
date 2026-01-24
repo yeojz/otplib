@@ -131,8 +131,12 @@ console.log("Valid:", result.valid);
 - **`hotp`**: HMAC-based OTP - Uses a counter to generate tokens
 
 ::: warning Base32 Secrets
-String secrets are treated as Base32-encoded by default. For passphrases or other non-Base32 strings, use an alternative encoding plugin. See [Alternative encoding plugins](/guide/plugins#otplibplugin-base32-alt).
-:::
+String secrets are treated as Base32-encoded by default.
+If you are permanently using passphrases or other non-Base32 strings, you can either
+
+- Ensure you convert your secrets to bytes (Uint8Array)
+- OR use an alternative encoding plugin. See [Alternative encoding plugins](/guide/plugins.html#otplib-plugin-base32-alt)
+  :::
 
 ::: info Note on Google Authenticator vs RFC4648 (TOTP)
 
