@@ -11,11 +11,11 @@
 
 If you discover a security vulnerability:
 
-1. **Do NOT open a public issue**
+1. **Please do NOT open a public issue**
 2. Use [GitHub's private security advisory](https://github.com/yeojz/otplib/security/advisories/new) to report the vulnerability
 3. Include steps to reproduce, impact assessment, and any suggested fixes
 
-You can expect an initial response within 72 hours. We will work with you to understand the issue and coordinate disclosure.
+You can expect an initial response within a week. We seek your understanding as this project is being worked on only after working hours or weekends.
 
 ## Security Scope
 
