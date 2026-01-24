@@ -101,7 +101,7 @@ By default, otplib expects secrets to be in **Base32** format. While the core HO
 
 ```typescript
 // Base32 secret (standard format for authenticator compatibility)
-const secret = "JBSWY3DPEHPK3PXP";
+const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY";
 ```
 
 However, if you need to use secrets in other formats, you can either use the `plugin-base32-alt` plugin for raw strings or pass a byte array (using `stringToBytes` helper) for binary data.

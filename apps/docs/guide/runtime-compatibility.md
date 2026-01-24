@@ -199,7 +199,7 @@ const base32 = new ScureBase32Plugin();
 export default {
   async fetch(request: Request): Promise<Response> {
     const token = await generate({
-      secret: "JBSWY3DPEHPK3PXP",
+      secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
       crypto,
       base32,
     });

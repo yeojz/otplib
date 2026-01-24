@@ -52,7 +52,7 @@ const crypto = new WebCryptoPlugin();
 const base32 = new ScureBase32Plugin();
 
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   algorithm: "sha256",
   crypto,
   base32,

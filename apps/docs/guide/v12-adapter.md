@@ -87,13 +87,13 @@ const crypto = new NobleCryptoPlugin();
 const base32 = new ScureBase32Plugin();
 
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   crypto,
   base32,
 });
 
 const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   token,
   crypto,
   base32,
@@ -129,7 +129,7 @@ import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   counter: 0,
   crypto: new NodeCryptoPlugin(),
   base32: new ScureBase32Plugin(),
@@ -172,7 +172,7 @@ v13 accepts both Base32 strings and raw `Uint8Array`:
 ```typescript
 // Base32 string (requires base32 plugin)
 await generate({
-  secret: 'JBSWY3DPEHPK3PXP',
+  secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY',
   crypto,
   base32, // required for string secrets
 });
@@ -210,7 +210,7 @@ const otp = new OTP({
   digits: 8,
 });
 
-const token = await otp.generate({ secret: "JBSWY3DPEHPK3PXP" });
+const token = await otp.generate({ secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY" });
 
 // v13 - Using strategy-specific classes
 import { TOTP } from "otplib";
@@ -221,7 +221,7 @@ const totp = new TOTP({
   digits: 8,
 });
 
-totp.secret = "JBSWY3DPEHPK3PXP";
+totp.secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY";
 const token = await totp.generate();
 ```
 
@@ -324,14 +324,14 @@ import { generateURI } from "@otplib/totp";
 const uri = generateURI({
   issuer: "MyApp",
   label: "user@example.com",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
 });
 
 // v13 - class-based
 const totp = new TOTP({
   issuer: "MyApp",
   label: "user@example.com",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   crypto,
   base32,
 });

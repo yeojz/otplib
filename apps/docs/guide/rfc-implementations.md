@@ -129,7 +129,7 @@ Google Authenticator expects **no padding** and uses the standard RFC 4648 alpha
 ```typescript
 // GA-compatible encoding
 const secret = base32.encode(randomBytes(20), { padding: false });
-// Example: "JBSWY3DPEHPK3PXP"
+// Example: "GEZDGNBVGY3TQOJQGEZDGNBVGY"
 ```
 
 ### otpauth:// URI Format
@@ -164,7 +164,7 @@ const base32 = new ScureBase32Plugin();
 const uri = generateURI({
   issuer: "MyService",
   label: "user@example.com",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   algorithm: "sha1",
   digits: 6,
   period: 30,

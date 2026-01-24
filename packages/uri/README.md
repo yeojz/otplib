@@ -27,7 +27,7 @@ otpauth://TYPE/LABEL?PARAMETERS
 Example:
 
 ```
-otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub
+otpauth://totp/GitHub:user@example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY&issuer=GitHub
 ```
 
 ## Parsing URIs
@@ -37,7 +37,8 @@ otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub
 ```typescript
 import { parse } from "@otplib/uri";
 
-const uri = "otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub";
+const uri =
+  "otpauth://totp/GitHub:user@example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY&issuer=GitHub";
 const result = parse(uri);
 
 console.log(result);
@@ -45,7 +46,7 @@ console.log(result);
 //   type: 'totp',
 //   label: 'GitHub:user@example.com',
 //   params: {
-//     secret: 'JBSWY3DPEHPK3PXP',
+//     secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY',
 //     issuer: 'GitHub',
 //     algorithm: 'sha1',
 //     digits: 6,
@@ -59,7 +60,7 @@ console.log(result);
 ```typescript
 import { parse } from "@otplib/uri";
 
-const uri = "otpauth://totp/ACME%20Corp:john@example.com?secret=JBSWY3DPEHPK3PXP";
+const uri = "otpauth://totp/ACME%20Corp:john@example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY";
 const { label, params } = parse(uri);
 
 // Split label to get issuer and account
@@ -104,11 +105,11 @@ import { generateTOTP } from "@otplib/uri";
 const uri = generateTOTP({
   issuer: "ACME Corp",
   label: "john@example.com",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
 });
 
 console.log(uri);
-// 'otpauth://totp/ACME%20Corp:john@example.com?secret=JBSWY3DPEHPK3PXP&issuer=ACME%20Corp'
+// 'otpauth://totp/ACME%20Corp:john@example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY&issuer=ACME%20Corp'
 ```
 
 ### TOTP with Custom Options
@@ -119,7 +120,7 @@ import { generateTOTP } from "@otplib/uri";
 const uri = generateTOTP({
   issuer: "GitHub",
   label: "user@github.com",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   algorithm: "sha256", // Non-default algorithm
   digits: 8, // 8-digit tokens
   period: 60, // 60-second period
@@ -134,12 +135,12 @@ import { generateHOTP } from "@otplib/uri";
 const uri = generateHOTP({
   issuer: "MyApp",
   label: "user123",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   counter: 0, // Starting counter
 });
 
 console.log(uri);
-// 'otpauth://hotp/MyApp:user123?secret=JBSWY3DPEHPK3PXP&issuer=MyApp&counter=0'
+// 'otpauth://hotp/MyApp:user123?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY&issuer=MyApp&counter=0'
 ```
 
 ### Low-Level Generation
@@ -153,7 +154,7 @@ const uri = generate({
   type: "totp",
   label: "CustomApp:user@example.com",
   params: {
-    secret: "JBSWY3DPEHPK3PXP",
+    secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
     issuer: "CustomApp",
     algorithm: "sha1",
     digits: 6,
@@ -182,7 +183,7 @@ import { generateTOTP } from "@otplib/uri";
 const uri = generateTOTP({
   issuer: "MyService",
   label: "user@example.com",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   // algorithm: 'sha1',  // Default, compatible
   // digits: 6,          // Default, compatible
   // period: 30,         // Default, compatible
@@ -200,7 +201,7 @@ import QRCode from "qrcode"; // Example library
 const uri = generateTOTP({
   issuer: "MyApp",
   label: "user@example.com",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
 });
 
 // Generate QR code as data URL

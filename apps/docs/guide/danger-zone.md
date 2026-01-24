@@ -112,7 +112,7 @@ const customGuardrails = createGuardrails({
 
 // Configure guardrails for all operations on this instance
 const hotp = new HOTP({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   crypto: new NodeCryptoPlugin(),
   base32: new ScureBase32Plugin(),
   guardrails: customGuardrails,
@@ -132,7 +132,7 @@ import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
 // Instance with standard guardrails
 const hotp = new HOTP({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   crypto: new NodeCryptoPlugin(),
   base32: new ScureBase32Plugin(),
 });
@@ -182,7 +182,7 @@ import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
 const totp = new TOTP({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   period: 60, // 60-second periods
   crypto: new NodeCryptoPlugin(),
   base32: new ScureBase32Plugin(),

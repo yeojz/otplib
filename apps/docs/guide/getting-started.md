@@ -67,7 +67,7 @@ console.log("Valid:", result.valid); // true
 ```typescript
 import { generate, verify } from "otplib";
 
-const secret = "JBSWY3DPEHPK3PXP";
+const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY";
 
 // Generate token for counter 0
 const token = await generate({ secret, strategy: "hotp", counter: 0 });
@@ -150,7 +150,7 @@ String secrets are treated as Base32-encoded by default. For passphrases or othe
 
 ```typescript
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP", // Base32-encoded secret (required)
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Base32-encoded secret (required)
 
   // Optional
   algorithm: "sha1", // 'sha1', 'sha256', or 'sha512'
@@ -161,7 +161,7 @@ const token = await generate({
 
 // Verification with tolerance
 const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   token: "123456",
   epochTolerance: 30, // Accept tokens valid within ±30 seconds
 });
@@ -171,7 +171,7 @@ const result = await verify({
 
 ```typescript
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP", // Base32-encoded secret (required)
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Base32-encoded secret (required)
   counter: 0, // Counter value (required)
 
   // Optional
@@ -181,7 +181,7 @@ const token = await generate({
 
 // Verification with counter tolerance
 const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   token: "123456",
   strategy: "hotp",
   counter: 0,

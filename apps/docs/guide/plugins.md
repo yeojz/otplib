@@ -147,7 +147,7 @@ const encoded = base32.encode(new Uint8Array([1, 2, 3, 4, 5]));
 // 'AEBAGBA='
 
 // Decoding
-const decoded = base32.decode("JBSWY3DPEHPK3PXP");
+const decoded = base32.decode("GEZDGNBVGY3TQOJQGEZDGNBVGY");
 // Uint8Array
 ```
 

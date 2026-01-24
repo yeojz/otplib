@@ -22,7 +22,7 @@ const base32 = new ScureBase32Plugin();
 
 // Generate an HOTP token for counter 0
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   counter: 0,
   crypto,
   base32,
@@ -30,7 +30,7 @@ const token = await generate({
 
 // Verify an HOTP token
 const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   token: "123456",
   counter: 0,
   crypto,
