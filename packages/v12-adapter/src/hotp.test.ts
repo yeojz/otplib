@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { createGuardrails } from "@otplib/core";
 import { HOTP, HashAlgorithms, KeyEncodings, hotpDigestToToken, type HOTPOptions } from "./index";
 import { RFC4226_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
 
@@ -78,6 +79,13 @@ describe("HOTP (v12-adapter)", () => {
 
       expect(token).toHaveLength(8);
       expect(token).toMatch(/^\d{8}$/);
+    });
+
+    it("should apply guardrails from constructor", () => {
+      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100 });
+      const hotp = new HOTP({ guardrails: strictGuardrails });
+
+      expect(() => hotp.generate(BASE_SECRET, 0)).toThrow();
     });
   });
 

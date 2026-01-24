@@ -5,7 +5,7 @@
  * v11 used functionality similar to v12 but with seconds-based epochs.
  */
 
-import type { CryptoPlugin, Base32Plugin, HashAlgorithm } from "@otplib/core";
+import type { CryptoPlugin, Base32Plugin, HashAlgorithm, OTPGuardrails } from "@otplib/core";
 
 export const HashAlgorithms = {
   SHA1: "sha1",
@@ -35,6 +35,7 @@ export type HOTPOptions = {
   encoding?: KeyEncodings;
   crypto?: CryptoPlugin;
   base32?: Base32Plugin;
+  guardrails?: OTPGuardrails;
 };
 
 export type TOTPOptions = HOTPOptions & {
@@ -57,6 +58,7 @@ export type ResolvedHOTPOptions = {
   encoding: KeyEncodings;
   crypto: CryptoPlugin;
   base32: Base32Plugin;
+  guardrails: OTPGuardrails;
 };
 
 export type ResolvedTOTPOptions = ResolvedHOTPOptions & {

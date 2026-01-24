@@ -4,7 +4,7 @@
  * A unified class that dynamically handles TOTP and HOTP strategies.
  */
 
-import { generateSecret as generateSecretCore } from "@otplib/core";
+import { createGuardrails, generateSecret as generateSecretCore } from "@otplib/core";
 
 import { defaultCrypto, defaultBase32 } from "./defaults.js";
 import {
@@ -51,6 +51,11 @@ export type OTPClassOptions = {
    * Base32 plugin to use (default: ScureBase32Plugin)
    */
   base32?: Base32Plugin;
+
+  /**
+   * Validation guardrails
+   */
+  guardrails?: OTPGuardrails;
 };
 
 /**
@@ -264,13 +269,20 @@ export class OTP {
   private readonly strategy: OTPStrategy;
   private readonly crypto: CryptoPlugin;
   private readonly base32: Base32Plugin;
+  private readonly guardrails: OTPGuardrails;
 
   constructor(options: OTPClassOptions = {}) {
-    const { strategy = "totp", crypto = defaultCrypto, base32 = defaultBase32 } = options;
+    const {
+      strategy = "totp",
+      crypto = defaultCrypto,
+      base32 = defaultBase32,
+      guardrails,
+    } = options;
 
     this.strategy = strategy;
     this.crypto = crypto;
     this.base32 = base32;
+    this.guardrails = createGuardrails(guardrails);
   }
 
   /**
@@ -302,6 +314,7 @@ export class OTP {
       strategy: this.strategy,
       crypto: this.crypto,
       base32: this.base32,
+      guardrails: options.guardrails ?? this.guardrails,
     });
   }
 
@@ -318,6 +331,7 @@ export class OTP {
       strategy: this.strategy,
       crypto: this.crypto,
       base32: this.base32,
+      guardrails: options.guardrails ?? this.guardrails,
     });
   }
 
@@ -333,6 +347,7 @@ export class OTP {
       strategy: this.strategy,
       crypto: this.crypto,
       base32: this.base32,
+      guardrails: options.guardrails ?? this.guardrails,
     });
   }
 
@@ -349,6 +364,7 @@ export class OTP {
       strategy: this.strategy,
       crypto: this.crypto,
       base32: this.base32,
+      guardrails: options.guardrails ?? this.guardrails,
     });
   }
 
