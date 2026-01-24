@@ -446,3 +446,43 @@ export class SecretTypeError extends ConfigurationError {
     this.name = "SecretTypeError";
   }
 }
+
+/**
+ * Error thrown when afterTimeStep parameter is invalid
+ */
+export class AfterTimeStepError extends OTPError {
+  constructor(message: string) {
+    super(message);
+    this.name = "AfterTimeStepError";
+  }
+}
+
+/**
+ * Error thrown when afterTimeStep is negative
+ */
+export class AfterTimeStepNegativeError extends AfterTimeStepError {
+  constructor() {
+    super("afterTimeStep must be >= 0");
+    this.name = "AfterTimeStepNegativeError";
+  }
+}
+
+/**
+ * Error thrown when afterTimeStep is not an integer
+ */
+export class AfterTimeStepNotIntegerError extends AfterTimeStepError {
+  constructor() {
+    super("Invalid afterTimeStep: non-integer value");
+    this.name = "AfterTimeStepNotIntegerError";
+  }
+}
+
+/**
+ * Error thrown when afterTimeStep exceeds the verification range
+ */
+export class AfterTimeStepRangeExceededError extends AfterTimeStepError {
+  constructor() {
+    super("Invalid afterTimeStep: cannot be greater than current time step plus window");
+    this.name = "AfterTimeStepRangeExceededError";
+  }
+}

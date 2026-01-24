@@ -80,6 +80,7 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
       epoch: opts.epoch, // v11: already in seconds
       t0: 0,
       crypto: opts.crypto,
+      guardrails: opts.guardrails,
     });
   }
 
@@ -104,6 +105,7 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
         t0: 0,
         epochTolerance,
         crypto: opts.crypto,
+        guardrails: opts.guardrails,
       });
 
       if (!result.valid) {

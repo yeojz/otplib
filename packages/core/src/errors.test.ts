@@ -28,6 +28,7 @@ import {
   EpochToleranceError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
+  AfterTimeStepRangeExceededError,
   PluginError,
   CryptoPluginMissingError,
   Base32PluginMissingError,
@@ -264,6 +265,17 @@ describe("EpochToleranceTooLargeError", () => {
     );
     expect(error.name).toBe("EpochToleranceTooLargeError");
     expect(error).toBeInstanceOf(EpochToleranceError);
+  });
+});
+
+describe("AfterTimeStepRangeExceededError", () => {
+  it("should create error with default message", () => {
+    const error = new AfterTimeStepRangeExceededError();
+    expect(error.message).toBe(
+      "Invalid afterTimeStep: cannot be greater than current time step plus window",
+    );
+    expect(error.name).toBe("AfterTimeStepRangeExceededError");
+    expect(error).toBeInstanceOf(OTPError);
   });
 });
 

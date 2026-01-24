@@ -84,4 +84,27 @@ describe("guardrails integration", () => {
 
     await expect(otp.generate({ secret, guardrails: strictGuardrails })).rejects.toThrow();
   });
+
+  it("should use class guardrails when provided in constructor", async () => {
+    const strictGuardrails = createGuardrails({
+      MIN_SECRET_BYTES: 100,
+    });
+    const otp = new OTP({ guardrails: strictGuardrails });
+
+    await expect(otp.generate({ secret })).rejects.toThrow();
+  });
+
+  it("should allow per-call guardrails overrides in OTP class", async () => {
+    const strictGuardrails = createGuardrails({
+      MIN_SECRET_BYTES: 100,
+    });
+    const lenientGuardrails = createGuardrails({
+      MIN_SECRET_BYTES: 1,
+    });
+    const otp = new OTP({ guardrails: strictGuardrails });
+
+    await expect(otp.generate({ secret, guardrails: lenientGuardrails })).resolves.toBeTypeOf(
+      "string",
+    );
+  });
 });

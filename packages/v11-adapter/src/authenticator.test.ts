@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Authenticator } from "./index.js";
 import { BASE_SECRET_BASE32 } from "@repo/testing";
-import { CryptoPlugin } from "@otplib/core";
+import { CryptoPlugin, createGuardrails } from "@otplib/core";
 
 describe("Authenticator (v11-adapter)", () => {
   it("should generate token from base32 secret", () => {
@@ -11,6 +11,14 @@ describe("Authenticator (v11-adapter)", () => {
 
     expect(token).toHaveLength(6);
     expect(auth.check(token, secret)).toBe(true);
+  });
+
+  it("should apply guardrails from constructor", () => {
+    const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100 });
+    const auth = new Authenticator({ guardrails: strictGuardrails });
+    const secret = BASE_SECRET_BASE32 + BASE_SECRET_BASE32;
+
+    expect(() => auth.generate(secret)).toThrow();
   });
 
   it("should generate secret in base32", () => {

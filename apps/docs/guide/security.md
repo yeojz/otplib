@@ -41,13 +41,7 @@ otplib is a **stateless** library. It does not track which tokens have already b
 :::info HOTP
 
 Always increment the counter after successful verification.
-
-```typescript
-if (result.valid) {
-  // Update and persist your counter to prevent replay
-  grantAccess();
-}
-```
+See the [Replay Protection (HOTP)](advanced-usage.md#replay-protection-hotp) guide for examples.
 
 :::
 
@@ -55,6 +49,7 @@ if (result.valid) {
 
 Consider implementing stateful tracking in your application database or cache to prevent replay attacks.
 Without this, a valid token can be reused multiple times within its validity window.
+See the [Replay Protection](advanced-usage.md#replay-protection-totp) guide for implementation details and examples.
 
 :::
 

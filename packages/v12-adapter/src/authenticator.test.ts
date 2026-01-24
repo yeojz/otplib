@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { createGuardrails } from "@otplib/core";
 import { Authenticator, authenticator, HashAlgorithms } from "./index";
 import type { AuthenticatorOptions } from "./types";
 
@@ -64,6 +65,14 @@ describe("Authenticator (v12-adapter)", () => {
 
       expect(token).toHaveLength(6);
       expect(token).toMatch(/^\d{6}$/);
+    });
+
+    it("should apply guardrails from constructor", () => {
+      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100 });
+      const auth = new Authenticator({ guardrails: strictGuardrails });
+      const secret = auth.generateSecret();
+
+      expect(() => auth.generate(secret)).toThrow();
     });
   });
 

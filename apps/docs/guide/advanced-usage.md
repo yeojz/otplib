@@ -23,6 +23,17 @@ The verification process checks:
 
 If the token matches any of these periods, it is considered valid.
 
+##### Reference Window Examples
+
+| epochTolerance | period | Effective window (seconds)  | Typical meaning            |
+| -------------- | ------ | --------------------------- | -------------------------- |
+| `0`            | `30`   | `[epoch, epoch]`            | Exact period only          |
+| `5`            | `30`   | `epoch ± 5`                 | Small clock drift          |
+| `30`           | `30`   | `epoch ± 30`                | One adjacent period        |
+| `60`           | `30`   | `epoch ± 60`                | Two adjacent periods       |
+| `[5, 0]`       | `30`   | `epoch - 5` to `epoch`      | Past-only (RFC-aligned)    |
+| `[5, 30]`      | `30`   | `epoch - 5` to `epoch + 30` | Asymmetric drift allowance |
+
 **Basic usage:**
 
 ```typescript
@@ -101,10 +112,12 @@ Using a smaller tolerance (e.g., 5 seconds) restricts the acceptance window more
 
 ##### Recommended Values
 
-- **Maximum Security**: `epochTolerance: 0` (Accepts only the current period; requires synchronized clocks).
-- **High Security**: `epochTolerance: 5` or `[5, 0]` (Allows for small network delays; RFC 6238 recommends avoiding future tolerance).
-- **Standard**: `epochTolerance: 30` (Balances security and user convenience).
-- **Lenient**: `epochTolerance: 60` (Useful for environments with poor network conditions or unsynchronized clocks).
+| Use Case         | TOTP epochTolerance | HOTP counterTolerance |
+| ---------------- | ------------------- | --------------------- |
+| Maximum security | `0`                 | `0`                   |
+| High security    | `5` or `[5, 0]`     | `0`                   |
+| Standard 2FA     | `30`                | `5`                   |
+| Lenient (mobile) | `60`                | `10`                  |
 
 ##### Asymmetric Tolerance (RFC-Compliant)
 
@@ -155,19 +168,13 @@ const result = await verify({
   counter: currentCounter,
   counterTolerance: 10, // Checks current + 10 future counters
 });
-
-if (result.valid) {
-  // Update and persist your counter to prevent replay
-}
 ```
-
-::: info Replay Prevention
-After successful HOTP verification, persist the updated counter in your system. See [Replay Attack Prevention](/guide/security#replay-attack-prevention).
-:::
 
 **Tuple format** (explicit control):
 
 ```typescript
+import { verify } from "otplib";
+
 const result = await verify({
   secret,
   token,
@@ -175,6 +182,210 @@ const result = await verify({
   counter: currentCounter,
   counterTolerance: [5, 5], // Check ±5 counters (symmetric)
 });
+```
+
+### Replay Protection (HOTP)
+
+After successful HOTP verification, persist the updated counter in your system.
+
+```typescript
+if (result.valid) {
+  // Update and persist your counter to prevent replay
+  // Example:
+  updateCounter(currentCounter + result.delta + 1);
+}
+```
+
+### Replay Protection (TOTP)
+
+By default, TOTP codes can be reused within their validity period (determined by `epochTolerance`). To prevent replay attacks, you can track the time step from each successful verification and use the `afterTimeStep` parameter to reject previously used time steps.
+
+#### How Replay Protection Works
+
+The `afterTimeStep` parameter specifies an **exclusive lower bound** for valid time steps. Time steps less than or equal to this value are rejected during verification.
+
+```typescript
+import { verify } from "otplib";
+
+// First verification - user provides token
+const result1 = await verify({
+  secret,
+  token: "123456",
+});
+
+if (result1.valid) {
+  // Save the time step for replay protection
+  const timeStep = result1.timeStep; // e.g., 41152263
+  await database.saveLastTimeStep(userId, timeStep);
+}
+
+// Second verification - same token would be rejected
+const lastTimeStep = await database.getLastTimeStep(userId);
+const result2 = await verify({
+  secret,
+  token: "123456", // Same token
+  afterTimeStep: lastTimeStep, // Reject timeStep <= 41152263
+});
+
+console.log(result2.valid); // false - replay rejected!
+
+// Third verification - new token is accepted
+const result3 = await verify({
+  secret,
+  token: "789012", // New token from later time step
+  afterTimeStep: lastTimeStep,
+});
+
+console.log(result3.valid); // true - new token accepted
+```
+
+#### Verification Return Value
+
+All successful TOTP verifications now include the `timeStep` property:
+
+```typescript
+const result = await verify({
+  secret,
+  token,
+});
+
+if (result.valid) {
+  console.log(result.timeStep); // 41152263 (the actual time step used)
+  console.log(result.delta); // 0 (offset from current time step)
+  console.log(result.epoch); // 1234578900 (Unix timestamp)
+}
+```
+
+#### Combined with epochTolerance
+
+The `afterTimeStep` parameter works seamlessly with `epochTolerance`:
+
+```typescript
+// At epoch 90 (time step 3) with tolerance 30
+// Window covers time steps [1, 2, 3, 4, 5]
+
+const result = await verify({
+  secret,
+  token,
+  epoch: 90,
+  epochTolerance: 30, // Allow time steps [1, 2, 3, 4, 5]
+  afterTimeStep: 2, // Reject time steps <= 2, allowing only [3, 4, 5]
+});
+
+// Result: Tokens from time steps 1 and 2 are rejected
+//         Tokens from time steps 3, 4, 5 are accepted
+```
+
+#### Validation Rules
+
+The `afterTimeStep` parameter is validated according to these rules:
+
+| Condition                       | Error                                                                         |
+| ------------------------------- | ----------------------------------------------------------------------------- |
+| Negative value                  | `afterTimeStep must be >= 0`                                                  |
+| Non-integer value (e.g., `1.5`) | `Invalid afterTimeStep: non-integer value`                                    |
+| Exceeds max possible time step  | `Invalid afterTimeStep: cannot be greater than current time step plus window` |
+
+Note: Values below the current window are allowed; they simply reject older time steps.
+
+```typescript
+// Throws: afterTimeStep must be >= 0
+await verify({ secret, token, afterTimeStep: -1 });
+
+// Throws: Invalid afterTimeStep: non-integer value
+await verify({ secret, token, afterTimeStep: 1.5 });
+
+// Throws: Invalid afterTimeStep: cannot be greater than current time step plus window
+// (when current time step + window < 100)
+await verify({ secret, token, afterTimeStep: 100 });
+```
+
+#### Complete Example with Database
+
+Here's a complete example showing how to implement replay protection in a real application:
+
+```typescript
+import { verify, generate } from "otplib";
+import { Database } from "your-database";
+
+const db = new Database();
+
+async function login(userId: string, token: string): Promise<boolean> {
+  // Get user's secret and last used time step
+  const { secret, lastTimeStep } = await db.getUser(userId);
+
+  // Verify token with replay protection
+  const result = await verify({
+    secret,
+    token,
+    afterTimeStep: lastTimeStep, // Reject previously used time steps
+  });
+
+  if (result.valid) {
+    // Update last used time step to prevent reuse
+    await db.updateLastTimeStep(userId, result.timeStep);
+    return true;
+  }
+
+  return false;
+}
+
+// Usage
+const success = await login("user-123", "123456");
+if (success) {
+  console.log("Login successful!");
+} else {
+  console.log("Invalid token or token already used");
+}
+```
+
+#### Security Considerations
+
+**State Management**: The application is responsible for storing and managing the `lastTimeStep` value. Common approaches:
+
+- **Database**: Store in user table (recommended for production)
+- **Session**: Store in session memory (for simple applications)
+- **Cache**: Redis/Memcached (for high-traffic scenarios)
+
+**Race Conditions**: `afterTimeStep` does not prevent concurrent verification race conditions. If two verification requests arrive simultaneously with the same token, both might succeed. Use database transactions or locks to prevent this:
+
+```typescript
+import { verify } from "otplib";
+import { Transaction } from "your-database";
+
+async function verifyWithLock(userId: string, token: string) {
+  return Transaction.run(async (tx) => {
+    // Lock user row during verification
+    const user = await tx.users.lock(userId);
+
+    const result = await verify({
+      secret: user.secret,
+      token,
+      afterTimeStep: user.lastTimeStep,
+    });
+
+    if (result.valid) {
+      await tx.users.update(userId, { lastTimeStep: result.timeStep });
+    }
+
+    return result.valid;
+  });
+}
+```
+
+**Clock Synchronization**: For proper replay protection, ensure your server clock is synchronized via NTP. Incorrect server time can cause `afterTimeStep` to reject valid tokens or accept expired ones.
+
+```typescript
+const result = await verify({
+  secret,
+  token,
+});
+
+if (result.valid) {
+  console.log(result.timeStep); // 41152263 (the actual time step used)
+  console.log(result.delta); // 0 (offset from current time step)
+  console.log(result.epoch); // 1234578900 (Unix timestamp)
+}
 ```
 
 ## Configuration & formats
@@ -260,14 +471,14 @@ These utilities return an `OTPResult` object which discriminates on the `ok` pro
 
 ### Synchronous Usage
 
-Wrap synchronous functions like `otp.generate` or `otp.verify` (when used with synchronous plugins):
+Wrap synchronous functions like `otp.generateSync` or `otp.verifySync` (when used with synchronous plugins):
 
 ```typescript
-import { wrapResult, generate, OTPError } from "otplib";
+import { wrapResult, generateSync, OTPError } from "otplib";
 
 // 1. Create your wrapped function
 // Note: Types are automatically inferred
-const safeGenerate = wrapResult(generate);
+const safeGenerate = wrapResult(generateSync);
 
 // 2. Call it
 const result = safeGenerate({ secret: "too-short" });
@@ -346,6 +557,10 @@ OTPError (base class)
 ├── EpochToleranceError
 │   ├── EpochToleranceNegativeError
 │   └── EpochToleranceTooLargeError
+├── AfterTimeStepError
+│   ├── AfterTimeStepNegativeError
+│   ├── AfterTimeStepNotIntegerError
+│   └── AfterTimeStepRangeExceededError
 ├── PluginError
 │   ├── CryptoPluginMissingError
 │   └── Base32PluginMissingError
@@ -409,30 +624,34 @@ try {
 
 ### Error Types Reference
 
-| Error Class                     | When Thrown                              |
-| ------------------------------- | ---------------------------------------- |
-| `AlgorithmError`                | Invalid algorithm (not sha1/sha256/etc)  |
-| `Base32DecodeError`             | Base32 decoding fails (invalid input)    |
-| `Base32EncodeError`             | Base32 encoding fails                    |
-| `Base32PluginMissingError`      | String secret but no Base32 plugin       |
-| `CounterNegativeError`          | Counter is negative                      |
-| `CounterOverflowError`          | Counter exceeds max safe integer         |
-| `CounterToleranceNegativeError` | Counter tolerance contains negatives     |
-| `CounterToleranceTooLargeError` | Counter tolerance exceeds maximum        |
-| `CryptoPluginMissingError`      | No crypto plugin provided                |
-| `DigitsError`                   | Invalid digits configuration (not 6-8)   |
-| `EpochToleranceNegativeError`   | Epoch tolerance contains negatives       |
-| `EpochToleranceTooLargeError`   | Tolerance exceeds maximum                |
-| `HMACError`                     | HMAC computation fails in crypto plugin  |
-| `IssuerMissingError`            | Missing issuer for URI generation        |
-| `LabelMissingError`             | Missing label for URI generation         |
-| `PeriodTooLargeError`           | Period exceeds maximum                   |
-| `PeriodTooSmallError`           | Period below minimum                     |
-| `RandomBytesError`              | Random byte generation fails             |
-| `SecretMissingError`            | Secret missing from options              |
-| `SecretTooLongError`            | Secret exceeds 64 bytes                  |
-| `SecretTooShortError`           | Secret is less than 16 bytes             |
-| `SecretTypeError`               | Secret must be Base32 string for class   |
-| `TimeNegativeError`             | Time is negative                         |
-| `TokenFormatError`              | Token contains non-numeric characters    |
-| `TokenLengthError`              | Token doesn't match expected digit count |
+| Error Class                       | When Thrown                                      |
+| --------------------------------- | ------------------------------------------------ |
+| `AlgorithmError`                  | Invalid algorithm (not sha1/sha256/etc)          |
+| `AfterTimeStepRangeExceededError` | `afterTimeStep` exceeds max possible time step   |
+| `AfterTimeStepNegativeError`      | `afterTimeStep` is negative                      |
+| `AfterTimeStepNotIntegerError`    | `afterTimeStep` is not an integer (e.g., 1.5)    |
+| `AfterTimeStepError`              | Base class for `afterTimeStep` validation errors |
+| `Base32DecodeError`               | Base32 decoding fails (invalid input)            |
+| `Base32EncodeError`               | Base32 encoding fails                            |
+| `Base32PluginMissingError`        | String secret but no Base32 plugin               |
+| `CounterNegativeError`            | Counter is negative                              |
+| `CounterOverflowError`            | Counter exceeds max safe integer                 |
+| `CounterToleranceNegativeError`   | Counter tolerance contains negatives             |
+| `CounterToleranceTooLargeError`   | Counter tolerance exceeds maximum (100)          |
+| `CryptoPluginMissingError`        | No crypto plugin provided                        |
+| `DigitsError`                     | Invalid digits configuration (not 6-8)           |
+| `EpochToleranceNegativeError`     | Epoch tolerance contains negatives               |
+| `EpochToleranceTooLargeError`     | Tolerance exceeds maximum (3000 seconds)         |
+| `HMACError`                       | HMAC computation fails in crypto plugin          |
+| `IssuerMissingError`              | Missing issuer for URI generation                |
+| `LabelMissingError`               | Missing label for URI generation                 |
+| `PeriodTooLargeError`             | Period exceeds maximum                           |
+| `PeriodTooSmallError`             | Period below minimum                             |
+| `RandomBytesError`                | Random byte generation fails                     |
+| `SecretMissingError`              | Secret missing from options                      |
+| `SecretTooLongError`              | Secret exceeds 64 bytes                          |
+| `SecretTooShortError`             | Secret is less than 16 bytes                     |
+| `SecretTypeError`                 | Secret must be Base32 string for class           |
+| `TimeNegativeError`               | Time is negative                                 |
+| `TokenFormatError`                | Token contains non-numeric characters            |
+| `TokenLengthError`                | Token doesn't match expected digit count         |

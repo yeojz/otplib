@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
+import { CryptoPlugin, createGuardrails } from "@otplib/core";
 import { TOTP, HashAlgorithms, type TOTPOptions } from "./index.js";
 import { RFC6238_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
-import { CryptoPlugin } from "@otplib/core";
 
 describe("TOTP (v11-adapter)", () => {
   describe("constructor and options", () => {
@@ -74,6 +74,13 @@ describe("TOTP (v11-adapter)", () => {
 
       // Same token within 60-second window
       expect(token1).toBe(token2);
+    });
+
+    it("should apply guardrails from constructor", () => {
+      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100 });
+      const totp = new TOTP({ guardrails: strictGuardrails });
+
+      expect(() => totp.generate(BASE_SECRET)).toThrow();
     });
   });
 

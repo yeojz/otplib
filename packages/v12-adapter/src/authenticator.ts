@@ -120,6 +120,7 @@ export class Authenticator<T extends AuthenticatorOptions = AuthenticatorOptions
       epoch: epochSeconds,
       t0: 0,
       crypto: opts.crypto,
+      guardrails: opts.guardrails,
     });
   }
 
@@ -169,6 +170,7 @@ export class Authenticator<T extends AuthenticatorOptions = AuthenticatorOptions
         t0: 0,
         epochTolerance,
         crypto: opts.crypto,
+        guardrails: opts.guardrails,
       });
 
       if (!result.valid) {
