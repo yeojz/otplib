@@ -358,125 +358,23 @@ import type {
 // VerifyResult = { valid: boolean; delta?: number; epoch?: number }
 ```
 
-## Tolerance Changes (`window` vs `tolerance`)
+## Tolerance Changes
 
-v13 replaces the ambiguous `window` option with explicit tolerance parameters:
+v13 replaces the ambiguous `window` option with explicit tolerance parameters.
 
-- **TOTP**: Replaced `window` (steps) with `epochTolerance` (seconds).
-- **HOTP**: Replaced `window` (steps) with `counterTolerance` (steps).
+- **TOTP**: Replace `window` (steps) with `epochTolerance` (seconds).
+- **HOTP**: Replace `window` (steps) with `counterTolerance` (steps).
 
-### TOTP: Migrating from `window`
+### Migration Reference (TOTP)
 
-In v12, `window` was defined in **steps** (typically 30 seconds).
-In v13, `epochTolerance` is defined in **seconds**.
+| v12 `window` | v13 `epochTolerance` (30s period) | Description            |
+| :----------- | :-------------------------------- | :--------------------- |
+| `0`          | `0`                               | Exact match only       |
+| `1`          | `30`                              | ±1 step (±30 seconds)  |
+| `[1, 0]`     | `[30, 0]`                         | Past 1 step (30s) only |
+| `2`          | `60`                              | ±2 steps (±60 seconds) |
 
-**Migration Formula:**
-`epochTolerance = window * step`
-
-| v12 `window` | v13 `epochTolerance` (assuming 30s step) | Description            |
-| :----------- | :--------------------------------------- | :--------------------- |
-| `0`          | `0`                                      | Exact match only       |
-| `1`          | `30`                                     | ±1 step (±30 seconds)  |
-| `[1, 0]`     | `[30, 0]`                                | Past 1 step (30s) only |
-| `2`          | `60`                                     | ±2 steps (±60 seconds) |
-
-```typescript
-// v12
-authenticator.options = { window: 1 }; // ±1 step
-
-// v13
-await verify({
-  secret,
-  token,
-  epochTolerance: 30, // ±30 seconds
-});
-```
-
-### TOTP - epochTolerance
-
-The `epochTolerance` parameter provides precise control over time-based verification tolerance:
-
-| Format           | Description                   | Example                                             |
-| ---------------- | ----------------------------- | --------------------------------------------------- |
-| `number`         | Symmetric tolerance (seconds) | `epochTolerance: 30` checks ±30 seconds             |
-| `[past, future]` | Asymmetric tolerance          | `epochTolerance: [5, 0]` checks past 5 seconds only |
-
-#### Standard Usage
-
-```typescript
-// Accept tokens valid within ±30 seconds
-const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
-  token: "123456",
-  epochTolerance: 30, // Symmetric: [epoch-30, epoch+30]
-  crypto,
-  base32,
-});
-```
-
-#### RFC-Compliant (Past Only)
-
-```typescript
-// RFC 6238 Section 5.2 - Accept past tokens only (transmission delay)
-const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
-  token: "123456",
-  epochTolerance: [5, 0], // Checks [epoch-5, epoch] - past tokens only
-  crypto,
-  base32,
-});
-```
-
-#### Asymmetric Tolerance
-
-```typescript
-// Different tolerances for past vs future
-const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
-  token: "123456",
-  epochTolerance: [5, 30], // 5 seconds past, 30 seconds future
-  crypto,
-  base32,
-});
-```
-
-### HOTP - counterTolerance
-
-The `counterTolerance` parameter controls counter-based verification:
-
-| Format     | Description      | Example                                                    |
-| ---------- | ---------------- | ---------------------------------------------------------- |
-| `number`   | Symmetric range  | `counterTolerance: 5` checks counters -5 to +5             |
-| `number[]` | Specific offsets | `counterTolerance: [0, 1, 2]` checks exactly those offsets |
-
-```typescript
-// Look-ahead window for counter desynchronization
-const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
-  token: "123456",
-  strategy: "hotp",
-  counter: 10,
-  counterTolerance: 5, // Check counters 5 to 15
-  crypto,
-  base32,
-});
-
-if (result.valid) {
-  // Update and persist your counter to prevent replay
-}
-```
-
-::: info Replay Prevention
-After successful HOTP verification, persist the updated counter in your system. See [Replay Attack Prevention](/guide/security#replay-attack-prevention).
-:::
-
-### Recommended Tolerance Values
-
-| Use Case         | TOTP epochTolerance | HOTP counterTolerance |
-| ---------------- | ------------------- | --------------------- |
-| High security    | `0` or `[5, 0]`     | `0`                   |
-| Standard 2FA     | `30`                | `5`                   |
-| Lenient (mobile) | `60`                | `10`                  |
+See [Verification Tolerance](/guide/advanced-usage#verification-tolerance) for migration formulas, examples, and recommended values.
 
 ## Need Help?
 

@@ -126,6 +126,7 @@ export class TOTP {
       epoch,
       t0 = 0,
       epochTolerance = 0,
+      afterTimeStep,
     } = mergedOptions;
 
     requireSecret(secret);
@@ -144,6 +145,7 @@ export class TOTP {
       epoch: epoch ?? Math.floor(Date.now() / 1000),
       t0,
       epochTolerance,
+      afterTimeStep,
       crypto,
       base32,
       guardrails,
