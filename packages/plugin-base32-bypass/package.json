@@ -55,10 +55,10 @@
     "@otplib/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^25.0.6",
+    "@types/node": "^25.0.10",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.18"
   },
   "publishConfig": {
     "access": "public"
