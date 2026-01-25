@@ -1,6 +1,6 @@
 {
   "name": "@otplib/plugin-crypto-web",
-  "version": "13.1.1",
+  "version": "13.2.0",
   "description": "Web Crypto API adapter for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",

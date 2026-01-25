@@ -1,6 +1,6 @@
 {
   "name": "@otplib/preset-v11",
-  "version": "13.1.1",
+  "version": "13.2.0",
   "description": "v11 compatibility preset for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
