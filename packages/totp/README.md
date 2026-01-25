@@ -22,14 +22,14 @@ const base32 = new ScureBase32Plugin();
 
 // Generate a TOTP token
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   crypto,
   base32,
 });
 
 // Verify a TOTP token
 const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   token: "123456",
   crypto,
   base32,

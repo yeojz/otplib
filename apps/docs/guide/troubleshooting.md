@@ -159,13 +159,13 @@ import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
 // Wrong - missing base32 plugin
 const result = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   crypto: new NodeCryptoPlugin(),
 });
 
 // Correct
 const result = await generate({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   crypto: new NodeCryptoPlugin(),
   base32: new ScureBase32Plugin(),
 });
@@ -299,13 +299,13 @@ import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
 const uri = generateURI({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   issuer: "MyApp", // Required
   label: "user@example.com", // Required
   crypto: new NodeCryptoPlugin(),
   base32: new ScureBase32Plugin(),
 });
-// otpauth://totp/MyApp:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=MyApp
+// otpauth://totp/MyApp:user@example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY&issuer=MyApp
 ```
 
 ### "URI generation requires secret to be a Base32 string"
@@ -321,7 +321,7 @@ const uri = generateURI({
 
 // Correct - use Base32 string
 const uri = generateURI({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
 });
 // Works!
 ```

@@ -1,5 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
-import { createBase32Plugin, createCryptoPlugin, stringToBytes, bytesToString } from "./index.js";
+import {
+  createBase32Plugin,
+  createCryptoPlugin,
+  stringToBytes,
+  bytesToString,
+  Base32DecodeError,
+  Base32EncodeError,
+} from "./index.js";
 import type { Base32Plugin, CryptoPlugin, HashAlgorithm } from "./types.js";
 
 describe("createBase32Plugin", () => {
@@ -100,9 +107,9 @@ describe("createBase32Plugin", () => {
   });
 
   describe("real-world usage", () => {
-    it("should work as string bypass", () => {
+    it("should work as bypass-as-string", () => {
       const plugin = createBase32Plugin({
-        name: "string-bypass",
+        name: "bypass-as-string",
         encode: bytesToString,
         decode: stringToBytes,
       });
@@ -112,6 +119,108 @@ describe("createBase32Plugin", () => {
       const encoded = plugin.encode(bytes);
 
       expect(encoded).toBe(original);
+    });
+  });
+
+  describe("error wrapping", () => {
+    it("should wrap decode errors in Base32DecodeError", () => {
+      const plugin = createBase32Plugin({
+        name: "throwing-plugin",
+        encode: bytesToString,
+        decode: () => {
+          throw new Error("Invalid hex format");
+        },
+      });
+
+      expect(() => plugin.decode("invalid")).toThrow(Base32DecodeError);
+    });
+
+    it("should preserve original error message in Base32DecodeError", () => {
+      const plugin = createBase32Plugin({
+        name: "throwing-plugin",
+        encode: bytesToString,
+        decode: () => {
+          throw new Error("Invalid hex format");
+        },
+      });
+
+      expect(() => plugin.decode("invalid")).toThrow(/Invalid hex format/);
+    });
+
+    it("should preserve original error as cause in Base32DecodeError", () => {
+      const originalError = new Error("Original decode error");
+      const plugin = createBase32Plugin({
+        name: "throwing-plugin",
+        encode: bytesToString,
+        decode: () => {
+          throw originalError;
+        },
+      });
+
+      try {
+        plugin.decode("invalid");
+        expect.fail("Should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(Base32DecodeError);
+        expect((error as Base32DecodeError).cause).toBe(originalError);
+      }
+    });
+
+    it("should wrap encode errors in Base32EncodeError", () => {
+      const plugin = createBase32Plugin({
+        name: "throwing-plugin",
+        encode: () => {
+          throw new Error("Encode failed");
+        },
+        decode: stringToBytes,
+      });
+
+      expect(() => plugin.encode(new Uint8Array([1, 2, 3]))).toThrow(Base32EncodeError);
+    });
+
+    it("should preserve original error as cause in Base32EncodeError", () => {
+      const originalError = new Error("Original encode error");
+      const plugin = createBase32Plugin({
+        name: "throwing-plugin",
+        encode: () => {
+          throw originalError;
+        },
+        decode: stringToBytes,
+      });
+
+      try {
+        plugin.encode(new Uint8Array([1, 2, 3]));
+        expect.fail("Should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(Base32EncodeError);
+        expect((error as Base32EncodeError).cause).toBe(originalError);
+      }
+    });
+
+    it("should handle non-Error thrown values in encode", () => {
+      const plugin = createBase32Plugin({
+        name: "throwing-plugin",
+        encode: () => {
+          throw "string error";
+        },
+        decode: stringToBytes,
+      });
+
+      expect(() => plugin.encode(new Uint8Array([1, 2, 3]))).toThrow(Base32EncodeError);
+      expect(() => plugin.encode(new Uint8Array([1, 2, 3]))).toThrow(/string error/);
+    });
+
+    it("should handle non-Error thrown values in decode", () => {
+      const plugin = createBase32Plugin({
+        name: "throwing-plugin",
+        encode: bytesToString,
+        decode: () => {
+          throw "string error";
+        },
+      });
+
+      expect(() => plugin.decode("invalid")).toThrow(Base32DecodeError);
+      expect(() => plugin.decode("invalid")).toThrow(/string error/);
     });
   });
 });

@@ -93,6 +93,21 @@ const uri = otp.generateURI({
 });
 ```
 
+## Notes
+
+### Secret Format
+
+By default, otplib expects secrets to be in **Base32** format. While the core HOTP (RFC 4226) and TOTP (RFC 6238) specifications work with raw binary data and don't mandate Base32 encoding, Base32 is the standard format used by authenticator applications and QR code URIs for compatibility.
+
+```typescript
+// Base32 secret (standard format for authenticator compatibility)
+const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY";
+```
+
+However, if you need to use secrets in other formats, you can either use the `plugin-base32-alt` plugin for raw strings or pass a byte array (using `stringToBytes` helper) for binary data.
+
+For more details and examples, see the [Secret Handling Guide](https://otplib.yeojz.dev/guide/secret-handling.md) and related plugin documentation in the guides directory.
+
 ## Documentation
 
 Refer to the [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started), or check out the other sections in the guide:

@@ -267,7 +267,7 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.0.10)(tsx@4.21.0)
 
-  packages/plugin-base32-bypass:
+  packages/plugin-base32-alt:
     dependencies:
       '@otplib/core':
         specifier: workspace:*

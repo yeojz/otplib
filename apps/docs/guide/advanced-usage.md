@@ -400,11 +400,11 @@ const base32 = new ScureBase32Plugin();
 
 // Unpadded (Recommended for Authenticator apps)
 const unpadded = base32.encode(bytes, { padding: false });
-// "JBSWY3DPEHPK3PXP"
+// "GEZDGNBVGY3TQOJQGEZDGNBVGY"
 
 // Padded (RFC compliance)
 const padded = base32.encode(bytes, { padding: true });
-// "JBSWY3DPEHPK3PXP="
+// "GEZDGNBVGY3TQOJQGEZDGNBVGY="
 ```
 
 ::: info Default is `false`
@@ -510,7 +510,7 @@ const safeVerify = wrapResultAsync(verify);
 // 2. Call it
 const result = await safeVerify({
   token: "123456",
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
 });
 
 if (result.ok) {

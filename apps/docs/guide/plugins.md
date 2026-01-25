@@ -10,6 +10,7 @@ otplib uses a plugin architecture for cryptographic operations and Base32 encodi
 | `@otplib/plugin-crypto-web`   | Browser, Edge | No               | None (native) |
 | `@otplib/plugin-crypto-noble` | Universal     | Yes              | ~15KB         |
 | `@otplib/plugin-base32-scure` | Universal     | N/A              | ~3KB          |
+| `@otplib/plugin-base32-alt`   | Universal     | N/A              | ~1KB          |
 
 ## Choosing a Crypto Plugin
 
@@ -146,7 +147,7 @@ const encoded = base32.encode(new Uint8Array([1, 2, 3, 4, 5]));
 // 'AEBAGBA='
 
 // Decoding
-const decoded = base32.decode("JBSWY3DPEHPK3PXP");
+const decoded = base32.decode("GEZDGNBVGY3TQOJQGEZDGNBVGY");
 // Uint8Array
 ```
 
@@ -159,31 +160,99 @@ const decoded = base32.decode("JBSWY3DPEHPK3PXP");
 
 [Full documentation →](/api/@otplib/plugin-base32-scure/)
 
-### @otplib/plugin-base32-bypass
+### @otplib/plugin-base32-alt
 
-::: warning Security Notice
+::: warning Note
 This plugin bypasses Base32 encoding/decoding. Secrets provided through this plugin are treated as non-Base32 inputs for the lifetime of the instance.
 :::
 
-Bypass plugins allow working with raw string secrets or custom transformations without Base32 encoding.
+Alternative encoding plugins allow working with raw string secrets or custom transformations without Base32 encoding.
 
 Note: URI generation still expects Base32 secrets, so otpauth URIs continue to require Base32-encoded values.
 
 #### String Bypass
 
-`stringBypass` is a singleton plugin for UTF-8 string secrets that should be converted directly to bytes.
+`bypassAsString` is a singleton plugin for UTF-8 string secrets that should be converted directly to bytes.
 
 ```typescript
 import { generate } from "otplib";
-import { stringBypass } from "@otplib/plugin-base32-bypass";
+import { bypassAsString } from "@otplib/plugin-base32-alt";
 
 const token = await generate({
   secret: "my-plain-text-secret",
-  base32: stringBypass,
+  base32: bypassAsString,
 });
 ```
 
-[Full documentation →](/api/@otplib/plugin-base32-bypass/)
+#### Hex/Base16 Bypass
+
+`bypassAsHex` is a singleton plugin for hex-encoded string secrets. Use this when your secret is stored or transmitted as a hexadecimal string.
+
+```typescript
+import { generate } from "otplib";
+import { bypassAsHex } from "@otplib/plugin-base32-alt";
+
+const token = await generate({
+  secret: "48656c6c6f", // "Hello" in hex
+  base32: bypassAsHex,
+});
+```
+
+The hex bypass:
+
+- Accepts both lowercase (`abcdef`) and uppercase (`ABCDEF`) hex characters
+- Validates input: throws `Base32DecodeError` for odd-length strings or invalid characters
+- Produces lowercase hex output when encoding
+
+Note: `bypassAsBase16` is available as an alias for `bypassAsHex`.
+
+#### Base64 Bypass
+
+`bypassAsBase64` is a singleton plugin for base64-encoded string secrets. Use this when your secret is stored or transmitted as a base64 string.
+
+```typescript
+import { generate } from "otplib";
+import { bypassAsBase64 } from "@otplib/plugin-base32-alt";
+
+const token = await generate({
+  secret: "SGVsbG8=", // "Hello" in base64
+  base32: bypassAsBase64,
+});
+```
+
+#### Custom Transformations
+
+For other formats, use `createBase32Plugin` to build custom bypass plugins:
+
+```typescript
+import { createBase32Plugin } from "@otplib/plugin-base32-alt";
+
+// Example: URL-safe base64
+const urlSafeBase64Bypass = createBase32Plugin({
+  name: "url-safe-base64",
+  encode: (data) =>
+    btoa(String.fromCharCode(...data))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_"),
+  decode: (str) => {
+    const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+    return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  },
+});
+```
+
+#### API Exports
+
+| Export                      | Description                                      |
+| --------------------------- | ------------------------------------------------ |
+| `bypassAsString`            | Frozen plugin for UTF-8 string ↔ bytes           |
+| `bypassAsHex`               | Frozen plugin for hex string ↔ bytes             |
+| `bypassAsBase16`            | Alias for `bypassAsHex`                          |
+| `bypassAsBase64`            | Frozen plugin for base64 string ↔ bytes          |
+| `createBase32Plugin`        | Factory for custom bypass plugins                |
+| `CreateBase32PluginOptions` | TypeScript type for `createBase32Plugin` options |
+
+[Full documentation →](/api/@otplib/plugin-base32-alt/)
 
 ## Creating Custom Plugins
 
@@ -275,7 +344,3 @@ class CustomBase32Plugin implements Base32Plugin {
 ```
 
 For full API details, see the core documentation.
-
-## License
-
-MIT

@@ -181,7 +181,7 @@ function validateAndDecode(input: string): Uint8Array | null {
   }
 }
 
-const valid = validateAndDecode("JBSWY3DPEHPK3PXP");
+const valid = validateAndDecode("GEZDGNBVGY3TQOJQGEZDGNBVGY");
 const invalid = validateAndDecode("invalid@base32!");
 ```
 

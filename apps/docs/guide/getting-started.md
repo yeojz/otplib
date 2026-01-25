@@ -67,7 +67,7 @@ console.log("Valid:", result.valid); // true
 ```typescript
 import { generate, verify } from "otplib";
 
-const secret = "JBSWY3DPEHPK3PXP";
+const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY";
 
 // Generate token for counter 0
 const token = await generate({ secret, strategy: "hotp", counter: 0 });
@@ -131,8 +131,12 @@ console.log("Valid:", result.valid);
 - **`hotp`**: HMAC-based OTP - Uses a counter to generate tokens
 
 ::: warning Base32 Secrets
-String secrets are treated as Base32-encoded by default. For passphrases or other non-Base32 strings, use a Base32 bypass plugin. See [Base32 bypass plugins](/guide/plugins#otplibplugin-base32-bypass).
-:::
+String secrets are treated as Base32-encoded by default.
+If you are permanently using passphrases or other non-Base32 strings, you can either
+
+- Ensure you convert your secrets to bytes (Uint8Array)
+- OR use an alternative encoding plugin. See [Alternative encoding plugins](/guide/plugins.html#otplib-plugin-base32-alt)
+  :::
 
 ::: info Note on Google Authenticator vs RFC4648 (TOTP)
 
@@ -150,7 +154,7 @@ String secrets are treated as Base32-encoded by default. For passphrases or othe
 
 ```typescript
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP", // Base32-encoded secret (required)
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Base32-encoded secret (required)
 
   // Optional
   algorithm: "sha1", // 'sha1', 'sha256', or 'sha512'
@@ -161,7 +165,7 @@ const token = await generate({
 
 // Verification with tolerance
 const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   token: "123456",
   epochTolerance: 30, // Accept tokens valid within ±30 seconds
 });
@@ -171,7 +175,7 @@ const result = await verify({
 
 ```typescript
 const token = await generate({
-  secret: "JBSWY3DPEHPK3PXP", // Base32-encoded secret (required)
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Base32-encoded secret (required)
   counter: 0, // Counter value (required)
 
   // Optional
@@ -181,7 +185,7 @@ const token = await generate({
 
 // Verification with counter tolerance
 const result = await verify({
-  secret: "JBSWY3DPEHPK3PXP",
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   token: "123456",
   strategy: "hotp",
   counter: 0,
