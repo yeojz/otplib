@@ -58,8 +58,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* Icons and Buttons */
@@ -213,14 +218,16 @@ input[type="number"]::placeholder {
 .qr-wrapper img {
   border: 3px solid var(--cipher-accent);
   border-radius: 8px;
-  box-shadow: 0 0 24px var(--cipher-accent-glow),
+  box-shadow:
+    0 0 24px var(--cipher-accent-glow),
     0 4px 16px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
 .qr-wrapper img:hover {
   transform: scale(1.02);
-  box-shadow: 0 0 32px var(--cipher-accent-glow),
+  box-shadow:
+    0 0 32px var(--cipher-accent-glow),
     0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
@@ -374,12 +381,6 @@ input[type="number"]::placeholder {
   line-height: 1.5;
 }
 
-@media (max-width: 768px) {
-  .demo-container {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* Token Display (HOTP / Single Token) */
 .token-display {
   flex: 1;
@@ -412,19 +413,18 @@ input[type="number"]::placeholder {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--cipher-accent) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, transparent 0%, var(--cipher-accent) 50%, transparent 100%);
   animation: scan 3s linear infinite;
   opacity: 0.5;
 }
 
 @keyframes scan {
-  0% { top: 0; }
-  100% { top: 100%; }
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
 }
 
 .token-value {
@@ -492,6 +492,38 @@ input[type="number"]::placeholder {
   margin-bottom: 0;
 }
 
+@media (max-width: 768px) {
+  .demo-container {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .demo-section {
+    padding: 2.5rem 0 0;
+    border-width: 3px 0 0;
+    background: transparent;
+  }
+
+  .demo-section::before,
+  .demo-section::after {
+    display: none;
+  }
+
+  .card {
+    min-height: auto;
+  }
+
+  .token-container {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .token-value {
+    font-size: 2rem;
+    letter-spacing: 0.15em;
+  }
+}
+
 /* =====================================================
    Icon Classes - Using mask-image for color inheritance
    ===================================================== */
@@ -514,28 +546,28 @@ input[type="number"]::placeholder {
 }
 
 .icon-gear {
-  mask-image: url('/icons/gear.svg');
-  -webkit-mask-image: url('/icons/gear.svg');
+  mask-image: url("/icons/gear.svg");
+  -webkit-mask-image: url("/icons/gear.svg");
 }
 
 .icon-refresh {
   width: 16px;
   height: 16px;
-  mask-image: url('/icons/refresh.svg');
-  -webkit-mask-image: url('/icons/refresh.svg');
+  mask-image: url("/icons/refresh.svg");
+  -webkit-mask-image: url("/icons/refresh.svg");
 }
 
 .icon-check-circle {
-  mask-image: url('/icons/check-circle.svg');
-  -webkit-mask-image: url('/icons/check-circle.svg');
+  mask-image: url("/icons/check-circle.svg");
+  -webkit-mask-image: url("/icons/check-circle.svg");
 }
 
 .icon-warning {
-  mask-image: url('/icons/warning.svg');
-  -webkit-mask-image: url('/icons/warning.svg');
+  mask-image: url("/icons/warning.svg");
+  -webkit-mask-image: url("/icons/warning.svg");
 }
 
 .icon-x-circle {
-  mask-image: url('/icons/x-circle.svg');
-  -webkit-mask-image: url('/icons/x-circle.svg');
+  mask-image: url("/icons/x-circle.svg");
+  -webkit-mask-image: url("/icons/x-circle.svg");
 }

@@ -133,6 +133,17 @@ const token = await generate({
 
 ## Base32 Plugin
 
+### Decision Tree
+
+```
+Do you need standard Base32 secrets (RFC 4648) or otpauth URIs?
+├── Yes → Use plugin-base32-scure (default, interoperable)
+└── No
+    ├── Plain UTF-8 string secret → plugin-base32-alt (bypassAsString)
+    ├── Hex/Base16 secret         → plugin-base32-alt (bypassAsHex)
+    └── Base64 secret             → plugin-base32-alt (bypassAsBase64)
+```
+
 ### @otplib/plugin-base32-scure
 
 Base32 encoding/decoding using [@scure/base](https://github.com/paulmillr/scure-base).
