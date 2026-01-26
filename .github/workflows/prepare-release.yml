@@ -34,7 +34,7 @@ jobs:
 
       - name: Create Versioning PR
         id: changesets
-        uses: changesets/action@v1.5.3
+        uses: changesets/action@v1.6.0
         with:
           version: pnpm run version-update
           commit: "ci: update package versions"
