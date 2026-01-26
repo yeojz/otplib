@@ -23,7 +23,7 @@ bytes (for example, passphrases or secrets stored as hex/base64).
 >
 > - Otpauth URI generation still expects Base32 secrets.
 > - Errors are still surfaced as `Base32DecodeError` or `Base32EncodeError`.
->   The underlying cause is returned under the error's `cause` property.
+>   The underlying cause is returned under the error's `cause` property
 
 ## Usage
 
