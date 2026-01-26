@@ -1,12 +1,7 @@
 ---
-"@otplib/core": patch
-"@otplib/hotp": patch
-"@otplib/totp": patch
-"@otplib/plugin-base32-alt": patch
-"@otplib/plugin-base32-scure": patch
-"@otplib/plugin-crypto-noble": patch
-"@otplib/plugin-crypto-node": patch
-"@otplib/plugin-crypto-web": patch
+"otplib": patch
+"@otplib/preset-v11": patch
+"@otplib/v12-adapter": patch
 ---
 
-Update documentation examples to use pre-instantiated plugin exports
+Use pre-instantiated frozen plugin singletons from plugin packages instead of creating new instances. This reduces memory overhead and ensures all consumers use the same immutable plugin instances.
