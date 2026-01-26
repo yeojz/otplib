@@ -1,6 +1,6 @@
 {
   "name": "@otplib/totp",
-  "version": "13.2.0",
+  "version": "13.2.1",
   "description": "RFC 6238 TOTP implementation for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",

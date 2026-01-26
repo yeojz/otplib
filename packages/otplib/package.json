@@ -1,6 +1,6 @@
 {
   "name": "otplib",
-  "version": "13.2.0",
+  "version": "13.2.1",
   "description": "TypeScript-first library for TOTP and HOTP with multi-runtime and plugin support",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
