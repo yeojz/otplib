@@ -395,8 +395,7 @@ if (result.valid) {
 When encoding secrets, you can control whether padding is included:
 
 ```typescript
-import { ScureBase32Plugin } from "otplib";
-const base32 = new ScureBase32Plugin();
+import { base32 } from "otplib";
 
 // Unpadded (Recommended for Authenticator apps)
 const unpadded = base32.encode(bytes, { padding: false });
@@ -442,9 +441,7 @@ const secret = generateSecret(32);
 For maximum performance or internal systems, you can work directly with `Uint8Array` instead of Base32 strings.
 
 ```typescript
-import { generate, verify, NobleCryptoPlugin } from "otplib";
-
-const crypto = new NobleCryptoPlugin();
+import { generate, verify, crypto } from "otplib";
 
 // Generate raw bytes directly from crypto plugin
 const secretBytes = crypto.randomBytes(20); // Uint8Array(20)

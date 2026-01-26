@@ -31,10 +31,8 @@ bytes (for example, passphrases or secrets stored as hex/base64).
 
 ```typescript
 import { generate } from "otplib";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { crypto } from "@otplib/plugin-crypto-node";
 import { bypassAsString } from "@otplib/plugin-base32-alt";
-
-const crypto = new NodeCryptoPlugin();
 
 const token = await generate({
   secret: "mysecretkey",
@@ -47,10 +45,8 @@ const token = await generate({
 
 ```typescript
 import { generate } from "otplib";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { crypto } from "@otplib/plugin-crypto-node";
 import { bypassAsHex } from "@otplib/plugin-base32-alt";
-
-const crypto = new NodeCryptoPlugin();
 
 const token = await generate({
   secret: "48656c6c6f", // "Hello" in hex
@@ -72,10 +68,8 @@ Note: `bypassAsBase16` is available as an alias for `bypassAsHex`.
 
 ```typescript
 import { generate } from "otplib";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { crypto } from "@otplib/plugin-crypto-node";
 import { bypassAsBase64 } from "@otplib/plugin-base32-alt";
-
-const crypto = new NodeCryptoPlugin();
 
 const token = await generate({
   secret: "SGVsbG8=", // "Hello" in base64

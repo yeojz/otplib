@@ -155,11 +155,8 @@ otpauth://TYPE/LABEL?PARAMETERS
 
 ```typescript
 import { generateURI } from "otplib";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new NodeCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const uri = generateURI({
   issuer: "MyService",

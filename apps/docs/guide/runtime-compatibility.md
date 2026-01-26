@@ -21,11 +21,8 @@ otplib is designed to work across multiple JavaScript runtimes. This guide cover
 
 ```typescript
 import { generate, verify, generateSecret } from "otplib";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new NodeCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const secret = generateSecret({ crypto, base32 });
 const token = await generate({ secret, crypto, base32 });
@@ -42,11 +39,8 @@ const token = await generate({ secret, crypto, base32 });
 
 ```typescript
 import { generate, verify, generateSecret } from "otplib";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new NobleCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-noble";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const secret = generateSecret({ crypto, base32 });
 const token = await generate({ secret, crypto, base32 });
@@ -63,11 +57,8 @@ const token = await generate({ secret, crypto, base32 });
 
 ```typescript
 import { generate, verify, generateSecret } from "otplib";
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new WebCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-web";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const secret = generateSecret({ crypto, base32 });
 const token = await generate({ secret, crypto, base32 });
@@ -87,12 +78,10 @@ For code that needs to run across all runtimes, use the pure JavaScript plugins:
 
 ```typescript
 import { generate, verify, generateSecret } from "otplib";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-noble";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Works in Node.js, Bun, Deno, and browsers
-const crypto = new NobleCryptoPlugin();
-const base32 = new ScureBase32Plugin();
 
 async function generateOTP(secret: string): Promise<string> {
   return generate({ secret, crypto, base32 });
@@ -190,11 +179,8 @@ otplib works in edge computing environments like Cloudflare Workers, Vercel Edge
 ```typescript
 // Cloudflare Workers / Vercel Edge
 import { generate } from "otplib";
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new WebCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-web";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 export default {
   async fetch(request: Request): Promise<Response> {
@@ -216,8 +202,7 @@ Ensure you're using a plugin that's compatible with Deno:
 
 ```typescript
 // Use noble plugin for universal compatibility
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-const crypto = new NobleCryptoPlugin();
+import { crypto } from "@otplib/plugin-crypto-noble";
 ```
 
 ### Module resolution issues in Bun
@@ -242,5 +227,5 @@ npx serve -s build --ssl-cert cert.pem --ssl-key key.pem
 Or use the noble plugin which doesn't require Web Crypto:
 
 ```typescript
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+import { crypto } from "@otplib/plugin-crypto-noble";
 ```

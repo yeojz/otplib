@@ -17,12 +17,13 @@
 .card {
   position: relative;
   background: var(--vp-c-bg-soft);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 8px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   min-height: 350px;
+  box-shadow: 0 2px 8px var(--cipher-shadow);
 }
 
 .card-header {
@@ -31,7 +32,7 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--cipher-grid-color);
+  border-bottom: 1px solid var(--cipher-border);
 }
 
 .card-header h3 {
@@ -70,7 +71,7 @@
 /* Icons and Buttons */
 .gear-icon {
   background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   color: var(--cipher-text-interactive);
   cursor: pointer;
   padding: 0.25rem;
@@ -91,14 +92,14 @@
 }
 
 .btn-save {
-  background: var(--cipher-accent);
-  color: #0a1419;
+  background: var(--vp-c-brand-3);
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   padding: 0 1rem;
   font-family: var(--vp-font-family-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
@@ -117,13 +118,13 @@
 .btn-primary {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: var(--cipher-accent);
-  color: #0a1419;
+  background: var(--vp-c-brand-3);
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   font-family: var(--vp-font-family-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
@@ -183,7 +184,7 @@ input[type="text"],
 input[type="number"] {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 4px;
   background: var(--vp-c-bg);
   color: var(--vp-c-text-1);
@@ -201,8 +202,8 @@ input[type="number"]:focus {
 
 input[type="text"]::placeholder,
 input[type="number"]::placeholder {
-  color: var(--vp-c-text-3);
-  opacity: 0.6;
+  color: var(--cipher-text-muted);
+  opacity: 0.7;
 }
 
 /* Setup Card specific */
@@ -238,7 +239,7 @@ input[type="number"]::placeholder {
 
 .toggle-secret {
   background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 4px;
   cursor: pointer;
   font-family: var(--vp-font-family-mono);
@@ -264,7 +265,7 @@ input[type="number"]::placeholder {
   margin-top: 0.75rem;
   padding: 0.75rem;
   background: var(--vp-c-bg);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 4px;
   font-family: var(--vp-font-family-mono);
   font-size: 0.875rem;
@@ -278,7 +279,7 @@ input[type="number"]::placeholder {
   text-align: center;
   padding: 1.25rem;
   background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 8px;
   margin-bottom: 1rem;
 }
@@ -307,13 +308,13 @@ input[type="number"]::placeholder {
 
 .btn-verify {
   padding: 0.75rem 1.25rem;
-  background: var(--cipher-accent);
-  color: #0a1419;
+  background: var(--vp-c-brand-3);
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   font-family: var(--vp-font-family-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
@@ -323,6 +324,14 @@ input[type="number"]::placeholder {
 .btn-verify:hover {
   box-shadow: 0 0 16px var(--cipher-accent-glow);
   transform: translateY(-1px);
+}
+
+/* Dark mode button overrides - use darker teal with white text for consistency */
+.dark .btn-save,
+.dark .btn-primary,
+.dark .btn-verify {
+  background: #136377;
+  color: #ffffff;
 }
 
 /* Result states with enhanced feedback */
@@ -393,7 +402,7 @@ input[type="number"]::placeholder {
 .token-container {
   text-align: center;
   background: var(--cipher-surface);
-  border: 2px solid var(--cipher-grid-color);
+  border: 2px solid var(--cipher-border);
   border-radius: 8px;
   padding: 2rem;
   min-width: 200px;
@@ -453,12 +462,13 @@ input[type="number"]::placeholder {
 /* Demo Section Wrapper - Enhanced */
 .demo-section {
   position: relative;
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 12px;
   padding: 2.5rem;
   margin-bottom: 3rem;
   background: var(--vp-c-bg-alt);
   overflow: hidden;
+  box-shadow: 0 2px 12px var(--cipher-shadow);
 }
 
 /* Corner accents */

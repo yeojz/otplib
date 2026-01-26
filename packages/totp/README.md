@@ -14,11 +14,8 @@ yarn add @otplib/totp
 
 ```typescript
 import { generate, verify } from "@otplib/totp";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new NodeCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Generate a TOTP token
 const token = await generate({
@@ -47,11 +44,13 @@ Generate a TOTP code:
 
 ```typescript
 import { generate } from '@otplib/totp';
+import { crypto } from '@otplib/plugin-crypto-node';
+import { base32 } from '@otplib/plugin-base32-scure';
 
 const token = await generate({
   secret: new Uint8Array([...]),  // Required: secret as bytes
-  crypto: new NodeCryptoPlugin(),  // Required: crypto plugin
-  base32: new ScureBase32Plugin(), // Optional: base32 plugin (for decoding)
+  crypto,                          // Required: crypto plugin
+  base32,                          // Optional: base32 plugin (for decoding)
   algorithm: 'sha1',               // Optional: 'sha1' | 'sha256' | 'sha512'
   digits: 6,                       // Optional: 6 | 7 | 8
   period: 30,                      // Optional: time step in seconds
@@ -65,12 +64,14 @@ Verify a TOTP code:
 
 ```typescript
 import { verify } from '@otplib/totp';
+import { crypto } from '@otplib/plugin-crypto-node';
+import { base32 } from '@otplib/plugin-base32-scure';
 
 const result = await verify({
   secret: new Uint8Array([...]),  // Required: secret as bytes
   token: '123456',                 // Required: token to verify
-  crypto: new NodeCryptoPlugin(),  // Required: crypto plugin
-  base32: new ScureBase32Plugin(), // Optional: base32 plugin (for decoding)
+  crypto,                          // Required: crypto plugin
+  base32,                          // Optional: base32 plugin (for decoding)
   algorithm: 'sha1',               // Optional: hash algorithm
   digits: 6,                       // Optional: expected digits
   period: 30,                      // Optional: time step

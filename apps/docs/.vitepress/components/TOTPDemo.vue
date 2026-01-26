@@ -183,7 +183,7 @@ onUnmounted(() => {
 
 .tokens {
   background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 8px;
   padding: 1.25rem;
   display: flex;
@@ -230,16 +230,14 @@ onUnmounted(() => {
 }
 
 .current-token {
-  background: var(--cipher-accent);
   box-shadow: 0 0 24px var(--cipher-accent-glow),
     0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .outer-token {
   background: var(--vp-c-bg);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   transform: scale(0.92);
-  opacity: 0.7;
 }
 
 .token-value {
@@ -249,24 +247,23 @@ onUnmounted(() => {
 }
 
 .current-token .token-value {
-  font-size: 2rem;
-  color: #0a1419;
+    font-size: 2rem;
 }
 
 .outer-token .token-value {
   font-size: 1.1rem;
-  color: var(--vp-c-text-2);
+  color: var(--cipher-text-muted);
 }
 
 .token-label {
   font-family: var(--vp-font-family-mono);
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 0.2rem 0.5rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
-  color: var(--cipher-text-muted);
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--cipher-border);
+  color: var(--cipher-text-interactive);
   letter-spacing: 0.05em;
 }
 
@@ -285,7 +282,7 @@ onUnmounted(() => {
 .progress {
   height: 4px;
   background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 2px;
   overflow: hidden;
 }

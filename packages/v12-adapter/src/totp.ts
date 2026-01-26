@@ -5,8 +5,8 @@
  * Provides synchronous API wrapper around v13's TOTP implementation.
  */
 
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
+import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 import {
   generateSync as totpGenerateSync,
   verifySync as totpVerifySync,
@@ -19,16 +19,6 @@ import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
 import type { TOTPOptions, SecretKey, ResolvedTOTPOptions } from "./types.js";
 import type { Digits } from "@otplib/core";
-
-/**
- * Default crypto plugin instance
- */
-const defaultCrypto = new NobleCryptoPlugin();
-
-/**
- * Default base32 plugin instance
- */
-const defaultBase32 = new ScureBase32Plugin();
 
 /**
  * Parse window option into epochTolerance

@@ -2,11 +2,12 @@
  * Default plugin instances
  *
  * Shared across functional and class APIs to ensure singleton behavior
- * and reduce memory overhead.
+ * and reduce memory overhead. Uses pre-instantiated frozen singletons
+ * from the plugin packages.
  */
 import { createGuardrails } from "@otplib/core";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
+import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 
 import type {
   OTPGenerateOptions,
@@ -15,21 +16,7 @@ import type {
   OTPVerifyOptionsWithDefaults,
 } from "./types.js";
 
-/**
- * Default crypto plugin instance (Noble Hashes)
- *
- * This plugin provides cross-platform cryptographic operations
- * using the @noble/hashes library.
- */
-export const defaultCrypto = Object.freeze(new NobleCryptoPlugin());
-
-/**
- * Default Base32 plugin instance (@scure/base)
- *
- * This plugin provides Base32 encoding/decoding operations
- * using the @scure/base library.
- */
-export const defaultBase32 = Object.freeze(new ScureBase32Plugin());
+export { defaultCrypto, defaultBase32 };
 
 export function normalizeGenerateOptions(
   options: OTPGenerateOptions,

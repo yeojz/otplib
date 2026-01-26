@@ -70,7 +70,7 @@ For example, setting `MIN_SECRET_BYTES` to a value higher than `MAX_SECRET_BYTES
 
 ```typescript
 import { generate, verify, createGuardrails } from "@otplib/hotp";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { crypto } from "@otplib/plugin-crypto-node";
 
 // Create custom guardrails
 const customGuardrails = createGuardrails({
@@ -82,7 +82,7 @@ const customGuardrails = createGuardrails({
 const token = await generate({
   secret: mySecret,
   counter: 0,
-  crypto: new NodeCryptoPlugin(),
+  crypto,
   guardrails: customGuardrails,
 });
 
@@ -91,7 +91,7 @@ const result = await verify({
   token,
   counter: 0,
   counterTolerance: 15,
-  crypto: new NodeCryptoPlugin(),
+  crypto,
   guardrails: customGuardrails,
 });
 ```
@@ -102,8 +102,8 @@ const result = await verify({
 
 ```typescript
 import { HOTP, createGuardrails } from "@otplib/hotp";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Create custom guardrails using the factory function
 const customGuardrails = createGuardrails({
@@ -113,8 +113,8 @@ const customGuardrails = createGuardrails({
 // Configure guardrails for all operations on this instance
 const hotp = new HOTP({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
-  crypto: new NodeCryptoPlugin(),
-  base32: new ScureBase32Plugin(),
+  crypto,
+  base32,
   guardrails: customGuardrails,
 });
 
@@ -127,14 +127,14 @@ const result = await hotp.verify({ token, counter: 0 });
 
 ```typescript
 import { HOTP, createGuardrails } from "@otplib/hotp";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Instance with standard guardrails
 const hotp = new HOTP({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
-  crypto: new NodeCryptoPlugin(),
-  base32: new ScureBase32Plugin(),
+  crypto,
+  base32,
 });
 
 // Override guardrails for a specific operation
@@ -178,14 +178,14 @@ The default number format creates a look-ahead only window `[0, n]`, which preve
 
 ```typescript
 import { TOTP, createGuardrails } from "@otplib/totp";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const totp = new TOTP({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   period: 60, // 60-second periods
-  crypto: new NodeCryptoPlugin(),
-  base32: new ScureBase32Plugin(),
+  crypto,
+  base32,
   guardrails: createGuardrails({
     MAX_PERIOD: 120, // Allow up to 2-minute periods
     MAX_WINDOW: 5, // Tighter window than default

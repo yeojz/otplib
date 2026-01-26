@@ -6,8 +6,8 @@
 
 import { stringToBytes, createGuardrails } from "@otplib/core";
 import { generateSync as hotpGenerateSync, verifySync as hotpVerifySync } from "@otplib/hotp";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
+import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 import { generateHOTP as generateHOTPURI } from "@otplib/uri";
 import { hex } from "@scure/base";
 
@@ -15,9 +15,6 @@ import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
 import type { HOTPOptions, SecretKey, ResolvedHOTPOptions } from "./types.js";
 import type { Digits } from "@otplib/core";
-
-const defaultCrypto = new NobleCryptoPlugin();
-const defaultBase32 = new ScureBase32Plugin();
 
 /**
  * Convert a string secret to bytes based on encoding
