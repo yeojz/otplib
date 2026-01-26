@@ -8,7 +8,7 @@ Alternative encoding plugins for otplib - accept raw string secrets without Base
 npm install @otplib/plugin-base32-alt
 ```
 
-## Why?
+## Overview
 
 Google Authenticator and similar apps expect Base32-encoded secrets, but the HOTP/TOTP RFCs work with raw bytes. When secrets are already raw strings (passphrases), this plugin keeps them as-is and skips Base32 encoding.
 
