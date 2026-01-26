@@ -15,7 +15,8 @@
       "@otplib/uri",
       "@otplib/v12-adapter",
       "otplib"
-    ]
+    ],
+    ["otplib-cli"]
   ],
   "linked": [],
   "ignore": ["@repo/docs", "@repo/benchmarks", "@repo/fuzz-tests", "@repo/typedoc"],
