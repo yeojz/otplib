@@ -1,6 +1,6 @@
 {
   "name": "@otplib/plugin-base32-alt",
-  "version": "13.2.0",
+  "version": "13.2.1",
   "description": "Alternative encoding plugins for otplib",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
