@@ -5,8 +5,8 @@
  */
 
 import { generateSecret as generateSecretCore } from "@otplib/core";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
+import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 import { generateSync as totpGenerateSync, verifySync as totpVerifySync } from "@otplib/totp";
 
 import { TOTP } from "./totp.js";
@@ -20,9 +20,6 @@ import type {
   ResolvedAuthenticatorOptions,
 } from "./types.js";
 import type { Digits } from "@otplib/core";
-
-const defaultCrypto = new NobleCryptoPlugin();
-const defaultBase32 = new ScureBase32Plugin();
 
 function defaultKeyEncoder(secret: SecretKey, _encoding: KeyEncodings): Base32SecretKey {
   const bytes = new TextEncoder().encode(secret);

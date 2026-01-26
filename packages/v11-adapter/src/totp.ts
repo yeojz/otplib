@@ -4,8 +4,8 @@
  * v11-compatible TOTP class implementation.
  */
 
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
+import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 import {
   generateSync as totpGenerateSync,
   verifySync as totpVerifySync,
@@ -18,9 +18,6 @@ import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
 import type { TOTPOptions, SecretKey, ResolvedTOTPOptions } from "./types.js";
 import type { Digits } from "@otplib/core";
-
-const defaultCrypto = new NobleCryptoPlugin();
-const defaultBase32 = new ScureBase32Plugin();
 
 function parseWindow(
   window: number | [number, number] | undefined,
