@@ -1,25 +1,40 @@
 # @otplib/plugin-base32-alt
 
-Alternative encoding plugins for otplib - accept raw string secrets without Base32 encoding.
+Alternative encoding plugins for otplib that accept raw string secrets without
+Base32 encoding.
 
 ## Installation
 
 ```bash
 npm install @otplib/plugin-base32-alt
+pnpm add @otplib/plugin-base32-alt
+yarn add @otplib/plugin-base32-alt
 ```
 
 ## Overview
 
-Google Authenticator and similar apps expect Base32-encoded secrets, but the HOTP/TOTP RFCs work with raw bytes. When secrets are already raw strings (passphrases), this plugin keeps them as-is and skips Base32 encoding.
+`otplib` treats string secrets as Base32 by default because authenticator apps
+and otpauth URIs expect RFC 4648 encoding.
+
+This plugin bypasses Base32 and converts the provided string directly into
+bytes (for example, passphrases or secrets stored as hex/base64).
+
+> [!Note]
+>
+> - Otpauth URI generation still expects Base32 secrets.
+> - Errors are still surfaced as `Base32DecodeError` or `Base32EncodeError`.
+>   The underlying cause is returned under the error's `cause` property.
 
 ## Usage
 
 ### UTF-8 string secrets
 
 ```typescript
+import { generate } from "otplib";
+import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { bypassAsString } from "@otplib/plugin-base32-alt";
-import { generate } from "@otplib/totp";
-import { crypto } from "@otplib/plugin-crypto-node";
+
+const crypto = new NodeCryptoPlugin();
 
 const token = await generate({
   secret: "mysecretkey",
@@ -31,9 +46,11 @@ const token = await generate({
 ### Hex-encoded secrets
 
 ```typescript
+import { generate } from "otplib";
+import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { bypassAsHex } from "@otplib/plugin-base32-alt";
-import { generate } from "@otplib/totp";
-import { crypto } from "@otplib/plugin-crypto-node";
+
+const crypto = new NodeCryptoPlugin();
 
 const token = await generate({
   secret: "48656c6c6f", // "Hello" in hex
@@ -45,7 +62,8 @@ const token = await generate({
 The hex bypass:
 
 - Accepts both lowercase (`abcdef`) and uppercase (`ABCDEF`) hex characters
-- Validates input: throws `Base32DecodeError` for odd-length strings or invalid characters
+- Validates input: throws `Base32DecodeError` for odd-length strings or invalid
+  characters
 - Produces lowercase hex output when encoding
 
 Note: `bypassAsBase16` is available as an alias for `bypassAsHex`.
@@ -53,9 +71,11 @@ Note: `bypassAsBase16` is available as an alias for `bypassAsHex`.
 ### Base64-encoded secrets
 
 ```typescript
+import { generate } from "otplib";
+import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { bypassAsBase64 } from "@otplib/plugin-base32-alt";
-import { generate } from "@otplib/totp";
-import { crypto } from "@otplib/plugin-crypto-node";
+
+const crypto = new NodeCryptoPlugin();
 
 const token = await generate({
   secret: "SGVsbG8=", // "Hello" in base64
@@ -87,7 +107,8 @@ const customBypass = createBase32Plugin({
 - `bypassAsHex` - Frozen plugin for hex string to bytes conversion
 - `bypassAsBase16` - Alias for `bypassAsHex`
 - `bypassAsBase64` - Frozen plugin for base64 string to bytes conversion
-- `createBase32Plugin` - Factory for custom bypass plugins (re-exported from `@otplib/core`)
+- `createBase32Plugin` - Factory for custom bypass plugins (re-exported from
+  `@otplib/core`)
 
 ### Types
 
@@ -95,4 +116,4 @@ const customBypass = createBase32Plugin({
 
 ## License
 
-MIT
+[MIT](./LICENSE) © 2026 Gerald Yeo
