@@ -80,11 +80,8 @@ const isValid = result.valid;
 ```typescript
 // v13 with explicit plugins
 import { generate, verify } from "@otplib/totp";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new NobleCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-noble";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const token = await generate({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
@@ -125,14 +122,14 @@ v13 requires explicit crypto and base32 plugins (except when using the `otplib` 
 ```typescript
 // v13 - must provide plugins
 import { generate } from "@otplib/hotp";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const token = await generate({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   counter: 0,
-  crypto: new NodeCryptoPlugin(),
-  base32: new ScureBase32Plugin(),
+  crypto,
+  base32,
 });
 ```
 
@@ -214,10 +211,12 @@ const token = await otp.generate({ secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY" });
 
 // v13 - Using strategy-specific classes
 import { TOTP } from "otplib";
+import { crypto } from "@otplib/plugin-crypto-noble";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const totp = new TOTP({
-  crypto: new NobleCryptoPlugin(),
-  base32: new ScureBase32Plugin(),
+  crypto,
+  base32,
   digits: 8,
 });
 
@@ -262,7 +261,7 @@ v13 offers three crypto plugins:
 ### NodeCryptoPlugin (Node.js only)
 
 ```typescript
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { crypto } from "@otplib/plugin-crypto-node";
 ```
 
 - Uses Node.js built-in `crypto` module
@@ -272,7 +271,7 @@ import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 ### NobleCryptoPlugin (Universal)
 
 ```typescript
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+import { crypto } from "@otplib/plugin-crypto-noble";
 ```
 
 - Pure JavaScript implementation using `@noble/hashes`
@@ -283,7 +282,7 @@ import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 ### WebCryptoPlugin (Browsers)
 
 ```typescript
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+import { crypto } from "@otplib/plugin-crypto-web";
 ```
 
 - Uses Web Crypto API

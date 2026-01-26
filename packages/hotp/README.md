@@ -14,11 +14,8 @@ yarn add @otplib/hotp
 
 ```typescript
 import { generate, verify } from "@otplib/hotp";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new NodeCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Generate an HOTP token for counter 0
 const token = await generate({
@@ -50,12 +47,14 @@ Generate an HOTP code for a specific counter:
 
 ```typescript
 import { generate } from '@otplib/hotp';
+import { crypto } from '@otplib/plugin-crypto-node';
+import { base32 } from '@otplib/plugin-base32-scure';
 
 const token = await generate({
   secret: new Uint8Array([...]),  // Required: secret as bytes
   counter: 0,                      // Required: counter value
-  crypto: new NodeCryptoPlugin(),  // Required: crypto plugin
-  base32: new ScureBase32Plugin(), // Optional: base32 plugin (for decoding)
+  crypto,                          // Required: crypto plugin
+  base32,                          // Optional: base32 plugin (for decoding)
   algorithm: 'sha1',               // Optional: 'sha1' | 'sha256' | 'sha512'
   digits: 6,                       // Optional: 6 | 7 | 8
 });
@@ -67,13 +66,15 @@ Verify an HOTP code:
 
 ```typescript
 import { verify } from '@otplib/hotp';
+import { crypto } from '@otplib/plugin-crypto-node';
+import { base32 } from '@otplib/plugin-base32-scure';
 
 const result = await verify({
   secret: new Uint8Array([...]),  // Required: secret as bytes
   token: '123456',                 // Required: token to verify
   counter: 0,                      // Required: expected counter
-  crypto: new NodeCryptoPlugin(),  // Required: crypto plugin
-  base32: new ScureBase32Plugin(), // Optional: base32 plugin (for decoding)
+  crypto,                          // Required: crypto plugin
+  base32,                          // Optional: base32 plugin (for decoding)
   algorithm: 'sha1',               // Optional: hash algorithm
   digits: 6,                       // Optional: expected digits
   counterTolerance: 5,             // Optional: look-ahead tolerance

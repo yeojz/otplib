@@ -24,11 +24,8 @@ This plugin provides HMAC and random byte generation using the Web Crypto API. I
 
 ```typescript
 import { generateSecret, generate } from "otplib";
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new WebCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-web";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Generate a secret
 const secret = await generateSecret({ crypto, base32 });
@@ -45,11 +42,8 @@ const token = await generate({
 
 ```typescript
 import { generate } from "otplib";
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new WebCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-web";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const token = await generate({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
@@ -64,9 +58,7 @@ const token = await generate({
 The Web Crypto API only supports asynchronous operations:
 
 ```typescript
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
-
-const crypto = new WebCryptoPlugin();
+import { crypto } from "@otplib/plugin-crypto-web";
 
 // Async HMAC (required by Web Crypto API)
 const digest = await crypto.hmac("SHA-1", key, data);
@@ -81,11 +73,10 @@ Should also work in runtimes which implements Web Crypto API:
 
 ```typescript
 // Cloudflare Worker example
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+import { crypto } from "@otplib/plugin-crypto-web";
 
 export default {
   async fetch(request) {
-    const crypto = new WebCryptoPlugin();
     // Use crypto for OTP operations
   },
 };

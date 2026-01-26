@@ -20,11 +20,8 @@ This plugin provides Base32 encoding and decoding using `@scure/base`, a cryptog
 
 ```typescript
 import { generateSecret, generate } from "otplib";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-
-const base32 = new ScureBase32Plugin();
-const crypto = new NodeCryptoPlugin();
+import { base32 } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-node";
 
 // Generate a secret
 const secret = generateSecret({ crypto, base32 });
@@ -40,9 +37,7 @@ const token = await generate({
 ### Encoding and Decoding
 
 ```typescript
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const base32 = new ScureBase32Plugin();
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Encode binary data to Base32
 const data = new Uint8Array([1, 2, 3, 4, 5]);
@@ -57,9 +52,7 @@ const decoded = base32.decode("AEBAGBAF");
 ### With Custom Options
 
 ```typescript
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const base32 = new ScureBase32Plugin();
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Encode without padding
 const encoded = base32.encode(data, { padding: false });
@@ -96,11 +89,8 @@ Works in all environments:
 
 ```typescript
 import { generateSecret, generate } from "otplib";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-
-const base32 = new ScureBase32Plugin();
-const crypto = new NodeCryptoPlugin();
+import { base32 } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-node";
 
 const secret = generateSecret({ crypto, base32 });
 console.log(secret); // Base32-encoded secret
@@ -113,11 +103,8 @@ console.log(token); // 6-digit token
 
 ```typescript
 import { generateSecret, generate } from "otplib";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
-
-const base32 = new ScureBase32Plugin();
-const crypto = new WebCryptoPlugin();
+import { base32 } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-web";
 
 const secret = await generateSecret({ crypto, base32 });
 const token = await generate({ secret, crypto, base32 });
@@ -126,11 +113,8 @@ const token = await generate({ secret, crypto, base32 });
 ### Manual Secret Generation
 
 ```typescript
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-
-const base32 = new ScureBase32Plugin();
-const crypto = new NodeCryptoPlugin();
+import { base32 } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-node";
 
 // Generate random secret
 const secretBytes = crypto.randomBytes(20);
@@ -142,14 +126,11 @@ console.log(secret); // Base32 secret for TOTP
 ### Edge Runtime (Cloudflare Worker)
 
 ```typescript
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+import { base32 } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-web";
 
 export default {
   async fetch(request) {
-    const base32 = new ScureBase32Plugin();
-    const crypto = new WebCryptoPlugin();
-
     // Generate secret
     const secretBytes = await crypto.randomBytes(20);
     const secret = base32.encode(secretBytes, { padding: false });

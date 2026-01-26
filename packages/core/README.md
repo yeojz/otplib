@@ -54,9 +54,9 @@ The `CryptoContext` class provides a unified interface for crypto operations:
 
 ```typescript
 import { createCryptoContext } from "@otplib/core";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { crypto as plugin } from "@otplib/plugin-crypto-node";
 
-const crypto = createCryptoContext(new NodeCryptoPlugin());
+const crypto = createCryptoContext(plugin);
 
 // Async HMAC computation
 const digest = await crypto.hmac("sha1", key, data);
@@ -74,9 +74,9 @@ The `Base32Context` class provides a unified interface for Base32 operations:
 
 ```typescript
 import { createBase32Context } from "@otplib/core";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { base32 as plugin } from "@otplib/plugin-base32-scure";
 
-const base32 = createBase32Context(new ScureBase32Plugin());
+const base32 = createBase32Context(plugin);
 
 // Encode binary data to Base32
 const encoded = base32.encode(new Uint8Array([1, 2, 3]), { padding: false });

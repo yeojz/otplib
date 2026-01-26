@@ -21,8 +21,7 @@ This section focuses on package selection. for specific setup instructions for *
 ### Node.js Applications
 
 ```typescript
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-const crypto = new NodeCryptoPlugin();
+import { crypto } from "@otplib/plugin-crypto-node";
 ```
 
 **Best for:** Server-side applications, CLI tools, scripts
@@ -30,8 +29,7 @@ const crypto = new NodeCryptoPlugin();
 ### Browser Applications
 
 ```typescript
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
-const crypto = new WebCryptoPlugin();
+import { crypto } from "@otplib/plugin-crypto-web";
 ```
 
 **Best for:** React, Vue, Angular, vanilla JS in browsers
@@ -39,8 +37,7 @@ const crypto = new WebCryptoPlugin();
 ### Universal / Cross-Platform
 
 ```typescript
-import { NobleCryptoPlugin } from "otplib";
-const crypto = new NobleCryptoPlugin();
+import { crypto } from "@otplib/plugin-crypto-noble";
 ```
 
 **Best for:** Isomorphic apps, edge runtimes, environments without native crypto
@@ -69,11 +66,11 @@ Node.js native crypto module adapter.
 
 ```typescript
 import { generate } from "otplib";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { crypto } from "@otplib/plugin-crypto-node";
 
 const token = await generate({
   secret,
-  crypto: new NodeCryptoPlugin(),
+  crypto,
 });
 ```
 
@@ -92,11 +89,11 @@ Web Crypto API adapter for browsers and edge runtimes.
 
 ```typescript
 import { generate } from "otplib";
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
+import { crypto } from "@otplib/plugin-crypto-web";
 
 const token = await generate({
   secret,
-  crypto: new WebCryptoPlugin(),
+  crypto,
 });
 ```
 
@@ -114,11 +111,12 @@ const token = await generate({
 Pure JavaScript crypto using [@noble/hashes](https://github.com/paulmillr/noble-hashes).
 
 ```typescript
-import { generate, NobleCryptoPlugin } from "otplib";
+import { generate } from "otplib";
+import { crypto } from "@otplib/plugin-crypto-noble";
 
 const token = await generate({
   secret,
-  crypto: new NobleCryptoPlugin(),
+  crypto,
 });
 ```
 
@@ -149,9 +147,7 @@ Do you need standard Base32 secrets (RFC 4648) or otpauth URIs?
 Base32 encoding/decoding using [@scure/base](https://github.com/paulmillr/scure-base).
 
 ```typescript
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const base32 = new ScureBase32Plugin();
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Encoding
 const encoded = base32.encode(new Uint8Array([1, 2, 3, 4, 5]));

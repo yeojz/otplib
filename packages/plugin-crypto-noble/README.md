@@ -24,11 +24,8 @@ This plugin provides HMAC and random byte generation using the `@noble/hashes` l
 
 ```typescript
 import { generateSecret, generate } from "otplib";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new NobleCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-noble";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Generate a secret
 const secret = generateSecret({ crypto, base32 });
@@ -45,11 +42,8 @@ const token = await generate({
 
 ```typescript
 import { generate } from "otplib";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
-
-const crypto = new NobleCryptoPlugin();
-const base32 = new ScureBase32Plugin();
+import { crypto } from "@otplib/plugin-crypto-noble";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const token = await generate({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
@@ -64,9 +58,7 @@ const token = await generate({
 The noble crypto plugin supports both synchronous and asynchronous HMAC operations:
 
 ```typescript
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-
-const crypto = new NobleCryptoPlugin();
+import { crypto } from "@otplib/plugin-crypto-noble";
 
 // Sync HMAC (useful for high-volume operations)
 const digest = crypto.hmacSync("sha1", key, data);

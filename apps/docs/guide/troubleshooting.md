@@ -123,14 +123,14 @@ Secrets must be at least 16 bytes (128 bits):
 const result = await generate({
   secret: new Uint8Array([1, 2, 3]), // Only 3 bytes!
   counter: 0,
-  crypto: new NodeCryptoPlugin(),
+  crypto,
 });
 
 // Use proper secret length
 const result = await generate({
   secret: new Uint8Array(20).fill(0), // 20 bytes minimum
   counter: 0,
-  crypto: new NodeCryptoPlugin(),
+  crypto,
 });
 
 // Or generate a proper secret
@@ -155,19 +155,19 @@ When using Base32-encoded string secrets, you must provide a base32 plugin.
 You may also choose to use a bypass if you want utilise non-base32 strings.
 
 ```typescript
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 // Wrong - missing base32 plugin
 const result = await generate({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
-  crypto: new NodeCryptoPlugin(),
+  crypto,
 });
 
 // Correct
 const result = await generate({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
-  crypto: new NodeCryptoPlugin(),
-  base32: new ScureBase32Plugin(),
+  crypto,
+  base32,
 });
 ```
 
@@ -178,18 +178,11 @@ const result = await generate({
 All operations require a crypto plugin:
 
 ```typescript
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
-import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
-
-// For Node.js
-const crypto = new NodeCryptoPlugin();
-
-// For browsers (with WebCrypto API)
-const crypto = new WebCryptoPlugin();
-
-// For universal (works everywhere)
-const crypto = new NobleCryptoPlugin();
+import { crypto } from "@otplib/plugin-crypto-node";
+// or
+import { crypto } from "@otplib/plugin-crypto-web";
+// or
+import { crypto } from "@otplib/plugin-crypto-noble";
 ```
 
 ### "WebCrypto not available"
@@ -200,7 +193,7 @@ The Web Crypto API requires a secure context (HTTPS) in browsers:
 // Check if WebCrypto is available
 if (typeof globalThis.crypto?.subtle === "undefined") {
   // Fall back to noble crypto
-  const crypto = new NobleCryptoPlugin();
+  const { crypto } = await import("@otplib/plugin-crypto-noble");
 }
 ```
 
@@ -295,15 +288,15 @@ When generating URIs for QR codes, both label and issuer are required:
 
 ```typescript
 import { generateURI } from "otplib";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
-import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const uri = generateURI({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   issuer: "MyApp", // Required
   label: "user@example.com", // Required
-  crypto: new NodeCryptoPlugin(),
-  base32: new ScureBase32Plugin(),
+  crypto,
+  base32,
 });
 // otpauth://totp/MyApp:user@example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY&issuer=MyApp
 ```
