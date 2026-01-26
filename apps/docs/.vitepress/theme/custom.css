@@ -16,14 +16,14 @@ html {
 
 :root {
   /* Cipher Terminal Palette - Light mode */
-  --vp-c-brand-1: #0891b2; /* Primary - Cyber Teal */
-  --vp-c-brand-2: #0e7490; /* Hover state */
-  --vp-c-brand-3: #155e75; /* Active state */
+  --vp-c-brand-1: #0e7490; /* Primary - Cyber Teal */
+  --vp-c-brand-2: #136377; /* Hover state */
+  --vp-c-brand-3: #115e6e; /* Active state - darker for button backgrounds */
   --vp-c-brand-soft: rgba(8, 145, 178, 0.1);
 
-  /* Hero gradient - Teal to cyan spectrum */
-  --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
+  /* Hero title - Solid dark teal for better contrast */
+  --vp-home-hero-name-color: #0e7490;
+  --vp-home-hero-name-background: none;
 
   /* Tip/Info callout colors */
   --vp-custom-block-tip-border: var(--vp-c-brand-1);
@@ -39,12 +39,12 @@ html {
   --cipher-accent: #0891b2;
   --cipher-accent-glow: rgba(8, 145, 178, 0.4);
   --cipher-bg-pattern: rgba(8, 145, 178, 0.03);
-  --cipher-grid-color: rgba(8, 145, 178, 0.08);
-  --cipher-surface: rgba(8, 145, 178, 0.04);
-  --cipher-border: rgba(8, 145, 178, 0.15);
-  --cipher-shadow: rgba(0, 0, 0, 0.06);
-  --cipher-text-muted: #4b5563;
-  --cipher-text-interactive: #374151;
+  --cipher-grid-color: rgba(8, 145, 178, 0.18);
+  --cipher-surface: rgba(8, 145, 178, 0.06);
+  --cipher-border: rgba(8, 145, 178, 0.25);
+  --cipher-shadow: rgba(0, 0, 0, 0.1);
+  --cipher-text-muted: #374151;
+  --cipher-text-interactive: #1f2937;
 }
 
 .dark {
@@ -58,7 +58,8 @@ html {
   --vp-button-brand-text: #0a1419;
   --vp-button-brand-bg: #22d3ee;
 
-  /* Dark hero gradient */
+  /* Dark hero gradient - restore gradient for dark mode */
+  --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 40%, #67e8f9 100%);
 
   /* Dark mode background enhancements */
@@ -142,8 +143,9 @@ html {
   font-size: 0.875rem;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  border: 1px solid var(--cipher-accent);
-  background: transparent;
+  border: 1px solid var(--cipher-border);
+  background: var(--cipher-surface);
+  color: var(--cipher-text-interactive);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -214,8 +216,12 @@ html {
 .VPHomeHero .tagline {
   font-family: var(--vp-font-family-base);
   font-weight: 400;
-  opacity: 0.85;
   max-width: 560px;
+  color: var(--cipher-text-muted);
+}
+
+.dark .VPHomeHero .tagline {
+  color: var(--cipher-text-muted);
 }
 
 /* Hero image glow effect */
@@ -308,9 +314,10 @@ html {
 .feature-card {
   position: relative;
   background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 8px;
   padding: 1.5rem;
+  box-shadow: 0 2px 8px var(--cipher-shadow);
 }
 
 .feature-icon {
@@ -320,7 +327,7 @@ html {
   align-items: center;
   justify-content: center;
   background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 8px;
   margin-bottom: 1rem;
 }
@@ -430,7 +437,7 @@ html {
   gap: 0.5rem;
   padding: 0.25rem 0.75rem;
   background: var(--cipher-surface);
-  border: 1px solid var(--cipher-grid-color);
+  border: 1px solid var(--cipher-border);
   border-radius: 100px;
   font-family: var(--vp-font-family-mono);
   font-size: 0.75rem;
