@@ -1,15 +1,19 @@
+import os from "node:os";
 import path from "node:path";
 
-export type ResolveVaultNameOptions = {
+export type ResolveVaultPathOptions = {
   vaultFlag?: string;
   envVault?: string;
 };
 
-export function resolveVaultName(options: ResolveVaultNameOptions): string {
-  return options.vaultFlag ?? options.envVault ?? "default";
+export function resolveVaultPath(options: ResolveVaultPathOptions): string {
+  const rawPath = options.vaultFlag ?? options.envVault ?? "./otplib.vault";
+  return expandPath(rawPath);
 }
 
-export function resolveVaultPath(vaultName: string | undefined, configRoot: string): string {
-  const name = vaultName ?? "default";
-  return path.join(configRoot, "vaults", `${name}.vault`);
+function expandPath(inputPath: string): string {
+  if (inputPath.startsWith("~")) {
+    return path.join(os.homedir(), inputPath.slice(1));
+  }
+  return path.resolve(inputPath);
 }
