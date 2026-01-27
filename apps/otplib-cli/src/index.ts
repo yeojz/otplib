@@ -429,7 +429,7 @@ program
     const passphrase = await promptPassphrase();
     const ctx: CommandContext = { vaultPath, passphrase };
     const code = await getOtp(ctx, id);
-    console.log(code);
+    process.stdout.write(code);
   });
 
 // token-file command (adhoc generation from JSON or keyuri)
@@ -450,25 +450,23 @@ program
 
     // Parse input - either otpauth:// URI or JSON
     const input = trimmed.startsWith("otpauth://") ? parseKeyUri(trimmed) : parseTokenJson(trimmed);
-    if (input.type === "totp") {
-      const code = await generate({
-        strategy: "totp",
-        secret: input.secret,
-        digits: input.digits,
-        algorithm: input.algorithm,
-        period: input.period,
-      });
-      console.log(code);
-    } else {
-      const code = await generate({
-        strategy: "hotp",
-        secret: input.secret,
-        digits: input.digits,
-        algorithm: input.algorithm,
-        counter: input.counter,
-      });
-      console.log(code);
-    }
+    const code =
+      input.type === "totp"
+        ? await generate({
+            strategy: "totp",
+            secret: input.secret,
+            digits: input.digits,
+            algorithm: input.algorithm,
+            period: input.period,
+          })
+        : await generate({
+            strategy: "hotp",
+            secret: input.secret,
+            digits: input.digits,
+            algorithm: input.algorithm,
+            counter: input.counter,
+          });
+    process.stdout.write(code);
   });
 
 program.parseAsync(process.argv).catch((err) => {
