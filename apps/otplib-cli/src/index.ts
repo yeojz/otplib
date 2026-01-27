@@ -1,6 +1,7 @@
 import readline from "node:readline";
 
-import { parseArgs } from "./cli/args.js";
+import { Command } from "commander";
+
 import { addEntry, getOtp, listEntries, removeEntry, type AddEntryInput } from "./cli/commands.js";
 import { ansi, copyToClipboard, selectFromList } from "./tui/index.js";
 import { resolveVaultPath } from "./vault/resolve.js";
@@ -8,6 +9,13 @@ import { createVault, updateVaultPassphrase } from "./vault/store.js";
 
 import type { CommandContext } from "./cli/commands.js";
 import type { OtpAlgorithm, OtpDigits } from "./vault/format.js";
+
+function getVaultPath(options: { vault?: string }): string {
+  return resolveVaultPath({
+    vaultFlag: options.vault,
+    envVault: process.env.OTPLIB_VAULT,
+  });
+}
 
 async function promptPassphrase(): Promise<string> {
   const envPass = process.env.OTPLIB_PASSPHRASE;
@@ -23,14 +31,13 @@ async function promptPassphrase(): Promise<string> {
     );
   }
 
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
 
-    process.stdout.write("Passphrase: ");
-    rl.question("", (answer) => {
+  return new Promise((resolve) => {
+    rl.question("Passphrase: ", (answer) => {
       rl.close();
       resolve(answer);
     });
@@ -49,8 +56,7 @@ async function promptNewPassphrase(): Promise<string> {
 
   const askQuestion = (prompt: string): Promise<string> =>
     new Promise((resolve) => {
-      process.stdout.write(prompt);
-      rl.question("", (answer) => resolve(answer));
+      rl.question(prompt, (answer) => resolve(answer));
     });
 
   const passphrase = await askQuestion("New passphrase: ");
@@ -150,206 +156,162 @@ function parseAddEntryJson(raw: string): AddEntryInput {
   }
 }
 
-function printHelp(): void {
-  process.stdout.write("otplib-cli - Manage encrypted OTP vaults\n");
-  process.stdout.write("\nUsage: otplib-cli [command] [options] [args]\n");
-  process.stdout.write("\nCommands:\n");
-  process.stdout.write("  vault init            Create a new vault\n");
-  process.stdout.write("  vault update pw       Change vault passphrase\n");
-  process.stdout.write("  add                   Add a new OTP entry (reads JSON from stdin)\n");
-  process.stdout.write("  list                  List entries (interactive filter in TTY)\n");
-  process.stdout.write("  remove <id>           Remove an entry\n");
-  process.stdout.write("  get <id>              Generate OTP code\n");
-  process.stdout.write("\nOptions:\n");
-  process.stdout.write("  -h, --help            Show help\n");
-  process.stdout.write("  -V, --version         Show version\n");
-  process.stdout.write("  -v, --vault <path>    Specify vault path (default: ./otplib.vault)\n");
-  process.stdout.write("\nEnvironment:\n");
-  process.stdout.write("  OTPLIB_VAULT          Default vault path\n");
-  process.stdout.write("  OTPLIB_PASSPHRASE     Vault passphrase (for non-TTY usage)\n");
-  process.stdout.write("\nExamples:\n");
-  process.stdout.write(
-    "  otplib-cli vault init                   Create vault in current directory\n",
-  );
-  process.stdout.write("  otplib-cli -v ~/my.vault vault init     Create vault at custom path\n");
-  process.stdout.write('  echo \'{"secret":"ABC","label":"GitHub"}\' | otplib-cli add\n');
-  process.stdout.write("  otplib-cli list                         Interactive entry selection\n");
-  process.stdout.write("  otplib-cli get abc123                   Generate OTP for entry\n");
-  process.stdout.write("\nAdd command JSON format:\n");
-  process.stdout.write("  Required: secret, label\n");
-  process.stdout.write("  Optional: type (totp|hotp), issuer, digits (6|7|8),\n");
-  process.stdout.write("            algorithm (sha1|sha256|sha512), period, counter\n");
-}
+const program = new Command();
 
-async function main(): Promise<void> {
-  const args = parseArgs(process.argv.slice(2));
+program
+  .name("otplib-cli")
+  .description("Manage encrypted OTP vaults")
+  .version("0.1.0")
+  .option("-v, --vault <path>", "vault file path", "./otplib.vault");
 
-  if (args.help) {
-    printHelp();
-    return;
-  }
+// vault command group
+const vaultCmd = program.command("vault").description("Vault management commands");
 
-  if (args.version) {
-    process.stdout.write("0.0.1\n");
-    return;
-  }
-
-  if (!args.command) {
-    printHelp();
-    process.exitCode = 1;
-    return;
-  }
-
-  const vaultPath = resolveVaultPath({
-    vaultFlag: args.vault,
-    envVault: process.env.OTPLIB_VAULT,
+vaultCmd
+  .command("init")
+  .description("Create a new vault")
+  .action(async () => {
+    const vaultPath = getVaultPath(program.opts());
+    const passphrase = await promptNewPassphrase();
+    await createVault(vaultPath, passphrase);
+    console.log(`Vault created: ${vaultPath}`);
   });
 
-  switch (args.command) {
-    case "vault": {
-      const { subcommand, args: subArgs } = args;
-
-      if (subcommand === "init") {
-        const passphrase = await promptNewPassphrase();
-        await createVault(vaultPath, passphrase);
-        process.stdout.write(`Vault created: ${vaultPath}\n`);
-        return;
-      }
-
-      if (subcommand === "update" && subArgs[0] === "pw") {
-        const currentPassphrase = await promptPassphrase();
-        const newPassphrase = await promptNewPassphrase();
-        await updateVaultPassphrase(vaultPath, currentPassphrase, newPassphrase);
-        process.stdout.write(`Passphrase updated: ${vaultPath}\n`);
-        return;
-      }
-
-      process.stderr.write(`Unknown vault command: ${subcommand}\n`);
-      process.stderr.write("Usage: otplib-cli vault init\n");
-      process.stderr.write("       otplib-cli vault update pw\n");
+vaultCmd
+  .command("update")
+  .description("Update vault settings")
+  .argument("<setting>", "setting to update (pw)")
+  .action(async (setting: string) => {
+    if (setting !== "pw") {
+      console.error(`Unknown setting: ${setting}`);
+      console.error("Usage: otplib-cli vault update pw");
       process.exitCode = 1;
-      break;
+      return;
+    }
+    const vaultPath = getVaultPath(program.opts());
+    const currentPassphrase = await promptPassphrase();
+    const newPassphrase = await promptNewPassphrase();
+    await updateVaultPassphrase(vaultPath, currentPassphrase, newPassphrase);
+    console.log(`Passphrase updated: ${vaultPath}`);
+  });
+
+// add command
+program
+  .command("add")
+  .description("Add a new OTP entry (reads JSON from stdin)")
+  .action(async () => {
+    const raw = await readStdin();
+    if (!raw) {
+      console.error("Error: Expected JSON input from stdin");
+      console.error('Usage: echo \'{"secret":"ABC","label":"GitHub"}\' | otplib-cli add');
+      process.exitCode = 1;
+      return;
+    }
+    const vaultPath = getVaultPath(program.opts());
+    const passphrase = await promptPassphrase();
+    const ctx: CommandContext = { vaultPath, passphrase };
+    const input = parseAddEntryJson(raw);
+    const id = await addEntry(ctx, input);
+    console.log(id);
+  });
+
+// list command
+program
+  .command("list")
+  .description("List entries (interactive filter in TTY)")
+  .action(async () => {
+    const vaultPath = getVaultPath(program.opts());
+    const passphrase = await promptPassphrase();
+    const ctx: CommandContext = { vaultPath, passphrase };
+    const entries = await listEntries(ctx);
+
+    if (entries.length === 0) {
+      console.log("No entries");
+      return;
     }
 
-    case "add": {
-      const raw = await readStdin();
-      if (!raw) {
-        process.stderr.write("Error: Expected JSON input from stdin\n");
-        process.stderr.write(
-          'Usage: echo \'{"secret":"ABC","label":"GitHub"}\' | otplib-cli add\n',
+    // Non-interactive mode if not TTY
+    if (!process.stdin.isTTY) {
+      for (const entry of entries) {
+        const issuer = entry.issuer ? ` (${entry.issuer})` : "";
+        console.log(`${entry.id}\t${entry.label}${issuer}`);
+      }
+      return;
+    }
+
+    // Interactive mode
+    const result = await selectFromList({
+      items: entries,
+      renderItem: (entry, selected) => {
+        const issuer = entry.issuer ? ` ${ansi.dim}(${entry.issuer})${ansi.reset}` : "";
+        const id = selected
+          ? `${ansi.fg.cyan}${entry.id}${ansi.reset}`
+          : `${ansi.dim}${entry.id}${ansi.reset}`;
+        return `${id}  ${entry.label}${issuer}`;
+      },
+      filterItem: (entry, query) => {
+        const q = query.toLowerCase();
+        return (
+          entry.label.toLowerCase().includes(q) ||
+          entry.id.toLowerCase().includes(q) ||
+          (entry.issuer?.toLowerCase().includes(q) ?? false)
         );
-        process.exitCode = 1;
-        return;
-      }
-      const passphrase = await promptPassphrase();
-      const ctx: CommandContext = { vaultPath, passphrase };
-      const input = parseAddEntryJson(raw);
-      const id = await addEntry(ctx, input);
-      process.stdout.write(`${id}\n`);
-      break;
+      },
+    });
+
+    if (result.action === "cancel") {
+      console.log("Cancelled");
+      return;
     }
 
-    case "list": {
-      const passphrase = await promptPassphrase();
-      const ctx: CommandContext = { vaultPath, passphrase };
-      const entries = await listEntries(ctx);
-      if (entries.length === 0) {
-        process.stdout.write("No entries\n");
-        break;
+    if (result.action === "copy-uid") {
+      if (copyToClipboard(result.item.id)) {
+        console.log(`Copied UID: ${result.item.id}`);
+      } else {
+        console.log(result.item.id);
+        console.error("Warning: Could not copy to clipboard");
       }
-
-      // Non-interactive mode if not TTY
-      if (!process.stdin.isTTY) {
-        for (const entry of entries) {
-          const issuer = entry.issuer ? ` (${entry.issuer})` : "";
-          process.stdout.write(`${entry.id}\t${entry.label}${issuer}\n`);
-        }
-        break;
-      }
-
-      // Interactive mode
-      const result = await selectFromList({
-        items: entries,
-        renderItem: (entry, selected) => {
-          const issuer = entry.issuer ? ` ${ansi.dim}(${entry.issuer})${ansi.reset}` : "";
-          const id = selected
-            ? `${ansi.fg.cyan}${entry.id}${ansi.reset}`
-            : `${ansi.dim}${entry.id}${ansi.reset}`;
-          return `${id}  ${entry.label}${issuer}`;
-        },
-        filterItem: (entry, query) => {
-          const q = query.toLowerCase();
-          return (
-            entry.label.toLowerCase().includes(q) ||
-            entry.id.toLowerCase().includes(q) ||
-            (entry.issuer?.toLowerCase().includes(q) ?? false)
-          );
-        },
-      });
-
-      if (result.action === "cancel") {
-        process.stdout.write("Cancelled\n");
-        break;
-      }
-
-      if (result.action === "copy-uid") {
-        if (copyToClipboard(result.item.id)) {
-          process.stdout.write(`Copied UID: ${result.item.id}\n`);
-        } else {
-          process.stdout.write(`${result.item.id}\n`);
-          process.stderr.write("Warning: Could not copy to clipboard\n");
-        }
-        break;
-      }
-
-      if (result.action === "copy-otp") {
-        const code = await getOtp(ctx, result.item.id);
-        if (copyToClipboard(code)) {
-          process.stdout.write(`Copied OTP for ${result.item.label}\n`);
-        } else {
-          process.stdout.write(`${code}\n`);
-          process.stderr.write("Warning: Could not copy to clipboard\n");
-        }
-        break;
-      }
-      break;
+      return;
     }
 
-    case "remove": {
-      const [id] = args.args;
-      if (!id) {
-        process.stderr.write("Usage: otplib-cli remove <id>\n");
-        process.exitCode = 1;
-        return;
+    if (result.action === "copy-otp") {
+      const code = await getOtp(ctx, result.item.id);
+      if (copyToClipboard(code)) {
+        console.log(`Copied OTP for ${result.item.label}`);
+      } else {
+        console.log(code);
+        console.error("Warning: Could not copy to clipboard");
       }
-      const passphrase = await promptPassphrase();
-      const ctx: CommandContext = { vaultPath, passphrase };
-      await removeEntry(ctx, id);
-      process.stdout.write("Removed\n");
-      break;
     }
+  });
 
-    case "get": {
-      const [id] = args.args;
-      if (!id) {
-        process.stderr.write("Usage: otplib-cli get <id>\n");
-        process.exitCode = 1;
-        return;
-      }
-      const passphrase = await promptPassphrase();
-      const ctx: CommandContext = { vaultPath, passphrase };
-      const code = await getOtp(ctx, id);
-      process.stdout.write(`${code}\n`);
-      break;
-    }
+// remove command
+program
+  .command("remove")
+  .description("Remove an entry")
+  .argument("<id>", "entry ID to remove")
+  .action(async (id: string) => {
+    const vaultPath = getVaultPath(program.opts());
+    const passphrase = await promptPassphrase();
+    const ctx: CommandContext = { vaultPath, passphrase };
+    await removeEntry(ctx, id);
+    console.log("Removed");
+  });
 
-    default:
-      process.stderr.write(`Unknown command: ${args.command}\n`);
-      process.exitCode = 1;
-  }
-}
+// get command
+program
+  .command("get")
+  .description("Generate OTP code")
+  .argument("<id>", "entry ID")
+  .action(async (id: string) => {
+    const vaultPath = getVaultPath(program.opts());
+    const passphrase = await promptPassphrase();
+    const ctx: CommandContext = { vaultPath, passphrase };
+    const code = await getOtp(ctx, id);
+    console.log(code);
+  });
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err.message}\n`);
+program.parseAsync(process.argv).catch((err) => {
+  console.error(`Error: ${err.message}`);
   process.exitCode = 1;
 });

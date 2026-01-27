@@ -107,6 +107,9 @@ importers:
 
   apps/otplib-cli:
     dependencies:
+      commander:
+        specifier: ^14.0.2
+        version: 14.0.2
       otplib:
         specifier: workspace:*
         version: link:../../packages/otplib
@@ -2362,7 +2365,7 @@ packages:
       '@vitest/spy': 4.0.18
       estree-walker: 3.0.3
       magic-string: 0.30.21
-      vite: 7.3.1(@types/node@25.0.10)(tsx@4.21.0)
+      vite: 7.3.1(@types/node@20.19.30)(tsx@4.21.0)
     dev: true
 
   /@vitest/pretty-format@4.0.18:
@@ -2901,6 +2904,11 @@ packages:
   /comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
     dev: true
+
+  /commander@14.0.2:
+    resolution: {integrity: sha512-TywoWNNRbhoD0BXs1P3ZEScW8W5iKrnbithIl0YH+uCmBd0QpPOA8yc82DS3BIE5Ma6FnBVUsJ7wVUDz4dvOWQ==}
+    engines: {node: '>=20'}
+    dev: false
 
   /commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
