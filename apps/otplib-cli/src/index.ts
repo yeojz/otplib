@@ -1,6 +1,7 @@
 import readline from "node:readline";
 
 import { Command } from "commander";
+import { generate } from "otplib";
 
 import { addEntry, getOtp, listEntries, removeEntry, type AddEntryInput } from "./cli/commands.js";
 import { ansi, copyToClipboard, selectFromList } from "./tui/index.js";
@@ -88,6 +89,126 @@ type AddEntryJsonInput = {
   period?: number;
   counter?: number;
 };
+
+type TokenJsonInput = {
+  secret: string;
+  type?: "totp" | "hotp";
+  digits?: number;
+  algorithm?: string;
+  period?: number;
+  counter?: number;
+};
+
+type TokenParams =
+  | { type: "totp"; secret: string; digits: OtpDigits; algorithm: OtpAlgorithm; period: number }
+  | { type: "hotp"; secret: string; digits: OtpDigits; algorithm: OtpAlgorithm; counter: number };
+
+function parseKeyUri(uri: string): TokenParams {
+  if (!uri.startsWith("otpauth://")) {
+    throw new Error("Invalid URI: must start with otpauth://");
+  }
+
+  const withoutScheme = uri.slice("otpauth://".length);
+  const slashIndex = withoutScheme.indexOf("/");
+  if (slashIndex === -1) {
+    throw new Error("Invalid URI format");
+  }
+
+  const type = withoutScheme.slice(0, slashIndex);
+  if (type !== "totp" && type !== "hotp") {
+    throw new Error(`Invalid type: ${type}, expected totp or hotp`);
+  }
+
+  const remaining = withoutScheme.slice(slashIndex + 1);
+  const queryIndex = remaining.indexOf("?");
+  const queryString = queryIndex === -1 ? "" : remaining.slice(queryIndex + 1);
+
+  const params: Record<string, string> = {};
+  if (queryString) {
+    for (const pair of queryString.split("&")) {
+      const eqIndex = pair.indexOf("=");
+      if (eqIndex !== -1) {
+        const key = decodeURIComponent(pair.slice(0, eqIndex));
+        const value = decodeURIComponent(pair.slice(eqIndex + 1));
+        params[key] = value;
+      }
+    }
+  }
+
+  if (!params.secret) {
+    throw new Error("Missing required parameter: secret");
+  }
+
+  const digits = params.digits ? (parseInt(params.digits, 10) as OtpDigits) : 6;
+  if (digits !== 6 && digits !== 7 && digits !== 8) {
+    throw new Error("Invalid digits, expected 6, 7, or 8");
+  }
+
+  let algorithm: OtpAlgorithm = "sha1";
+  if (params.algorithm) {
+    const alg = params.algorithm.toLowerCase();
+    if (alg === "sha1" || alg === "sha-1") algorithm = "sha1";
+    else if (alg === "sha256" || alg === "sha-256") algorithm = "sha256";
+    else if (alg === "sha512" || alg === "sha-512") algorithm = "sha512";
+    else throw new Error(`Invalid algorithm: ${params.algorithm}`);
+  }
+
+  if (type === "totp") {
+    const period = params.period ? parseInt(params.period, 10) : 30;
+    return { type: "totp", secret: params.secret, digits, algorithm, period };
+  } else {
+    const counter = params.counter ? parseInt(params.counter, 10) : 0;
+    return { type: "hotp", secret: params.secret, digits, algorithm, counter };
+  }
+}
+
+function parseTokenJson(raw: string): TokenParams {
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    throw new Error("Invalid JSON input");
+  }
+
+  if (typeof json !== "object" || json === null || Array.isArray(json)) {
+    throw new Error("Invalid JSON input: expected an object");
+  }
+
+  const input = json as TokenJsonInput;
+
+  if (typeof input.secret !== "string" || !input.secret) {
+    throw new Error("Missing required field: secret");
+  }
+
+  const type = input.type ?? "totp";
+  if (type !== "totp" && type !== "hotp") {
+    throw new Error('Invalid type, expected "totp" or "hotp"');
+  }
+
+  const digits = (input.digits ?? 6) as OtpDigits;
+  if (digits !== 6 && digits !== 7 && digits !== 8) {
+    throw new Error("Invalid digits, expected 6, 7, or 8");
+  }
+
+  const algorithm = (input.algorithm ?? "sha1") as OtpAlgorithm;
+  if (algorithm !== "sha1" && algorithm !== "sha256" && algorithm !== "sha512") {
+    throw new Error('Invalid algorithm, expected "sha1", "sha256", or "sha512"');
+  }
+
+  if (type === "totp") {
+    const period = input.period ?? 30;
+    if (typeof period !== "number" || period <= 0) {
+      throw new Error("Invalid period, expected a positive number");
+    }
+    return { type: "totp", secret: input.secret, digits, algorithm, period };
+  } else {
+    const counter = input.counter ?? 0;
+    if (typeof counter !== "number" || counter < 0) {
+      throw new Error("Invalid counter, expected a non-negative number");
+    }
+    return { type: "hotp", secret: input.secret, digits, algorithm, counter };
+  }
+}
 
 function parseAddEntryJson(raw: string): AddEntryInput {
   let json: unknown;
@@ -298,10 +419,10 @@ program
     console.log("Removed");
   });
 
-// get command
+// token command (generate OTP from vault entry)
 program
-  .command("get")
-  .description("Generate OTP code")
+  .command("token")
+  .description("Generate OTP code from vault entry")
   .argument("<id>", "entry ID")
   .action(async (id: string) => {
     const vaultPath = getVaultPath(program.opts());
@@ -309,6 +430,45 @@ program
     const ctx: CommandContext = { vaultPath, passphrase };
     const code = await getOtp(ctx, id);
     console.log(code);
+  });
+
+// token-file command (adhoc generation from JSON or keyuri)
+program
+  .command("token-file")
+  .description("Generate OTP from JSON or otpauth:// URI (reads from stdin)")
+  .action(async () => {
+    const raw = await readStdin();
+    if (!raw) {
+      console.error("Error: Expected JSON or otpauth:// URI from stdin");
+      console.error('Usage: echo \'{"secret":"ABC","type":"totp"}\' | otplib-cli token-file');
+      console.error("       echo 'otpauth://totp/Label?secret=ABC' | otplib-cli token-file");
+      process.exitCode = 1;
+      return;
+    }
+
+    const trimmed = raw.trim();
+
+    // Parse input - either otpauth:// URI or JSON
+    const input = trimmed.startsWith("otpauth://") ? parseKeyUri(trimmed) : parseTokenJson(trimmed);
+    if (input.type === "totp") {
+      const code = await generate({
+        strategy: "totp",
+        secret: input.secret,
+        digits: input.digits,
+        algorithm: input.algorithm,
+        period: input.period,
+      });
+      console.log(code);
+    } else {
+      const code = await generate({
+        strategy: "hotp",
+        secret: input.secret,
+        digits: input.digits,
+        algorithm: input.algorithm,
+        counter: input.counter,
+      });
+      console.log(code);
+    }
   });
 
 program.parseAsync(process.argv).catch((err) => {

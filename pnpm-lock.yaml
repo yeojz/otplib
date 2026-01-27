@@ -2365,7 +2365,7 @@ packages:
       '@vitest/spy': 4.0.18
       estree-walker: 3.0.3
       magic-string: 0.30.21
-      vite: 7.3.1(@types/node@20.19.30)(tsx@4.21.0)
+      vite: 7.3.1(@types/node@25.0.10)(tsx@4.21.0)
     dev: true
 
   /@vitest/pretty-format@4.0.18:
