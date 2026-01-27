@@ -2,16 +2,25 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { createVaultStore } from "../src/vault/store.js";
+import {
+  createVault,
+  getVaultEntry,
+  listVaultIndex,
+  loadVault,
+  saveVault,
+  updateVaultPassphrase,
+  vaultExists,
+} from "../src/vault/store.js";
 import type { VaultEntry } from "../src/vault/format.js";
 
 describe("VaultStore", () => {
   let tmpDir: string;
+  let vaultPath: string;
   const passphrase = "test-passphrase";
-  const vaultName = "test-vault";
 
   beforeEach(async () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "otplib-cli-test-"));
+    vaultPath = path.join(tmpDir, "test.vault");
   });
 
   afterEach(async () => {
@@ -40,50 +49,40 @@ describe("VaultStore", () => {
     counter: 0,
   };
 
-  test("save/load preserves entries", async () => {
-    const store = createVaultStore(tmpDir);
-
-    await store.save(vaultName, passphrase, { entries: [entry1, entry2] });
-    const loaded = await store.load(vaultName, passphrase);
+  test("saveVault/loadVault preserves entries", async () => {
+    await saveVault(vaultPath, passphrase, { entries: [entry1, entry2] });
+    const loaded = await loadVault(vaultPath, passphrase);
 
     expect(loaded.entries.map((e) => e.id)).toEqual([entry1.id, entry2.id]);
     expect(loaded.entries[0]).toEqual(entry1);
     expect(loaded.entries[1]).toEqual(entry2);
   });
 
-  test("load throws on wrong passphrase", async () => {
-    const store = createVaultStore(tmpDir);
+  test("loadVault throws on wrong passphrase", async () => {
+    await saveVault(vaultPath, passphrase, { entries: [entry1] });
 
-    await store.save(vaultName, passphrase, { entries: [entry1] });
-
-    await expect(store.load(vaultName, "wrong-passphrase")).rejects.toThrow();
+    await expect(loadVault(vaultPath, "wrong-passphrase")).rejects.toThrow();
   });
 
-  test("load throws on non-existent vault", async () => {
-    const store = createVaultStore(tmpDir);
+  test("loadVault throws on non-existent vault", async () => {
+    const nonExistentPath = path.join(tmpDir, "non-existent.vault");
 
-    await expect(store.load("non-existent", passphrase)).rejects.toThrow();
+    await expect(loadVault(nonExistentPath, passphrase)).rejects.toThrow();
   });
 
-  test("exists returns false for non-existent vault", async () => {
-    const store = createVaultStore(tmpDir);
-
-    expect(await store.exists(vaultName)).toBe(false);
+  test("vaultExists returns false for non-existent vault", async () => {
+    expect(await vaultExists(vaultPath)).toBe(false);
   });
 
-  test("exists returns true after save", async () => {
-    const store = createVaultStore(tmpDir);
+  test("vaultExists returns true after save", async () => {
+    await saveVault(vaultPath, passphrase, { entries: [] });
 
-    await store.save(vaultName, passphrase, { entries: [] });
-
-    expect(await store.exists(vaultName)).toBe(true);
+    expect(await vaultExists(vaultPath)).toBe(true);
   });
 
-  test("listIndex returns entry metadata without secrets", async () => {
-    const store = createVaultStore(tmpDir);
-
-    await store.save(vaultName, passphrase, { entries: [entry1, entry2] });
-    const index = await store.listIndex(vaultName, passphrase);
+  test("listVaultIndex returns entry metadata without secrets", async () => {
+    await saveVault(vaultPath, passphrase, { entries: [entry1, entry2] });
+    const index = await listVaultIndex(vaultPath, passphrase);
 
     expect(index).toHaveLength(2);
     expect(index[0]).toEqual({
@@ -98,20 +97,62 @@ describe("VaultStore", () => {
     expect(index[0]).not.toHaveProperty("secret");
   });
 
-  test("getEntry returns single decrypted entry", async () => {
-    const store = createVaultStore(tmpDir);
-
-    await store.save(vaultName, passphrase, { entries: [entry1, entry2] });
-    const entry = await store.getEntry(vaultName, passphrase, entry1.id);
+  test("getVaultEntry returns single decrypted entry", async () => {
+    await saveVault(vaultPath, passphrase, { entries: [entry1, entry2] });
+    const entry = await getVaultEntry(vaultPath, passphrase, entry1.id);
 
     expect(entry).toEqual(entry1);
   });
 
-  test("getEntry throws for non-existent entry", async () => {
-    const store = createVaultStore(tmpDir);
+  test("getVaultEntry throws for non-existent entry", async () => {
+    await saveVault(vaultPath, passphrase, { entries: [entry1] });
 
-    await store.save(vaultName, passphrase, { entries: [entry1] });
+    await expect(getVaultEntry(vaultPath, passphrase, "non-existent")).rejects.toThrow();
+  });
 
-    await expect(store.getEntry(vaultName, passphrase, "non-existent")).rejects.toThrow();
+  test("createVault creates vault with no entries", async () => {
+    await createVault(vaultPath, passphrase);
+
+    expect(await vaultExists(vaultPath)).toBe(true);
+    const loaded = await loadVault(vaultPath, passphrase);
+    expect(loaded.entries).toEqual([]);
+  });
+
+  test("createVault throws if vault already exists", async () => {
+    await createVault(vaultPath, passphrase);
+
+    await expect(createVault(vaultPath, passphrase)).rejects.toThrow("Vault already exists");
+  });
+
+  test("createVault creates parent directories", async () => {
+    const nestedPath = path.join(tmpDir, "nested", "dir", "test.vault");
+
+    await createVault(nestedPath, passphrase);
+
+    expect(await vaultExists(nestedPath)).toBe(true);
+  });
+
+  test("updateVaultPassphrase changes passphrase", async () => {
+    const newPassphrase = "new-test-passphrase";
+    await saveVault(vaultPath, passphrase, { entries: [entry1, entry2] });
+
+    await updateVaultPassphrase(vaultPath, passphrase, newPassphrase);
+
+    // Old passphrase should fail
+    await expect(loadVault(vaultPath, passphrase)).rejects.toThrow();
+
+    // New passphrase should work and data should be intact
+    const loaded = await loadVault(vaultPath, newPassphrase);
+    expect(loaded.entries).toHaveLength(2);
+    expect(loaded.entries[0]).toEqual(entry1);
+    expect(loaded.entries[1]).toEqual(entry2);
+  });
+
+  test("updateVaultPassphrase throws on wrong current passphrase", async () => {
+    await saveVault(vaultPath, passphrase, { entries: [entry1] });
+
+    await expect(
+      updateVaultPassphrase(vaultPath, "wrong-passphrase", "new-passphrase"),
+    ).rejects.toThrow();
   });
 });

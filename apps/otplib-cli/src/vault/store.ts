@@ -32,123 +32,149 @@ function fromEncryptedBlock(block: EncryptedBlock): {
   };
 }
 
-export type VaultStore = {
-  save(vaultName: string, passphrase: string, data: VaultData): Promise<void>;
-  load(vaultName: string, passphrase: string): Promise<VaultData>;
-  exists(vaultName: string): Promise<boolean>;
-  listIndex(vaultName: string, passphrase: string): Promise<IndexEntry[]>;
-  getEntry(vaultName: string, passphrase: string, entryId: string): Promise<VaultEntry>;
-};
+async function ensureParentDir(filePath: string): Promise<void> {
+  const parentDir = path.dirname(filePath);
+  await fs.mkdir(parentDir, { recursive: true });
+}
 
-export function createVaultStore(configRoot: string): VaultStore {
-  const vaultsDir = path.join(configRoot, "vaults");
+async function readVaultFile(vaultPath: string): Promise<VaultFile> {
+  const content = await fs.readFile(vaultPath, "utf8");
+  return JSON.parse(content) as VaultFile;
+}
 
-  function vaultPath(name: string): string {
-    return path.join(vaultsDir, `${name}.vault`);
+async function getDek(vaultFile: VaultFile, passphrase: string): Promise<Buffer> {
+  const salt = Buffer.from(vaultFile.kdf.salt, "base64");
+  const { kek } = await deriveKek(passphrase, {
+    salt,
+    N: vaultFile.kdf.N,
+    r: vaultFile.kdf.r,
+    p: vaultFile.kdf.p,
+  });
+
+  return unwrapDek(fromEncryptedBlock(vaultFile.dekWrap), kek);
+}
+
+async function writeVaultFile(vaultPath: string, vaultFile: VaultFile): Promise<void> {
+  await ensureParentDir(vaultPath);
+
+  const tmpPath = `${vaultPath}.tmp.${crypto.randomBytes(4).toString("hex")}`;
+  await fs.writeFile(tmpPath, JSON.stringify(vaultFile, null, 2), "utf8");
+  await fs.rename(tmpPath, vaultPath);
+}
+
+export async function vaultExists(vaultPath: string): Promise<boolean> {
+  try {
+    await fs.access(vaultPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function createVault(vaultPath: string, passphrase: string): Promise<void> {
+  if (await vaultExists(vaultPath)) {
+    throw new Error("Vault already exists");
   }
 
-  async function ensureVaultsDir(): Promise<void> {
-    await fs.mkdir(vaultsDir, { recursive: true });
+  await saveVault(vaultPath, passphrase, { entries: [] });
+}
+
+export async function saveVault(
+  vaultPath: string,
+  passphrase: string,
+  data: VaultData,
+): Promise<void> {
+  const { kek, params } = await deriveKek(passphrase);
+  const dek = crypto.randomBytes(32);
+
+  const dekWrap = wrapDek(dek, kek);
+
+  const indexData: IndexEntry[] = data.entries.map(entryToIndex);
+  const index = encryptPayload(indexData, dek);
+
+  const entries: Record<string, EncryptedBlock> = {};
+  for (const entry of data.entries) {
+    entries[entry.id] = toEncryptedBlock(encryptPayload(entry, dek));
   }
 
-  async function save(vaultName: string, passphrase: string, data: VaultData): Promise<void> {
-    await ensureVaultsDir();
+  const vaultFile: VaultFile = {
+    version: 1,
+    kdf: {
+      alg: "scrypt",
+      salt: params.salt.toString("base64"),
+      N: params.N,
+      r: params.r,
+      p: params.p,
+    },
+    dekWrap: toEncryptedBlock(dekWrap),
+    index: toEncryptedBlock(index),
+    entries,
+  };
 
-    const { kek, params } = await deriveKek(passphrase);
-    const dek = crypto.randomBytes(32);
+  await writeVaultFile(vaultPath, vaultFile);
+}
 
-    const dekWrap = wrapDek(dek, kek);
+export async function loadVault(vaultPath: string, passphrase: string): Promise<VaultData> {
+  const vaultFile = await readVaultFile(vaultPath);
+  const dek = await getDek(vaultFile, passphrase);
 
-    const indexData: IndexEntry[] = data.entries.map(entryToIndex);
-    const index = encryptPayload(indexData, dek);
-
-    const entries: Record<string, EncryptedBlock> = {};
-    for (const entry of data.entries) {
-      entries[entry.id] = toEncryptedBlock(encryptPayload(entry, dek));
-    }
-
-    const vaultFile: VaultFile = {
-      version: 1,
-      kdf: {
-        alg: "scrypt",
-        salt: params.salt.toString("base64"),
-        N: params.N,
-        r: params.r,
-        p: params.p,
-      },
-      dekWrap: toEncryptedBlock(dekWrap),
-      index: toEncryptedBlock(index),
-      entries,
-    };
-
-    const filePath = vaultPath(vaultName);
-    const tmpPath = `${filePath}.tmp.${crypto.randomBytes(4).toString("hex")}`;
-
-    await fs.writeFile(tmpPath, JSON.stringify(vaultFile, null, 2), "utf8");
-    await fs.rename(tmpPath, filePath);
+  const entries: VaultEntry[] = [];
+  for (const entryId of Object.keys(vaultFile.entries)) {
+    const entry = decryptPayload<VaultEntry>(fromEncryptedBlock(vaultFile.entries[entryId]), dek);
+    entries.push(entry);
   }
 
-  async function readVaultFile(vaultName: string): Promise<VaultFile> {
-    const filePath = vaultPath(vaultName);
-    const content = await fs.readFile(filePath, "utf8");
-    return JSON.parse(content) as VaultFile;
+  return { entries };
+}
+
+export async function listVaultIndex(vaultPath: string, passphrase: string): Promise<IndexEntry[]> {
+  const vaultFile = await readVaultFile(vaultPath);
+  const dek = await getDek(vaultFile, passphrase);
+
+  return decryptPayload<IndexEntry[]>(fromEncryptedBlock(vaultFile.index), dek);
+}
+
+export async function getVaultEntry(
+  vaultPath: string,
+  passphrase: string,
+  entryId: string,
+): Promise<VaultEntry> {
+  const vaultFile = await readVaultFile(vaultPath);
+
+  if (!vaultFile.entries[entryId]) {
+    throw new Error(`Entry not found: ${entryId}`);
   }
 
-  async function getDek(vaultFile: VaultFile, passphrase: string): Promise<Buffer> {
-    const salt = Buffer.from(vaultFile.kdf.salt, "base64");
-    const { kek } = await deriveKek(passphrase, {
-      salt,
-      N: vaultFile.kdf.N,
-      r: vaultFile.kdf.r,
-      p: vaultFile.kdf.p,
-    });
+  const dek = await getDek(vaultFile, passphrase);
+  return decryptPayload<VaultEntry>(fromEncryptedBlock(vaultFile.entries[entryId]), dek);
+}
 
-    return unwrapDek(fromEncryptedBlock(vaultFile.dekWrap), kek);
-  }
+export async function updateVaultPassphrase(
+  vaultPath: string,
+  currentPassphrase: string,
+  newPassphrase: string,
+): Promise<void> {
+  const vaultFile = await readVaultFile(vaultPath);
 
-  async function load(vaultName: string, passphrase: string): Promise<VaultData> {
-    const vaultFile = await readVaultFile(vaultName);
-    const dek = await getDek(vaultFile, passphrase);
+  // Unwrap DEK with current passphrase
+  const dek = await getDek(vaultFile, currentPassphrase);
 
-    const entries: VaultEntry[] = [];
-    for (const entryId of Object.keys(vaultFile.entries)) {
-      const entry = decryptPayload<VaultEntry>(fromEncryptedBlock(vaultFile.entries[entryId]), dek);
-      entries.push(entry);
-    }
+  // Re-wrap DEK with new passphrase (derive new KEK with new salt)
+  const { kek: newKek, params: newParams } = await deriveKek(newPassphrase);
+  const newDekWrap = wrapDek(dek, newKek);
 
-    return { entries };
-  }
+  // Update vault file with new KDF params and wrapped DEK
+  const updatedVaultFile: VaultFile = {
+    ...vaultFile,
+    kdf: {
+      alg: "scrypt",
+      salt: newParams.salt.toString("base64"),
+      N: newParams.N,
+      r: newParams.r,
+      p: newParams.p,
+    },
+    dekWrap: toEncryptedBlock(newDekWrap),
+  };
 
-  async function exists(vaultName: string): Promise<boolean> {
-    try {
-      await fs.access(vaultPath(vaultName));
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async function listIndex(vaultName: string, passphrase: string): Promise<IndexEntry[]> {
-    const vaultFile = await readVaultFile(vaultName);
-    const dek = await getDek(vaultFile, passphrase);
-
-    return decryptPayload<IndexEntry[]>(fromEncryptedBlock(vaultFile.index), dek);
-  }
-
-  async function getEntry(
-    vaultName: string,
-    passphrase: string,
-    entryId: string,
-  ): Promise<VaultEntry> {
-    const vaultFile = await readVaultFile(vaultName);
-
-    if (!vaultFile.entries[entryId]) {
-      throw new Error(`Entry not found: ${entryId}`);
-    }
-
-    const dek = await getDek(vaultFile, passphrase);
-    return decryptPayload<VaultEntry>(fromEncryptedBlock(vaultFile.entries[entryId]), dek);
-  }
-
-  return { save, load, exists, listIndex, getEntry };
+  await writeVaultFile(vaultPath, updatedVaultFile);
 }
