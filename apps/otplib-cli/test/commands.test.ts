@@ -7,7 +7,7 @@ import {
   listEntries,
   removeEntry,
   getOtp,
-  createCommandContext,
+  type CommandContext,
 } from "../src/cli/commands.js";
 import type { TotpEntry, HotpEntry } from "../src/vault/format.js";
 
@@ -25,8 +25,8 @@ describe("CLI Commands", () => {
     vi.useRealTimers();
   });
 
-  function createCtx() {
-    return createCommandContext({ configRoot: tmpDir, vaultName, passphrase });
+  function createCtx(): CommandContext {
+    return { vaultPath: path.join(tmpDir, `${vaultName}.vault`), passphrase };
   }
 
   describe("addEntry", () => {
