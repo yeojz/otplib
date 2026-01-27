@@ -1,75 +1,13 @@
-import readline from "node:readline";
+import fs from "node:fs";
 
 import { Command } from "commander";
-import { generate } from "otplib";
 
-import { addEntry, getOtp, listEntries, removeEntry, type AddEntryInput } from "./cli/commands.js";
+import { generateOtp, verifyOtp } from "./otp/generate.js";
+import { findEntry, parseAddInput, parseDotenvxInput, updateHotpCounter } from "./parse.js";
 import { ansi, copyToClipboard, selectFromList } from "./tui/index.js";
-import { resolveVaultPath } from "./vault/resolve.js";
-import { createVault, updateVaultPassphrase } from "./vault/store.js";
+import { formatOutput, generateUid, getLabel } from "./types.js";
 
-import type { CommandContext } from "./cli/commands.js";
-import type { OtpAlgorithm, OtpDigits } from "./vault/format.js";
-
-function getVaultPath(options: { vault?: string }): string {
-  return resolveVaultPath({
-    vaultFlag: options.vault,
-    envVault: process.env.OTPLIB_VAULT,
-  });
-}
-
-async function promptPassphrase(): Promise<string> {
-  const envPass = process.env.OTPLIB_PASSPHRASE;
-  if (envPass) {
-    return envPass;
-  }
-
-  if (!process.stdin.isTTY) {
-    throw new Error(
-      "Vault is locked.\n\n" +
-        "Set OTPLIB_PASSPHRASE environment variable or use interactive terminal.\n" +
-        "Tip: Use 'dotenvx run -- otplib-cli <command>' to load from .env file",
-    );
-  }
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question("Passphrase: ", (answer) => {
-      rl.close();
-      resolve(answer);
-    });
-  });
-}
-
-async function promptNewPassphrase(): Promise<string> {
-  if (!process.stdin.isTTY) {
-    throw new Error("New passphrase prompt requires TTY. Cannot set passphrase in non-TTY mode.");
-  }
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const askQuestion = (prompt: string): Promise<string> =>
-    new Promise((resolve) => {
-      rl.question(prompt, (answer) => resolve(answer));
-    });
-
-  const passphrase = await askQuestion("New passphrase: ");
-  const confirm = await askQuestion("Confirm passphrase: ");
-  rl.close();
-
-  if (passphrase !== confirm) {
-    throw new Error("Passphrases do not match");
-  }
-
-  return passphrase;
-}
+import type { HotpData, OtpPayload } from "./types.js";
 
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
@@ -79,394 +17,297 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString("utf-8").trim();
 }
 
-type AddEntryJsonInput = {
-  secret: string;
-  label: string;
-  type?: "totp" | "hotp";
-  issuer?: string;
-  digits?: number;
-  algorithm?: string;
-  period?: number;
-  counter?: number;
-};
-
-type TokenJsonInput = {
-  secret: string;
-  type?: "totp" | "hotp";
-  digits?: number;
-  algorithm?: string;
-  period?: number;
-  counter?: number;
-};
-
-type TokenParams =
-  | { type: "totp"; secret: string; digits: OtpDigits; algorithm: OtpAlgorithm; period: number }
-  | { type: "hotp"; secret: string; digits: OtpDigits; algorithm: OtpAlgorithm; counter: number };
-
-function parseKeyUri(uri: string): TokenParams {
-  if (!uri.startsWith("otpauth://")) {
-    throw new Error("Invalid URI: must start with otpauth://");
-  }
-
-  const withoutScheme = uri.slice("otpauth://".length);
-  const slashIndex = withoutScheme.indexOf("/");
-  if (slashIndex === -1) {
-    throw new Error("Invalid URI format");
-  }
-
-  const type = withoutScheme.slice(0, slashIndex);
-  if (type !== "totp" && type !== "hotp") {
-    throw new Error(`Invalid type: ${type}, expected totp or hotp`);
-  }
-
-  const remaining = withoutScheme.slice(slashIndex + 1);
-  const queryIndex = remaining.indexOf("?");
-  const queryString = queryIndex === -1 ? "" : remaining.slice(queryIndex + 1);
-
-  const params: Record<string, string> = {};
-  if (queryString) {
-    for (const pair of queryString.split("&")) {
-      const eqIndex = pair.indexOf("=");
-      if (eqIndex !== -1) {
-        const key = decodeURIComponent(pair.slice(0, eqIndex));
-        const value = decodeURIComponent(pair.slice(eqIndex + 1));
-        params[key] = value;
-      }
-    }
-  }
-
-  if (!params.secret) {
-    throw new Error("Missing required parameter: secret");
-  }
-
-  const digits = params.digits ? (parseInt(params.digits, 10) as OtpDigits) : 6;
-  if (digits !== 6 && digits !== 7 && digits !== 8) {
-    throw new Error("Invalid digits, expected 6, 7, or 8");
-  }
-
-  let algorithm: OtpAlgorithm = "sha1";
-  if (params.algorithm) {
-    const alg = params.algorithm.toLowerCase();
-    if (alg === "sha1" || alg === "sha-1") algorithm = "sha1";
-    else if (alg === "sha256" || alg === "sha-256") algorithm = "sha256";
-    else if (alg === "sha512" || alg === "sha-512") algorithm = "sha512";
-    else throw new Error(`Invalid algorithm: ${params.algorithm}`);
-  }
-
-  if (type === "totp") {
-    const period = params.period ? parseInt(params.period, 10) : 30;
-    return { type: "totp", secret: params.secret, digits, algorithm, period };
-  } else {
-    const counter = params.counter ? parseInt(params.counter, 10) : 0;
-    return { type: "hotp", secret: params.secret, digits, algorithm, counter };
-  }
-}
-
-function parseTokenJson(raw: string): TokenParams {
-  let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch {
-    throw new Error("Invalid JSON input");
-  }
-
-  if (typeof json !== "object" || json === null || Array.isArray(json)) {
-    throw new Error("Invalid JSON input: expected an object");
-  }
-
-  const input = json as TokenJsonInput;
-
-  if (typeof input.secret !== "string" || !input.secret) {
-    throw new Error("Missing required field: secret");
-  }
-
-  const type = input.type ?? "totp";
-  if (type !== "totp" && type !== "hotp") {
-    throw new Error('Invalid type, expected "totp" or "hotp"');
-  }
-
-  const digits = (input.digits ?? 6) as OtpDigits;
-  if (digits !== 6 && digits !== 7 && digits !== 8) {
-    throw new Error("Invalid digits, expected 6, 7, or 8");
-  }
-
-  const algorithm = (input.algorithm ?? "sha1") as OtpAlgorithm;
-  if (algorithm !== "sha1" && algorithm !== "sha256" && algorithm !== "sha512") {
-    throw new Error('Invalid algorithm, expected "sha1", "sha256", or "sha512"');
-  }
-
-  if (type === "totp") {
-    const period = input.period ?? 30;
-    if (typeof period !== "number" || period <= 0) {
-      throw new Error("Invalid period, expected a positive number");
-    }
-    return { type: "totp", secret: input.secret, digits, algorithm, period };
-  } else {
-    const counter = input.counter ?? 0;
-    if (typeof counter !== "number" || counter < 0) {
-      throw new Error("Invalid counter, expected a non-negative number");
-    }
-    return { type: "hotp", secret: input.secret, digits, algorithm, counter };
-  }
-}
-
-function parseAddEntryJson(raw: string): AddEntryInput {
-  let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch {
-    throw new Error("Invalid JSON input");
-  }
-
-  if (typeof json !== "object" || json === null || Array.isArray(json)) {
-    throw new Error("Invalid JSON input: expected an object");
-  }
-
-  const input = json as AddEntryJsonInput;
-
-  if (typeof input.secret !== "string" || !input.secret) {
-    throw new Error("Missing required field: secret");
-  }
-  if (typeof input.label !== "string" || !input.label) {
-    throw new Error("Missing required field: label");
-  }
-
-  const type = input.type ?? "totp";
-  if (type !== "totp" && type !== "hotp") {
-    throw new Error('Invalid type, expected "totp" or "hotp"');
-  }
-
-  const digits = (input.digits ?? 6) as OtpDigits;
-  if (digits !== 6 && digits !== 7 && digits !== 8) {
-    throw new Error("Invalid digits, expected 6, 7, or 8");
-  }
-
-  const algorithm = (input.algorithm ?? "sha1") as OtpAlgorithm;
-  if (algorithm !== "sha1" && algorithm !== "sha256" && algorithm !== "sha512") {
-    throw new Error('Invalid algorithm, expected "sha1", "sha256", or "sha512"');
-  }
-
-  if (type === "totp") {
-    const period = input.period ?? 30;
-    if (typeof period !== "number" || period <= 0) {
-      throw new Error("Invalid period, expected a positive number");
-    }
-    return {
-      label: input.label,
-      issuer: input.issuer,
-      type: "totp",
-      secret: input.secret,
-      digits,
-      algorithm,
-      period,
-    };
-  } else {
-    const counter = input.counter ?? 0;
-    if (typeof counter !== "number" || counter < 0) {
-      throw new Error("Invalid counter, expected a non-negative number");
-    }
-    return {
-      label: input.label,
-      issuer: input.issuer,
-      type: "hotp",
-      secret: input.secret,
-      digits,
-      algorithm,
-      counter,
-    };
-  }
-}
-
 const program = new Command();
 
-program
-  .name("otplib-cli")
-  .description("Manage encrypted OTP vaults")
-  .version("0.1.0")
-  .option("-v, --vault <path>", "vault file path", "./otplib.vault");
-
-// vault command group
-const vaultCmd = program.command("vault").description("Vault management commands");
-
-vaultCmd
-  .command("init")
-  .description("Create a new vault")
-  .action(async () => {
-    const vaultPath = getVaultPath(program.opts());
-    const passphrase = await promptNewPassphrase();
-    await createVault(vaultPath, passphrase);
-    console.log(`Vault created: ${vaultPath}`);
-  });
-
-vaultCmd
-  .command("update")
-  .description("Update vault settings")
-  .argument("<setting>", "setting to update (pw)")
-  .action(async (setting: string) => {
-    if (setting !== "pw") {
-      console.error(`Unknown setting: ${setting}`);
-      console.error("Usage: otplib-cli vault update pw");
-      process.exitCode = 1;
-      return;
-    }
-    const vaultPath = getVaultPath(program.opts());
-    const currentPassphrase = await promptPassphrase();
-    const newPassphrase = await promptNewPassphrase();
-    await updateVaultPassphrase(vaultPath, currentPassphrase, newPassphrase);
-    console.log(`Passphrase updated: ${vaultPath}`);
-  });
+program.name("otplib-cli").description("Stateless OTP CLI for use with dotenvx").version("0.2.0");
 
 // add command
 program
   .command("add")
-  .description("Add a new OTP entry (reads JSON from stdin)")
-  .action(async () => {
+  .description("Add a new OTP entry (reads otpauth URI or JSON from stdin)")
+  .option("--save-uid <file>", "Append generated UID to file")
+  .action(async (options: { saveUid?: string }) => {
     const raw = await readStdin();
     if (!raw) {
-      console.error("Error: Expected JSON input from stdin");
-      console.error('Usage: echo \'{"secret":"ABC","label":"GitHub"}\' | otplib-cli add');
+      console.error("Error: Expected otpauth URI or JSON from stdin");
+      console.error("Usage: echo 'otpauth://totp/GitHub:user?secret=ABC' | otplib-cli add");
+      console.error(
+        '       echo \'{"secret":"ABC","issuer":"GitHub","account":"user"}\' | otplib-cli add',
+      );
       process.exitCode = 1;
       return;
     }
-    const vaultPath = getVaultPath(program.opts());
-    const passphrase = await promptPassphrase();
-    const ctx: CommandContext = { vaultPath, passphrase };
-    const input = parseAddEntryJson(raw);
-    const id = await addEntry(ctx, input);
-    console.log(id);
+
+    try {
+      const data = parseAddInput(raw);
+      const uid = generateUid();
+      const payload: OtpPayload = { data };
+      const output = formatOutput(uid, payload);
+
+      // Output the entry first (ensures it's not lost even if save-uid fails)
+      process.stdout.write(output);
+
+      if (options.saveUid) {
+        try {
+          const fd = fs.openSync(options.saveUid, "a", 0o600);
+          fs.writeSync(fd, uid + "\n");
+          fs.closeSync(fd);
+        } catch (err) {
+          console.error(
+            `\nWarning: Could not save UID to ${options.saveUid}: ${(err as Error).message}`,
+          );
+          process.exitCode = 1;
+        }
+      }
+    } catch (err) {
+      console.error(`Error: ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
   });
 
 // list command
 program
   .command("list")
-  .description("List entries (interactive filter in TTY)")
-  .action(async () => {
-    const vaultPath = getVaultPath(program.opts());
-    const passphrase = await promptPassphrase();
-    const ctx: CommandContext = { vaultPath, passphrase };
-    const entries = await listEntries(ctx);
-
-    if (entries.length === 0) {
-      console.log("No entries");
-      return;
-    }
-
-    // Non-interactive mode if not TTY
-    if (!process.stdin.isTTY) {
-      for (const entry of entries) {
-        const issuer = entry.issuer ? ` (${entry.issuer})` : "";
-        console.log(`${entry.id}\t${entry.label}${issuer}`);
-      }
-      return;
-    }
-
-    // Interactive mode
-    const result = await selectFromList({
-      items: entries,
-      renderItem: (entry, selected) => {
-        const issuer = entry.issuer ? ` ${ansi.dim}(${entry.issuer})${ansi.reset}` : "";
-        const id = selected
-          ? `${ansi.fg.cyan}${entry.id}${ansi.reset}`
-          : `${ansi.dim}${entry.id}${ansi.reset}`;
-        return `${id}  ${entry.label}${issuer}`;
-      },
-      filterItem: (entry, query) => {
-        const q = query.toLowerCase();
-        return (
-          entry.label.toLowerCase().includes(q) ||
-          entry.id.toLowerCase().includes(q) ||
-          (entry.issuer?.toLowerCase().includes(q) ?? false)
-        );
-      },
-    });
-
-    if (result.action === "cancel") {
-      console.log("Cancelled");
-      return;
-    }
-
-    if (result.action === "copy-uid") {
-      if (copyToClipboard(result.item.id)) {
-        console.log(`Copied UID: ${result.item.id}`);
-      } else {
-        console.log(result.item.id);
-        console.error("Warning: Could not copy to clipboard");
-      }
-      return;
-    }
-
-    if (result.action === "copy-otp") {
-      const code = await getOtp(ctx, result.item.id);
-      if (copyToClipboard(code)) {
-        console.log(`Copied OTP for ${result.item.label}`);
-      } else {
-        console.log(code);
-        console.error("Warning: Could not copy to clipboard");
-      }
-    }
-  });
-
-// remove command
-program
-  .command("remove")
-  .description("Remove an entry")
-  .argument("<id>", "entry ID to remove")
-  .action(async (id: string) => {
-    const vaultPath = getVaultPath(program.opts());
-    const passphrase = await promptPassphrase();
-    const ctx: CommandContext = { vaultPath, passphrase };
-    await removeEntry(ctx, id);
-    console.log("Removed");
-  });
-
-// token command (generate OTP from vault entry)
-program
-  .command("token")
-  .description("Generate OTP code from vault entry")
-  .argument("<id>", "entry ID")
-  .action(async (id: string) => {
-    const vaultPath = getVaultPath(program.opts());
-    const passphrase = await promptPassphrase();
-    const ctx: CommandContext = { vaultPath, passphrase };
-    const code = await getOtp(ctx, id);
-    process.stdout.write(code);
-  });
-
-// token-file command (adhoc generation from JSON or keyuri)
-program
-  .command("token-file")
-  .description("Generate OTP from JSON or otpauth:// URI (reads from stdin)")
+  .description("Interactive list/search of OTP entries (reads JSON from stdin)")
   .action(async () => {
     const raw = await readStdin();
     if (!raw) {
-      console.error("Error: Expected JSON or otpauth:// URI from stdin");
-      console.error('Usage: echo \'{"secret":"ABC","type":"totp"}\' | otplib-cli token-file');
-      console.error("       echo 'otpauth://totp/Label?secret=ABC' | otplib-cli token-file");
+      console.error("Error: Expected JSON from stdin");
+      console.error("Usage: dotenvx get --all -f .secrets.otp | otplib-cli list");
       process.exitCode = 1;
       return;
     }
 
-    const trimmed = raw.trim();
+    try {
+      const entries = parseDotenvxInput(raw);
 
-    // Parse input - either otpauth:// URI or JSON
-    const input = trimmed.startsWith("otpauth://") ? parseKeyUri(trimmed) : parseTokenJson(trimmed);
-    const code =
-      input.type === "totp"
-        ? await generate({
-            strategy: "totp",
-            secret: input.secret,
-            digits: input.digits,
-            algorithm: input.algorithm,
-            period: input.period,
-          })
-        : await generate({
-            strategy: "hotp",
-            secret: input.secret,
-            digits: input.digits,
-            algorithm: input.algorithm,
-            counter: input.counter,
-          });
-    process.stdout.write(code);
+      if (entries.length === 0) {
+        console.log("No entries");
+        return;
+      }
+
+      // Non-interactive mode if not TTY
+      if (!process.stdin.isTTY) {
+        for (const entry of entries) {
+          const label = getLabel(entry.payload.data);
+          console.log(`${entry.id}\t${entry.payload.data.type}\t${label}`);
+        }
+        return;
+      }
+
+      // Interactive mode
+      const result = await selectFromList({
+        items: entries,
+        renderItem: (entry, selected) => {
+          const label = getLabel(entry.payload.data);
+          const type = entry.payload.data.type;
+          const id = selected
+            ? `${ansi.fg.cyan}${entry.id}${ansi.reset}`
+            : `${ansi.dim}${entry.id}${ansi.reset}`;
+          return `${id}  ${type}  ${label}`;
+        },
+        filterItem: (entry, query) => {
+          const q = query.toLowerCase();
+          const label = getLabel(entry.payload.data).toLowerCase();
+          return label.includes(q) || entry.id.toLowerCase().includes(q);
+        },
+      });
+
+      if (result.action === "cancel") {
+        console.log("Cancelled");
+        return;
+      }
+
+      if (result.action === "copy-uid") {
+        if (copyToClipboard(result.item.id)) {
+          console.log(`Copied UID: ${result.item.id}`);
+        } else {
+          console.log(result.item.id);
+          console.error("Warning: Could not copy to clipboard");
+        }
+        return;
+      }
+
+      if (result.action === "copy-otp") {
+        const code = await generateOtp(result.item.payload.data);
+        if (copyToClipboard(code)) {
+          console.log(`Copied OTP for ${getLabel(result.item.payload.data)}`);
+        } else {
+          console.log(code);
+          console.error("Warning: Could not copy to clipboard");
+        }
+      }
+    } catch (err) {
+      console.error(`Error: ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
+  });
+
+// totp command group
+const totpCmd = program.command("totp").description("TOTP commands");
+
+totpCmd
+  .command("token")
+  .description("Generate TOTP token")
+  .argument("<id>", "Entry ID")
+  .action(async (id: string) => {
+    const raw = await readStdin();
+    if (!raw) {
+      console.error("Error: Expected JSON from stdin");
+      console.error("Usage: dotenvx get --all -f .secrets.otp | otplib-cli totp token <id>");
+      process.exitCode = 1;
+      return;
+    }
+
+    try {
+      const entries = parseDotenvxInput(raw);
+      const entry = findEntry(entries, id);
+
+      if (!entry) {
+        console.error(`Error: Entry not found: ${id}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      if (entry.payload.data.type !== "totp") {
+        console.error(`Error: Entry ${id} is HOTP, not TOTP`);
+        process.exitCode = 1;
+        return;
+      }
+
+      const code = await generateOtp(entry.payload.data);
+      process.stdout.write(code);
+    } catch (err) {
+      console.error(`Error: ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
+  });
+
+// hotp command group
+const hotpCmd = program.command("hotp").description("HOTP commands");
+
+hotpCmd
+  .command("token")
+  .description("Generate HOTP token")
+  .argument("<id>", "Entry ID")
+  .action(async (id: string) => {
+    const raw = await readStdin();
+    if (!raw) {
+      console.error("Error: Expected JSON from stdin");
+      console.error("Usage: dotenvx get --all -f .secrets.otp | otplib-cli hotp token <id>");
+      process.exitCode = 1;
+      return;
+    }
+
+    try {
+      const entries = parseDotenvxInput(raw);
+      const entry = findEntry(entries, id);
+
+      if (!entry) {
+        console.error(`Error: Entry not found: ${id}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      if (entry.payload.data.type !== "hotp") {
+        console.error(`Error: Entry ${id} is TOTP, not HOTP`);
+        process.exitCode = 1;
+        return;
+      }
+
+      const code = await generateOtp(entry.payload.data);
+      process.stdout.write(code);
+    } catch (err) {
+      console.error(`Error: ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
+  });
+
+hotpCmd
+  .command("update-counter")
+  .description("Output updated HOTP entry with new counter")
+  .argument("<id>", "Entry ID")
+  .argument("[n]", "New counter value (default: current + 1)")
+  .action(async (id: string, n?: string) => {
+    const raw = await readStdin();
+    if (!raw) {
+      console.error("Error: Expected JSON from stdin");
+      console.error(
+        "Usage: dotenvx get --all -f .secrets.otp | otplib-cli hotp update-counter <id> | dotenvx set -f .secrets.otp",
+      );
+      process.exitCode = 1;
+      return;
+    }
+
+    try {
+      const entries = parseDotenvxInput(raw);
+      const entry = findEntry(entries, id);
+
+      if (!entry) {
+        console.error(`Error: Entry not found: ${id}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      if (entry.payload.data.type !== "hotp") {
+        console.error(`Error: Entry ${id} is TOTP, not HOTP`);
+        process.exitCode = 1;
+        return;
+      }
+
+      let newCounter: number | undefined;
+      if (n !== undefined) {
+        newCounter = parseInt(n, 10);
+        if (isNaN(newCounter) || newCounter < 0) {
+          console.error("Error: Counter must be a non-negative integer");
+          process.exitCode = 1;
+          return;
+        }
+      }
+
+      const updatedData = updateHotpCounter(entry.payload.data as HotpData, newCounter);
+      const payload: OtpPayload = { data: updatedData };
+      const output = formatOutput(id, payload);
+      process.stdout.write(output);
+    } catch (err) {
+      console.error(`Error: ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
+  });
+
+// verify command
+program
+  .command("verify")
+  .description("Verify a token against an entry")
+  .argument("<id>", "Entry ID")
+  .argument("<token>", "Token to verify (6-8 digits)")
+  .action(async (id: string, token: string) => {
+    const raw = await readStdin();
+    if (!raw) {
+      console.error("Error: Expected JSON from stdin");
+      console.error("Usage: dotenvx get --all -f .secrets.otp | otplib-cli verify <id> <token>");
+      process.exitCode = 1;
+      return;
+    }
+
+    try {
+      const entries = parseDotenvxInput(raw);
+      const entry = findEntry(entries, id);
+
+      if (!entry) {
+        console.error(`Error: Entry not found: ${id}`);
+        process.exitCode = 1;
+        return;
+      }
+
+      const valid = await verifyOtp(entry.payload.data, token);
+      if (!valid) {
+        process.exitCode = 1;
+      }
+    } catch (err) {
+      console.error(`Error: ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
   });
 
 program.parseAsync(process.argv).catch((err) => {
