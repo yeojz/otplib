@@ -1,31 +1,13 @@
-import os from "node:os";
-import path from "node:path";
 import readline from "node:readline";
 
 import { parseArgs } from "./cli/args.js";
-import {
-  addEntry,
-  createCommandContext,
-  getOtp,
-  listEntries,
-  removeEntry,
-  type AddEntryInput,
-} from "./cli/commands.js";
+import { addEntry, getOtp, listEntries, removeEntry, type AddEntryInput } from "./cli/commands.js";
 import { ansi, copyToClipboard, selectFromList } from "./tui/index.js";
-import { resolveVaultName } from "./vault/resolve.js";
+import { resolveVaultPath } from "./vault/resolve.js";
+import { createVault, updateVaultPassphrase } from "./vault/store.js";
 
+import type { CommandContext } from "./cli/commands.js";
 import type { OtpAlgorithm, OtpDigits } from "./vault/format.js";
-
-function getConfigRoot(): string {
-  const platform = process.platform;
-  if (platform === "win32") {
-    return path.join(process.env.APPDATA || os.homedir(), "otplib-cli");
-  }
-  if (platform === "darwin") {
-    return path.join(os.homedir(), "Library", "Application Support", "otplib-cli");
-  }
-  return path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), ".config"), "otplib-cli");
-}
 
 async function promptPassphrase(): Promise<string> {
   const envPass = process.env.OTPLIB_PASSPHRASE;
@@ -34,7 +16,11 @@ async function promptPassphrase(): Promise<string> {
   }
 
   if (!process.stdin.isTTY) {
-    throw new Error("Passphrase required. Set OTPLIB_PASSPHRASE env var for non-TTY usage.");
+    throw new Error(
+      "Vault is locked.\n\n" +
+        "Set OTPLIB_PASSPHRASE environment variable or use interactive terminal.\n" +
+        "Tip: Use 'dotenvx run -- otplib-cli <command>' to load from .env file",
+    );
   }
 
   return new Promise((resolve) => {
@@ -49,6 +35,33 @@ async function promptPassphrase(): Promise<string> {
       resolve(answer);
     });
   });
+}
+
+async function promptNewPassphrase(): Promise<string> {
+  if (!process.stdin.isTTY) {
+    throw new Error("New passphrase prompt requires TTY. Cannot set passphrase in non-TTY mode.");
+  }
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const askQuestion = (prompt: string): Promise<string> =>
+    new Promise((resolve) => {
+      process.stdout.write(prompt);
+      rl.question("", (answer) => resolve(answer));
+    });
+
+  const passphrase = await askQuestion("New passphrase: ");
+  const confirm = await askQuestion("Confirm passphrase: ");
+  rl.close();
+
+  if (passphrase !== confirm) {
+    throw new Error("Passphrases do not match");
+  }
+
+  return passphrase;
 }
 
 async function readStdin(): Promise<string> {
@@ -141,6 +154,8 @@ function printHelp(): void {
   process.stdout.write("otplib-cli - Manage encrypted OTP vaults\n");
   process.stdout.write("\nUsage: otplib-cli [command] [options] [args]\n");
   process.stdout.write("\nCommands:\n");
+  process.stdout.write("  vault init            Create a new vault\n");
+  process.stdout.write("  vault update pw       Change vault passphrase\n");
   process.stdout.write("  add                   Add a new OTP entry (reads JSON from stdin)\n");
   process.stdout.write("  list                  List entries (interactive filter in TTY)\n");
   process.stdout.write("  remove <id>           Remove an entry\n");
@@ -148,13 +163,20 @@ function printHelp(): void {
   process.stdout.write("\nOptions:\n");
   process.stdout.write("  -h, --help            Show help\n");
   process.stdout.write("  -V, --version         Show version\n");
-  process.stdout.write("  -v, --vault <name>    Specify vault name (default: 'default')\n");
+  process.stdout.write("  -v, --vault <path>    Specify vault path (default: ./otplib.vault)\n");
   process.stdout.write("\nEnvironment:\n");
-  process.stdout.write("  OTPLIB_VAULT          Default vault name\n");
+  process.stdout.write("  OTPLIB_VAULT          Default vault path\n");
   process.stdout.write("  OTPLIB_PASSPHRASE     Vault passphrase (for non-TTY usage)\n");
-  process.stdout.write("\nAdd command JSON format:\n");
+  process.stdout.write("\nExamples:\n");
+  process.stdout.write(
+    "  otplib-cli vault init                   Create vault in current directory\n",
+  );
+  process.stdout.write("  otplib-cli -v ~/my.vault vault init     Create vault at custom path\n");
   process.stdout.write('  echo \'{"secret":"ABC","label":"GitHub"}\' | otplib-cli add\n');
-  process.stdout.write("\n  Required: secret, label\n");
+  process.stdout.write("  otplib-cli list                         Interactive entry selection\n");
+  process.stdout.write("  otplib-cli get abc123                   Generate OTP for entry\n");
+  process.stdout.write("\nAdd command JSON format:\n");
+  process.stdout.write("  Required: secret, label\n");
   process.stdout.write("  Optional: type (totp|hotp), issuer, digits (6|7|8),\n");
   process.stdout.write("            algorithm (sha1|sha256|sha512), period, counter\n");
 }
@@ -178,16 +200,37 @@ async function main(): Promise<void> {
     return;
   }
 
-  const configRoot = getConfigRoot();
-  const vaultName = resolveVaultName({
+  const vaultPath = resolveVaultPath({
     vaultFlag: args.vault,
     envVault: process.env.OTPLIB_VAULT,
   });
 
-  const passphrase = await promptPassphrase();
-  const ctx = createCommandContext({ configRoot, vaultName, passphrase });
-
   switch (args.command) {
+    case "vault": {
+      const { subcommand, args: subArgs } = args;
+
+      if (subcommand === "init") {
+        const passphrase = await promptNewPassphrase();
+        await createVault(vaultPath, passphrase);
+        process.stdout.write(`Vault created: ${vaultPath}\n`);
+        return;
+      }
+
+      if (subcommand === "update" && subArgs[0] === "pw") {
+        const currentPassphrase = await promptPassphrase();
+        const newPassphrase = await promptNewPassphrase();
+        await updateVaultPassphrase(vaultPath, currentPassphrase, newPassphrase);
+        process.stdout.write(`Passphrase updated: ${vaultPath}\n`);
+        return;
+      }
+
+      process.stderr.write(`Unknown vault command: ${subcommand}\n`);
+      process.stderr.write("Usage: otplib-cli vault init\n");
+      process.stderr.write("       otplib-cli vault update pw\n");
+      process.exitCode = 1;
+      break;
+    }
+
     case "add": {
       const raw = await readStdin();
       if (!raw) {
@@ -198,6 +241,8 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
+      const passphrase = await promptPassphrase();
+      const ctx: CommandContext = { vaultPath, passphrase };
       const input = parseAddEntryJson(raw);
       const id = await addEntry(ctx, input);
       process.stdout.write(`${id}\n`);
@@ -205,6 +250,8 @@ async function main(): Promise<void> {
     }
 
     case "list": {
+      const passphrase = await promptPassphrase();
+      const ctx: CommandContext = { vaultPath, passphrase };
       const entries = await listEntries(ctx);
       if (entries.length === 0) {
         process.stdout.write("No entries\n");
@@ -275,6 +322,8 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
+      const passphrase = await promptPassphrase();
+      const ctx: CommandContext = { vaultPath, passphrase };
       await removeEntry(ctx, id);
       process.stdout.write("Removed\n");
       break;
@@ -287,6 +336,8 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
+      const passphrase = await promptPassphrase();
+      const ctx: CommandContext = { vaultPath, passphrase };
       const code = await getOtp(ctx, id);
       process.stdout.write(`${code}\n`);
       break;
