@@ -126,8 +126,17 @@ jobs:
 
           if [ -n "$PREV_TAG" ]; then
             echo "Creating release with notes from $PREV_TAG..."
-            gh release create "$VERSION" release-artifacts/*.tgz --generate-notes --notes-start-tag "$PREV_TAG" --target main
+            gh release create "$VERSION" \
+              --title "otplib ${{ steps.version.outputs.version }}" \
+              --generate-notes \
+              --notes-start-tag "$PREV_TAG" \
+              --target main \
+              release-artifacts/*.tgz
           else
             echo "No previous tag found. Creating initial release..."
-            gh release create "$VERSION" release-artifacts/*.tgz --generate-notes --target main
+            gh release create "$VERSION" \
+              --title "otplib ${{ steps.version.outputs.version }}" \
+              --generate-notes \
+              --target main \
+              release-artifacts/*.tgz
           fi
