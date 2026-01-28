@@ -295,4 +295,4 @@ Full documentation available at [otplib.yeojz.dev](https://otplib.yeojz.dev):
 
 ## License
 
-[MIT](./LICENSE) © 2026 Gerald Yeo
+[MIT](./LICENSE)

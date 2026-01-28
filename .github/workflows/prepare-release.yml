@@ -16,9 +16,15 @@ jobs:
     environment: general
     name: Prepare Release (Create PR)
     runs-on: ubuntu-latest
+    outputs:
+      pullRequestNumber: ${{ steps.changesets.outputs.pullRequestNumber }}
+      hasPackageChanges: ${{ steps.detect.outputs.hasPackageChanges }}
+      hasCliChanges: ${{ steps.detect.outputs.hasCliChanges }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -42,8 +48,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Add autorelease label
+      - name: Detect which packages changed
+        id: detect
         if: steps.changesets.outputs.pullRequestNumber
+        run: |
+          # Get the diff between the PR branch and main
+          git fetch origin main
+          CHANGED_FILES=$(git diff --name-only origin/main HEAD)
+
+          # Check for package changes (packages/*/package.json)
+          if echo "$CHANGED_FILES" | grep -q "^packages/.*/package.json"; then
+            echo "hasPackageChanges=true" >> $GITHUB_OUTPUT
+            echo "Detected package changes"
+          else
+            echo "hasPackageChanges=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Check for CLI changes (apps/otplib-cli/package.json)
+          if echo "$CHANGED_FILES" | grep -q "^apps/otplib-cli/package.json"; then
+            echo "hasCliChanges=true" >> $GITHUB_OUTPUT
+            echo "Detected CLI changes"
+          else
+            echo "hasCliChanges=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add ci-release-packages label
+        if: steps.changesets.outputs.pullRequestNumber && steps.detect.outputs.hasPackageChanges == 'true'
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -53,4 +83,17 @@ jobs:
               repo: context.repo.repo,
               issue_number: ${{ steps.changesets.outputs.pullRequestNumber }},
               labels: ['ci-release-packages']
+            })
+
+      - name: Add ci-release-cli label
+        if: steps.changesets.outputs.pullRequestNumber && steps.detect.outputs.hasCliChanges == 'true'
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.changesets.outputs.pullRequestNumber }},
+              labels: ['ci-release-cli']
             })

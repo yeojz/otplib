@@ -1,0 +1,221 @@
+#!/usr/bin/env bash
+# otplibx - dotenvx convenience wrapper for otplib
+# Composes otplib CLI with dotenvx for secret management
+
+set -euo pipefail
+
+VERSION="0.1.0"
+DOTENVX_FILE="${OTPLIBX_FILE:-.env.otplibx}"
+
+usage() {
+  cat <<EOF
+otplibx v${VERSION} - dotenvx convenience wrapper for otplib
+
+Usage: otplibx <command> [options]
+
+Commands:
+  init      Initialize a new encrypted secrets file
+  add       Add OTP entry (reads otpauth URI or JSON from stdin)
+  token     Generate OTP token for an entry
+  list      List all OTP entries
+
+Options:
+  -f, --file <path>   dotenvx secrets file (default: .env.otplibx)
+  -h, --help          Show this help message
+  -v, --version       Show version
+
+Examples:
+  otplibx init
+  otplibx init myapp.otp
+  echo 'otpauth://totp/GitHub:user?secret=ABC' | otplibx add
+  otplibx token V1_ABC123
+  otplibx list
+
+Environment:
+  OTPLIBX_FILE        Default secrets file (default: .env.otplibx)
+EOF
+}
+
+die() {
+  echo "error: $1" >&2
+  exit 1
+}
+
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || die "$1 is required but not installed"
+}
+
+# Parse global options
+parse_file_opt() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -f|--file)
+        DOTENVX_FILE="$2"
+        shift 2
+        ;;
+      *)
+        REMAINING_ARGS+=("$1")
+        shift
+        ;;
+    esac
+  done
+}
+
+cmd_init() {
+  require_cmd dotenvx
+
+  local file="$DOTENVX_FILE"
+
+  # Parse options and arguments
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)
+        echo "Usage: otplibx init [file]"
+        echo "Initialize a new encrypted secrets file (default: .env.otplibx)"
+        exit 0
+        ;;
+      -*)
+        die "unknown option: $1"
+        ;;
+      *)
+        file="$1"
+        shift
+        ;;
+    esac
+  done
+
+  if [[ -f "$file" ]]; then
+    die "file already exists: $file"
+  fi
+
+  touch "$file"
+  dotenvx encrypt -f "$file"
+
+  echo "Initialized: $file"
+}
+
+cmd_add() {
+  require_cmd otplib
+  require_cmd dotenvx
+
+  local file="$DOTENVX_FILE"
+
+  # Parse options
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -f|--file) file="$2"; shift 2 ;;
+      -h|--help)
+        echo "Usage: otplibx add [-f <file>]"
+        echo "Reads otpauth URI or JSON from stdin"
+        exit 0
+        ;;
+      *) die "unknown option: $1" ;;
+    esac
+  done
+
+  # Read from stdin and pass to otplib add
+  local output
+  output=$(otplib add) || die "otplib add failed"
+
+  # Parse KEY=VALUE
+  local key="${output%%=*}"
+  local value="${output#*=}"
+
+  [[ -z "$key" ]] && die "failed to parse key from otplib output"
+  [[ -z "$value" ]] && die "failed to parse value from otplib output"
+
+  # Set in dotenvx
+  dotenvx set -f "$file" "$key" "$value" >/dev/null
+
+  echo "$key"
+}
+
+cmd_token() {
+  require_cmd otplib
+  require_cmd dotenvx
+
+  local file="$DOTENVX_FILE"
+  local id=""
+
+  # Parse options
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -f|--file) file="$2"; shift 2 ;;
+      -h|--help)
+        echo "Usage: otplibx token [-f <file>] <id>"
+        exit 0
+        ;;
+      -*)
+        die "unknown option: $1"
+        ;;
+      *)
+        id="$1"
+        shift
+        ;;
+    esac
+  done
+
+  [[ -z "$id" ]] && die "missing required argument: <id>"
+
+  # Get all entries and pipe to otplib
+  dotenvx get --all -f "$file" 2>/dev/null | otplib totp token "$id"
+}
+
+cmd_list() {
+  require_cmd otplib
+  require_cmd dotenvx
+
+  local file="$DOTENVX_FILE"
+
+  # Parse options
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -f|--file) file="$2"; shift 2 ;;
+      -h|--help)
+        echo "Usage: otplibx list [-f <file>]"
+        exit 0
+        ;;
+      *) die "unknown option: $1" ;;
+    esac
+  done
+
+  # Get all entries and pipe to otplib list
+  dotenvx get --all -f "$file" 2>/dev/null | otplib list
+}
+
+# Main
+REMAINING_ARGS=()
+parse_file_opt "$@"
+set -- "${REMAINING_ARGS[@]}"
+
+[[ $# -eq 0 ]] && { usage; exit 0; }
+
+case "$1" in
+  init)
+    shift
+    cmd_init "$@"
+    ;;
+  add)
+    shift
+    cmd_add "$@"
+    ;;
+  token)
+    shift
+    cmd_token "$@"
+    ;;
+  list)
+    shift
+    cmd_list "$@"
+    ;;
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  -v|--version)
+    echo "otplibx v${VERSION}"
+    exit 0
+    ;;
+  *)
+    die "unknown command: $1"
+    ;;
+esac

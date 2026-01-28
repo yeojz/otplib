@@ -38,4 +38,4 @@ For a full guide on migrating to v13 refer to the [Migration Guide](https://otpl
 
 ## License
 
-[MIT](./LICENSE) © 2026 Gerald Yeo
+[MIT](./LICENSE)

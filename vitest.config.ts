@@ -53,6 +53,19 @@ export default defineConfig({
           exclude: ["**/node_modules/**", "dist/**"],
         },
       }),
+      defineProject({
+        resolve: {
+          alias,
+        },
+        test: {
+          name: "otplib-cli",
+          root: path.resolve(__dirname, "apps/otplib-cli"),
+          globals: true,
+          environment: "node",
+          include: ["**/*.test.ts"],
+          exclude: ["**/node_modules/**", "dist/**"],
+        },
+      }),
     ],
     // Global coverage settings
     coverage: {
