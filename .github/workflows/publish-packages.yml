@@ -1,4 +1,4 @@
-name: Publish to npm
+name: Publish Packages
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   dry-run:
-    if: "${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'ci-release')) }}"
+    if: "${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'ci-release-packages')) }}"
     environment: general
     name: Dry Run (Packages)
     runs-on: ubuntu-latest
@@ -93,6 +93,11 @@ jobs:
               inputs: { version: '${{ steps.version.outputs.version }}' }
             })
 
+      - name: Pack release artifacts
+        run: |
+          mkdir -p release-artifacts
+          pnpm -r --filter "./packages/*" exec npm pack --pack-destination ${{ github.workspace }}/release-artifacts
+
       - name: Create GitHub Release
         if: success()
         env:
@@ -121,8 +126,8 @@ jobs:
 
           if [ -n "$PREV_TAG" ]; then
             echo "Creating release with notes from $PREV_TAG..."
-            gh release create "$VERSION" --generate-notes --notes-start-tag "$PREV_TAG" --target main
+            gh release create "$VERSION" release-artifacts/*.tgz --generate-notes --notes-start-tag "$PREV_TAG" --target main
           else
             echo "No previous tag found. Creating initial release..."
-            gh release create "$VERSION" --generate-notes --target main
+            gh release create "$VERSION" release-artifacts/*.tgz --generate-notes --target main
           fi
