@@ -10,6 +10,10 @@
     "otplibx": "./bin/otplibx"
   },
   "main": "./dist/index.cjs",
+  "files": [
+    "dist",
+    "bin"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/yeojz/otplib.git",
