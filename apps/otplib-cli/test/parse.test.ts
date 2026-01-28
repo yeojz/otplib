@@ -96,6 +96,75 @@ describe("parseOtpauthUri", () => {
       "Invalid algorithm: MD5, expected SHA1, SHA256, or SHA512",
     );
   });
+
+  test("throws on invalid digits", () => {
+    expect(() => parseOtpauthUri("otpauth://totp/Test?secret=ABC&digits=5")).toThrow(
+      "Invalid digits: 5, expected 6, 7, or 8",
+    );
+  });
+
+  test("skips query params without equals sign", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&invalid&digits=7");
+
+    expect(result.secret).toBe("ABC");
+    expect(result.digits).toBe(7);
+  });
+
+  test("parses HOTP with default counter", () => {
+    const result = parseOtpauthUri("otpauth://hotp/Test?secret=ABC");
+
+    expect(result.type).toBe("hotp");
+    expect((result as HotpData).counter).toBe(0);
+  });
+
+  test("throws on invalid period (non-positive)", () => {
+    expect(() => parseOtpauthUri("otpauth://totp/Test?secret=ABC&period=0")).toThrow(
+      "Invalid period: must be positive",
+    );
+  });
+
+  test("throws on HOTP with negative counter", () => {
+    expect(() => parseOtpauthUri("otpauth://hotp/Test?secret=ABC&counter=-1")).toThrow(
+      "Invalid counter: must be non-negative",
+    );
+  });
+
+  test("parses URI with label but no issuer prefix", () => {
+    const result = parseOtpauthUri("otpauth://totp/account?secret=ABC&issuer=MyIssuer");
+
+    expect(result.issuer).toBe("MyIssuer");
+    expect(result.account).toBe("account");
+  });
+
+  test("parses SHA512 algorithm", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=SHA512");
+
+    expect(result.algorithm).toBe("SHA512");
+  });
+
+  test("parses algorithm with hyphen (sha-256)", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=sha-256");
+
+    expect(result.algorithm).toBe("SHA256");
+  });
+
+  test("parses 7 digits", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&digits=7");
+
+    expect(result.digits).toBe(7);
+  });
+
+  test("parses explicit SHA1 algorithm", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=SHA1");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
+  test("throws on URI without query params", () => {
+    expect(() => parseOtpauthUri("otpauth://totp/Test")).toThrow(
+      "Missing required parameter: secret",
+    );
+  });
 });
 
 describe("parseJsonInput", () => {
@@ -143,6 +212,20 @@ describe("parseJsonInput", () => {
     });
   });
 
+  test("parses HOTP JSON with default counter", () => {
+    const result = parseJsonInput('{"secret":"XYZ","type":"hotp"}');
+
+    expect(result).toEqual({
+      type: "hotp",
+      secret: "XYZ",
+      issuer: undefined,
+      account: undefined,
+      algorithm: "SHA1",
+      digits: 6,
+      counter: 0,
+    });
+  });
+
   test("throws on invalid JSON", () => {
     expect(() => parseJsonInput("not json")).toThrow("Invalid JSON input");
   });
@@ -183,6 +266,30 @@ describe("parseJsonInput", () => {
     expect(() => parseJsonInput('{"secret":"ABC","type":"hotp","counter":-1}')).toThrow(
       "Invalid counter: must be a non-negative number",
     );
+  });
+
+  test("throws on non-number counter", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","type":"hotp","counter":"not-a-number"}')).toThrow(
+      "Invalid counter: must be a non-negative number",
+    );
+  });
+
+  test("throws on non-number period", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","type":"totp","period":"not-a-number"}')).toThrow(
+      "Invalid period: must be a positive number",
+    );
+  });
+
+  test("throws on null input", () => {
+    expect(() => parseJsonInput("null")).toThrow("Invalid JSON input: expected an object");
+  });
+
+  test("throws on empty secret", () => {
+    expect(() => parseJsonInput('{"secret":""}')).toThrow("Missing required field: secret");
+  });
+
+  test("throws on non-string secret", () => {
+    expect(() => parseJsonInput('{"secret":123}')).toThrow("Missing required field: secret");
   });
 });
 
@@ -267,6 +374,18 @@ describe("parseDotenvxInput", () => {
     expect(() => parseDotenvxInput("[]")).toThrow(
       "Invalid input: expected JSON object from dotenvx get --all",
     );
+  });
+
+  test("skips non-string values", () => {
+    const payload: OtpPayload = {
+      data: { type: "totp", secret: "ABC", algorithm: "SHA1", digits: 6, period: 30 },
+    };
+    const result = parseDotenvxInput(
+      `{"good":"${encodePayload(payload)}","number":123,"boolean":true,"null":null,"object":{}}`,
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("good");
   });
 });
 

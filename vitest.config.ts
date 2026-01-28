@@ -62,7 +62,7 @@ export default defineConfig({
           root: path.resolve(__dirname, "apps/otplib-cli"),
           globals: true,
           environment: "node",
-          include: ["test/**/*.test.ts"],
+          include: ["**/*.test.ts"],
           exclude: ["**/node_modules/**", "dist/**"],
         },
       }),
