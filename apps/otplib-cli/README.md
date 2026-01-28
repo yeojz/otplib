@@ -1,6 +1,9 @@
 # otplib-cli
 
-A stateless CLI tool for OTP operations. Designed to work with [dotenvx](https://dotenvx.com/) for encrypted storage - the CLI transforms data while dotenvx handles storage and encryption.
+A stateless CLI tool for OTP operations.
+
+Pair with [dotenvx](https://github.com/dotenvx/dotenvx) for encrypted storage.
+The CLI transforms data while dotenvx handles storage and encryption.
 
 ## Installation
 
@@ -24,8 +27,7 @@ After installation, two commands are available:
 
 ```bash
 # Initialize your secrets file
-touch .secrets.otp
-dotenvx encrypt -f .secrets.otp
+otplibx init
 
 # Add an OTP entry
 echo 'otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub' | otplibx add
@@ -40,17 +42,18 @@ otplibx list
 
 ### otplibx Commands
 
-| Command              | Description                        |
-| -------------------- | ---------------------------------- |
-| `otplibx add`        | Add OTP entry (reads from stdin)   |
-| `otplibx token <id>` | Generate OTP token                 |
-| `otplibx list`       | Interactive list/search of entries |
+| Command               | Description                        |
+| --------------------- | ---------------------------------- |
+| `otplibx init [file]` | Initialize encrypted secrets file  |
+| `otplibx add`         | Add OTP entry (reads from stdin)   |
+| `otplibx token <id>`  | Generate OTP token                 |
+| `otplibx list`        | Interactive list/search of entries |
 
 ### otplibx Options
 
 | Option              | Description                            |
 | ------------------- | -------------------------------------- |
-| `-f, --file <path>` | Secrets file (default: `.secrets.otp`) |
+| `-f, --file <path>` | Secrets file (default: `.env.otplibx`) |
 | `-h, --help`        | Show help                              |
 | `-v, --version`     | Show version                           |
 
@@ -58,7 +61,7 @@ otplibx list
 
 | Variable       | Description                                    |
 | -------------- | ---------------------------------------------- |
-| `OTPLIBX_FILE` | Default secrets file (default: `.secrets.otp`) |
+| `OTPLIBX_FILE` | Default secrets file (default: `.env.otplibx`) |
 
 ---
 
@@ -96,33 +99,33 @@ dotenvx get --all → otplib (transform) → dotenvx set
 OUTPUT=$(echo 'otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub' | otplib add)
 KEY=$(echo "$OUTPUT" | cut -d= -f1)
 VALUE=$(echo "$OUTPUT" | cut -d= -f2)
-dotenvx set -f .secrets.otp "$KEY" "$VALUE"
+dotenvx set -f .env.otplibx "$KEY" "$VALUE"
 
 # From JSON
 OUTPUT=$(echo '{"secret":"JBSWY3DPEHPK3PXP","issuer":"GitHub","account":"user@example.com"}' | otplib add)
 KEY=$(echo "$OUTPUT" | cut -d= -f1)
 VALUE=$(echo "$OUTPUT" | cut -d= -f2)
-dotenvx set -f .secrets.otp "$KEY" "$VALUE"
+dotenvx set -f .env.otplibx "$KEY" "$VALUE"
 ```
 
 #### Generate tokens
 
 ```bash
 # TOTP
-dotenvx get --all -f .secrets.otp | otplib totp token V1_A1B2C3D4E5F6G7H8
+dotenvx get --all -f .env.otplibx | otplib totp token V1_A1B2C3D4E5F6G7H8
 
 # HOTP
-dotenvx get --all -f .secrets.otp | otplib hotp token V1_A1B2C3D4E5F6G7H8
+dotenvx get --all -f .env.otplibx | otplib hotp token V1_A1B2C3D4E5F6G7H8
 ```
 
 #### List entries
 
 ```bash
 # Interactive mode (TTY)
-dotenvx get --all -f .secrets.otp | otplib list
+dotenvx get --all -f .env.otplibx | otplib list
 
 # Non-interactive mode (pipes)
-dotenvx get --all -f .secrets.otp | otplib list | head -5
+dotenvx get --all -f .env.otplibx | otplib list | head -5
 # Output:
 # V1_A1B2C3D4E5F6G7H8	totp	GitHub:user@example.com
 # V1_B2C3D4E5F6G7H8I9	hotp	AWS:admin
@@ -140,22 +143,22 @@ dotenvx get --all -f .secrets.otp | otplib list | head -5
 
 ```bash
 # Increment by 1
-OUTPUT=$(dotenvx get --all -f .secrets.otp | otplib hotp update-counter V1_A1B2C3D4E5F6G7H8)
+OUTPUT=$(dotenvx get --all -f .env.otplibx | otplib hotp update-counter V1_A1B2C3D4E5F6G7H8)
 KEY=$(echo "$OUTPUT" | cut -d= -f1)
 VALUE=$(echo "$OUTPUT" | cut -d= -f2)
-dotenvx set -f .secrets.otp "$KEY" "$VALUE"
+dotenvx set -f .env.otplibx "$KEY" "$VALUE"
 
 # Set to specific value
-OUTPUT=$(dotenvx get --all -f .secrets.otp | otplib hotp update-counter V1_A1B2C3D4E5F6G7H8 10)
+OUTPUT=$(dotenvx get --all -f .env.otplibx | otplib hotp update-counter V1_A1B2C3D4E5F6G7H8 10)
 KEY=$(echo "$OUTPUT" | cut -d= -f1)
 VALUE=$(echo "$OUTPUT" | cut -d= -f2)
-dotenvx set -f .secrets.otp "$KEY" "$VALUE"
+dotenvx set -f .env.otplibx "$KEY" "$VALUE"
 ```
 
 #### Verify a token
 
 ```bash
-dotenvx get --all -f .secrets.otp | otplib verify V1_A1B2C3D4E5F6G7H8 123456 \
+dotenvx get --all -f .env.otplibx | otplib verify V1_A1B2C3D4E5F6G7H8 123456 \
   && echo "valid" || echo "invalid"
 ```
 
@@ -163,10 +166,10 @@ dotenvx get --all -f .secrets.otp | otplib verify V1_A1B2C3D4E5F6G7H8 123456 \
 
 ```bash
 # macOS
-dotenvx get --all -f .secrets.otp | otplib totp token V1_A1B2C3D4E5F6G7H8 | pbcopy
+dotenvx get --all -f .env.otplibx | otplib totp token V1_A1B2C3D4E5F6G7H8 | pbcopy
 
 # Linux (xclip)
-dotenvx get --all -f .secrets.otp | otplib totp token V1_A1B2C3D4E5F6G7H8 | xclip -selection clipboard
+dotenvx get --all -f .env.otplibx | otplib totp token V1_A1B2C3D4E5F6G7H8 | xclip -selection clipboard
 ```
 
 ---

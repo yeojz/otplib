@@ -5,7 +5,7 @@
 set -euo pipefail
 
 VERSION="0.1.0"
-DOTENVX_FILE="${OTPLIBX_FILE:-.secrets.otp}"
+DOTENVX_FILE="${OTPLIBX_FILE:-.env.otplibx}"
 
 usage() {
   cat <<EOF
@@ -14,22 +14,25 @@ otplibx v${VERSION} - dotenvx convenience wrapper for otplib
 Usage: otplibx <command> [options]
 
 Commands:
+  init      Initialize a new encrypted secrets file
   add       Add OTP entry (reads otpauth URI or JSON from stdin)
   token     Generate OTP token for an entry
   list      List all OTP entries
 
 Options:
-  -f, --file <path>   dotenvx secrets file (default: .secrets.otp)
+  -f, --file <path>   dotenvx secrets file (default: .env.otplibx)
   -h, --help          Show this help message
   -v, --version       Show version
 
 Examples:
+  otplibx init
+  otplibx init myapp.otp
   echo 'otpauth://totp/GitHub:user?secret=ABC' | otplibx add
   otplibx token V1_ABC123
   otplibx list
 
 Environment:
-  OTPLIBX_FILE        Default secrets file (default: .secrets.otp)
+  OTPLIBX_FILE        Default secrets file (default: .env.otplibx)
 EOF
 }
 
@@ -56,6 +59,39 @@ parse_file_opt() {
         ;;
     esac
   done
+}
+
+cmd_init() {
+  require_cmd dotenvx
+
+  local file="$DOTENVX_FILE"
+
+  # Parse options and arguments
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)
+        echo "Usage: otplibx init [file]"
+        echo "Initialize a new encrypted secrets file (default: .env.otplibx)"
+        exit 0
+        ;;
+      -*)
+        die "unknown option: $1"
+        ;;
+      *)
+        file="$1"
+        shift
+        ;;
+    esac
+  done
+
+  if [[ -f "$file" ]]; then
+    die "file already exists: $file"
+  fi
+
+  touch "$file"
+  dotenvx encrypt -f "$file"
+
+  echo "Initialized: $file"
 }
 
 cmd_add() {
@@ -155,6 +191,10 @@ set -- "${REMAINING_ARGS[@]}"
 [[ $# -eq 0 ]] && { usage; exit 0; }
 
 case "$1" in
+  init)
+    shift
+    cmd_init "$@"
+    ;;
   add)
     shift
     cmd_add "$@"
