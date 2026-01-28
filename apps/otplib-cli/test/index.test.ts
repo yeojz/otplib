@@ -233,8 +233,8 @@ describe("CLI", () => {
       const { exitCode } = await runCli(["list"], createMockStdin('{"id1":"...","id2":"..."}'));
 
       expect(exitCode).toBe(0);
-      expect(consoleLogSpy).toHaveBeenCalledWith("id1\ttotp\tA");
-      expect(consoleLogSpy).toHaveBeenCalledWith("id2\thotp\tB");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("id1\ttotp\tA\n");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("id2\thotp\tB\n");
     });
 
     test("handles parse error", async () => {
@@ -315,7 +315,7 @@ describe("CLI", () => {
       const { exitCode } = await runInteractiveCli(["list"], "{}");
 
       expect(exitCode).toBe(0);
-      expect(consoleLogSpy).toHaveBeenCalledWith("test-uid");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("test-uid\n");
       expect(consoleErrorSpy).toHaveBeenCalledWith("Warning: Could not copy to clipboard");
     });
 
@@ -346,7 +346,7 @@ describe("CLI", () => {
       const { exitCode } = await runInteractiveCli(["list"], "{}");
 
       expect(exitCode).toBe(0);
-      expect(consoleLogSpy).toHaveBeenCalledWith("654321");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("654321\n");
       expect(consoleErrorSpy).toHaveBeenCalledWith("Warning: Could not copy to clipboard");
     });
 

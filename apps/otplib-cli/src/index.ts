@@ -90,7 +90,7 @@ program
       if (!process.stdin.isTTY) {
         for (const entry of entries) {
           const label = getLabel(entry.payload.data);
-          console.log(`${entry.id}\t${entry.payload.data.type}\t${label}`);
+          process.stdout.write(`${entry.id}\t${entry.payload.data.type}\t${label}\n`);
         }
         return;
       }
@@ -122,7 +122,7 @@ program
         if (copyToClipboard(result.item.id)) {
           console.log(`Copied UID: ${result.item.id}`);
         } else {
-          console.log(result.item.id);
+          process.stdout.write(result.item.id + "\n");
           console.error("Warning: Could not copy to clipboard");
         }
         return;
@@ -133,7 +133,7 @@ program
         if (copyToClipboard(code)) {
           console.log(`Copied OTP for ${getLabel(result.item.payload.data)}`);
         } else {
-          console.log(code);
+          process.stdout.write(code + "\n");
           console.error("Warning: Could not copy to clipboard");
         }
       }
