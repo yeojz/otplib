@@ -6,7 +6,7 @@
   "author": "Gerald Yeo <support@yeojz.dev>",
   "type": "module",
   "bin": {
-    "otplib-cli": "./dist/index.cjs"
+    "otplib": "./dist/index.cjs"
   },
   "main": "./dist/index.cjs",
   "repository": {

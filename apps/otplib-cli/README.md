@@ -1,4 +1,4 @@
-# otplib-cli
+# otplib
 
 A stateless CLI tool for OTP operations. Designed to work with [dotenvx](https://dotenvx.com/) for encrypted storage - the CLI transforms data while dotenvx handles storage and encryption.
 
@@ -7,7 +7,7 @@ A stateless CLI tool for OTP operations. Designed to work with [dotenvx](https:/
 The CLI is a **stateless data transformer**:
 
 ```
-dotenvx get --all → otplib-cli (transform) → dotenvx set
+dotenvx get --all → otplib (transform) → dotenvx set
 ```
 
 - Storage and encryption are delegated to dotenvx
@@ -18,16 +18,16 @@ dotenvx get --all → otplib-cli (transform) → dotenvx set
 
 ```bash
 # From the monorepo
-pnpm --filter @repo/otplib-cli build
+pnpm --filter @repo/otplib build
 
 # Run directly
-node apps/otplib-cli/dist/index.cjs --help
+node apps/otplib/dist/index.cjs --help
 ```
 
 ## Usage
 
 ```bash
-otplib-cli [command]
+otplib [command]
 ```
 
 ### Commands
@@ -85,12 +85,12 @@ The `add` command accepts either **otpauth:// URIs** or **JSON** from stdin:
 ```bash
 # From otpauth URI
 echo 'otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub' \
-  | otplib-cli add \
+  | otplib add \
   | dotenvx set -f .secrets.otp
 
 # From JSON
 echo '{"secret":"JBSWY3DPEHPK3PXP","issuer":"GitHub","account":"user@example.com"}' \
-  | otplib-cli add \
+  | otplib add \
   | dotenvx set -f .secrets.otp
 ```
 
@@ -111,7 +111,7 @@ echo '{"secret":"JBSWY3DPEHPK3PXP","issuer":"GitHub","account":"user@example.com
 
 ```bash
 echo 'otpauth://totp/Test?secret=ABC' \
-  | otplib-cli add --save-uid=uids.txt \
+  | otplib add --save-uid=uids.txt \
   | dotenvx set -f .secrets.otp
 ```
 
@@ -119,10 +119,10 @@ echo 'otpauth://totp/Test?secret=ABC' \
 
 ```bash
 # Interactive mode (TTY)
-dotenvx get --all -f .secrets.otp | otplib-cli list
+dotenvx get --all -f .secrets.otp | otplib list
 
 # Non-interactive mode (pipes)
-dotenvx get --all -f .secrets.otp | otplib-cli list
+dotenvx get --all -f .secrets.otp | otplib list
 # Output:
 # a1b2c3d4e5f6g7h8	totp	GitHub:user@example.com
 # b2c3d4e5f6g7h8i9	hotp	AWS:admin
@@ -139,14 +139,14 @@ dotenvx get --all -f .secrets.otp | otplib-cli list
 ### Generate TOTP token
 
 ```bash
-dotenvx get --all -f .secrets.otp | otplib-cli totp token a1b2c3d4e5f6g7h8
+dotenvx get --all -f .secrets.otp | otplib totp token a1b2c3d4e5f6g7h8
 # Output: 123456 (no trailing newline)
 ```
 
 ### Generate HOTP token
 
 ```bash
-dotenvx get --all -f .secrets.otp | otplib-cli hotp token i9j0k1l2m3n4o5p6
+dotenvx get --all -f .secrets.otp | otplib hotp token i9j0k1l2m3n4o5p6
 # Output: 789012
 ```
 
@@ -155,23 +155,23 @@ dotenvx get --all -f .secrets.otp | otplib-cli hotp token i9j0k1l2m3n4o5p6
 ```bash
 # Increment by 1
 dotenvx get --all -f .secrets.otp \
-  | otplib-cli hotp update-counter i9j0k1l2m3n4o5p6 \
+  | otplib hotp update-counter i9j0k1l2m3n4o5p6 \
   | dotenvx set -f .secrets.otp
 
 # Set to specific value
 dotenvx get --all -f .secrets.otp \
-  | otplib-cli hotp update-counter i9j0k1l2m3n4o5p6 10 \
+  | otplib hotp update-counter i9j0k1l2m3n4o5p6 10 \
   | dotenvx set -f .secrets.otp
 ```
 
 ### Verify a token
 
 ```bash
-dotenvx get --all -f .secrets.otp | otplib-cli verify a1b2c3d4e5f6g7h8 123456 \
+dotenvx get --all -f .secrets.otp | otplib verify a1b2c3d4e5f6g7h8 123456 \
   && echo "valid" || echo "invalid"
 
 # In scripts
-if dotenvx get --all -f .secrets.otp | otplib-cli verify "$id" "$token"; then
+if dotenvx get --all -f .secrets.otp | otplib verify "$id" "$token"; then
   echo "Access granted"
 fi
 ```
@@ -179,7 +179,7 @@ fi
 ### Convenience alias
 
 ```bash
-alias otp='dotenvx get --all -f .secrets.otp | otplib-cli'
+alias otp='dotenvx get --all -f .secrets.otp | otplib'
 
 otp list
 otp totp token a1b2c3d4e5f6g7h8
@@ -190,10 +190,10 @@ otp verify a1b2c3d4e5f6g7h8 123456
 
 ```bash
 # macOS
-dotenvx get --all -f .secrets.otp | otplib-cli totp token a1b2c3d4e5f6g7h8 | pbcopy
+dotenvx get --all -f .secrets.otp | otplib totp token a1b2c3d4e5f6g7h8 | pbcopy
 
 # Linux (xclip)
-dotenvx get --all -f .secrets.otp | otplib-cli totp token a1b2c3d4e5f6g7h8 | xclip -selection clipboard
+dotenvx get --all -f .secrets.otp | otplib totp token a1b2c3d4e5f6g7h8 | xclip -selection clipboard
 ```
 
 ## Security Notes

@@ -166,6 +166,24 @@ describe("parseJsonInput", () => {
       "Invalid digits: 5, expected 6, 7, or 8",
     );
   });
+
+  test("throws on invalid period (non-positive)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","type":"totp","period":0}')).toThrow(
+      "Invalid period: must be a positive number",
+    );
+  });
+
+  test("throws on invalid period (negative)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","type":"totp","period":-1}')).toThrow(
+      "Invalid period: must be a positive number",
+    );
+  });
+
+  test("throws on invalid counter (negative)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","type":"hotp","counter":-1}')).toThrow(
+      "Invalid counter: must be a non-negative number",
+    );
+  });
 });
 
 describe("parseAddInput", () => {
@@ -243,6 +261,12 @@ describe("parseDotenvxInput", () => {
 
   test("throws on invalid JSON", () => {
     expect(() => parseDotenvxInput("not json")).toThrow("Invalid JSON input from dotenvx");
+  });
+
+  test("throws on array input", () => {
+    expect(() => parseDotenvxInput("[]")).toThrow(
+      "Invalid input: expected JSON object from dotenvx get --all",
+    );
   });
 });
 
