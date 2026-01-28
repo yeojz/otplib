@@ -52,5 +52,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: ${{ steps.changesets.outputs.pullRequestNumber }},
-              labels: ['ci-release']
+              labels: ['ci-release-packages']
             })
