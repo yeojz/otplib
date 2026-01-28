@@ -150,7 +150,7 @@ describe("CLI", () => {
 
       expect(exitCode).toBe(0);
       expect(mockParseAddInput).toHaveBeenCalledWith("otpauth://totp/Test?secret=ABC");
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("UID=payload");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("UID=payload\n");
     });
 
     test("saves UID to file when --save-uid is provided", async () => {
@@ -186,7 +186,7 @@ describe("CLI", () => {
       );
 
       expect(exitCode).toBe(1);
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("UID=payload");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("UID=payload\n");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("Warning: Could not save UID"),
       );
@@ -532,7 +532,7 @@ describe("CLI", () => {
 
       expect(exitCode).toBe(0);
       expect(mockUpdateHotpCounter).toHaveBeenCalledWith(entry.payload.data, undefined);
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("test=updated");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("test=updated\n");
     });
 
     test("sets counter to specific value", async () => {

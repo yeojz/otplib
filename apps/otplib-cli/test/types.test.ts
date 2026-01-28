@@ -3,10 +3,10 @@ import { generateUid, encodePayload, decodePayload, formatOutput, getLabel } fro
 import type { OtpPayload, TotpData, HotpData } from "../src/types.js";
 
 describe("generateUid", () => {
-  test("generates 16-character hex string", () => {
+  test("generates 16-character uppercase hex string", () => {
     const uid = generateUid();
 
-    expect(uid).toMatch(/^[0-9a-f]{16}$/);
+    expect(uid).toMatch(/^[0-9A-F]{16}$/);
   });
 
   test("generates unique UIDs", () => {
@@ -76,7 +76,7 @@ describe("encodePayload / decodePayload", () => {
 });
 
 describe("formatOutput", () => {
-  test("formats as id=base64", () => {
+  test("formats as V1_ID=base64 with uppercase key", () => {
     const payload: OtpPayload = {
       data: {
         type: "totp",
@@ -89,10 +89,28 @@ describe("formatOutput", () => {
 
     const output = formatOutput("abc123", payload);
 
-    expect(output).toMatch(/^abc123=.+$/);
+    expect(output).toMatch(/^V1_ABC123=.+$/);
     const [id, encoded] = output.split("=");
-    expect(id).toBe("abc123");
+    expect(id).toBe("V1_ABC123");
     expect(decodePayload(encoded)).toEqual(payload);
+  });
+
+  test("does not double-prefix if already has V1_", () => {
+    const payload: OtpPayload = {
+      data: {
+        type: "totp",
+        secret: "ABC",
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+      },
+    };
+
+    const output = formatOutput("V1_XYZ789", payload);
+
+    expect(output).toMatch(/^V1_XYZ789=.+$/);
+    const [id] = output.split("=");
+    expect(id).toBe("V1_XYZ789");
   });
 });
 

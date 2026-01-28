@@ -45,7 +45,7 @@ program
       const output = formatOutput(uid, payload);
 
       // Output the entry first (ensures it's not lost even if save-uid fails)
-      process.stdout.write(output);
+      process.stdout.write(output + "\n");
 
       if (options.saveUid) {
         try {
@@ -268,7 +268,7 @@ hotpCmd
       const updatedData = updateHotpCounter(entry.payload.data as HotpData, newCounter);
       const payload: OtpPayload = { data: updatedData };
       const output = formatOutput(id, payload);
-      process.stdout.write(output);
+      process.stdout.write(output + "\n");
     } catch (err) {
       console.error(`Error: ${(err as Error).message}`);
       process.exitCode = 1;

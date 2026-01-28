@@ -35,7 +35,7 @@ export type ParsedEntry = {
 };
 
 export function generateUid(): string {
-  return crypto.randomBytes(8).toString("hex");
+  return crypto.randomBytes(8).toString("hex").toUpperCase();
 }
 
 export function encodePayload(payload: OtpPayload): string {
@@ -48,7 +48,8 @@ export function decodePayload(encoded: string): OtpPayload {
 }
 
 export function formatOutput(id: string, payload: OtpPayload): string {
-  return `${id}=${encodePayload(payload)}`;
+  const key = id.startsWith("V1_") ? id : `V1_${id}`;
+  return `${key.toUpperCase()}=${encodePayload(payload)}`;
 }
 
 export function getLabel(data: OtpData): string {
