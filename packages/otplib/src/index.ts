@@ -29,6 +29,7 @@ export type {
   HashAlgorithm,
   OTPResult,
   OTPGuardrails,
+  OTPGuardrailsConfig,
 } from "@otplib/core";
 export type { VerifyResult } from "@otplib/totp";
 

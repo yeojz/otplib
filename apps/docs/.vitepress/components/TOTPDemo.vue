@@ -192,31 +192,6 @@ onUnmounted(() => {
   justify-content: center;
   min-height: 240px;
   width: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Scan line effect */
-.tokens::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--cipher-accent) 50%,
-    transparent 100%
-  );
-  animation: scan 4s linear infinite;
-  opacity: 0.4;
-}
-
-@keyframes scan {
-  0% { top: 0; }
-  100% { top: 100%; }
 }
 
 .token-item {
@@ -230,8 +205,8 @@ onUnmounted(() => {
 }
 
 .current-token {
-  box-shadow: 0 0 24px var(--cipher-accent-glow),
-    0 4px 16px rgba(0, 0, 0, 0.2);
+  background: var(--cipher-surface);
+  border: 2px solid var(--cipher-border);
 }
 
 .outer-token {
@@ -247,7 +222,9 @@ onUnmounted(() => {
 }
 
 .current-token .token-value {
-    font-size: 2rem;
+  font-size: 2rem;
+  color: var(--cipher-accent);
+  text-shadow: 0 0 20px var(--cipher-accent-glow);
 }
 
 .outer-token .token-value {

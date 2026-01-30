@@ -50,4 +50,4 @@ For a full guide on migrating to v13, including the benefits of the new architec
 
 ## License
 
-[MIT](./LICENSE) © 2026 Gerald Yeo
+[MIT](./LICENSE)

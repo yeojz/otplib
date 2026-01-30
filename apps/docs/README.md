@@ -49,4 +49,4 @@ packages/docs/
 
 ## License
 
-[MIT](./LICENSE) © 2026 Gerald Yeo
+[MIT](./LICENSE)
