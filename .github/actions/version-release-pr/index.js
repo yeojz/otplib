@@ -15,7 +15,7 @@
  *   pr_url  - The URL of the created PR
  */
 
-const { execSync } = require("child_process");
+const { execSync, spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const semver = require("semver");
@@ -43,6 +43,24 @@ function exec(command, options = {}) {
     console.error(err.message);
     process.exit(1);
   }
+}
+
+/**
+ * Execute a command with arguments using spawnSync (avoids shell injection)
+ */
+function run(cmd, args, options = {}) {
+  const result = spawnSync(cmd, args, { encoding: "utf8", ...options });
+  if (result.error) {
+    console.error(`::error::Command failed: ${cmd} ${args.join(" ")}`);
+    console.error(result.error.message);
+    process.exit(1);
+  }
+  if (result.status !== 0) {
+    console.error(`::error::Command failed: ${cmd} ${args.join(" ")}`);
+    if (result.stderr) console.error(result.stderr);
+    process.exit(1);
+  }
+  return (result.stdout || "").trim();
 }
 
 /**
@@ -152,24 +170,24 @@ This PR was automatically created by the prepare-release workflow.
 **New version:** ${newVersion}`;
 
 console.log(`\nCreating branch: ${branchName}`);
-exec(`git checkout -b ${branchName}`);
+run("git", ["checkout", "-b", branchName]);
 
 console.log("Committing changes...");
 for (const pkg of packagesInfo) {
-  exec(`git add ${pkg.path}`);
+  run("git", ["add", pkg.path]);
 }
-exec(`git commit -m "${commitMessage}"`);
+run("git", ["commit", "-m", commitMessage]);
 
 console.log("Pushing branch...");
-exec(`git push -u origin ${branchName}`);
+run("git", ["push", "-u", "origin", branchName]);
 
 console.log("Creating PR...");
-let prCommand = `gh pr create --title "${prTitle}" --body "${prBody}"`;
+const prArgs = ["pr", "create", "--title", prTitle, "--body", prBody];
 if (label) {
-  prCommand += ` --label "${label}"`;
+  prArgs.push("--label", label);
 }
 
-const prUrl = exec(prCommand);
+const prUrl = run("gh", prArgs);
 console.log(`PR created: ${prUrl}`);
 
 // Write outputs
