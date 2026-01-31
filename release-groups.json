@@ -1,0 +1,16 @@
+{
+  "packages": [
+    "@otplib/core",
+    "@otplib/hotp",
+    "@otplib/totp",
+    "@otplib/uri",
+    "@otplib/plugin-base32-scure",
+    "@otplib/plugin-crypto-noble",
+    "@otplib/plugin-crypto-node",
+    "@otplib/plugin-crypto-web",
+    "@otplib/preset-v11",
+    "@otplib/v12-adapter",
+    "otplib"
+  ],
+  "cli": ["otplib-cli"]
+}
