@@ -2,6 +2,22 @@ name: Prepare Release
 
 on:
   workflow_dispatch:
+    inputs:
+      group:
+        description: "Release group"
+        required: true
+        type: choice
+        options:
+          - packages
+          - cli
+      bump:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
   contents: write
@@ -11,6 +27,10 @@ concurrency:
   group: "prepare-release"
   cancel-in-progress: false
 
+env:
+  NODE_VERSION_TARGET: "20"
+  TURBO_TELEMETRY_DISABLED: 1
+
 jobs:
   prepare-release:
     environment: general
@@ -18,39 +38,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
-          cache: "pnpm"
+          node-version: ${{ env.NODE_VERSION_TARGET }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Create Versioning PR
-        id: changesets
-        uses: changesets/action@v1.6.0
+      - name: Create release PR for ${{ inputs.group }}
+        id: release
+        uses: ./.github/actions/version-release-pr
         with:
-          version: pnpm run version-update
-          commit: "ci: update package versions"
-          title: "ci: update package versions"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          group: ${{ inputs.group }}
+          bump: ${{ inputs.bump }}
+          title: "release(${{ inputs.group }}): v{version}"
+          label: ci-release
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Add autorelease label
-        if: steps.changesets.outputs.pullRequestNumber
-        uses: actions/github-script@v8
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: ${{ steps.changesets.outputs.pullRequestNumber }},
-              labels: ['ci-release-packages']
-            })
+      - name: Summary
+        run: |
+          echo "## Release PR Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Group:** ${{ inputs.group }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**PR:** ${{ steps.release.outputs.pr-url }}" >> $GITHUB_STEP_SUMMARY

@@ -7,6 +7,7 @@ export default defineConfig({
   description: "Pluggable One Time Password library for TypeScript",
 
   ignoreDeadLinks: true,
+  appearance: "dark",
 
   // Configure Vite to resolve workspace packages
   vite: {
@@ -44,6 +45,7 @@ export default defineConfig({
 
     nav: [
       { text: "Home", link: "/" },
+      { text: "CLI", link: "/tools/cli" },
       { text: "Guide", link: "/guide/getting-started" },
       { text: "API", link: "/api/packages" },
     ],
@@ -58,6 +60,11 @@ export default defineConfig({
           { text: "Plugins", link: "/guide/plugins" },
           { text: "Troubleshooting", link: "/guide/troubleshooting" },
         ],
+      },
+      {
+        text: "Apps / Tools",
+        collapsed: false,
+        items: [{ text: "Command Line (CLI)", link: "/guide/cli-tool.md" }],
       },
       {
         text: "Other Topics",

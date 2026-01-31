@@ -119,4 +119,4 @@ Refer to the [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-star
 
 ## License
 
-[MIT](./LICENSE) © 2026 Gerald Yeo
+[MIT](./LICENSE)

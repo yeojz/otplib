@@ -3,22 +3,27 @@ name: Publish Docs
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
   group: "pages"
   cancel-in-progress: false
+
+env:
+  NODE_VERSION_TARGET: "20"
+  TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
   build:
     environment: general
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -26,7 +31,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies

@@ -12,6 +12,10 @@ permissions:
   contents: read
   checks: write
 
+env:
+  NODE_VERSION_TARGET: "20"
+  TURBO_TELEMETRY_DISABLED: 1
+
 jobs:
   # Note:
   # This workflow uses `npm` instead of `pnpm` for package management
@@ -28,11 +32,12 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: smoke-tests
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "npm"
           cache-dependency-path: package.json
 

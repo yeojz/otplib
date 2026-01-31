@@ -1,0 +1,8 @@
+{
+  "name": "bump-versions-action",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "semver": "^7.6.0"
+  }
+}

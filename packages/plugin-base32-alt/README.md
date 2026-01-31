@@ -110,4 +110,4 @@ const customBypass = createBase32Plugin({
 
 ## License
 
-[MIT](./LICENSE) © 2026 Gerald Yeo
+[MIT](./LICENSE)

@@ -1,0 +1,50 @@
+name: "Version Release PR"
+description: "Bump versions for packages in a release group and create a PR"
+
+inputs:
+  group:
+    description: "Release group name (e.g., packages, cli)"
+    required: true
+  bump:
+    description: "Version bump type (major, minor, patch)"
+    required: true
+  title:
+    description: "PR title format. Use {group} and {version} as placeholders"
+    required: false
+    default: "release({group}): v{version}"
+  label:
+    description: "Label to add to the PR"
+    required: false
+    default: ""
+  token:
+    description: "GitHub token for creating PR"
+    required: true
+
+outputs:
+  version:
+    description: "The new version number"
+    value: ${{ steps.release.outputs.version }}
+  group:
+    description: "The release group name"
+    value: ${{ steps.release.outputs.group }}
+  pr-url:
+    description: "The URL of the created PR"
+    value: ${{ steps.release.outputs.pr_url }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install action dependencies
+      shell: bash
+      run: npm ci --ignore-scripts --omit=dev --prefix ${{ github.action_path }}
+
+    - name: Bump versions and create PR
+      id: release
+      shell: bash
+      env:
+        INPUT_GROUP: ${{ inputs.group }}
+        INPUT_BUMP: ${{ inputs.bump }}
+        INPUT_TITLE: ${{ inputs.title }}
+        INPUT_LABEL: ${{ inputs.label }}
+        GH_TOKEN: ${{ inputs.token }}
+      run: node ${{ github.action_path }}/index.js

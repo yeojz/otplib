@@ -101,4 +101,4 @@ Since v13, parts of the codebase, tests, and documentation have been refined wit
 
 ## License
 
-[MIT](./LICENSE) © 2026 Gerald Yeo
+[MIT](./LICENSE)

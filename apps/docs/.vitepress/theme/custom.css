@@ -14,6 +14,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Hide appearance toggle on specific pages (home, CLI) */
+html.hide-appearance-toggle .VPSwitchAppearance {
+  display: none !important;
+}
+
 :root {
   /* Cipher Terminal Palette - Light mode */
   --vp-c-brand-1: #0e7490; /* Primary - Cyber Teal */
@@ -88,14 +93,18 @@ html {
 }
 
 /* === BUTTON STYLING === */
+/* Primary action button - matches .btn-primary from demo-common.css */
 .VPButton.brand {
   border-radius: 4px;
   font-family: var(--vp-font-family-mono);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 0.75rem 1.5rem;
+  background: var(--vp-c-brand-3);
+  color: #ffffff;
+  border: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -108,11 +117,11 @@ html {
   background: linear-gradient(
     135deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.2) 50%,
     transparent 100%
   );
   transform: translateX(-100%);
-  transition: transform 0.5s ease;
+  transition: transform 0.4s ease;
 }
 
 .VPButton.brand:hover::before {
@@ -121,28 +130,27 @@ html {
 
 .VPButton.brand:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--cipher-accent-glow);
+  box-shadow: 0 4px 20px var(--cipher-accent-glow);
 }
 
 .dark .VPButton.brand {
-  color: #0a1419;
-  box-shadow: 0 0 20px var(--cipher-accent-glow);
+  background: #136377;
+  color: #ffffff;
 }
 
 .dark .VPButton.brand:hover {
-  box-shadow:
-    0 0 30px var(--cipher-accent-glow),
-    0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px var(--cipher-accent-glow);
 }
 
-/* Alt button - Terminal style */
+/* Secondary action button - matches .toggle-secret style */
 .VPButton.alt {
   border-radius: 4px;
   font-family: var(--vp-font-family-mono);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.875rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  padding: 0.75rem 1.5rem;
   border: 1px solid var(--cipher-border);
   background: var(--cipher-surface);
   color: var(--cipher-text-interactive);
@@ -150,10 +158,10 @@ html {
 }
 
 .VPButton.alt:hover {
-  background: var(--cipher-surface);
   border-color: var(--vp-c-brand-1);
   color: var(--vp-c-brand-1);
   box-shadow: 0 0 12px var(--cipher-accent-glow);
+  transform: translateY(-2px);
 }
 
 /* === HOME PAGE HERO === */

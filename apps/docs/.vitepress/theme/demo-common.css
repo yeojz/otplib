@@ -410,30 +410,6 @@ input[type="number"]::placeholder {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Scan line effect */
-.token-container::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, var(--cipher-accent) 50%, transparent 100%);
-  animation: scan 3s linear infinite;
-  opacity: 0.5;
-}
-
-@keyframes scan {
-  0% {
-    top: 0;
-  }
-  100% {
-    top: 100%;
-  }
 }
 
 .token-value {

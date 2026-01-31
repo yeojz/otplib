@@ -167,43 +167,14 @@ chore: update dependencies
 - [ ] Linting passes (`pnpm lint`)
 - [ ] Code formatted (`pnpm format`)
 - [ ] Documentation updated (if applicable)
-- [ ] Changeset added (for version changes)
-
-### Adding Changesets
-
-For changes that affect published packages:
-
-```bash
-pnpm changeset
-```
-
-Follow the prompts to describe your changes.
 
 ### Release Process (For Maintainers)
 
-The release process is partially automated but requires manual triggers.
+Releases are managed by maintainers:
 
-#### 1. Contributors
-
-- **Make Changes**: Implement features or fixes.
-- **Add Changeset**: Run `pnpm changeset` and follow prompts to select affected packages and bump types.
-- **Pull Request**: Submit PR with changes and changeset file.
-
-#### 2. Maintainers (Workflow)
-
-Once PRs are merged to `main`:
-
-1.  **Trigger "Prepare Release"**:
-    - Maintainers should periodically trigger the **Prepare Release** workflow via `workflow_dispatch` (Actions tab).
-    - **Action**: This will create (or update) a "Version Packages" Pull Request by consuming changesets.
-
-2.  **Review & Merge Version PR**:
-    - Review the "Version Packages" PR created by the bot. This PR consumes changesets and updates `package.json` versions.
-    - Merge this PR into `main`.
-
-3.  **Trigger "Publish to npm"**:
-    - After merging the version PR, go back to Actions and trigger **Publish to npm**.
-    - **Action**: The workflow will detect that versions have been bumped. It will build the project and run `pnpm run release` to publish the updated packages to npm.
+1. **Merge PRs**: Review and merge contributor PRs to `main`
+2. **Version Bump**: Update package versions in `package.json` files as needed
+3. **Publish**: Trigger the **Publish to npm** workflow via `workflow_dispatch` (Actions tab) to build and publish packages
 
 ## AI Usage Guidelines
 

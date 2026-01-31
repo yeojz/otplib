@@ -11,7 +11,6 @@
     "bench:utils": "pnpm --filter @repo/benchmarks bench:utils",
     "bench": "pnpm --filter @repo/benchmarks bench",
     "build": "turbo run build",
-    "changeset": "changeset",
     "clean": "turbo run clean && rm -rf node_modules",
     "docs:api": "turbo run docs:api",
     "docs:build": "turbo run docs:build",
@@ -32,11 +31,9 @@
     "test:deno": "deno test --allow-read --no-check packages/*/src/*.deno.test.ts",
     "test:docker": "sh scripts/test-docker.sh",
     "test": "vitest --run",
-    "typecheck": "turbo run typecheck",
-    "version-update": "changeset version"
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.8",
     "@codecov/bundle-analyzer": "^1.9.1",
     "@eslint/js": "^9.39.2",
     "@size-limit/preset-small-lib": "^12.0.0",
@@ -63,10 +60,10 @@
     "vitest": "^4.0.18",
     "vitest-tsconfig-paths": "^3.4.1"
   },
-  "packageManager": "pnpm@8.14.0",
+  "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
+    "pnpm": ">=9.0.0"
   },
   "pnpm": {
     "overrides": {
