@@ -3,7 +3,7 @@ FROM oven/bun:${IMAGE_TAG}
 
 # Install Node.js and pnpm for building packages
 RUN apk add --no-cache nodejs npm
-RUN npm install -g pnpm@8.14.0
+RUN npm install -g pnpm@9.15.9
 
 WORKDIR /workspace
 
