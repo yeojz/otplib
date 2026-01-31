@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     permissions:
-      contents: read
+      contents: read # Required for actions/checkout
     steps:
       - uses: actions/checkout@v6
         with:
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     permissions:
-      contents: read
+      contents: read # Required for actions/checkout
     steps:
       - uses: actions/checkout@v6
         with:
@@ -127,7 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     permissions:
-      contents: read
+      contents: read # Required for actions/checkout and actions/download-artifact
     strategy:
       fail-fast: false
       matrix:
@@ -176,7 +176,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     permissions:
-      contents: read
+      contents: read # Required for actions/checkout and actions/download-artifact
     strategy:
       fail-fast: false
       matrix:
@@ -218,7 +218,7 @@ jobs:
     needs: [lint, typecheck]
     environment: test
     permissions:
-      contents: read
+      contents: read # Required for actions/checkout
     steps:
       - uses: actions/checkout@v6
         with:
@@ -254,7 +254,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     permissions:
-      contents: read
+      contents: read # Required for actions/checkout
     steps:
       - uses: actions/checkout@v6
         with:
@@ -360,7 +360,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     permissions:
-      contents: read
+      contents: read # Required for checking job results
     steps:
       - name: Check all jobs
         run: |
