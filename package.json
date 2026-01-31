@@ -60,16 +60,14 @@
     "vitest": "^4.0.18",
     "vitest-tsconfig-paths": "^3.4.1"
   },
-  "packageManager": "pnpm@8.14.0",
+  "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
+    "pnpm": ">=9.0.0"
   },
-  "pnpm": {
-    "overrides": {
-      "preact@>=10.28.0 <10.28.2": ">=10.28.2",
-      "esbuild@<=0.24.2": ">=0.25.0",
-      "undici@<6.23.0": ">=6.23.0"
-    }
+  "overrides": {
+    "preact@>=10.28.0 <10.28.2": ">=10.28.2",
+    "esbuild@<=0.24.2": ">=0.25.0",
+    "undici@<6.23.0": ">=6.23.0"
   }
 }
