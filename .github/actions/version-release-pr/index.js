@@ -147,7 +147,7 @@ for (const pkg of packagesInfo) {
 const branchName = `release/${group}-v${newVersion}`;
 const prTitle = titleTemplate.replace("{group}", group).replace("{version}", newVersion);
 const commitMessage = prTitle;
-const prBody = `## Release ${group} v${newVersion}
+const prBody = `${prTitle}
 
 This PR was automatically created by the prepare-release workflow.
 
