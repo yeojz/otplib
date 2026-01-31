@@ -15,8 +15,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Disable telemetry for all jobs
+# Shared configuration
 env:
+  NODE_VERSION_TARGET: "20"
   TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
@@ -98,19 +99,19 @@ jobs:
         run: pnpm run build
 
       - name: Run tests with coverage
-        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
+        if: matrix.node-version == fromJSON(env.NODE_VERSION_TARGET) && matrix.os == 'ubuntu-latest'
         run: pnpm run test:ci
 
       - name: Run tests
-        if: matrix.node-version != 20 || matrix.os != 'ubuntu-latest'
+        if: matrix.node-version != fromJSON(env.NODE_VERSION_TARGET) || matrix.os != 'ubuntu-latest'
         run: pnpm run test
 
       - name: Report Coverage
-        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest' && (github.event_name == 'pull_request')
+        if: matrix.node-version == fromJSON(env.NODE_VERSION_TARGET) && matrix.os == 'ubuntu-latest' && (github.event_name == 'pull_request')
         uses: davelosert/vitest-coverage-report-action@v2
 
       - name: Upload coverage to Codecov
-        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
+        if: matrix.node-version == fromJSON(env.NODE_VERSION_TARGET) && matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v5
         with:
           use_oidc: true
@@ -118,7 +119,7 @@ jobs:
           report_type: coverage
 
       - name: Upload test results to Codecov
-        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
+        if: matrix.node-version == fromJSON(env.NODE_VERSION_TARGET) && matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v5
         with:
           use_oidc: true
@@ -144,7 +145,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies
@@ -189,7 +190,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies
@@ -223,7 +224,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies

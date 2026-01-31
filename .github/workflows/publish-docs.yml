@@ -7,6 +7,10 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  NODE_VERSION_TARGET: "20"
+  TURBO_TELEMETRY_DISABLED: 1
+
 jobs:
   build:
     environment: general
@@ -25,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies
