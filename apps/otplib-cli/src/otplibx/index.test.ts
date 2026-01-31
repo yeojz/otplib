@@ -244,6 +244,87 @@ describe("otplibx CLI", () => {
     });
   });
 
+  describe("type command", () => {
+    test("outputs type with newline by default", async () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "totp",
+        stderr: "",
+        status: 0,
+      });
+
+      const { exitCode } = await runCli(["type", "AABCDEF12"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(0);
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("totp\n");
+    });
+
+    test("outputs type without newline when -n is provided", async () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "hotp",
+        stderr: "",
+        status: 0,
+      });
+
+      const { exitCode } = await runCli(["type", "-n", "AABCDEF12"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(0);
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("hotp");
+    });
+
+    test("reads ID from stdin when no argument provided", async () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "totp",
+        stderr: "",
+        status: 0,
+      });
+
+      const { exitCode } = await runCli(["type"], createMockReadStdin("AABCDEF12\n"));
+
+      expect(exitCode).toBe(0);
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("totp\n");
+    });
+
+    test("fails when no ID argument and stdin is empty", async () => {
+      const { exitCode } = await runCli(["type"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: missing entry ID");
+    });
+
+    test("fails when type throws error", async () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "",
+        stderr: "entry not found",
+        status: 1,
+      });
+
+      const { exitCode } = await runCli(["type", "AABCDEF12"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found");
+    });
+  });
+
   describe("list command", () => {
     test("lists entries successfully", async () => {
       mockRunDotenvx.mockReturnValue({

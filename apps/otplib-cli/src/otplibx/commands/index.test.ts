@@ -20,6 +20,7 @@ import { guardRm, guardShow, guardUpdate } from "./guard.js";
 import { init } from "./init.js";
 import { list } from "./list.js";
 import { token } from "./token.js";
+import { type } from "./type.js";
 import { verify } from "./verify.js";
 import { requireCommand, runDotenvx, runOtplib } from "../utils/exec.js";
 
@@ -275,6 +276,103 @@ describe("otplibx commands", () => {
 
       expect(() => token("AABCDEF12", { file: ".env.test", newline: true })).toThrow(
         "otplib token failed",
+      );
+    });
+  });
+
+  describe("type", () => {
+    test("returns type with newline option true", () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "totp",
+        stderr: "",
+        status: 0,
+      });
+
+      const result = type("AABCDEF12", { file: ".env.test", newline: true });
+
+      expect(mockRequireCommand).toHaveBeenCalledWith("otplib");
+      expect(mockRequireCommand).toHaveBeenCalledWith("dotenvx");
+      expect(mockRunDotenvx).toHaveBeenCalledWith(["get", "-f", ".env.test"]);
+      expect(mockRunOtplib).toHaveBeenCalledWith(["type", "AABCDEF12"], {
+        stdin: '{"AABCDEF12":"data"}',
+      });
+      expect(result).toBe("totp");
+    });
+
+    test("returns type without newline option", () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "hotp",
+        stderr: "",
+        status: 0,
+      });
+
+      const result = type("AABCDEF12", { file: ".env.test", newline: false });
+
+      expect(mockRunOtplib).toHaveBeenCalledWith(["type", "-n", "AABCDEF12"], {
+        stdin: '{"AABCDEF12":"data"}',
+      });
+      expect(result).toBe("hotp");
+    });
+
+    test("throws if id is missing", () => {
+      expect(() => type("", { file: ".env.test", newline: true })).toThrow(
+        "missing required argument: <id>",
+      );
+    });
+
+    test("throws if dotenvx get fails", () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: "",
+        stderr: "read failed",
+        status: 1,
+      });
+
+      expect(() => type("AABCDEF12", { file: ".env.test", newline: true })).toThrow(
+        "dotenvx get failed",
+      );
+    });
+
+    test("throws if otplib type fails with stderr", () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "",
+        stderr: "entry not found",
+        status: 1,
+      });
+
+      expect(() => type("AABCDEF12", { file: ".env.test", newline: true })).toThrow(
+        "entry not found",
+      );
+    });
+
+    test("throws generic error if otplib type fails without stderr", () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "",
+        stderr: "",
+        status: 1,
+      });
+
+      expect(() => type("AABCDEF12", { file: ".env.test", newline: true })).toThrow(
+        "otplib type failed",
       );
     });
   });
