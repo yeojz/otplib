@@ -3,9 +3,8 @@ name: Publish CLI
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-    paths:
-      - "apps/otplib-cli/package.json"
+    tags:
+      - "cli-v*.*.*"
 
 concurrency:
   group: "publish-cli"
@@ -17,16 +16,17 @@ env:
 
 jobs:
   dry-run:
-    if: "${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'release(cli):') }}"
+    if: "${{ github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/cli-v') }}"
     environment: general
     name: Dry Run (CLI)
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -53,13 +53,14 @@ jobs:
     needs: dry-run
     permissions:
       contents: read
-      pages: write
       id-token: write
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

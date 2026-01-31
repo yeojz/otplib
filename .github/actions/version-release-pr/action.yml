@@ -36,7 +36,7 @@ runs:
   steps:
     - name: Install action dependencies
       shell: bash
-      run: npm install --prefix ${{ github.action_path }}
+      run: npm ci --ignore-scripts --omit=dev --prefix ${{ github.action_path }}
 
     - name: Bump versions and create PR
       id: release
