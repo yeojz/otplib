@@ -34,125 +34,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 20
 
-      - name: Read release groups and bump versions
-        id: bump
-        uses: actions/github-script@v8
+      - name: Create release PR for ${{ inputs.group }}
+        id: release
+        uses: ./.github/actions/version-release-pr
         with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            const group = '${{ inputs.group }}';
-            const bumpType = '${{ inputs.bump }}';
-
-            // Read release groups config
-            const releaseConfig = JSON.parse(fs.readFileSync('release-config.json', 'utf8'));
-            const packages = releaseConfig.groups[group];
-
-            if (!packages || packages.length === 0) {
-              core.setFailed(`No packages found for group: ${group}`);
-              return;
-            }
-
-            console.log(`Processing group "${group}" with ${packages.length} packages`);
-
-            // Find all package.json files and their versions
-            const packagePaths = [];
-            const findPackageJson = (pkgName) => {
-              // Check packages directory
-              const packagesDir = 'packages';
-              const appsDir = 'apps';
-
-              for (const dir of [packagesDir, appsDir]) {
-                if (!fs.existsSync(dir)) continue;
-                const entries = fs.readdirSync(dir);
-                for (const entry of entries) {
-                  const pkgJsonPath = path.join(dir, entry, 'package.json');
-                  if (fs.existsSync(pkgJsonPath)) {
-                    const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-                    if (pkgJson.name === pkgName) {
-                      return { path: pkgJsonPath, version: pkgJson.version };
-                    }
-                  }
-                }
-              }
-              return null;
-            };
-
-            // Collect all packages and their versions
-            let maxVersion = '0.0.0';
-            const packagesInfo = [];
-
-            for (const pkgName of packages) {
-              const info = findPackageJson(pkgName);
-              if (!info) {
-                core.setFailed(`Could not find package.json for: ${pkgName}`);
-                return;
-              }
-              packagesInfo.push({ name: pkgName, ...info });
-
-              // Compare versions to find max
-              const [curMajor, curMinor, curPatch] = info.version.split('.').map(Number);
-              const [maxMajor, maxMinor, maxPatch] = maxVersion.split('.').map(Number);
-
-              if (curMajor > maxMajor ||
-                  (curMajor === maxMajor && curMinor > maxMinor) ||
-                  (curMajor === maxMajor && curMinor === maxMinor && curPatch > maxPatch)) {
-                maxVersion = info.version;
-              }
-            }
-
-            console.log(`Current max version: ${maxVersion}`);
-
-            // Bump the version
-            const [major, minor, patch] = maxVersion.split('.').map(Number);
-            let newVersion;
-            switch (bumpType) {
-              case 'major':
-                newVersion = `${major + 1}.0.0`;
-                break;
-              case 'minor':
-                newVersion = `${major}.${minor + 1}.0`;
-                break;
-              case 'patch':
-                newVersion = `${major}.${minor}.${patch + 1}`;
-                break;
-            }
-
-            console.log(`New version: ${newVersion}`);
-
-            // Update all packages in the group
-            for (const pkg of packagesInfo) {
-              const pkgJson = JSON.parse(fs.readFileSync(pkg.path, 'utf8'));
-              pkgJson.version = newVersion;
-              fs.writeFileSync(pkg.path, JSON.stringify(pkgJson, null, 2) + '\n');
-              console.log(`Updated ${pkg.name} to ${newVersion}`);
-            }
-
-            core.setOutput('version', newVersion);
-            core.setOutput('group', group);
-
-      - name: Create Pull Request
-        id: create-pr
-        uses: peter-evans/create-pull-request@v7
-        with:
+          group: ${{ inputs.group }}
+          bump: ${{ inputs.bump }}
+          title: "release(${{ inputs.group }}): v{version}"
+          label: ci-release
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "release(${{ steps.bump.outputs.group }}): v${{ steps.bump.outputs.version }}"
-          title: "release(${{ steps.bump.outputs.group }}): v${{ steps.bump.outputs.version }}"
-          body: |
-            ## Release ${{ steps.bump.outputs.group }} v${{ steps.bump.outputs.version }}
 
-            This PR was automatically created by the prepare-release workflow.
-
-            **Group:** ${{ inputs.group }}
-            **Bump type:** ${{ inputs.bump }}
-            **New version:** ${{ steps.bump.outputs.version }}
-          branch: release/${{ steps.bump.outputs.group }}-v${{ steps.bump.outputs.version }}
-          labels: ci-release-${{ steps.bump.outputs.group }}
+      - name: Summary
+        run: |
+          echo "## Release PR Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Group:** ${{ inputs.group }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**PR:** ${{ steps.release.outputs.pr-url }}" >> $GITHUB_STEP_SUMMARY

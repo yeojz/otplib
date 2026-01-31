@@ -2,9 +2,10 @@ name: Publish CLI
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [closed]
+  push:
     branches: [main]
+    paths:
+      - "apps/otplib-cli/package.json"
 
 permissions:
   contents: write
@@ -17,7 +18,7 @@ concurrency:
 
 jobs:
   dry-run:
-    if: "${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'ci-release-cli')) }}"
+    if: "${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'release(cli):') }}"
     environment: general
     name: Dry Run (CLI)
     runs-on: ubuntu-latest

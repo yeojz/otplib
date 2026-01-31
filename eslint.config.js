@@ -15,6 +15,7 @@ export default [
       "**/coverage/**",
       "**/*.d.ts",
       "**/.vitepress/cache/**",
+      ".github/**",
       "apps/benchmarks/**",
     ],
   },
