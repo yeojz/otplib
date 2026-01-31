@@ -14,7 +14,7 @@ export function registerVerifyCommand(program: Command, readStdinFn: ReadStdinFn
       const raw = await readStdinFn();
       if (!raw) {
         console.error("Error: Expected JSON from stdin");
-        console.error("Usage: cat secrets.json | otplib verify <id> <token>");
+        console.error("Usage: cat storage.json | otplib verify <id> <token>");
         process.exitCode = 1;
         return;
       }

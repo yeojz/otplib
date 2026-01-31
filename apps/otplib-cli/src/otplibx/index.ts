@@ -7,6 +7,7 @@ import { registerGuardCommands } from "./commands/guard.js";
 import { registerInitCommand } from "./commands/init.js";
 import { registerListCommand } from "./commands/list.js";
 import { registerTokenCommand } from "./commands/token.js";
+import { registerTypeCommand } from "./commands/type.js";
 import { registerVerifyCommand } from "./commands/verify.js";
 
 import type { ReadStdinFn } from "../shared/stdin.js";
@@ -28,6 +29,7 @@ export function createOtplibxCli(readStdinFn: ReadStdinFn = readStdin): Command 
   registerInitCommand(program);
   registerAddCommand(program, readStdinFn);
   registerTokenCommand(program, readStdinFn);
+  registerTypeCommand(program, readStdinFn);
   registerVerifyCommand(program);
   registerListCommand(program);
   registerGuardCommands(program);

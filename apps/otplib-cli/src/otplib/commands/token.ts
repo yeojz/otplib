@@ -14,7 +14,7 @@ export function registerTokenCommand(program: Command, readStdinFn: ReadStdinFn)
       const raw = await readStdinFn();
       if (!raw) {
         console.error("Error: Expected JSON from stdin");
-        console.error("Usage: cat secrets.json | otplib token <id>");
+        console.error("Usage: cat storage.json | otplib token <id>");
         process.exitCode = 1;
         return;
       }

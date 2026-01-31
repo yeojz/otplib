@@ -63,6 +63,8 @@ For most cases, `otplibx` would be the easiest way to get started with the CLI. 
 | `init [file]`                | Initialize encrypted secrets file         |
 | `add [-b, --bytes <n>]`      | Add OTP entry (reads from stdin)          |
 | `token [-n] [id]`            | Generate OTP token (ID from arg or stdin) |
+| `type [-n] [id]`             | Output entry type (totp or hotp)          |
+| `verify <id> <token>`        | Verify a token (exit 0=valid, 1=invalid)  |
 | `list [--filter <query>]`    | List entries (fuzzy filter by ID/label)   |
 | `guard update <key> <value>` | Add or update a guardrail value           |
 | `guard rm <key>`             | Remove an overridden guardrail            |
@@ -231,7 +233,7 @@ All commands read from stdin. The `encode` command reads an otpauth URI or JSON;
 
 ### Examples
 
-**Sample `secrets.json`:**
+**Sample `storage.json`:**
 
 ```json
 {
@@ -241,15 +243,15 @@ All commands read from stdin. The `encode` command reads an otpauth URI or JSON;
 
 ```bash
 # Read JSON input from a file
-cat secrets.json | otplib list
+cat storage.json | otplib list
 # Output: Service	A1B2C3D4	totp
 
 # Generate a token
-cat secrets.json | otplib token A1B2C3D4
+cat storage.json | otplib token A1B2C3D4
 # Output: 123456
 
 # Verify a token
-cat secrets.json | otplib verify A1B2C3D4 123456 && echo "valid" || echo "invalid"
+cat storage.json | otplib verify A1B2C3D4 123456 && echo "valid" || echo "invalid"
 
 # Encode a new entry from file (outputs KEY=value)
 cat otp-uri.txt | otplib encode

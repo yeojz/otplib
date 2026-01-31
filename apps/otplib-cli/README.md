@@ -17,6 +17,8 @@ Two commands are available:
 
 ## Quick Start
 
+### otplibx
+
 ```bash
 # Initialize secrets file
 otplibx init
@@ -36,6 +38,29 @@ otplibx list --filter github
 otplibx list | fzf | cut -f2 | otplibx token -n | pbcopy
 ```
 
+### otplib
+
+For scripting or custom secret backends, use the stateless `otplib` CLI.
+
+```bash
+# Encode an otpauth URI into internal format
+cat otp-uri.txt | otplib encode
+# Output: A1B2C3D4=eyJkYXRhIjp7...}}
+
+# Store the output in a JSON file (storage.json)
+# { "A1B2C3D4": "eyJkYXRhIjp7...}}" }
+
+# Generate token
+cat storage.json | otplib token A1B2C3D4
+
+# List entries
+cat storage.json | otplib list
+cat storage.json | otplib list --filter github
+
+# Verify a token
+cat storage.json | otplib verify A1B2C3D4 123456
+```
+
 ## Commands
 
 ### otplibx
@@ -45,6 +70,8 @@ otplibx list | fzf | cut -f2 | otplibx token -n | pbcopy
 | `init [file]`                | Initialize encrypted secrets file |
 | `add`                        | Add entry (reads from stdin)      |
 | `token [-n] [id]`            | Generate token                    |
+| `type [-n] [id]`             | Output entry type                 |
+| `verify <id> <token>`        | Verify token                      |
 | `list [--filter <query>]`    | List entries                      |
 | `guard update <key> <value>` | Update guardrail                  |
 | `guard rm <key>`             | Remove guardrail                  |

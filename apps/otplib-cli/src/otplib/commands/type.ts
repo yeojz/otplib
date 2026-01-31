@@ -13,7 +13,7 @@ export function registerTypeCommand(program: Command, readStdinFn: ReadStdinFn):
       const raw = await readStdinFn();
       if (!raw) {
         console.error("Error: Expected JSON from stdin");
-        console.error("Usage: cat secrets.json | otplib type <id>");
+        console.error("Usage: cat storage.json | otplib type <id>");
         process.exitCode = 1;
         return;
       }

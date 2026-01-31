@@ -17,7 +17,7 @@ export function registerHotpCommands(program: Command, readStdinFn: ReadStdinFn)
       const raw = await readStdinFn();
       if (!raw) {
         console.error("Error: Expected JSON from stdin");
-        console.error("Usage: cat secrets.json | otplib hotp update-counter <id>");
+        console.error("Usage: cat storage.json | otplib hotp update-counter <id>");
         process.exitCode = 1;
         return;
       }
