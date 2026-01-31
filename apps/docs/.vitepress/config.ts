@@ -7,7 +7,7 @@ export default defineConfig({
   description: "Pluggable One Time Password library for TypeScript",
 
   ignoreDeadLinks: true,
-  appearance: "force-dark",
+  appearance: "dark",
 
   // Configure Vite to resolve workspace packages
   vite: {

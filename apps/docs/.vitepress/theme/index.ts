@@ -1,5 +1,6 @@
 import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
+import Layout from "./Layout.vue";
 import BenchmarkTable from "../components/BenchmarkTable.vue";
 import TOTPDemo from "../components/TOTPDemo.vue";
 import HOTPDemo from "../components/HOTPDemo.vue";
@@ -10,6 +11,7 @@ import "./demo-common.css";
 
 export default {
   extends: DefaultTheme,
+  Layout,
   enhanceApp({ app }) {
     app.component("BenchmarkTable", BenchmarkTable);
     app.component("TOTPDemo", TOTPDemo);

@@ -53,8 +53,8 @@ jobs:
             const bumpType = '${{ inputs.bump }}';
 
             // Read release groups config
-            const releaseGroups = JSON.parse(fs.readFileSync('release-groups.json', 'utf8'));
-            const packages = releaseGroups[group];
+            const releaseConfig = JSON.parse(fs.readFileSync('release-config.json', 'utf8'));
+            const packages = releaseConfig.groups[group];
 
             if (!packages || packages.length === 0) {
               core.setFailed(`No packages found for group: ${group}`);

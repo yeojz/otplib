@@ -14,6 +14,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Hide appearance toggle on specific pages (home, CLI) */
+html.hide-appearance-toggle .VPSwitchAppearance {
+  display: none !important;
+}
+
 :root {
   /* Cipher Terminal Palette - Light mode */
   --vp-c-brand-1: #0e7490; /* Primary - Cyber Teal */
