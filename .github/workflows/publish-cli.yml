@@ -1,4 +1,4 @@
-name: Publish to npm
+name: Publish CLI to npm
 
 on:
   workflow_dispatch:
@@ -12,14 +12,14 @@ permissions:
   actions: write
 
 concurrency:
-  group: "publish"
+  group: "publish-cli"
   cancel-in-progress: false
 
 jobs:
   dry-run:
-    if: "${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'ci-release-packages')) }}"
+    if: "${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'ci-release-cli')) }}"
     environment: general
-    name: Dry Run (Packages)
+    name: Dry Run (CLI)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -37,15 +37,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm run build
+      - name: Build CLI
+        run: pnpm --filter otplib-cli build
 
       - name: Dry run publish
-        run: pnpm run release:packages-dry-run
+        run: pnpm --filter otplib-cli publish --access public --no-git-checks --dry-run
 
   publish:
     environment: production
-    name: Publish (Packages)
+    name: Publish (CLI)
     runs-on: ubuntu-latest
     needs: dry-run
     steps:
@@ -64,41 +64,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm run build
+      - name: Build CLI
+        run: pnpm --filter otplib-cli build
 
       - name: Configure npm authentication
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: Publish to npm
-        run: pnpm run release:packages
+        run: pnpm --filter otplib-cli publish --access public --no-git-checks
         env:
           NPM_CONFIG_PROVENANCE: true
 
       - name: Get published version
         id: version
-        run: echo "version=$(jq -r '.version' packages/otplib/package.json)" >> $GITHUB_OUTPUT
-
-      - name: Trigger smoke tests
-        if: success()
-        uses: actions/github-script@v8
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'smoke-test-packages.yml',
-              ref: 'main',
-              inputs: { version: '${{ steps.version.outputs.version }}' }
-            })
+        run: echo "version=$(jq -r '.version' apps/otplib-cli/package.json)" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="v${{ steps.version.outputs.version }}"
+          VERSION="cli-v${{ steps.version.outputs.version }}"
 
           # Check if release already exists
           if gh release view "$VERSION" > /dev/null 2>&1; then
@@ -109,12 +95,8 @@ jobs:
           # Fetch only tags to ensure we can sort them
           git fetch origin '+refs/tags/*:refs/tags/*'
 
-          # Find the previous latest tag:
-          # 1. List all tags matching vX.X.X
-          # 2. Sort by version descending (v14 > v13 > v2)
-          # 3. Filter out the current version (if tag already exists)
-          # 4. Take the first result
-          PREV_TAG=$(git tag -l "v*.*.*" --sort=-v:refname | grep -v "^${VERSION}$" | head -n 1)
+          # Find the previous latest CLI tag
+          PREV_TAG=$(git tag -l "cli-v*.*.*" --sort=-v:refname | grep -v "^${VERSION}$" | head -n 1)
 
           echo "Current Version: $VERSION"
           echo "Previous Version: $PREV_TAG"
