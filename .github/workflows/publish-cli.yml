@@ -41,7 +41,7 @@ jobs:
         run: pnpm --filter otplib-cli build
 
       - name: Dry run publish
-        run: pnpm --filter otplib-cli publish --dry-run --no-git-checks
+        run: pnpm --filter otplib-cli publish --access public --no-git-checks --dry-run
 
   publish-npm:
     environment: production
@@ -73,7 +73,7 @@ jobs:
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: Publish to npm
-        run: pnpm --filter otplib-cli publish --no-git-checks
+        run: pnpm --filter otplib-cli publish --access public --no-git-checks
         env:
           NPM_CONFIG_PROVENANCE: true
 
