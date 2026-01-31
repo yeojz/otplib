@@ -15,7 +15,7 @@
  *   pr_url  - The URL of the created PR
  */
 
-const { execSync, spawnSync } = require("child_process");
+const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const semver = require("semver");
@@ -29,20 +29,6 @@ const githubOutput = process.env.GITHUB_OUTPUT;
 if (!group || !bumpType) {
   console.error("::error::Missing required inputs: group, bump");
   process.exit(1);
-}
-
-/**
- * Execute a shell command and return the output
- */
-function exec(command, options = {}) {
-  try {
-    return execSync(command, { encoding: "utf8", ...options }).trim();
-  } catch (err) {
-    if (options.ignoreError) return "";
-    console.error(`::error::Command failed: ${command}`);
-    console.error(err.message);
-    process.exit(1);
-  }
 }
 
 /**
