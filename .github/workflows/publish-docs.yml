@@ -3,6 +3,8 @@ name: Publish Docs
 on:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: "pages"
   cancel-in-progress: false
