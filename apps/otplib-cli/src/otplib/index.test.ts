@@ -166,6 +166,36 @@ describe("CLI", () => {
       expect(exitCode).toBe(1);
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error: Invalid input");
     });
+
+    test("rejects --bytes value less than 1", async () => {
+      const { exitCode } = await runCli(
+        ["encode", "--bytes", "0"],
+        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
+      );
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: --bytes must be between 1 and 32");
+    });
+
+    test("rejects --bytes value greater than 32", async () => {
+      const { exitCode } = await runCli(
+        ["encode", "--bytes", "33"],
+        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
+      );
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: --bytes must be between 1 and 32");
+    });
+
+    test("rejects non-numeric --bytes value", async () => {
+      const { exitCode } = await runCli(
+        ["encode", "--bytes", "abc"],
+        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
+      );
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: --bytes must be between 1 and 32");
+    });
   });
 
   describe("list command", () => {

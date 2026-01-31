@@ -166,6 +166,22 @@ describe("otplibx commands", () => {
         "failed to parse value from otplib output",
       );
     });
+
+    test("passes bytes option to otplib encode", () => {
+      mockRunOtplib.mockReturnValue({
+        stdout: "A12345678=base64payload",
+        stderr: "",
+        status: 0,
+      });
+      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+
+      const result = add("otpauth://totp/Test?secret=ABC", { file: ".env.test", bytes: 8 });
+
+      expect(mockRunOtplib).toHaveBeenCalledWith(["encode", "--bytes", "8"], {
+        stdin: "otpauth://totp/Test?secret=ABC",
+      });
+      expect(result).toBe("A12345678");
+    });
   });
 
   describe("token", () => {

@@ -132,6 +132,53 @@ describe("otplibx CLI", () => {
         "error: expected otpauth URI or JSON from stdin",
       );
     });
+
+    test("passes bytes option to add function", async () => {
+      mockRunOtplib.mockReturnValue({
+        stdout: "A12345678=base64payload",
+        stderr: "",
+        status: 0,
+      });
+      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+
+      const { exitCode } = await runCli(
+        ["add", "--bytes", "8"],
+        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
+      );
+
+      expect(exitCode).toBe(0);
+      expect(mockRunOtplib).toHaveBeenCalledWith(["encode", "--bytes", "8"], expect.anything());
+    });
+
+    test("rejects --bytes value less than 1", async () => {
+      const { exitCode } = await runCli(
+        ["add", "--bytes", "0"],
+        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
+      );
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: --bytes must be between 1 and 32");
+    });
+
+    test("rejects --bytes value greater than 32", async () => {
+      const { exitCode } = await runCli(
+        ["add", "--bytes", "33"],
+        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
+      );
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: --bytes must be between 1 and 32");
+    });
+
+    test("rejects non-numeric --bytes value", async () => {
+      const { exitCode } = await runCli(
+        ["add", "--bytes", "abc"],
+        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
+      );
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: --bytes must be between 1 and 32");
+    });
   });
 
   describe("token command", () => {
@@ -394,6 +441,60 @@ describe("otplibx CLI", () => {
       });
 
       const { exitCode } = await runCli(["token", "AABCDEF12"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found");
+    });
+  });
+
+  describe("verify command", () => {
+    test("exits with 0 when token is valid", async () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "",
+        stderr: "",
+        status: 0,
+      });
+
+      const { exitCode } = await runCli(["verify", "AABCDEF12", "123456"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(0);
+    });
+
+    test("exits with 1 when token is invalid", async () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "",
+        stderr: "",
+        status: 1,
+      });
+
+      const { exitCode } = await runCli(["verify", "AABCDEF12", "000000"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(1);
+    });
+
+    test("fails when verify throws error", async () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "",
+        stderr: "entry not found",
+        status: 1,
+      });
+
+      const { exitCode } = await runCli(["verify", "AABCDEF12", "123456"], createEmptyReadStdin());
 
       expect(exitCode).toBe(1);
       expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found");
