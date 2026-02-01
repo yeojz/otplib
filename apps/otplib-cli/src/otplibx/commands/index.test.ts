@@ -27,6 +27,7 @@ import fs from "node:fs";
 import { add } from "./add.js";
 import { deduplicateKeys } from "../utils/dedup.js";
 import { guardRm, guardShow, guardUpdate } from "./guard.js";
+import { updateCounter } from "./hotp.js";
 import { init } from "./init.js";
 import { list } from "./list.js";
 import { token } from "./token.js";
@@ -544,6 +545,132 @@ describe("otplibx commands", () => {
         stdin: '{"AABCDEF12":"data"}',
       });
       expect(result).toBe("AABCDEF12\ttotp\tGitHub:user");
+    });
+  });
+
+  describe("hotp update-counter", () => {
+    beforeEach(() => {
+      mockFs.readFileSync.mockImplementation(() => {
+        const err = new Error("file missing") as NodeJS.ErrnoException;
+        err.code = "ENOENT";
+        throw err;
+      });
+      mockFs.mkdtempSync.mockReturnValue("/tmp/otplibx-abc");
+    });
+
+    test("updates counter and writes updated entry", () => {
+      mockRunDotenvx.mockReturnValueOnce({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "AABCDEF12=base64payload",
+        stderr: "",
+        status: 0,
+      });
+      const result = updateCounter("AABCDEF12", { file: ".env.test" });
+
+      expect(mockRunDotenvx).toHaveBeenCalledWith(["get", "-f", ".env.test"]);
+      expect(mockRunOtplib).toHaveBeenCalledWith(["hotp", "update-counter", "AABCDEF12"], {
+        stdin: '{"AABCDEF12":"data"}',
+      });
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        "/tmp/otplibx-abc/.env.test",
+        "AABCDEF12=base64payload\n",
+      );
+      expect(mockRunDotenvx).toHaveBeenCalledWith(["encrypt", "-f", "/tmp/otplibx-abc/.env.test"]);
+      expect(mockFs.renameSync).toHaveBeenCalledWith("/tmp/otplibx-abc/.env.test", ".env.test");
+      expect(mockFs.rmSync).toHaveBeenCalledWith("/tmp/otplibx-abc", {
+        recursive: true,
+        force: true,
+      });
+      expect(result).toBe("AABCDEF12");
+    });
+
+    test("passes counter to otplib update-counter", () => {
+      mockRunDotenvx.mockReturnValueOnce({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "AABCDEF12=base64payload",
+        stderr: "",
+        status: 0,
+      });
+      mockRunDotenvx.mockReturnValueOnce({ stdout: "", stderr: "", status: 0 });
+
+      updateCounter("AABCDEF12", { file: ".env.test", counter: 10 });
+
+      expect(mockRunOtplib).toHaveBeenCalledWith(["hotp", "update-counter", "AABCDEF12", "10"], {
+        stdin: '{"AABCDEF12":"data"}',
+      });
+    });
+
+    test("throws if id is missing", () => {
+      expect(() => updateCounter("", { file: ".env.test" })).toThrow(
+        "missing required argument: <id>",
+      );
+    });
+
+    test("throws if dotenvx get fails", () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: "",
+        stderr: "read failed",
+        status: 1,
+      });
+
+      expect(() => updateCounter("AABCDEF12", { file: ".env.test" })).toThrow("dotenvx get failed");
+    });
+
+    test("throws if otplib update fails", () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "",
+        stderr: "entry not found",
+        status: 1,
+      });
+
+      expect(() => updateCounter("AABCDEF12", { file: ".env.test" })).toThrow("update failed");
+    });
+
+    test("throws if otplib output is empty", () => {
+      mockRunDotenvx.mockReturnValue({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "",
+        stderr: "",
+        status: 0,
+      });
+
+      expect(() => updateCounter("AABCDEF12", { file: ".env.test" })).toThrow(
+        "failed to parse updated entry from otplib output",
+      );
+    });
+
+    test("throws if otplib output has no equals sign", () => {
+      mockRunDotenvx.mockReturnValueOnce({
+        stdout: '{"AABCDEF12":"data"}',
+        stderr: "",
+        status: 0,
+      });
+      mockRunOtplib.mockReturnValue({
+        stdout: "malformed_output_no_equals",
+        stderr: "",
+        status: 0,
+      });
+
+      expect(() => updateCounter("AABCDEF12", { file: ".env.test" })).toThrow(
+        "failed to parse key from otplib output",
+      );
     });
   });
 

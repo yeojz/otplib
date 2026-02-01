@@ -58,17 +58,18 @@ For most cases, `otplibx` would be the easiest way to get started with the CLI. 
 
 ### Commands
 
-| Command                      | Description                               |
-| ---------------------------- | ----------------------------------------- |
-| `init [file]`                | Initialize encrypted secrets file         |
-| `add [-b, --bytes <n>]`      | Add OTP entry (reads from stdin)          |
-| `token [-n] [id]`            | Generate OTP token (ID from arg or stdin) |
-| `type [-n] [id]`             | Output entry type (totp or hotp)          |
-| `verify <id> <token>`        | Verify a token (exit 0=valid, 1=invalid)  |
-| `list [--filter <query>]`    | List entries (fuzzy filter by ID/label)   |
-| `guard update <key> <value>` | Add or update a guardrail value           |
-| `guard rm <key>`             | Remove an overridden guardrail            |
-| `guard show`                 | Show guardrail configuration              |
+| Command                        | Description                               |
+| ------------------------------ | ----------------------------------------- |
+| `init [file]`                  | Initialize encrypted secrets file         |
+| `add [-b, --bytes <n>]`        | Add OTP entry (reads from stdin)          |
+| `token [-n] [id]`              | Generate OTP token (ID from arg or stdin) |
+| `type [-n] [id]`               | Output entry type (totp or hotp)          |
+| `verify <id> <token>`          | Verify a token (exit 0=valid, 1=invalid)  |
+| `list [--filter <query>]`      | List entries (fuzzy filter by ID/label)   |
+| `hotp update-counter <id> [n]` | Update HOTP counter                       |
+| `guard update <key> <value>`   | Add or update a guardrail value           |
+| `guard rm <key>`               | Remove an overridden guardrail            |
+| `guard show`                   | Show guardrail configuration              |
 
 **Options:**
 
@@ -165,6 +166,13 @@ For interactive selection, pipe to `fzf`:
 ```bash
 # Select entry interactively and copy token
 otplibx list | fzf | cut -f2 | otplibx token -n | pbcopy
+```
+
+### Updating HOTP Counters
+
+```bash
+otplibx hotp update-counter A1B2C3D4
+otplibx hotp update-counter A1B2C3D4 10
 ```
 
 ### Guardrails
