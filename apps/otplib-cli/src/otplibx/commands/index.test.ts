@@ -7,9 +7,13 @@ vi.mock("../utils/dedup.js", () => ({
 vi.mock("node:fs", () => ({
   default: {
     existsSync: vi.fn(),
+    readFileSync: vi.fn(),
     writeFileSync: vi.fn(),
     unlinkSync: vi.fn(),
     appendFileSync: vi.fn(),
+    mkdtempSync: vi.fn(),
+    renameSync: vi.fn(),
+    rmSync: vi.fn(),
   },
 }));
 
@@ -83,6 +87,15 @@ describe("otplibx commands", () => {
   });
 
   describe("add", () => {
+    beforeEach(() => {
+      mockFs.readFileSync.mockImplementation(() => {
+        const err = new Error("file missing") as NodeJS.ErrnoException;
+        err.code = "ENOENT";
+        throw err;
+      });
+      mockFs.mkdtempSync.mockReturnValue("/tmp/otplibx-abc");
+    });
+
     test("adds entry via otplib and dotenvx", () => {
       mockRunOtplib.mockReturnValue({
         stdout: "A12345678=base64payload",
@@ -98,12 +111,58 @@ describe("otplibx commands", () => {
       expect(mockRunOtplib).toHaveBeenCalledWith(["encode"], {
         stdin: "otpauth://totp/Test?secret=ABC",
       });
-      expect(mockFs.appendFileSync).toHaveBeenCalledWith(
-        ".env.test",
-        "\nA12345678=base64payload\n",
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        "/tmp/otplibx-abc/.env.test",
+        "A12345678=base64payload\n",
       );
-      expect(mockRunDotenvx).toHaveBeenCalledWith(["encrypt", "-f", ".env.test"]);
+      expect(mockRunDotenvx).toHaveBeenCalledWith(["encrypt", "-f", "/tmp/otplibx-abc/.env.test"]);
+      expect(mockFs.renameSync).toHaveBeenCalledWith("/tmp/otplibx-abc/.env.test", ".env.test");
       expect(result).toBe("A12345678");
+    });
+
+    test("writes to temp file then replaces target", () => {
+      mockRunOtplib.mockReturnValue({
+        stdout: "A12345678=base64payload",
+        stderr: "",
+        status: 0,
+      });
+      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockReturnValue("EXISTING=encrypted");
+      mockFs.mkdtempSync.mockReturnValue("/tmp/otplibx-abc");
+
+      add("otpauth://totp/Test?secret=ABC", { file: ".env.test" });
+
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        "/tmp/otplibx-abc/.env.test",
+        "EXISTING=encrypted\nA12345678=base64payload\n",
+      );
+      expect(mockRunDotenvx).toHaveBeenCalledWith(["encrypt", "-f", "/tmp/otplibx-abc/.env.test"]);
+      expect(mockFs.renameSync).toHaveBeenCalledWith("/tmp/otplibx-abc/.env.test", ".env.test");
+      expect(mockFs.rmSync).toHaveBeenCalledWith("/tmp/otplibx-abc", {
+        recursive: true,
+        force: true,
+      });
+    });
+
+    test("cleans up temp dir if encrypt fails", () => {
+      mockRunOtplib.mockReturnValue({
+        stdout: "AABCDEF12=payload",
+        stderr: "",
+        status: 0,
+      });
+      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "encrypt failed", status: 1 });
+      mockFs.existsSync.mockReturnValue(false);
+      mockFs.mkdtempSync.mockReturnValue("/tmp/otplibx-abc");
+
+      expect(() => add("otpauth://totp/Test?secret=ABC", { file: ".env.test" })).toThrow(
+        "dotenvx encrypt failed",
+      );
+
+      expect(mockFs.rmSync).toHaveBeenCalledWith("/tmp/otplibx-abc", {
+        recursive: true,
+        force: true,
+      });
     });
 
     test("warns if deduplication fails", () => {
@@ -144,7 +203,7 @@ describe("otplibx commands", () => {
         stderr: "",
         status: 0,
       });
-      mockFs.appendFileSync.mockImplementation(() => {
+      mockFs.writeFileSync.mockImplementation(() => {
         throw new Error("permission denied");
       });
 
@@ -168,6 +227,11 @@ describe("otplibx commands", () => {
       expect(() => add("otpauth://totp/Test?secret=ABC", { file: ".env.test" })).toThrow(
         "dotenvx encrypt failed",
       );
+      expect(mockRunDotenvx).toHaveBeenCalledWith(["encrypt", "-f", "/tmp/otplibx-abc/.env.test"]);
+      expect(mockFs.rmSync).toHaveBeenCalledWith("/tmp/otplibx-abc", {
+        recursive: true,
+        force: true,
+      });
     });
 
     test("throws if otplib output has no equals sign", () => {

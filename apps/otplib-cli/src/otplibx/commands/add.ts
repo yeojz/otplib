@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import path from "node:path";
 
 import { deduplicateKeys } from "../utils/dedup.js";
 import { requireCommand, runDotenvx, runOtplib } from "../utils/exec.js";
@@ -46,17 +47,40 @@ export function add(input: string, options: AddOptions): string {
     throw new Error("failed to parse value from otplib output");
   }
 
-  try {
-    // Append to file manually to avoid exposing secret in process list (argv)
-    // dotenvx encrypt will pick it up and encrypt it
-    fs.appendFileSync(file, `\n${key}=${value}\n`);
-  } catch (err) {
-    throw new Error(`failed to write to ${file}: ${(err as Error).message}`);
-  }
+  const parentDir = path.dirname(file);
+  const tempDir = fs.mkdtempSync(path.join(parentDir, ".otplibx-"));
+  const tempFile = path.join(tempDir, path.basename(file));
 
-  const dotenvxResult = runDotenvx(["encrypt", "-f", file]);
-  if (dotenvxResult.status !== 0) {
-    throw new Error(`dotenvx encrypt failed: ${dotenvxResult.stderr}`);
+  try {
+    let existingContents = "";
+    try {
+      existingContents = fs.readFileSync(file, "utf8");
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw err;
+      }
+    }
+
+    const nextContents = `${existingContents}${
+      existingContents && !existingContents.endsWith("\n") ? "\n" : ""
+    }${key}=${value}\n`;
+
+    try {
+      // Write to a temp file to avoid exposing secret in process list (argv)
+      // dotenvx encrypt will pick it up and encrypt it
+      fs.writeFileSync(tempFile, nextContents);
+    } catch (err) {
+      throw new Error(`failed to write to ${file}: ${(err as Error).message}`);
+    }
+
+    const dotenvxResult = runDotenvx(["encrypt", "-f", tempFile]);
+    if (dotenvxResult.status !== 0) {
+      throw new Error(`dotenvx encrypt failed: ${dotenvxResult.stderr}`);
+    }
+
+    fs.renameSync(tempFile, file);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
   }
 
   try {
