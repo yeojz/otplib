@@ -204,7 +204,7 @@ jobs:
           sed -i 's/deno test --allow-read --no-check/deno test --allow-read --no-check --unstable-sloppy-imports/g' deno.json
 
       - name: Run Deno distribution tests
-        run: deno test --allow-read --no-check internal/distribution-tests/src/*.deno.test.ts
+        run: deno test --allow-read --no-check internal/distribution-tests/src/deno.test.ts
 
   test-bun:
     name: Distribution Test (Bun ${{ matrix.bun-version }})
@@ -246,7 +246,7 @@ jobs:
           bun-version: ${{ matrix.bun-version }}
 
       - name: Run Bun distribution tests
-        run: bun test internal/distribution-tests/src/*.bun.test.ts
+        run: bun test internal/distribution-tests/src/bun.test.ts
 
   security-audit:
     name: Security Audit

@@ -73,7 +73,7 @@ export default defineConfig({
       reporter: process.env.CI
         ? ["text", "json", "lcov", "json-summary"]
         : ["text", "json", "html", "lcov", "json-summary"],
-      include: ["packages/*/src/**/*.ts", "apps/otplib-cli/src/**/*.{ts,tsx}"],
+      include: ["packages/*/src/**/*.ts"],
       exclude: [
         "node_modules/",
         "dist/**",
