@@ -19,9 +19,7 @@ on:
           - minor
           - major
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 concurrency:
   group: "prepare-release"
@@ -36,6 +34,9 @@ jobs:
     environment: general
     name: Prepare Release (Create PR)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required for creating/updating release branch
+      pull-requests: write # Required for creating PR
     steps:
       - name: Checkout
         uses: actions/checkout@v4

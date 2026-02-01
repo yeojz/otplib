@@ -8,9 +8,7 @@ on:
         required: false
         default: "latest"
 
-permissions:
-  contents: read
-  checks: write
+permissions: {}
 
 env:
   NODE_VERSION_TARGET: "20"
@@ -24,6 +22,9 @@ jobs:
     environment: general
     name: Smoke Test (Packages)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Required for checkout
+      checks: write # Required for uploading test results
     steps:
       - name: Set version
         run: echo "OTPLIB_VERSION=${{ github.event.inputs.version || 'latest' }}" >> $GITHUB_ENV

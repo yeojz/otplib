@@ -6,8 +6,7 @@ on:
     tags:
       - "v*.*.*"
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: "publish"
