@@ -35,63 +35,59 @@ function normalizeDigits(digits?: number): OtpDigits {
 }
 
 export function parseOtpauthUri(uri: string): OtpData {
-  if (!uri.startsWith("otpauth://")) {
+  let url: URL;
+  try {
+    url = new URL(uri);
+  } catch {
     throw new Error("Invalid URI: must start with otpauth://");
   }
 
-  const withoutScheme = uri.slice("otpauth://".length);
-  const slashIndex = withoutScheme.indexOf("/");
-  if (slashIndex === -1) {
+  if (url.protocol !== "otpauth:") {
+    throw new Error("Invalid URI: must start with otpauth://");
+  }
+
+  if (url.hostname !== "totp" && url.hostname !== "hotp") {
+    throw new Error(`Invalid type: ${url.hostname}, expected totp or hotp`);
+  }
+
+  if (url.pathname === "") {
     throw new Error("Invalid URI format: missing path");
   }
 
-  const type = withoutScheme.slice(0, slashIndex);
-  if (type !== "totp" && type !== "hotp") {
-    throw new Error(`Invalid type: ${type}, expected totp or hotp`);
-  }
+  const type = url.hostname as "totp" | "hotp";
+  const label = decodeURIComponent(url.pathname.slice(1));
 
-  const remaining = withoutScheme.slice(slashIndex + 1);
-  const queryIndex = remaining.indexOf("?");
-  const labelPart = queryIndex === -1 ? remaining : remaining.slice(0, queryIndex);
-  const queryString = queryIndex === -1 ? "" : remaining.slice(queryIndex + 1);
-
-  const params: Record<string, string> = {};
-  if (queryString) {
-    for (const pair of queryString.split("&")) {
-      const eqIndex = pair.indexOf("=");
-      if (eqIndex !== -1) {
-        const key = decodeURIComponent(pair.slice(0, eqIndex));
-        const value = decodeURIComponent(pair.slice(eqIndex + 1));
-        params[key] = value;
-      }
-    }
-  }
-
-  if (!params.secret) {
+  const secret = url.searchParams.get("secret");
+  if (!secret) {
     throw new Error("Missing required parameter: secret");
   }
 
-  const decodedLabel = decodeURIComponent(labelPart);
-  let issuer = params.issuer;
-  let account = decodedLabel;
+  let issuer = url.searchParams.get("issuer") || undefined;
+  let account = label;
 
-  const colonIndex = decodedLabel.indexOf(":");
+  const colonIndex = label.indexOf(":");
   if (colonIndex !== -1) {
-    issuer = issuer || decodedLabel.slice(0, colonIndex);
-    account = decodedLabel.slice(colonIndex + 1);
+    issuer = issuer || label.slice(0, colonIndex);
+    account = label.slice(colonIndex + 1);
   }
 
-  const algorithm = normalizeAlgorithm(params.algorithm);
-  const digits = normalizeDigits(params.digits ? parseInt(params.digits, 10) : undefined);
+  const algorithm = normalizeAlgorithm(url.searchParams.get("algorithm") || undefined);
+  const digits = normalizeDigits(
+    url.searchParams.has("digits") ? parseInt(url.searchParams.get("digits")!, 10) : undefined,
+  );
 
   if (type === "totp") {
-    const period = params.period ? parseInt(params.period, 10) : 30;
+    const period = url.searchParams.has("period")
+      ? parseInt(url.searchParams.get("period")!, 10)
+      : 30;
     if (period <= 0) throw new Error("Invalid period: must be positive");
-    return { type: "totp", secret: params.secret, issuer, account, algorithm, digits, period };
+    return { type: "totp", secret, issuer, account, algorithm, digits, period };
   } else {
-    const counter = params.counter ? parseInt(params.counter, 10) : 0;
+    const counter = url.searchParams.has("counter")
+      ? parseInt(url.searchParams.get("counter")!, 10)
+      : 0;
     if (counter < 0) throw new Error("Invalid counter: must be non-negative");
-    return { type: "hotp", secret: params.secret, issuer, account, algorithm, digits, counter };
+    return { type: "hotp", secret, issuer, account, algorithm, digits, counter };
   }
 }
 
