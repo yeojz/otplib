@@ -1,3 +1,6 @@
+import fs from "node:fs";
+
+import { deduplicateKeys } from "../utils/dedup.js";
 import { requireCommand, runDotenvx, runOtplib } from "../utils/exec.js";
 
 import type { ReadStdinFn } from "../../shared/stdin.js";
@@ -43,9 +46,24 @@ export function add(input: string, options: AddOptions): string {
     throw new Error("failed to parse value from otplib output");
   }
 
-  const dotenvxResult = runDotenvx(["set", key, value, "-f", file]);
+  try {
+    // Append to file manually to avoid exposing secret in process list (argv)
+    // dotenvx encrypt will pick it up and encrypt it
+    fs.appendFileSync(file, `\n${key}=${value}\n`);
+  } catch (err) {
+    throw new Error(`failed to write to ${file}: ${(err as Error).message}`);
+  }
+
+  const dotenvxResult = runDotenvx(["encrypt", "-f", file]);
   if (dotenvxResult.status !== 0) {
-    throw new Error(`dotenvx set failed: ${dotenvxResult.stderr}`);
+    throw new Error(`dotenvx encrypt failed: ${dotenvxResult.stderr}`);
+  }
+
+  try {
+    deduplicateKeys(file);
+  } catch (err) {
+    // Non-fatal, just warn
+    console.error(`warning: deduplication failed: ${(err as Error).message}`);
   }
 
   return key;

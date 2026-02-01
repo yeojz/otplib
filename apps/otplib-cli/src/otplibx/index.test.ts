@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+vi.mock("./utils/dedup.js", () => ({
+  deduplicateKeys: vi.fn(),
+}));
+
 vi.mock("node:fs", () => ({
   default: {
     existsSync: vi.fn(),
     writeFileSync: vi.fn(),
     unlinkSync: vi.fn(),
+    appendFileSync: vi.fn(),
   },
 }));
 

@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+vi.mock("../utils/dedup.js", () => ({
+  deduplicateKeys: vi.fn(),
+}));
+
 vi.mock("node:fs", () => ({
   default: {
     existsSync: vi.fn(),
     writeFileSync: vi.fn(),
     unlinkSync: vi.fn(),
+    appendFileSync: vi.fn(),
   },
 }));
 
@@ -89,13 +94,11 @@ describe("otplibx commands", () => {
       expect(mockRunOtplib).toHaveBeenCalledWith(["encode"], {
         stdin: "otpauth://totp/Test?secret=ABC",
       });
-      expect(mockRunDotenvx).toHaveBeenCalledWith([
-        "set",
-        "A12345678",
-        "base64payload",
-        "-f",
+      expect(mockFs.appendFileSync).toHaveBeenCalledWith(
         ".env.test",
-      ]);
+        "\nA12345678=base64payload\n",
+      );
+      expect(mockRunDotenvx).toHaveBeenCalledWith(["encrypt", "-f", ".env.test"]);
       expect(result).toBe("A12345678");
     });
 
@@ -115,7 +118,22 @@ describe("otplibx commands", () => {
       expect(() => add("invalid", { file: ".env.test" })).toThrow("otplib add failed");
     });
 
-    test("throws if dotenvx set fails", () => {
+    test("throws if write to file fails", () => {
+      mockRunOtplib.mockReturnValue({
+        stdout: "AABCDEF12=payload",
+        stderr: "",
+        status: 0,
+      });
+      mockFs.appendFileSync.mockImplementation(() => {
+        throw new Error("permission denied");
+      });
+
+      expect(() => add("otpauth://totp/Test?secret=ABC", { file: ".env.test" })).toThrow(
+        "failed to write to .env.test: permission denied",
+      );
+    });
+
+    test("throws if dotenvx encrypt fails", () => {
       mockRunOtplib.mockReturnValue({
         stdout: "AABCDEF12=payload",
         stderr: "",
@@ -123,12 +141,12 @@ describe("otplibx commands", () => {
       });
       mockRunDotenvx.mockReturnValue({
         stdout: "",
-        stderr: "write failed",
+        stderr: "encrypt failed",
         status: 1,
       });
 
       expect(() => add("otpauth://totp/Test?secret=ABC", { file: ".env.test" })).toThrow(
-        "dotenvx set failed",
+        "dotenvx encrypt failed",
       );
     });
 
