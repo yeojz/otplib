@@ -38,9 +38,9 @@ pnpm --filter otplib-cli test -- --project otplib-cli
 # Run specific test file
 pnpm vitest run packages/core/src/utils.test.ts
 
-# Multi-runtime tests (See #Testing)
-pnpm test:bun         # Bun-specific tests
-pnpm test:deno        # Deno-specific tests
+# Multi-runtime distribution tests (See #Testing)
+pnpm test:dist-bun    # Bun distribution tests
+pnpm test:dist-deno   # Deno distribution tests
 # OR
 pnpm test:docker bun-1
 
@@ -101,7 +101,7 @@ otplib/
 
 - Test built artifacts (dist/) across Node.js 20/22/24, Deno, and Bun
 - Ensures published packages work correctly in all target runtimes
-- Run with `pnpm build && pnpm test:distribution`
+- Run with `pnpm build && pnpm test:dist-node`
 
 ### Local Testing
 
@@ -112,9 +112,9 @@ pnpm test:ci          # with coverage
 
 # Distribution tests (built artifacts)
 pnpm build            # Required: build packages first
-pnpm test:distribution # Node.js distribution tests
-pnpm test:bun         # Bun distribution tests (requires Bun)
-pnpm test:deno        # Deno distribution tests (requires Deno)
+pnpm test:dist-node   # Node.js distribution tests
+pnpm test:dist-bun    # Bun distribution tests (requires Bun)
+pnpm test:dist-deno   # Deno distribution tests (requires Deno)
 ```
 
 ### Docker-based Multi-Runtime Testing

@@ -120,7 +120,7 @@ jobs:
           path: packages/*/dist
           retention-days: 1
 
-  test-distribution:
+  test-node:
     name: Distribution Test (Node.js ${{ matrix.node-version }})
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -155,7 +155,7 @@ jobs:
           path: packages
 
       - name: Run distribution tests
-        run: pnpm run test:distribution
+        run: pnpm run test:dist-node
 
   test-deno:
     name: Distribution Test (Deno ${{ matrix.deno-version }})
@@ -355,7 +355,7 @@ jobs:
   all-checks:
     name: All Checks Passed
     if: always()
-    needs: [lint, typecheck, build-and-test, test-distribution, test-deno, test-bun, security-audit, reporting]
+    needs: [lint, typecheck, build-and-test, test-node, test-deno, test-bun, security-audit, reporting]
     runs-on: ubuntu-latest
     environment: test
     permissions:
@@ -366,7 +366,7 @@ jobs:
           if [[ "${{ needs.lint.result }}" != "success" ]] || \
              [[ "${{ needs.typecheck.result }}" != "success" ]] || \
              [[ "${{ needs.build-and-test.result }}" != "success" ]] || \
-             [[ "${{ needs.test-distribution.result }}" != "success" ]] || \
+             [[ "${{ needs.test-node.result }}" != "success" ]] || \
              [[ "${{ needs.test-deno.result }}" != "success" ]] || \
              [[ "${{ needs.test-bun.result }}" != "success" ]] || \
              [[ "${{ needs.security-audit.result }}" != "success" ]] || \

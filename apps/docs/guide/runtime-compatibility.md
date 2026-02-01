@@ -163,11 +163,10 @@ otplib is tested across all three major runtimes to ensure compatibility:
 # Node.js (Vitest)
 pnpm test
 
-# Bun
-pnpm test:bun
-
-# Deno
-pnpm test:deno
+# Distribution tests (requires pnpm build first)
+pnpm test:dist-node   # Node.js
+pnpm test:dist-bun    # Bun
+pnpm test:dist-deno   # Deno
 ```
 
 All core functionality including HOTP and TOTP are verified against RFC 4226 and RFC 6238 test vectors on each runtime.

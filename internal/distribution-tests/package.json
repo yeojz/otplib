@@ -6,9 +6,9 @@
   "description": "Distribution tests for verifying built artifacts across Node.js, Deno, and Bun",
   "scripts": {
     "test": "vitest",
-    "test:node": "vitest run",
-    "test:bun": "bun test src/bun.test.ts",
-    "test:deno": "deno test --allow-read --no-check src/deno.test.ts"
+    "test:dist-node": "vitest run",
+    "test:dist-bun": "bun test src/bun.test.ts",
+    "test:dist-deno": "deno test --allow-read --no-check src/deno.test.ts"
   },
   "dependencies": {
     "@otplib/core": "workspace:*",
