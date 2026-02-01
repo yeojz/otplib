@@ -7,8 +7,8 @@
   "scripts": {
     "test": "vitest",
     "test:node": "vitest run",
-    "test:bun": "bun test src/*.bun.test.ts",
-    "test:deno": "deno test --allow-read --no-check src/*.deno.test.ts"
+    "test:bun": "bun test src/bun.test.ts",
+    "test:deno": "deno test --allow-read --no-check src/deno.test.ts"
   },
   "dependencies": {
     "@otplib/core": "workspace:*",

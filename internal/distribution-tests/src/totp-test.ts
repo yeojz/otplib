@@ -4,13 +4,7 @@
  * Tests the TOTP package using built artifacts (dist/).
  */
 
-import {
-  stringToBytes,
-  createGuardrails,
-  SecretTooLongError,
-  PeriodTooLargeError,
-  EpochToleranceTooLargeError,
-} from "@otplib/core";
+import { stringToBytes, createGuardrails } from "@otplib/core";
 import {
   generate,
   generateSync,
@@ -21,13 +15,13 @@ import {
 } from "@otplib/totp";
 import { RFC6238_VECTORS, BASE_SECRET, hexToNumber } from "@repo/testing";
 
-import type { CryptoPlugin } from "@otplib/core";
+import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
 
 /**
  * Creates the TOTP distribution test suite with injected dependencies
  */
-export function createTOTPDistributionTests(ctx: TestContext<CryptoPlugin>): void {
+export function createTOTPDistributionTests(ctx: TestContext<CryptoPlugin, Base32Plugin>): void {
   const { describe, it, expect, crypto } = ctx;
   const secret = stringToBytes(BASE_SECRET);
 
@@ -293,7 +287,7 @@ export function createTOTPDistributionTests(ctx: TestContext<CryptoPlugin>): voi
             crypto,
             guardrails: restrictiveGuardrails,
           }),
-        ).rejects.toThrow(SecretTooLongError);
+        ).rejects.toThrow("Secret must not exceed");
       });
 
       it("should respect custom guardrails for period validation", async () => {
@@ -309,7 +303,7 @@ export function createTOTPDistributionTests(ctx: TestContext<CryptoPlugin>): voi
             crypto,
             guardrails: restrictiveGuardrails,
           }),
-        ).rejects.toThrow(PeriodTooLargeError);
+        ).rejects.toThrow("Period must not exceed");
       });
 
       it("should respect custom guardrails for epochTolerance", async () => {
@@ -329,7 +323,7 @@ export function createTOTPDistributionTests(ctx: TestContext<CryptoPlugin>): voi
             epochTolerance: 300,
             guardrails: restrictiveGuardrails,
           }),
-        ).rejects.toThrow(EpochToleranceTooLargeError);
+        ).rejects.toThrow("Epoch tolerance must not exceed");
       });
     });
 

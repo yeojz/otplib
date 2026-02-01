@@ -28,14 +28,24 @@ import { createDenoTestContext } from "@repo/testing";
 import { createHOTPDistributionTests } from "./hotp-test.ts";
 import { createTOTPDistributionTests } from "./totp-test.ts";
 import { createOtplibDistributionTests } from "./otplib-test.ts";
+import { createURIDistributionTests } from "./uri-test.ts";
 
 const crypto = new NobleCryptoPlugin();
 const base32 = new ScureBase32Plugin();
 
+// Create Deno test context for URI
+const uriCtx = createDenoTestContext(
+  { assertEquals, assertNotEquals, assertMatch, assertThrows, assertInstanceOf },
+  {},
+);
+
+createURIDistributionTests(uriCtx);
+uriCtx.runTests();
+
 // Create Deno test context for HOTP
 const hotpCtx = createDenoTestContext(
   { assertEquals, assertNotEquals, assertMatch, assertThrows, assertInstanceOf },
-  { crypto },
+  { crypto, base32 },
 );
 
 createHOTPDistributionTests(hotpCtx);
@@ -44,7 +54,7 @@ hotpCtx.runTests();
 // Create Deno test context for TOTP
 const totpCtx = createDenoTestContext(
   { assertEquals, assertNotEquals, assertMatch, assertThrows, assertInstanceOf },
-  { crypto },
+  { crypto, base32 },
 );
 
 createTOTPDistributionTests(totpCtx);

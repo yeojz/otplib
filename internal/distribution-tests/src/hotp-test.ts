@@ -4,25 +4,20 @@
  * Tests the HOTP package using built artifacts (dist/).
  */
 
-import {
-  stringToBytes,
-  createGuardrails,
-  SecretTooLongError,
-  CounterOverflowError,
-  CounterToleranceTooLargeError,
-} from "@otplib/core";
-import { generate, generateSync, verify, verifySync } from "@otplib/hotp";
+import { stringToBytes, createGuardrails } from "@otplib/core";
+import { generate, generateSync, verify, verifySync, HOTP } from "@otplib/hotp";
 import { RFC4226_VECTORS, BASE_SECRET } from "@repo/testing";
 
-import type { CryptoPlugin } from "@otplib/core";
+import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
 
 /**
  * Creates the HOTP distribution test suite with injected dependencies
  */
-export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin>): void {
-  const { describe, it, expect, crypto } = ctx;
+export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin, Base32Plugin>): void {
+  const { describe, it, expect, crypto, base32 } = ctx;
   const secret = stringToBytes(BASE_SECRET);
+  const TEST_SECRET_BASE32 = "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337";
 
   describe("HOTP Distribution", () => {
     describe("RFC 4226 Appendix D - Test Vectors", () => {
@@ -227,7 +222,7 @@ export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin>): voi
             crypto,
             guardrails: restrictiveGuardrails,
           }),
-        ).rejects.toThrow(SecretTooLongError);
+        ).rejects.toThrow("Secret must not exceed");
       });
 
       it("should respect custom guardrails for counter validation", async () => {
@@ -242,7 +237,7 @@ export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin>): voi
             crypto,
             guardrails: restrictiveGuardrails,
           }),
-        ).rejects.toThrow(CounterOverflowError);
+        ).rejects.toThrow("Counter exceeds maximum");
       });
 
       it("should respect custom guardrails for counterTolerance", async () => {
@@ -261,7 +256,82 @@ export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin>): voi
             counterTolerance: 10,
             guardrails: restrictiveGuardrails,
           }),
-        ).rejects.toThrow(CounterToleranceTooLargeError);
+        ).rejects.toThrow("Counter tolerance validation failed");
+      });
+    });
+
+    describe("HOTP class", () => {
+      it("should generate and verify token with HOTP class", async () => {
+        const hotp = new HOTP({
+          issuer: "TestService",
+          label: "user@example.com",
+          crypto,
+          base32,
+          secret: TEST_SECRET_BASE32,
+        });
+
+        const token = await hotp.generate(0);
+        expect(token).toHaveLength(6);
+        expect(token).toMatch(/^\d{6}$/);
+
+        const result = await hotp.verify({ token, counter: 0 });
+        expect(result.valid).toBe(true);
+      });
+
+      it("should generate secret with HOTP class", () => {
+        const hotp = new HOTP({ crypto, base32 });
+        const generatedSecret = hotp.generateSecret();
+
+        expect(generatedSecret).toMatch(/^[A-Z2-7]+$/);
+        expect(generatedSecret.length).toBeGreaterThan(0);
+      });
+
+      it("should generate URI with HOTP class", () => {
+        const hotp = new HOTP({
+          issuer: "TestService",
+          label: "user@example.com",
+          crypto,
+          base32,
+          secret: TEST_SECRET_BASE32,
+        });
+
+        const uri = hotp.toURI(5);
+        expect(uri).toMatch(/^otpauth:\/\/hotp\//);
+        expect(uri).toContain("counter=5");
+        expect(uri).toContain(`secret=${TEST_SECRET_BASE32}`);
+      });
+
+      it("should verify with counterTolerance using HOTP class", async () => {
+        const hotp = new HOTP({
+          crypto,
+          base32,
+          secret: TEST_SECRET_BASE32,
+        });
+
+        const token = await hotp.generate(5);
+        const result = await hotp.verify({ token, counter: 3 }, { counterTolerance: 5 });
+
+        expect(result.valid).toBe(true);
+        if (result.valid) {
+          expect(result.delta).toBe(2);
+        }
+      });
+
+      it("should use custom algorithm and digits with HOTP class", async () => {
+        const hotp = new HOTP({
+          crypto,
+          base32,
+          secret: TEST_SECRET_BASE32,
+          algorithm: "sha256",
+          digits: 8,
+        });
+
+        const token = await hotp.generate(0);
+        expect(token).toHaveLength(8);
+        expect(token).toMatch(/^\d{8}$/);
+
+        const result = await hotp.verify({ token, counter: 0 });
+        expect(result.valid).toBe(true);
       });
     });
   });

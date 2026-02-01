@@ -1,11 +1,11 @@
 /**
- * Distribution tests for Node.js (Vitest)
+ * Distribution tests for Bun runtime
  *
- * Tests the built artifacts using Node.js crypto plugin.
+ * Tests the built artifacts using Noble crypto plugin (Bun-compatible).
  */
 
-import { describe, it, expect } from "vitest";
-import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { describe, it, expect } from "bun:test";
+import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { TOTP } from "@otplib/totp";
 import {
@@ -21,9 +21,17 @@ import {
 import { createHOTPDistributionTests } from "./hotp-test.js";
 import { createTOTPDistributionTests } from "./totp-test.js";
 import { createOtplibDistributionTests } from "./otplib-test.js";
+import { createURIDistributionTests } from "./uri-test.js";
 
-const crypto = new NodeCryptoPlugin();
+const crypto = new NobleCryptoPlugin();
 const base32 = new ScureBase32Plugin();
+
+// Run URI distribution tests
+createURIDistributionTests({
+  describe,
+  it,
+  expect,
+});
 
 // Run HOTP distribution tests
 createHOTPDistributionTests({
@@ -31,6 +39,7 @@ createHOTPDistributionTests({
   it,
   expect,
   crypto,
+  base32,
 });
 
 // Run TOTP distribution tests
@@ -39,6 +48,7 @@ createTOTPDistributionTests({
   it,
   expect,
   crypto,
+  base32,
 });
 
 // Run otplib distribution tests
