@@ -21,6 +21,7 @@ vi.mock("../utils/exec.js", () => ({
 
 import fs from "node:fs";
 import { add } from "./add.js";
+import { deduplicateKeys } from "../utils/dedup.js";
 import { guardRm, guardShow, guardUpdate } from "./guard.js";
 import { init } from "./init.js";
 import { list } from "./list.js";
@@ -36,14 +37,17 @@ const mockRunOtplib = vi.mocked(runOtplib);
 
 describe("otplibx commands", () => {
   let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.resetAllMocks();
     consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
     consoleLogSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   describe("init", () => {
@@ -100,6 +104,22 @@ describe("otplibx commands", () => {
       );
       expect(mockRunDotenvx).toHaveBeenCalledWith(["encrypt", "-f", ".env.test"]);
       expect(result).toBe("A12345678");
+    });
+
+    test("warns if deduplication fails", () => {
+      mockRunOtplib.mockReturnValue({
+        stdout: "A12345678=base64payload",
+        stderr: "",
+        status: 0,
+      });
+      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+      vi.mocked(deduplicateKeys).mockImplementation(() => {
+        throw new Error("dedup error");
+      });
+
+      add("otpauth://totp/Test?secret=ABC", { file: ".env.test" });
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith("warning: deduplication failed: dedup error");
     });
 
     test("throws if input is empty", () => {
