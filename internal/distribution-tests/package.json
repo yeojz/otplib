@@ -1,0 +1,25 @@
+{
+  "name": "@repo/distribution-tests",
+  "version": "13.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Distribution tests for verifying built artifacts across Node.js, Deno, and Bun",
+  "scripts": {
+    "test": "vitest",
+    "test:dist-node": "vitest run",
+    "test:dist-bun": "bun test src/bun.test.ts",
+    "test:dist-deno": "deno test --allow-read --no-check src/deno.test.ts"
+  },
+  "dependencies": {
+    "@otplib/core": "workspace:*",
+    "@otplib/hotp": "workspace:*",
+    "@otplib/totp": "workspace:*",
+    "@otplib/uri": "workspace:*",
+    "otplib": "workspace:*",
+    "@otplib/plugin-base32-scure": "workspace:*",
+    "@otplib/plugin-crypto-node": "workspace:*",
+    "@otplib/plugin-crypto-noble": "workspace:*",
+    "@otplib/plugin-crypto-web": "workspace:*",
+    "@repo/testing": "workspace:*"
+  }
+}

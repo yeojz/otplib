@@ -15,7 +15,7 @@ concurrency:
 
 # Shared configuration
 env:
-  NODE_VERSION_TARGET: "20"
+  NODE_VERSION_TARGET: "22"
   TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
@@ -72,10 +72,58 @@ jobs:
       - name: Type check
         run: pnpm run typecheck
 
-  test-node:
-    name: Test (Node.js ${{ matrix.node-version }})
+  build-and-test:
+    name: Build & Test
     needs: [lint, typecheck]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    environment: test
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION_TARGET }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests with coverage
+        run: pnpm run test:ci
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Check bundle size
+        run: pnpm run size
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-artifacts
+          path: |
+            coverage
+            reports/junit.xml
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: dist-artifacts
+          path: packages/*/dist
+          retention-days: 1
+
+  test-node:
+    name: Distribution Test (Node.js ${{ matrix.node-version }})
+    needs: build-and-test
+    runs-on: ubuntu-latest
     environment: test
     permissions:
       contents: read
@@ -83,7 +131,6 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [20, 22, 24]
-        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -101,29 +148,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm run build
-
-      - name: Run tests with coverage
-        if: matrix.node-version == fromJSON(env.NODE_VERSION_TARGET) && matrix.os == 'ubuntu-latest'
-        run: pnpm run test:ci
-
-      - name: Run tests
-        if: matrix.node-version != fromJSON(env.NODE_VERSION_TARGET) || matrix.os != 'ubuntu-latest'
-        run: pnpm run test
-
-      - name: Upload coverage artifacts
-        if: matrix.node-version == fromJSON(env.NODE_VERSION_TARGET) && matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v6
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
         with:
-          name: coverage-artifacts
-          path: |
-            coverage
-            reports/junit.xml
+          name: dist-artifacts
+          path: packages
+
+      - name: Run distribution tests
+        run: pnpm run test:dist-node
 
   test-deno:
-    name: Test (Deno ${{ matrix.deno-version }})
-    needs: build
+    name: Distribution Test (Deno ${{ matrix.deno-version }})
+    needs: build-and-test
     runs-on: ubuntu-latest
     environment: test
     permissions:
@@ -167,12 +203,12 @@ jobs:
           sed -i 's/"version": "5"/"version": "3"/' deno.lock
           sed -i 's/deno test --allow-read --no-check/deno test --allow-read --no-check --unstable-sloppy-imports/g' deno.json
 
-      - name: Run Deno tests
+      - name: Run Deno distribution tests
         run: deno task test
 
   test-bun:
-    name: Test (Bun ${{ matrix.bun-version }})
-    needs: build
+    name: Distribution Test (Bun ${{ matrix.bun-version }})
+    needs: build-and-test
     runs-on: ubuntu-latest
     environment: test
     permissions:
@@ -209,45 +245,8 @@ jobs:
         with:
           bun-version: ${{ matrix.bun-version }}
 
-      - name: Run Bun tests
-        run: pnpm run test:bun
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [lint, typecheck]
-    environment: test
-    permissions:
-      contents: read # Required for actions/checkout
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION_TARGET }}
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm run build
-
-      - name: Check bundle size
-        run: pnpm run size
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: dist-artifacts
-          path: packages/*/dist
-          retention-days: 1
+      - name: Run Bun distribution tests
+        run: bun test internal/distribution-tests/src/bun.test.ts
 
   security-audit:
     name: Security Audit
@@ -276,7 +275,7 @@ jobs:
 
   reporting:
     name: Reporting (Coverage and Bundle Analysis)
-    needs: [test-node, build]
+    needs: build-and-test
     runs-on: ubuntu-latest
     environment: test
     permissions:
@@ -356,7 +355,7 @@ jobs:
   all-checks:
     name: All Checks Passed
     if: always()
-    needs: [lint, typecheck, test-node, test-deno, test-bun, build, security-audit, reporting]
+    needs: [lint, typecheck, build-and-test, test-node, test-deno, test-bun, security-audit, reporting]
     runs-on: ubuntu-latest
     environment: test
     permissions:
@@ -366,10 +365,10 @@ jobs:
         run: |
           if [[ "${{ needs.lint.result }}" != "success" ]] || \
              [[ "${{ needs.typecheck.result }}" != "success" ]] || \
+             [[ "${{ needs.build-and-test.result }}" != "success" ]] || \
              [[ "${{ needs.test-node.result }}" != "success" ]] || \
              [[ "${{ needs.test-deno.result }}" != "success" ]] || \
              [[ "${{ needs.test-bun.result }}" != "success" ]] || \
-             [[ "${{ needs.build.result }}" != "success" ]] || \
              [[ "${{ needs.security-audit.result }}" != "success" ]] || \
              [[ "${{ needs.reporting.result }}" != "success" ]]; then
             echo "One or more checks failed"

@@ -15,12 +15,13 @@ const alias = {
   "@otplib/plugin-crypto-noble": path.resolve(__dirname, "packages/plugin-crypto-noble/src"),
   "@otplib/plugin-base32-scure": path.resolve(__dirname, "packages/plugin-base32-scure/src"),
   "@repo/testing": path.resolve(__dirname, "internal/testing/src"),
+  otplib: path.resolve(__dirname, "packages/otplib/src"),
 };
 
 export default defineConfig({
   test: {
-    // Use github-actions and junit reporters in CI for better integration, default for local CLI
-    reporters: process.env.CI ? ["github-actions", "junit"] : ["default"],
+    // Use default, github-actions and junit reporters in CI for better integration, default for local CLI
+    reporters: process.env.CI ? ["default", "github-actions", "junit"] : ["default"],
     outputFile: {
       junit: "reports/junit.xml",
     },
@@ -73,7 +74,7 @@ export default defineConfig({
       reporter: process.env.CI
         ? ["text", "json", "lcov", "json-summary"]
         : ["text", "json", "html", "lcov", "json-summary"],
-      include: ["packages/*/src/**/*.ts", "apps/otplib-cli/src/**/*.{ts,tsx}"],
+      include: ["packages/*/src/**/*.ts", "apps/otplib-cli/src/**/*.ts"],
       exclude: [
         "node_modules/",
         "dist/**",
@@ -82,9 +83,16 @@ export default defineConfig({
         "**/*.spec.ts",
         "**/*.d.ts",
         "tests/**",
+        "apps/otplib-cli/src/**/cli.ts",
       ],
       thresholds: {
         "packages/*/src/**": {
+          lines: 100,
+          branches: 100,
+          functions: 100,
+          statements: 100,
+        },
+        "apps/otplib-cli/src/**": {
           lines: 100,
           branches: 100,
           functions: 100,

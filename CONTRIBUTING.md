@@ -38,9 +38,9 @@ pnpm --filter otplib-cli test -- --project otplib-cli
 # Run specific test file
 pnpm vitest run packages/core/src/utils.test.ts
 
-# Multi-runtime tests (See #Testing)
-pnpm test:bun         # Bun-specific tests
-pnpm test:deno        # Deno-specific tests
+# Multi-runtime distribution tests (See #Testing)
+pnpm test:dist-bun    # Bun distribution tests
+pnpm test:dist-deno   # Deno distribution tests
 # OR
 pnpm test:docker bun-1
 
@@ -70,6 +70,7 @@ otplib/
 │   ├── docs/              # VitePress documentation
 └── internal/
     ├── benchmarks/        # Performance benchmarks
+    ├── distribution-tests/# Tests for built artifacts across runtimes
     ├── fuzz-tests/        # Property-based fuzz testing
     ├── testing/           # Testing utilities and test suites
     └── typedoc/           # API documentation generator to put in docs/
@@ -89,19 +90,31 @@ otplib/
   - Coverage thresholds dependent on application.
   - Strive for full coverage and provide reason for deciding not to.
 
-Test files follow the pattern:
+### Test Types
 
-- `*.test.ts` - Vitest tests (Node.js)
-- `*.bun.test.ts` - Bun-specific tests
-- `*.deno.test.ts` - Deno-specific tests
+**Unit Tests** (`packages/*/src/*.test.ts`)
+
+- Test source code directly using Vitest
+- Run with `pnpm test` or `pnpm test:ci` (with coverage)
+
+**Distribution Tests** (`internal/distribution-tests/`)
+
+- Test built artifacts (dist/) across Node.js 20/22/24, Deno, and Bun
+- Ensures published packages work correctly in all target runtimes
+- Run with `pnpm build && pnpm test:dist-node`
 
 ### Local Testing
 
 ```bash
+# Unit tests (source code)
 pnpm test
-pnpm test:ci
-pnpm test:bun # depends on installed bun version
-pnpm test:deno # depends on installed deno version
+pnpm test:ci          # with coverage
+
+# Distribution tests (built artifacts)
+pnpm build            # Required: build packages first
+pnpm test:dist-node   # Node.js distribution tests
+pnpm test:dist-bun    # Bun distribution tests (requires Bun)
+pnpm test:dist-deno   # Deno distribution tests (requires Deno)
 ```
 
 ### Docker-based Multi-Runtime Testing

@@ -1,14 +1,13 @@
 {
   "tasks": {
-    "test": "deno test --allow-read --no-check packages/*/src/*.deno.test.ts",
-    "test:hotp": "deno test --allow-read --no-check packages/hotp/src/index.deno.test.ts",
-    "test:totp": "deno test --allow-read --no-check packages/totp/src/index.deno.test.ts"
+    "test": "deno test --allow-read --no-check internal/distribution-tests/src/deno.test.ts"
   },
   "imports": {
     "@otplib/core": "./packages/core/dist/index.js",
     "@otplib/hotp": "./packages/hotp/dist/index.js",
     "@otplib/totp": "./packages/totp/dist/index.js",
     "@otplib/uri": "./packages/uri/dist/index.js",
+    "otplib": "./packages/otplib/dist/index.js",
     "@otplib/plugin-crypto-noble": "./packages/plugin-crypto-noble/dist/index.js",
     "@otplib/plugin-crypto-node": "./packages/plugin-crypto-node/dist/index.js",
     "@otplib/plugin-crypto-web": "./packages/plugin-crypto-web/dist/index.js",

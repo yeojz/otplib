@@ -26,9 +26,10 @@
     "release:packages": "pnpm publish -r --filter './packages/*' --access public --no-git-checks",
     "size:check": "size-limit --json",
     "size": "size-limit",
-    "test:bun": "bun test packages/*/src/*.bun.test.ts",
     "test:ci": "vitest --run --coverage",
-    "test:deno": "deno test --allow-read --no-check packages/*/src/*.deno.test.ts",
+    "test:dist-bun": "bun test internal/distribution-tests/src/bun.test.ts",
+    "test:dist-deno": "deno test --allow-read --no-check internal/distribution-tests/src/deno.test.ts",
+    "test:dist-node": "vitest run --config internal/distribution-tests/vitest.config.ts",
     "test:docker": "sh scripts/test-docker.sh",
     "test": "vitest --run",
     "typecheck": "turbo run typecheck"

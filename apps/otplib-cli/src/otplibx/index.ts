@@ -36,10 +36,3 @@ export function createOtplibxCli(readStdinFn: ReadStdinFn = readStdin): Command 
 
   return program;
 }
-
-createOtplibxCli()
-  .parseAsync(process.argv)
-  .catch((err) => {
-    console.error(`error: ${err.message}`);
-    process.exitCode = 1;
-  });

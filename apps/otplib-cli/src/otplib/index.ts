@@ -30,10 +30,3 @@ export function createCli(readStdinFn: ReadStdinFn = readStdin): Command {
 
   return program;
 }
-
-createCli()
-  .parseAsync(process.argv)
-  .catch((err) => {
-    console.error(`Error: ${err.message}`);
-    process.exitCode = 1;
-  });
