@@ -2,8 +2,8 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: {
-    index: "src/otplib/index.ts",
-    otplibx: "src/otplibx/index.ts",
+    index: "src/otplib/cli.ts",
+    otplibx: "src/otplibx/cli.ts",
   },
   format: ["cjs"],
   dts: true,

@@ -158,6 +158,39 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
 
+  internal/distribution-tests:
+    dependencies:
+      '@otplib/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@otplib/hotp':
+        specifier: workspace:*
+        version: link:../../packages/hotp
+      '@otplib/plugin-base32-scure':
+        specifier: workspace:*
+        version: link:../../packages/plugin-base32-scure
+      '@otplib/plugin-crypto-noble':
+        specifier: workspace:*
+        version: link:../../packages/plugin-crypto-noble
+      '@otplib/plugin-crypto-node':
+        specifier: workspace:*
+        version: link:../../packages/plugin-crypto-node
+      '@otplib/plugin-crypto-web':
+        specifier: workspace:*
+        version: link:../../packages/plugin-crypto-web
+      '@otplib/totp':
+        specifier: workspace:*
+        version: link:../../packages/totp
+      '@otplib/uri':
+        specifier: workspace:*
+        version: link:../../packages/uri
+      '@repo/testing':
+        specifier: workspace:*
+        version: link:../testing
+      otplib:
+        specifier: workspace:*
+        version: link:../../packages/otplib
+
   internal/fuzz-tests:
     dependencies:
       '@otplib/core':
