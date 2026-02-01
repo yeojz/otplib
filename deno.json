@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "test": "deno test --allow-read --no-check internal/distribution-tests/src/*.deno.test.ts"
+    "test": "deno test --allow-read --no-check internal/distribution-tests/src/deno.test.ts"
   },
   "imports": {
     "@otplib/core": "./packages/core/dist/index.js",
