@@ -15,6 +15,7 @@ const alias = {
   "@otplib/plugin-crypto-noble": path.resolve(__dirname, "packages/plugin-crypto-noble/src"),
   "@otplib/plugin-base32-scure": path.resolve(__dirname, "packages/plugin-base32-scure/src"),
   "@repo/testing": path.resolve(__dirname, "internal/testing/src"),
+  otplib: path.resolve(__dirname, "packages/otplib/src"),
 };
 
 export default defineConfig({
