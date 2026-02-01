@@ -7,9 +7,13 @@ vi.mock("./utils/dedup.js", () => ({
 vi.mock("node:fs", () => ({
   default: {
     existsSync: vi.fn(),
+    readFileSync: vi.fn(),
     writeFileSync: vi.fn(),
     unlinkSync: vi.fn(),
     appendFileSync: vi.fn(),
+    mkdtempSync: vi.fn(),
+    renameSync: vi.fn(),
+    rmSync: vi.fn(),
   },
 }));
 
@@ -112,6 +116,15 @@ describe("otplibx CLI", () => {
   });
 
   describe("add command", () => {
+    beforeEach(() => {
+      mockFs.readFileSync.mockImplementation(() => {
+        const err = new Error("file missing") as NodeJS.ErrnoException;
+        err.code = "ENOENT";
+        throw err;
+      });
+      mockFs.mkdtempSync.mockReturnValue("/tmp/otplibx-abc");
+    });
+
     test("adds entry successfully", async () => {
       mockRunOtplib.mockReturnValue({
         stdout: "A12345678=base64payload",
