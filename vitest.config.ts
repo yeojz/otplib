@@ -19,8 +19,8 @@ const alias = {
 
 export default defineConfig({
   test: {
-    // Use github-actions and junit reporters in CI for better integration, default for local CLI
-    reporters: process.env.CI ? ["github-actions", "junit"] : ["default"],
+    // Use default, github-actions and junit reporters in CI for better integration, default for local CLI
+    reporters: process.env.CI ? ["default", "github-actions", "junit"] : ["default"],
     outputFile: {
       junit: "reports/junit.xml",
     },
