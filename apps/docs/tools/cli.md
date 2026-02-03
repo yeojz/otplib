@@ -19,6 +19,9 @@ import CLIShowcase from '../.vitepress/components/CLIShowcase.vue'
       <span>$</span>
       <code>npm install -g otplib-cli</code>
     </div>
+    <div class="install-cta">
+      <a href="/guide/cli-tool" class="btn">Read the Docs</a>
+    </div>
   </div>
 </section>
 
@@ -54,9 +57,12 @@ import CLIShowcase from '../.vitepress/components/CLIShowcase.vue'
       <p><code>otplib</code> is stateless, utilising <code>stdin</code> / <code>stdout</code>, allowing the possibility of piping into and from other tools.</p>
     </div>
     <div class="card">
-      <h4>Delegated Storage</h4>
-      <p>For <code>otplibx</code>, we have chosen <a href="https://dotenvx.com/" target="_blank">dotenvx</a> for simplicity.</p>
-      <p>But as it's storage agnostic, it would work with Bitwarden, AWS Secrets Manager, or similar tooling that outputs expected data.</p>
+      <h4>Storage-agnostic</h4>
+      <p>Bring your own encrypted storage (eg Vault, Secrets Manager etc), as long as it can encrypt to or decrypt from JSON</p>
+    </div>
+    <div class="card">
+      <h4>Built-in Encryption</h4>
+      <p><code>otplibx</code> provides a simple symmetric key (using AES-256-GCM) encrypted <code>.env</code> flat file system with no external dependencies.</p>
     </div>
   </div>
 </section>
@@ -158,6 +164,10 @@ import CLIShowcase from '../.vitepress/components/CLIShowcase.vue'
 .install-cmd code {
   background: transparent;
   color: var(--vp-c-text-1);
+}
+
+.install-cta {
+  margin-top: 1rem;
 }
 
 /* Architecture */

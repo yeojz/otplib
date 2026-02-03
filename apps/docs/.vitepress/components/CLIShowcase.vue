@@ -194,7 +194,6 @@ onUnmounted(() => {
             :key="i"
             class="output-line"
             :class="{
-              'output-muted': line.startsWith('[dotenvx'),
               'output-highlight': line.startsWith('A') && /^A[0-9A-Z]+/.test(line) || /^\d{6}$/.test(line) || line === 'true',
               'output-label': line.includes('\t')
             }"
@@ -218,7 +217,7 @@ onUnmounted(() => {
 
     <div class="cli-description">
       <p v-if="activeTab === 'otplibx'">
-        Integrated with <a href="https://github.com/dotenvx/dotenvx" target="_blank">dotenvx</a> for encrypted storage.
+        Using an encrypted <code>.env</code> file (symmetric key) for storage.
       </p>
       <p v-else>
         Stateless CLI for scripting, pipelines, and custom secret backends.
@@ -506,13 +505,9 @@ onUnmounted(() => {
   line-height: 1.6;
 }
 
-.cli-description a {
+.cli-description code {
   color: var(--cipher-accent);
   text-decoration: none;
-}
-
-.cli-description a:hover {
-  text-decoration: underline;
 }
 
 @media (max-width: 640px) {

@@ -1,8 +1,14 @@
 import { formatGuardrailsTable } from "../../shared/guardrails.js";
 import { parseEnvInput } from "../../shared/parse.js";
 
+import type { ParsedEnv } from "../../shared/parse.js";
 import type { ReadStdinFn } from "../../shared/stdin.js";
 import type { Command } from "commander";
+
+export function guardShow(env: ParsedEnv): string {
+  const configured = env.guardrails ? (env.guardrails as Record<string, number>) : {};
+  return formatGuardrailsTable(configured);
+}
 
 export function registerGuardCommands(program: Command, readStdinFn: ReadStdinFn): void {
   const guardCmd = program.command("guard").description("Guardrail commands");
@@ -13,19 +19,16 @@ export function registerGuardCommands(program: Command, readStdinFn: ReadStdinFn
     .action(async () => {
       const raw = await readStdinFn();
 
-      let configured: Record<string, number> = {};
+      let env: ParsedEnv = { entries: [] };
       if (raw) {
         try {
-          const { guardrails } = parseEnvInput(raw);
-          if (guardrails) {
-            configured = guardrails as Record<string, number>;
-          }
+          env = parseEnvInput(raw);
         } catch {
           // Ignore parse errors, show defaults only
         }
       }
 
-      const output = formatGuardrailsTable(configured);
+      const output = guardShow(env);
       process.stdout.write(output + "\n");
     });
 }

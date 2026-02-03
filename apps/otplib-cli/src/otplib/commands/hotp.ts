@@ -1,9 +1,32 @@
 import { findEntry, parseEnvInput, updateHotpCounter } from "../../shared/parse.js";
-import { formatOutput } from "../../shared/types.js";
+import { encodePayload, formatOutput } from "../../shared/types.js";
 
+import type { ParsedEnv } from "../../shared/parse.js";
 import type { ReadStdinFn } from "../../shared/stdin.js";
 import type { HotpData, OtpPayload } from "../../shared/types.js";
 import type { Command } from "commander";
+
+export type UpdateCounterResult = {
+  id: string;
+  encoded: string;
+};
+
+export function updateCounter(env: ParsedEnv, id: string, counter?: number): UpdateCounterResult {
+  const entry = findEntry(env.entries, id);
+  if (!entry) {
+    throw new Error(`entry not found: ${id}`);
+  }
+
+  if (entry.payload.data.type !== "hotp") {
+    throw new Error(`Entry ${id} is TOTP, not HOTP`);
+  }
+
+  const updatedData = updateHotpCounter(entry.payload.data as HotpData, counter);
+  const payload: OtpPayload = { data: updatedData };
+  const encoded = encodePayload(payload);
+
+  return { id, encoded };
+}
 
 export function registerHotpCommands(program: Command, readStdinFn: ReadStdinFn): void {
   const hotpCmd = program.command("hotp").description("HOTP commands");
@@ -27,7 +50,7 @@ export function registerHotpCommands(program: Command, readStdinFn: ReadStdinFn)
         const entry = findEntry(entries, id);
 
         if (!entry) {
-          console.error(`Error: Entry not found: ${id}`);
+          console.error(`Error: entry not found: ${id}`);
           process.exitCode = 1;
           return;
         }

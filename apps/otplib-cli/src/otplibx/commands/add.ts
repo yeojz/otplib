@@ -1,4 +1,5 @@
-import { requireCommand, runDotenvx, runOtplib } from "../utils/exec.js";
+import { encode } from "../../otplib/commands/encode.js";
+import storage from "../storage/index.js";
 
 import type { ReadStdinFn } from "../../shared/stdin.js";
 import type { Command } from "commander";
@@ -8,47 +9,14 @@ export type AddOptions = {
   bytes?: number;
 };
 
-export function add(input: string, options: AddOptions): string {
-  requireCommand("otplib");
-  requireCommand("dotenvx");
-
+export async function add(input: string, options: AddOptions): Promise<string> {
   const { file, bytes } = options;
 
-  if (!input) {
-    throw new Error("expected otpauth URI or JSON from stdin");
-  }
+  const { id, encoded } = encode(input, bytes);
 
-  const args = ["encode"];
-  if (bytes !== undefined) {
-    args.push("--bytes", String(bytes));
-  }
-  const otplibResult = runOtplib(args, { stdin: input });
-  if (otplibResult.status !== 0) {
-    throw new Error(`otplib add failed: ${otplibResult.stderr}`);
-  }
+  await storage.set(file, id, encoded);
 
-  const output = otplibResult.stdout;
-  const eqIndex = output.indexOf("=");
-  if (eqIndex === -1) {
-    throw new Error("failed to parse key from otplib output");
-  }
-
-  const key = output.substring(0, eqIndex);
-  const value = output.substring(eqIndex + 1);
-
-  if (!key) {
-    throw new Error("failed to parse key from otplib output");
-  }
-  if (!value) {
-    throw new Error("failed to parse value from otplib output");
-  }
-
-  const dotenvxResult = runDotenvx(["set", key, value, "-f", file]);
-  if (dotenvxResult.status !== 0) {
-    throw new Error(`dotenvx set failed: ${dotenvxResult.stderr}`);
-  }
-
-  return key;
+  return id;
 }
 
 export function registerAddCommand(program: Command, readStdinFn: ReadStdinFn): void {
@@ -68,7 +36,7 @@ export function registerAddCommand(program: Command, readStdinFn: ReadStdinFn): 
       }
 
       try {
-        const key = add(input, { file: opts.file, bytes });
+        const key = await add(input, { file: opts.file, bytes });
         console.log(key);
       } catch (err) {
         console.error(`error: ${(err as Error).message}`);

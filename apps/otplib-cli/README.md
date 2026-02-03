@@ -2,7 +2,7 @@
 
 A Command Line tool for OTP operations.
 
-Pair with [dotenvx](https://github.com/dotenvx/dotenvx) for encrypted storage.
+Uses AES-256-GCM authenticated encryption for secure secret storage.
 
 ## Installation
 
@@ -12,7 +12,7 @@ npm install -g otplib-cli
 
 Two commands are available:
 
-- **`otplibx`** - Integrated with dotenvx as storage (recommended)
+- **`otplibx`** - Includes built-in encryption for secure storage (recommended)
 - **`otplib`** - Stateless CLI for scripting and custom backends
 
 ## Quick Start
@@ -65,17 +65,18 @@ cat storage.json | otplib verify A1B2C3D4 123456
 
 ### otplibx
 
-| Command                      | Description                       |
-| ---------------------------- | --------------------------------- |
-| `init [file]`                | Initialize encrypted secrets file |
-| `add`                        | Add entry (reads from stdin)      |
-| `token [-n] [id]`            | Generate token                    |
-| `type [-n] [id]`             | Output entry type                 |
-| `verify <id> <token>`        | Verify token                      |
-| `list [--filter <query>]`    | List entries                      |
-| `guard update <key> <value>` | Update guardrail                  |
-| `guard rm <key>`             | Remove guardrail                  |
-| `guard show`                 | Show guardrails                   |
+| Command                        | Description                       |
+| ------------------------------ | --------------------------------- |
+| `init [file]`                  | Initialize encrypted secrets file |
+| `add`                          | Add entry (reads from stdin)      |
+| `token [-n] [id]`              | Generate token                    |
+| `type [-n] [id]`               | Output entry type                 |
+| `hotp update-counter <id> [n]` | Update HOTP counter               |
+| `verify <id> <token>`          | Verify token                      |
+| `list [--filter <query>]`      | List entries                      |
+| `guard update <key> <value>`   | Update guardrail                  |
+| `guard rm <key>`               | Remove guardrail                  |
+| `guard show`                   | Show guardrails                   |
 
 Options: `-f, --file <path>` (default: `.env.otplibx`)
 

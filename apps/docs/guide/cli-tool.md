@@ -10,7 +10,7 @@ In environments where OTP access is needed - such as CI/CD pipelines, automated 
 
 After installation, two commands are available:
 
-- **`otplibx`** - Integrated with [dotenvx](https://github.com/dotenvx/dotenvx) for encrypted secret storage.
+- **`otplibx`** - Provides a built-in secret storage via an encrypted `.env` flat file system with no external dependencies.
 - **`otplib`** - Stateless CLI that reads from stdin and writes to stdout. Designed for scripting and integration with other secret managers.
 
 ```bash
@@ -33,42 +33,38 @@ The CLI is designed around two key principles:
 OTP generation and secret storage are intentionally decoupled.
 
 - **`otplib`** handles OTP logic (generation, verification, validation)
-- **`dotenvx`** handles storage security (encryption, key management)
-- **`otplibx`** orchestrates both for convenience
+- **`otplibx`** adds encryption and storage on top of `otplib`
 
 ```
-   dotenvx    ──▸   otplib    ──▸   dotenvx
-  (decrypt)        (process)       (encrypt)
+   decrypt    ──▸   otplib    ──▸   encrypt
+  (storage)        (process)       (storage)
 
 ```
-
-### Why Delegate Storage to dotenvx?
-
-Rather than implementing our own encryption, we defer to [dotenvx](https://dotenvx.com/) - an established tool for managing encrypted environment files. This approach:
-
-1. **Reduces attack surface** - We don't roll our own crypto
-2. **Leverages existing tooling** - dotenvx has its own ecosystem and key management
-3. **Enables flexibility** - Use `otplib` directly with Vault, AWS Secrets Manager, or any other backend following our JSON output
-
-The core `otplib` CLI is stateless - it transforms data without storing anything. This makes it composable with any secret management solution.
 
 ## Getting Started (otplibx)
 
-For most cases, `otplibx` would be the easiest way to get started with the CLI. It acts as a wrapper around the core `otplib` CLI and automatically handles encryption and storage using [dotenvx](https://dotenvx.com/).
+For most cases, `otplibx` would be the easiest way to get started with the CLI. It provides a wrapper around the core `otplib` CLI with an additional encrypted storage.
+
+- **256-bit key** - Generated during initialization and stored in `.env.keys`
+- **No external dependencies** - Uses only Node.js native `crypto` module
+- **Symmetric Keys** - While asymmetric keys were considered, symmetric keys ensures that as long as the keys are not available, no party can add extra inputs.
+
+The core `otplib` CLI remains stateless - it transforms data without storing anything. This makes it composable with any secret management solution (Vault, AWS Secrets Manager, 1Password, etc.).
 
 ### Commands
 
-| Command                      | Description                               |
-| ---------------------------- | ----------------------------------------- |
-| `init [file]`                | Initialize encrypted secrets file         |
-| `add [-b, --bytes <n>]`      | Add OTP entry (reads from stdin)          |
-| `token [-n] [id]`            | Generate OTP token (ID from arg or stdin) |
-| `type [-n] [id]`             | Output entry type (totp or hotp)          |
-| `verify <id> <token>`        | Verify a token (exit 0=valid, 1=invalid)  |
-| `list [--filter <query>]`    | List entries (fuzzy filter by ID/label)   |
-| `guard update <key> <value>` | Add or update a guardrail value           |
-| `guard rm <key>`             | Remove an overridden guardrail            |
-| `guard show`                 | Show guardrail configuration              |
+| Command                        | Description                               |
+| ------------------------------ | ----------------------------------------- |
+| `init [file]`                  | Initialize encrypted secrets file         |
+| `add [-b, --bytes <n>]`        | Add OTP entry (reads from stdin)          |
+| `token [-n] [id]`              | Generate OTP token (ID from arg or stdin) |
+| `type [-n] [id]`               | Output entry type (totp or hotp)          |
+| `hotp update-counter <id> [n]` | Update HOTP counter                       |
+| `verify <id> <token>`          | Verify a token (exit 0=valid, 1=invalid)  |
+| `list [--filter <query>]`      | List entries (fuzzy filter by ID/label)   |
+| `guard update <key> <value>`   | Add or update a guardrail value           |
+| `guard rm <key>`               | Remove an overridden guardrail            |
+| `guard show`                   | Show guardrail configuration              |
 
 **Options:**
 
@@ -88,7 +84,7 @@ otplibx init
 otplibx init .env.otp
 ```
 
-This creates `.env.otplibx` (or your custom filename) to store encrypted secrets, along with a `.env.keys` file containing the encryption key.
+This creates `.env.otplibx` (or your custom filename) to store encrypted secrets, along with a `.env.keys` file containing the 256-bit symmetric encryption key (stored as 64 hex characters).
 
 ::: warning
 **Never commit `.env.keys` to version control.** This file contains your encryption key. Add it to `.gitignore`:
@@ -148,6 +144,18 @@ otplibx token A1B2C3D4
 otplibx token -n A1B2C3D4 | pbcopy
 ```
 
+### Updating HOTP Counters
+
+Use this command for HOTP entries to advance the counter or set it to a specific value.
+
+```bash
+# Increment counter by 1 (default)
+otplibx hotp update-counter A1B2C3D4
+
+# Set counter to a specific value
+otplibx hotp update-counter A1B2C3D4 42
+```
+
 ### Listing Accounts
 
 List your OTP entries with optional fuzzy filtering.
@@ -165,6 +173,13 @@ For interactive selection, pipe to `fzf`:
 ```bash
 # Select entry interactively and copy token
 otplibx list | fzf | cut -f2 | otplibx token -n | pbcopy
+```
+
+### Updating HOTP Counters
+
+```bash
+otplibx hotp update-counter A1B2C3D4
+otplibx hotp update-counter A1B2C3D4 10
 ```
 
 ### Guardrails
@@ -315,7 +330,9 @@ aws secretsmanager get-secret-value --secret-id otp-secrets \
 
 ## Security Notes
 
-- **Storage security**: Secret storage security depends entirely on your chosen secret manager - ensure it is set up correctly for your threat model.
+- **Encryption**: `otplibx` uses AES-256-GCM authenticated encryption. The key is stored in `.env.keys` with restricted file permissions (0600). Never commit this file!
+- **Key management**: You can also set the key via the `OTPLIBX_ENCRYPTION_KEY` environment variable, which takes priority over the key file. This is useful for CI/CD pipelines.
+- **Storage security**: When using `otplib` directly with external secret managers, security depends entirely on your chosen backend - ensure it is set up correctly for your threat model.
 - **Clipboard exposure**: Copy commands using `pbcopy` or `xclip` may expose tokens via clipboard history. Consider disabling clipboard history when working with sensitive tokens.
 - **HOTP atomicity**: Counter updates for HOTP entries are not atomic. Avoid concurrent updates to the same HOTP entry from multiple processes.
 - **Guardrails**: By default, secrets shorter than 16 bytes or longer than 64 bytes are rejected. Use `guard update` to modify these limits if needed, but understand the security implications.

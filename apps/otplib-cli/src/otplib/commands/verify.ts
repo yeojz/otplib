@@ -1,8 +1,17 @@
 import { verifyOtp } from "../../shared/otp.js";
 import { findEntry, parseEnvInput } from "../../shared/parse.js";
 
+import type { ParsedEnv } from "../../shared/parse.js";
 import type { ReadStdinFn } from "../../shared/stdin.js";
 import type { Command } from "commander";
+
+export async function verify(env: ParsedEnv, id: string, token: string): Promise<boolean> {
+  const entry = findEntry(env.entries, id);
+  if (!entry) {
+    throw new Error(`entry not found: ${id}`);
+  }
+  return verifyOtp(entry.payload.data, token, env.guardrails);
+}
 
 export function registerVerifyCommand(program: Command, readStdinFn: ReadStdinFn): void {
   program
@@ -10,7 +19,7 @@ export function registerVerifyCommand(program: Command, readStdinFn: ReadStdinFn
     .description("Verify a token against an entry")
     .argument("<id>", "Entry ID")
     .argument("<token>", "Token to verify (6-8 digits)")
-    .action(async (id: string, token: string) => {
+    .action(async (id: string, tokenArg: string) => {
       const raw = await readStdinFn();
       if (!raw) {
         console.error("Error: Expected JSON from stdin");
@@ -20,16 +29,8 @@ export function registerVerifyCommand(program: Command, readStdinFn: ReadStdinFn
       }
 
       try {
-        const { entries, guardrails } = parseEnvInput(raw);
-        const entry = findEntry(entries, id);
-
-        if (!entry) {
-          console.error(`Error: Entry not found: ${id}`);
-          process.exitCode = 1;
-          return;
-        }
-
-        const valid = await verifyOtp(entry.payload.data, token, guardrails);
+        const env = parseEnvInput(raw);
+        const valid = await verify(env, id, tokenArg);
         if (!valid) {
           process.exitCode = 1;
         }

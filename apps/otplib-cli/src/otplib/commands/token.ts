@@ -1,8 +1,17 @@
 import { generateOtp } from "../../shared/otp.js";
 import { findEntry, parseEnvInput } from "../../shared/parse.js";
 
+import type { ParsedEnv } from "../../shared/parse.js";
 import type { ReadStdinFn } from "../../shared/stdin.js";
 import type { Command } from "commander";
+
+export async function token(env: ParsedEnv, id: string): Promise<string> {
+  const entry = findEntry(env.entries, id);
+  if (!entry) {
+    throw new Error(`entry not found: ${id}`);
+  }
+  return generateOtp(entry.payload.data, env.guardrails);
+}
 
 export function registerTokenCommand(program: Command, readStdinFn: ReadStdinFn): void {
   program
@@ -20,16 +29,8 @@ export function registerTokenCommand(program: Command, readStdinFn: ReadStdinFn)
       }
 
       try {
-        const { entries, guardrails } = parseEnvInput(raw);
-        const entry = findEntry(entries, id);
-
-        if (!entry) {
-          console.error(`Error: Entry not found: ${id}`);
-          process.exitCode = 1;
-          return;
-        }
-
-        const code = await generateOtp(entry.payload.data, guardrails);
+        const env = parseEnvInput(raw);
+        const code = await token(env, id);
         process.stdout.write(options.newline ? code + "\n" : code);
       } catch (err) {
         console.error(`Error: ${(err as Error).message}`);

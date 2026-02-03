@@ -1,11 +1,33 @@
 import fs from "node:fs";
 
 import { parseAddInput } from "../../shared/parse.js";
-import { formatOutput, generateUid } from "../../shared/types.js";
+import { encodePayload, generateUid } from "../../shared/types.js";
 
 import type { ReadStdinFn } from "../../shared/stdin.js";
 import type { OtpPayload } from "../../shared/types.js";
 import type { Command } from "commander";
+
+export type EncodeResult = {
+  id: string;
+  encoded: string;
+};
+
+export function encode(input: string, bytes = 4): EncodeResult {
+  if (!input) {
+    throw new Error("expected otpauth URI or JSON from stdin");
+  }
+
+  if (bytes < 1 || bytes > 32) {
+    throw new Error("bytes must be between 1 and 32");
+  }
+
+  const data = parseAddInput(input);
+  const id = generateUid(bytes);
+  const payload: OtpPayload = { data };
+  const encoded = encodePayload(payload);
+
+  return { id, encoded };
+}
 
 export function registerEncodeCommand(program: Command, readStdinFn: ReadStdinFn): void {
   program
@@ -24,23 +46,22 @@ export function registerEncodeCommand(program: Command, readStdinFn: ReadStdinFn
       }
 
       try {
-        const data = parseAddInput(raw);
         const bytes = parseInt(options.bytes, 10);
-        if (isNaN(bytes) || bytes < 1 || bytes > 32) {
+        if (isNaN(bytes)) {
           console.error("Error: --bytes must be between 1 and 32");
           process.exitCode = 1;
           return;
         }
-        const uid = generateUid(bytes);
-        const payload: OtpPayload = { data };
-        const output = formatOutput(uid, payload);
+
+        const { id, encoded } = encode(raw, bytes);
+        const output = `${id.toUpperCase()}=${encoded}`;
 
         process.stdout.write(output + "\n");
 
         if (options.saveUid) {
           try {
             const fd = fs.openSync(options.saveUid, "a", 0o600);
-            fs.writeSync(fd, uid + "\n");
+            fs.writeSync(fd, id + "\n");
             fs.closeSync(fd);
           } catch (err) {
             console.error(

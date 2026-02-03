@@ -1,7 +1,16 @@
 import { findEntry, parseEnvInput } from "../../shared/parse.js";
 
+import type { ParsedEnv } from "../../shared/parse.js";
 import type { ReadStdinFn } from "../../shared/stdin.js";
 import type { Command } from "commander";
+
+export function type(env: ParsedEnv, id: string): string {
+  const entry = findEntry(env.entries, id);
+  if (!entry) {
+    throw new Error(`entry not found: ${id}`);
+  }
+  return entry.payload.data.type;
+}
 
 export function registerTypeCommand(program: Command, readStdinFn: ReadStdinFn): void {
   program
@@ -19,17 +28,9 @@ export function registerTypeCommand(program: Command, readStdinFn: ReadStdinFn):
       }
 
       try {
-        const { entries } = parseEnvInput(raw);
-        const entry = findEntry(entries, id);
-
-        if (!entry) {
-          console.error(`Error: Entry not found: ${id}`);
-          process.exitCode = 1;
-          return;
-        }
-
-        const type = entry.payload.data.type;
-        process.stdout.write(options.newline ? type + "\n" : type);
+        const env = parseEnvInput(raw);
+        const result = type(env, id);
+        process.stdout.write(options.newline ? result + "\n" : result);
       } catch (err) {
         console.error(`Error: ${(err as Error).message}`);
         process.exitCode = 1;
