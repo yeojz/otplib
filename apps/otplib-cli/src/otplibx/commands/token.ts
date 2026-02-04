@@ -1,40 +1,26 @@
-import { requireCommand, runDotenvx, runOtplib } from "../utils/exec.js";
+import { token as tokenCore } from "../../otplib/commands/token.js";
+import { parseEnvInput } from "../../shared/parse.js";
+import storage from "../storage/index.js";
 
 import type { ReadStdinFn } from "../../shared/stdin.js";
 import type { Command } from "commander";
 
 export type TokenOptions = {
   file: string;
-  newline: boolean;
 };
 
-export function token(id: string, options: TokenOptions): string {
-  requireCommand("otplib");
-  requireCommand("dotenvx");
-
-  const { file, newline } = options;
+export async function token(id: string, options: TokenOptions): Promise<string> {
+  const { file } = options;
 
   if (!id) {
     throw new Error("missing required argument: <id>");
   }
 
-  const dotenvxResult = runDotenvx(["get", "-f", file]);
-  if (dotenvxResult.status !== 0) {
-    throw new Error(`dotenvx get failed: ${dotenvxResult.stderr}`);
-  }
+  const decrypted = await storage.load(file);
+  const raw = JSON.stringify(decrypted);
+  const env = parseEnvInput(raw);
 
-  const otplibArgs = ["token"];
-  if (!newline) {
-    otplibArgs.push("-n");
-  }
-  otplibArgs.push(id);
-
-  const otplibResult = runOtplib(otplibArgs, { stdin: dotenvxResult.stdout });
-  if (otplibResult.status !== 0) {
-    throw new Error(otplibResult.stderr || `otplib token failed`);
-  }
-
-  return otplibResult.stdout;
+  return tokenCore(env, id);
 }
 
 export function registerTokenCommand(program: Command, readStdinFn: ReadStdinFn): void {
@@ -54,7 +40,7 @@ export function registerTokenCommand(program: Command, readStdinFn: ReadStdinFn)
           return;
         }
 
-        const result = token(id, { file: opts.file, newline: cmdOpts.newline });
+        const result = await token(id, { file: opts.file });
         process.stdout.write(cmdOpts.newline ? result + "\n" : result);
       } catch (err) {
         console.error(`error: ${(err as Error).message}`);

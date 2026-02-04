@@ -98,7 +98,7 @@ export default defineConfig({
 
     footer: {
       message: "Released under the MIT License.",
-      copyright: `Copyright © ${new Date().getFullYear()} <a href="https://github.com/yeojz">@yeojz</a>`,
+      copyright: `Copyright © ${new Date().getFullYear()} <a href="https://github.com/yeojz">Gerald Yeo</a>`,
     },
   },
 });

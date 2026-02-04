@@ -76,6 +76,11 @@ describe("parseOtpauthUri", () => {
     );
   });
 
+  test("throws on malformed URI", () => {
+    // new URL(":") throws TypeError
+    expect(() => parseOtpauthUri(":")).toThrow("Invalid URI: must start with otpauth://");
+  });
+
   test("throws on missing path", () => {
     expect(() => parseOtpauthUri("otpauth://totp")).toThrow("Invalid URI format: missing path");
   });

@@ -1,26 +1,48 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("node:fs", () => ({
+vi.mock("./storage/index.js", () => ({
   default: {
-    existsSync: vi.fn(),
-    writeFileSync: vi.fn(),
-    unlinkSync: vi.fn(),
+    status: vi.fn(),
+    init: vi.fn(),
+    load: vi.fn(),
+    set: vi.fn(),
+    remove: vi.fn(),
   },
 }));
 
-vi.mock("./utils/exec.js", () => ({
-  requireCommand: vi.fn(),
-  runDotenvx: vi.fn(),
-  runOtplib: vi.fn(),
-}));
-
-import fs from "node:fs";
+import storage from "./storage/index.js";
 import { createOtplibxCli } from "./index.js";
-import { runDotenvx, runOtplib } from "./utils/exec.js";
 
-const mockFs = vi.mocked(fs);
-const mockRunDotenvx = vi.mocked(runDotenvx);
-const mockRunOtplib = vi.mocked(runOtplib);
+const mockStorage = vi.mocked(storage);
+
+// Helper to create base64-encoded payloads
+function encodePayloadHelper(payload: object): string {
+  return Buffer.from(JSON.stringify(payload)).toString("base64");
+}
+
+// Pre-encoded payloads for testing
+const TOTP_PAYLOAD = encodePayloadHelper({
+  data: {
+    type: "totp",
+    secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+    issuer: "GitHub",
+    account: "user",
+    algorithm: "SHA1",
+    digits: 6,
+    period: 30,
+  },
+});
+const HOTP_PAYLOAD = encodePayloadHelper({
+  data: {
+    type: "hotp",
+    secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+    issuer: "Service",
+    account: "user",
+    algorithm: "SHA1",
+    digits: 6,
+    counter: 0,
+  },
+});
 
 function createMockReadStdin(data: string) {
   return vi.fn().mockResolvedValue(data);
@@ -66,62 +88,55 @@ describe("otplibx CLI", () => {
 
   describe("init command", () => {
     test("initializes new file successfully", async () => {
-      mockFs.existsSync.mockReturnValue(false);
-      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+      mockStorage.init.mockResolvedValue(undefined);
 
       const { exitCode } = await runCli(["init", "test.env"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(mockFs.writeFileSync).toHaveBeenCalledWith("test.env", "", { mode: 0o600 });
+      expect(mockStorage.init).toHaveBeenCalledWith("test.env");
       expect(consoleLogSpy).toHaveBeenCalledWith("Initialized: test.env");
     });
 
     test("uses default file when not specified", async () => {
-      mockFs.existsSync.mockReturnValue(false);
-      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+      mockStorage.init.mockResolvedValue(undefined);
 
       const { exitCode } = await runCli(["init"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(mockFs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "", { mode: 0o600 });
+      expect(mockStorage.init).toHaveBeenCalledWith(".env.otplibx");
     });
 
     test("respects -f option", async () => {
-      mockFs.existsSync.mockReturnValue(false);
-      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+      mockStorage.init.mockResolvedValue(undefined);
 
       const { exitCode } = await runCli(["-f", "custom.env", "init"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(mockFs.writeFileSync).toHaveBeenCalledWith("custom.env", "", { mode: 0o600 });
+      expect(mockStorage.init).toHaveBeenCalledWith("custom.env");
     });
 
     test("fails when file exists", async () => {
-      mockFs.existsSync.mockReturnValue(true);
+      mockStorage.init.mockRejectedValue(new Error("File already exists: test.env"));
 
       const { exitCode } = await runCli(["init", "test.env"], createEmptyReadStdin());
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("error: file already exists: test.env");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: File already exists: test.env");
     });
   });
 
   describe("add command", () => {
     test("adds entry successfully", async () => {
-      mockRunOtplib.mockReturnValue({
-        stdout: "A12345678=base64payload",
-        stderr: "",
-        status: 0,
-      });
-      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+      mockStorage.set.mockResolvedValue(undefined);
 
       const { exitCode } = await runCli(
         ["add"],
-        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
+        createMockReadStdin("otpauth://totp/Test?secret=YNA3WOLVGZTOGOMLZ6QWD6VKIE======"),
       );
 
       expect(exitCode).toBe(0);
-      expect(consoleLogSpy).toHaveBeenCalledWith("A12345678");
+      expect(mockStorage.set).toHaveBeenCalled();
+      expect(consoleLogSpy).toHaveBeenCalled();
     });
 
     test("fails with empty stdin", async () => {
@@ -131,23 +146,6 @@ describe("otplibx CLI", () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         "error: expected otpauth URI or JSON from stdin",
       );
-    });
-
-    test("passes bytes option to add function", async () => {
-      mockRunOtplib.mockReturnValue({
-        stdout: "A12345678=base64payload",
-        stderr: "",
-        status: 0,
-      });
-      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
-
-      const { exitCode } = await runCli(
-        ["add", "--bytes", "8"],
-        createMockReadStdin("otpauth://totp/Test?secret=ABC"),
-      );
-
-      expect(exitCode).toBe(0);
-      expect(mockRunOtplib).toHaveBeenCalledWith(["encode", "--bytes", "8"], expect.anything());
     });
 
     test("rejects --bytes value less than 1", async () => {
@@ -183,57 +181,40 @@ describe("otplibx CLI", () => {
 
   describe("token command", () => {
     test("generates token with newline by default", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "123456",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: TOTP_PAYLOAD,
       });
 
       const { exitCode } = await runCli(["token", "AABCDEF12"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("123456\n");
+      expect(stdoutWriteSpy).toHaveBeenCalled();
+      const output = stdoutWriteSpy.mock.calls[0][0] as string;
+      expect(output).toMatch(/^\d{6}\n$/);
     });
 
     test("generates token without newline when -n is provided", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "123456",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: TOTP_PAYLOAD,
       });
 
       const { exitCode } = await runCli(["token", "-n", "AABCDEF12"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("123456");
+      expect(stdoutWriteSpy).toHaveBeenCalled();
+      const output = stdoutWriteSpy.mock.calls[0][0] as string;
+      expect(output).toMatch(/^\d{6}$/);
     });
 
     test("reads ID from stdin when no argument provided", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "123456",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: TOTP_PAYLOAD,
       });
 
       const { exitCode } = await runCli(["token"], createMockReadStdin("AABCDEF12\n"));
 
       expect(exitCode).toBe(0);
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("123456\n");
+      expect(stdoutWriteSpy).toHaveBeenCalled();
     });
 
     test("fails when no ID argument and stdin is empty", async () => {
@@ -242,19 +223,21 @@ describe("otplibx CLI", () => {
       expect(exitCode).toBe(1);
       expect(consoleErrorSpy).toHaveBeenCalledWith("error: missing entry ID");
     });
+
+    test("fails when entry not found", async () => {
+      mockStorage.load.mockResolvedValue({});
+
+      const { exitCode } = await runCli(["token", "NOTFOUND"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found: NOTFOUND");
+    });
   });
 
   describe("type command", () => {
     test("outputs type with newline by default", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "totp",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: TOTP_PAYLOAD,
       });
 
       const { exitCode } = await runCli(["type", "AABCDEF12"], createEmptyReadStdin());
@@ -264,15 +247,8 @@ describe("otplibx CLI", () => {
     });
 
     test("outputs type without newline when -n is provided", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "hotp",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: HOTP_PAYLOAD,
       });
 
       const { exitCode } = await runCli(["type", "-n", "AABCDEF12"], createEmptyReadStdin());
@@ -282,15 +258,8 @@ describe("otplibx CLI", () => {
     });
 
     test("reads ID from stdin when no argument provided", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "totp",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: TOTP_PAYLOAD,
       });
 
       const { exitCode } = await runCli(["type"], createMockReadStdin("AABCDEF12\n"));
@@ -306,66 +275,50 @@ describe("otplibx CLI", () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith("error: missing entry ID");
     });
 
-    test("fails when type throws error", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "",
-        stderr: "entry not found",
-        status: 1,
-      });
+    test("fails when entry not found", async () => {
+      mockStorage.load.mockResolvedValue({});
 
-      const { exitCode } = await runCli(["type", "AABCDEF12"], createEmptyReadStdin());
+      const { exitCode } = await runCli(["type", "NOTFOUND"], createEmptyReadStdin());
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found: NOTFOUND");
     });
   });
 
   describe("list command", () => {
     test("lists entries successfully", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "GitHub:user\tAABCDEF12\ttotp\n",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: TOTP_PAYLOAD,
       });
 
       const { exitCode } = await runCli(["list"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("GitHub:user\tAABCDEF12\ttotp\n");
+      expect(stdoutWriteSpy).toHaveBeenCalled();
     });
 
-    test("passes filter option to otplib", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "GitHub:user\tAABCDEF12\ttotp\n",
-        stderr: "",
-        status: 0,
-      });
+    test("outputs 'No entries' when empty", async () => {
+      mockStorage.load.mockResolvedValue({});
 
-      const { exitCode } = await runCli(["list", "--filter", "github"], createEmptyReadStdin());
+      const { exitCode } = await runCli(["list"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(mockRunOtplib).toHaveBeenCalledWith(["list", "--filter", "github"], expect.anything());
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("No entries\n");
+    });
+
+    test("fails when load throws", async () => {
+      mockStorage.load.mockRejectedValue(new Error("decrypt failed"));
+
+      const { exitCode } = await runCli(["list"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: decrypt failed");
     });
   });
 
   describe("guard commands", () => {
     test("guard update sets guardrail value", async () => {
-      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+      mockStorage.set.mockResolvedValue(undefined);
 
       const { exitCode } = await runCli(
         ["guard", "update", "MIN_SECRET_BYTES", "8"],
@@ -373,11 +326,12 @@ describe("otplibx CLI", () => {
       );
 
       expect(exitCode).toBe(0);
+      expect(mockStorage.set).toHaveBeenCalledWith(".env.otplibx", "OTPLIB_MIN_SECRET_BYTES", "8");
       expect(consoleLogSpy).toHaveBeenCalledWith("OTPLIB_MIN_SECRET_BYTES=8");
     });
 
     test("guard rm removes guardrail", async () => {
-      mockRunDotenvx.mockReturnValue({ stdout: "", stderr: "", status: 0 });
+      mockStorage.remove.mockResolvedValue(undefined);
 
       const { exitCode } = await runCli(
         ["guard", "rm", "MIN_SECRET_BYTES"],
@@ -385,177 +339,152 @@ describe("otplibx CLI", () => {
       );
 
       expect(exitCode).toBe(0);
+      expect(mockStorage.remove).toHaveBeenCalledWith(".env.otplibx", "OTPLIB_MIN_SECRET_BYTES");
       expect(consoleLogSpy).toHaveBeenCalledWith("Removed: OTPLIB_MIN_SECRET_BYTES");
     });
 
     test("guard show displays configuration", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"OTPLIB_MIN_SECRET_BYTES":"8"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "MIN_SECRET_BYTES  8  16",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        OTPLIB_MIN_SECRET_BYTES: "8",
       });
 
       const { exitCode } = await runCli(["guard", "show"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(consoleLogSpy).toHaveBeenCalledWith("MIN_SECRET_BYTES  8  16");
+      expect(consoleLogSpy).toHaveBeenCalled();
     });
 
-    test("guard show does not log empty result", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: "{}",
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "",
-        stderr: "",
-        status: 0,
-      });
+    test("guard show logs result even with no configured values", async () => {
+      mockStorage.load.mockResolvedValue({});
 
       const { exitCode } = await runCli(["guard", "show"], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
-      expect(consoleLogSpy).not.toHaveBeenCalled();
+      expect(consoleLogSpy).toHaveBeenCalled();
     });
 
-    test("guard update fails with error", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: "",
-        stderr: "write failed",
-        status: 1,
-      });
+    test("guard show fails when load throws", async () => {
+      mockStorage.load.mockRejectedValue(new Error("decrypt failed"));
 
+      const { exitCode } = await runCli(["guard", "show"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: decrypt failed");
+    });
+
+    test("guard update fails with invalid key", async () => {
       const { exitCode } = await runCli(
-        ["guard", "update", "MIN_SECRET_BYTES", "8"],
+        ["guard", "update", "INVALID_KEY", "8"],
         createEmptyReadStdin(),
       );
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("error: dotenvx set failed: write failed");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("invalid guardrail key: INVALID_KEY"),
+      );
     });
 
-    test("guard rm fails with error", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: "",
-        stderr: "write failed",
-        status: 1,
+    test("guard rm fails with invalid key", async () => {
+      const { exitCode } = await runCli(["guard", "rm", "INVALID_KEY"], createEmptyReadStdin());
+
+      expect(exitCode).toBe(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("invalid guardrail key: INVALID_KEY"),
+      );
+    });
+  });
+
+  describe("hotp update-counter command", () => {
+    test("updates counter successfully", async () => {
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: HOTP_PAYLOAD,
       });
+      mockStorage.set.mockResolvedValue(undefined);
 
       const { exitCode } = await runCli(
-        ["guard", "rm", "MIN_SECRET_BYTES"],
+        ["hotp", "update-counter", "AABCDEF12"],
+        createEmptyReadStdin(),
+      );
+
+      expect(exitCode).toBe(0);
+      expect(consoleLogSpy).toHaveBeenCalledWith("AABCDEF12");
+    });
+
+    test("updates counter with specific value", async () => {
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: HOTP_PAYLOAD,
+      });
+      mockStorage.set.mockResolvedValue(undefined);
+
+      const { exitCode } = await runCli(
+        ["hotp", "update-counter", "AABCDEF12", "10"],
+        createEmptyReadStdin(),
+      );
+
+      expect(exitCode).toBe(0);
+      expect(consoleLogSpy).toHaveBeenCalledWith("AABCDEF12");
+    });
+
+    test("fails with invalid counter value", async () => {
+      const { exitCode } = await runCli(
+        ["hotp", "update-counter", "AABCDEF12", "abc"],
         createEmptyReadStdin(),
       );
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("error: dotenvx set failed: write failed");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: counter must be a non-negative integer");
     });
 
-    test("guard show fails with error", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: "",
-        stderr: "read failed",
-        status: 1,
-      });
-
-      const { exitCode } = await runCli(["guard", "show"], createEmptyReadStdin());
+    test("fails with negative counter value", async () => {
+      const { exitCode } = await runCli(
+        ["hotp", "update-counter", "AABCDEF12", "-5"],
+        createEmptyReadStdin(),
+      );
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("error: dotenvx get failed: read failed");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: counter must be a non-negative integer");
     });
-  });
 
-  describe("list command", () => {
-    test("fails when list throws error", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "",
-        stderr: "list error",
-        status: 1,
-      });
+    test("fails when entry not found", async () => {
+      mockStorage.load.mockResolvedValue({});
 
-      const { exitCode } = await runCli(["list"], createEmptyReadStdin());
+      const { exitCode } = await runCli(
+        ["hotp", "update-counter", "NOTFOUND"],
+        createEmptyReadStdin(),
+      );
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("error: otplib list failed: list error");
-    });
-
-    test("does not output when list returns empty", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: "{}",
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "",
-        stderr: "",
-        status: 0,
-      });
-
-      const { exitCode } = await runCli(["list"], createEmptyReadStdin());
-
-      expect(exitCode).toBe(0);
-      expect(stdoutWriteSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("token command", () => {
-    test("fails when token throws error", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "",
-        stderr: "entry not found",
-        status: 1,
-      });
-
-      const { exitCode } = await runCli(["token", "AABCDEF12"], createEmptyReadStdin());
-
-      expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found: NOTFOUND");
     });
   });
 
   describe("verify command", () => {
     test("exits with 0 when token is valid", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "",
-        stderr: "",
-        status: 0,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: TOTP_PAYLOAD,
       });
 
-      const { exitCode } = await runCli(["verify", "AABCDEF12", "123456"], createEmptyReadStdin());
+      // We can't predict the exact token, so we generate it
+      const { generateOtp } = await import("../shared/otp.js");
+      const token = await generateOtp(
+        {
+          type: "totp",
+          secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+          algorithm: "SHA1",
+          digits: 6,
+          period: 30,
+        },
+        {},
+      );
+
+      const { exitCode } = await runCli(["verify", "AABCDEF12", token], createEmptyReadStdin());
 
       expect(exitCode).toBe(0);
     });
 
     test("exits with 1 when token is invalid", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "",
-        stderr: "",
-        status: 1,
+      mockStorage.load.mockResolvedValue({
+        AABCDEF12: TOTP_PAYLOAD,
       });
 
       const { exitCode } = await runCli(["verify", "AABCDEF12", "000000"], createEmptyReadStdin());
@@ -563,22 +492,13 @@ describe("otplibx CLI", () => {
       expect(exitCode).toBe(1);
     });
 
-    test("fails when verify throws error", async () => {
-      mockRunDotenvx.mockReturnValue({
-        stdout: '{"AABCDEF12":"data"}',
-        stderr: "",
-        status: 0,
-      });
-      mockRunOtplib.mockReturnValue({
-        stdout: "",
-        stderr: "entry not found",
-        status: 1,
-      });
+    test("fails when entry not found", async () => {
+      mockStorage.load.mockResolvedValue({});
 
-      const { exitCode } = await runCli(["verify", "AABCDEF12", "123456"], createEmptyReadStdin());
+      const { exitCode } = await runCli(["verify", "NOTFOUND", "123456"], createEmptyReadStdin());
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("error: entry not found: NOTFOUND");
     });
   });
 });

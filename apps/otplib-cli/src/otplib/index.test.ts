@@ -27,6 +27,7 @@ vi.mock("../shared/parse.js", () => {
 });
 
 vi.mock("../shared/types.js", () => ({
+  encodePayload: vi.fn(),
   formatOutput: vi.fn(),
   generateUid: vi.fn(),
   getLabel: vi.fn(),
@@ -36,7 +37,7 @@ import fs from "node:fs";
 import { generateOtp, verifyOtp } from "../shared/otp.js";
 import { findEntry, parseAddInput, parseEnvInput, updateHotpCounter } from "../shared/parse.js";
 import { createCli } from "./index.js";
-import { formatOutput, generateUid, getLabel } from "../shared/types.js";
+import { encodePayload, formatOutput, generateUid, getLabel } from "../shared/types.js";
 
 const mockFs = vi.mocked(fs);
 const mockGenerateOtp = vi.mocked(generateOtp);
@@ -45,6 +46,7 @@ const mockParseAddInput = vi.mocked(parseAddInput);
 const mockParseEnvInput = vi.mocked(parseEnvInput);
 const mockFindEntry = vi.mocked(findEntry);
 const mockUpdateHotpCounter = vi.mocked(updateHotpCounter);
+const mockEncodePayload = vi.mocked(encodePayload);
 const mockFormatOutput = vi.mocked(formatOutput);
 const mockGenerateUid = vi.mocked(generateUid);
 const mockGetLabel = vi.mocked(getLabel);
@@ -105,7 +107,7 @@ describe("CLI", () => {
       const mockData = { type: "totp", secret: "ABC", algorithm: "SHA1", digits: 6, period: 30 };
       mockParseAddInput.mockReturnValue(mockData as ReturnType<typeof parseAddInput>);
       mockGenerateUid.mockReturnValue("test-uid");
-      mockFormatOutput.mockReturnValue("UID=payload");
+      mockEncodePayload.mockReturnValue("payload");
 
       const { exitCode } = await runCli(
         ["encode"],
@@ -114,14 +116,14 @@ describe("CLI", () => {
 
       expect(exitCode).toBe(0);
       expect(mockParseAddInput).toHaveBeenCalledWith("otpauth://totp/Test?secret=ABC");
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("UID=payload\n");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("TEST-UID=payload\n");
     });
 
     test("saves UID to file when --save-uid is provided", async () => {
       const mockData = { type: "totp", secret: "ABC", algorithm: "SHA1", digits: 6, period: 30 };
       mockParseAddInput.mockReturnValue(mockData as ReturnType<typeof parseAddInput>);
       mockGenerateUid.mockReturnValue("test-uid");
-      mockFormatOutput.mockReturnValue("UID=payload");
+      mockEncodePayload.mockReturnValue("payload");
       mockFs.openSync.mockReturnValue(3);
 
       const { exitCode } = await runCli(
@@ -139,7 +141,7 @@ describe("CLI", () => {
       const mockData = { type: "totp", secret: "ABC", algorithm: "SHA1", digits: 6, period: 30 };
       mockParseAddInput.mockReturnValue(mockData as ReturnType<typeof parseAddInput>);
       mockGenerateUid.mockReturnValue("test-uid");
-      mockFormatOutput.mockReturnValue("UID=payload");
+      mockEncodePayload.mockReturnValue("payload");
       mockFs.openSync.mockImplementation(() => {
         throw new Error("Permission denied");
       });
@@ -150,7 +152,7 @@ describe("CLI", () => {
       );
 
       expect(exitCode).toBe(1);
-      expect(stdoutWriteSpy).toHaveBeenCalledWith("UID=payload\n");
+      expect(stdoutWriteSpy).toHaveBeenCalledWith("TEST-UID=payload\n");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("Warning: Could not save UID"),
       );
@@ -174,7 +176,7 @@ describe("CLI", () => {
       );
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: --bytes must be between 1 and 32");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: bytes must be between 1 and 32");
     });
 
     test("rejects --bytes value greater than 32", async () => {
@@ -184,7 +186,7 @@ describe("CLI", () => {
       );
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: --bytes must be between 1 and 32");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: bytes must be between 1 and 32");
     });
 
     test("rejects non-numeric --bytes value", async () => {
@@ -295,7 +297,7 @@ describe("CLI", () => {
       );
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: Entry not found: missing");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: entry not found: missing");
     });
 
     test("outputs error when entry is TOTP", async () => {
@@ -408,7 +410,7 @@ describe("CLI", () => {
       const { exitCode } = await runCli(["verify", "missing", "123456"], createMockReadStdin("{}"));
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: Entry not found: missing");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: entry not found: missing");
     });
 
     test("exits with 0 when token is valid", async () => {
@@ -462,7 +464,7 @@ describe("CLI", () => {
       const { exitCode } = await runCli(["token", "missing"], createMockReadStdin("{}"));
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: Entry not found: missing");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: entry not found: missing");
     });
 
     test("generates TOTP token when entry type is totp", async () => {
@@ -547,7 +549,7 @@ describe("CLI", () => {
       const { exitCode } = await runCli(["type", "missing"], createMockReadStdin("{}"));
 
       expect(exitCode).toBe(1);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: Entry not found: missing");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: entry not found: missing");
     });
 
     test("outputs 'totp' for TOTP entry", async () => {
