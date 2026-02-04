@@ -172,7 +172,9 @@ For interactive selection, pipe to `fzf`:
 
 ```bash
 # Select entry interactively and copy token
-otplibx list | fzf | cut -f2 | otplibx token -n | pbcopy
+npx otplibx token -n "$(npx otplibx list | fzf | cut -f2)" | pbcopy
+# OR
+npx otplibx list | fzf | cut -f2 | xargs -I {} npx otplibx token -n {} | pbcopy
 ```
 
 ### Updating HOTP Counters

@@ -35,7 +35,9 @@ otplibx list
 otplibx list --filter github
 
 # Interactive selection with fzf
-otplibx list | fzf | cut -f2 | otplibx token -n | pbcopy
+npx otplibx token -n "$(npx otplibx list | fzf | cut -f2)" | pbcopy
+# OR
+npx otplibx list | fzf | cut -f2 | xargs -I {} npx otplibx token -n {} | pbcopy
 ```
 
 ### otplib
