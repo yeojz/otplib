@@ -54,11 +54,11 @@ import CLIShowcase from '../.vitepress/components/CLIShowcase.vue'
   <div class="cards">
     <div class="card">
       <h4>Composable</h4>
-      <p><code>otplib</code> is stateless, utilising <code>stdin</code> / <code>stdout</code>, allowing the possibility of piping into and from other tools.</p>
+      <p><code>otplib</code> uses standard <code>stdin</code> / <code>stdout</code>, allowing the ability to pipe to and from other tools.</p>
     </div>
     <div class="card">
       <h4>Storage-agnostic</h4>
-      <p>Bring your own encrypted storage (eg Vault, Secrets Manager etc), as long as it can encrypt to or decrypt from JSON</p>
+      <p>Bring your own encrypted storage (eg Vault, Secrets Manager etc), as long as it can encrypt to or decrypt from the expected JSON schema.</p>
     </div>
     <div class="card">
       <h4>Built-in Encryption</h4>
