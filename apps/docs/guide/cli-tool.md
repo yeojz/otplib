@@ -43,7 +43,7 @@ OTP generation and secret storage are intentionally decoupled.
 
 ## Getting Started (otplibx)
 
-For most cases, `otplibx` would be the easiest way to get started with the CLI. It provides a wrapper around the core `otplib` CLI with an additional encrypted storage.
+For most cases, `otplibx` would be the easiest way to get started with the CLI. It provides a wrapper around the core `otplib` CLI with an additional data encrypted storage.
 
 - **256-bit key** - Generated during initialization and stored in `.env.keys`
 - **No external dependencies** - Uses only Node.js native `crypto` module
@@ -84,7 +84,7 @@ otplibx init
 otplibx init .env.otp
 ```
 
-This creates `.env.otplibx` (or your custom filename) to store encrypted secrets, along with a `.env.keys` file containing the 256-bit symmetric encryption key (stored as 64 hex characters).
+This creates `.env.otplibx` (or your custom filename) to store encrypted secrets, along with a `.env.keys` file containing the 256-bit symmetric encryption key.
 
 ::: warning
 **Never commit `.env.keys` to version control.** This file contains your encryption key. Add it to `.gitignore`:
@@ -109,7 +109,7 @@ otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub
 
 ```json
 {
-  "secret": "JBSWY3DPEHPK3PXP",
+  "secret": "GEZDGNBVGY3TQOJQGEZDGNBVGY",
   "issuer": "GitHub",
   "account": "user@example.com"
 }
@@ -134,7 +134,7 @@ Avoid using `echo` with secrets as they may be logged in shell history. Use file
 
 ### Generating Tokens
 
-To generate a token, use the `token` command with the Entry ID.
+To generate a token, use the `token` command with the Unqiue ID.
 
 ```bash
 otplibx token A1B2C3D4
@@ -201,15 +201,16 @@ otplibx guard rm MIN_SECRET_BYTES
 
 ## Core CLI (otplib)
 
-For power users and scripting, the `otplib` command provides a pure stateless interface. It reads from `stdin` and writes to `stdout`, making it composable with any secret manager.
+For scripting or other use cases, the `otplib` command provides a pure stateless interface, making it composable with other tools or secret managers.
 
-::: warning All commands require stdin
-The `otplib` CLI is fully stateless — it stores nothing and reads nothing from disk. Every command reads its input from stdin:
+::: warning Requires usage of stdin / stdout
+
+`otplib` command reads from `stdin` and writes to `stdout` for it's inputs and outputs.
 
 - **`encode`** reads an otpauth URI or JSON
 - **All other commands** read the JSON secrets object
 
-This design enables integration with any secret manager or storage backend.
+You can pipe data into and out of any provided commands.
 :::
 
 ### Input Format
@@ -225,7 +226,7 @@ The `otplib` CLI expects a JSON object where:
 {
   "data": {
     "type": "totp",
-    "secret": "JBSWY3DPEHPK3PXP",
+    "secret": "GEZDGNBVGY3TQOJQGEZDGNBVGY",
     "issuer": "Service",
     "algorithm": "SHA1",
     "digits": 6,
@@ -284,36 +285,12 @@ pbpaste | otplib encode --save-uid uids.txt
 
 ## Other Secret Managers
 
-The core `otplib` CLI is stateless and works with any secret manager that can output JSON to stdout. Here are examples of integrating with popular password managers.
+The core `otplib` CLI is stateless and works with any secret manager that can output JSON to stdout. Some examples are provided below:
 
 :::danger Note
 Please refer to their respective password manager's documentation as their commands may have changed.
 The examples below are here to serve as a rough guide.
 :::
-
-### 1Password CLI
-
-Use the [1Password CLI](https://developer.1password.com/docs/cli/) to retrieve OTP secrets and pipe them to `otplib`.
-
-```bash
-# Store your OTP payload in 1Password as a secure note or custom field
-# Then retrieve and pipe to otplib
-
-# Example: Get a secret stored in 1Password and generate a token
-op read "op://Vault/MyOTPSecrets/otplib-data" | otplib token A1B2C3D4
-```
-
-### Bitwarden CLI
-
-Use the [Bitwarden CLI](https://bitwarden.com/help/cli/) to retrieve secrets.
-
-```bash
-# Unlock Bitwarden first
-export BW_SESSION=$(bw unlock --raw)
-
-# Retrieve your OTP data stored in Bitwarden
-bw get item "OTP Secrets" | jq -r '.notes' | otplib token A1B2C3D4
-```
 
 ### HashiCorp Vault
 
@@ -332,9 +309,7 @@ aws secretsmanager get-secret-value --secret-id otp-secrets \
 
 ## Security Notes
 
-- **Encryption**: `otplibx` uses AES-256-GCM authenticated encryption. The key is stored in `.env.keys` with restricted file permissions (0600). Never commit this file!
+- **Encryption**: `otplibx` uses AES-256-GCM authenticated encryption. The key is stored in `.env.keys` Never commit this file!
 - **Key management**: You can also set the key via the `OTPLIBX_ENCRYPTION_KEY` environment variable, which takes priority over the key file. This is useful for CI/CD pipelines.
-- **Storage security**: When using `otplib` directly with external secret managers, security depends entirely on your chosen backend - ensure it is set up correctly for your threat model.
-- **Clipboard exposure**: Copy commands using `pbcopy` or `xclip` may expose tokens via clipboard history. Consider disabling clipboard history when working with sensitive tokens.
 - **HOTP atomicity**: Counter updates for HOTP entries are not atomic. Avoid concurrent updates to the same HOTP entry from multiple processes.
 - **Guardrails**: By default, secrets shorter than 16 bytes or longer than 64 bytes are rejected. Use `guard update` to modify these limits if needed, but understand the security implications.

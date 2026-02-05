@@ -1,8 +1,7 @@
 # otplib-cli
 
 A Command Line tool for OTP operations.
-
-Uses AES-256-GCM authenticated encryption for secure secret storage.
+It provides stateless, scriptable and storage agnostic tooling.
 
 ## Installation
 
@@ -12,7 +11,7 @@ npm install -g otplib-cli
 
 Two commands are available:
 
-- **`otplibx`** - Includes built-in encryption for secure storage (recommended)
+- **`otplibx`** - Includes an encrypted `.env` based storage
 - **`otplib`** - Stateless CLI for scripting and custom backends
 
 ## Quick Start
