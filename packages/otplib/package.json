@@ -41,6 +41,26 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./functional": {
+      "import": {
+        "types": "./dist/functional.d.ts",
+        "default": "./dist/functional.js"
+      },
+      "require": {
+        "types": "./dist/functional.d.cts",
+        "default": "./dist/functional.cjs"
+      }
+    },
+    "./class": {
+      "import": {
+        "types": "./dist/class.d.ts",
+        "default": "./dist/class.js"
+      },
+      "require": {
+        "types": "./dist/class.d.cts",
+        "default": "./dist/class.cjs"
+      }
     }
   },
   "files": [
@@ -66,10 +86,9 @@
     "@otplib/plugin-base32-scure": "workspace:*"
   },
   "devDependencies": {
-    "@otplib/plugin-crypto-noble": "workspace:*",
     "@repo/testing": "workspace:*",
-    "tsup": "^8.0.1",
-    "typescript": "^5.3.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
   "publishConfig": {

@@ -7,34 +7,33 @@
   {
     "name": "@otplib/hotp",
     "path": "packages/hotp/dist/index.js",
-    "limit": "3 KB"
+    "limit": "3 KB",
+    "ignore": ["@otplib/core", "@otplib/uri"]
   },
   {
     "name": "@otplib/totp",
     "path": "packages/totp/dist/index.js",
-    "limit": "4 KB"
+    "limit": "4 KB",
+    "ignore": ["@otplib/core", "@otplib/hotp", "@otplib/uri"]
   },
   {
     "name": "@otplib/uri",
     "path": "packages/uri/dist/index.js",
-    "limit": "2 KB"
-  },
-  {
-    "name": "otplib (main)",
-    "path": "packages/otplib/dist/index.js",
-    "limit": "10 KB"
+    "limit": "2 KB",
+    "ignore": ["@otplib/core"]
   },
   {
     "name": "@otplib/plugin-crypto-node",
     "path": "packages/plugin-crypto-node/dist/index.js",
     "limit": "1 KB",
-    "ignore": ["crypto"]
+    "ignore": ["crypto", "@otplib/core"]
   },
   {
     "name": "@otplib/plugin-crypto-noble",
     "path": "packages/plugin-crypto-noble/dist/index.js",
     "limit": "1 KB",
     "ignore": [
+      "@otplib/core",
       "@noble/hashes",
       "@noble/hashes/hmac",
       "@noble/hashes/sha1",
@@ -46,12 +45,34 @@
   {
     "name": "@otplib/plugin-crypto-web",
     "path": "packages/plugin-crypto-web/dist/index.js",
-    "limit": "1 KB"
+    "limit": "1 KB",
+    "ignore": ["@otplib/core"]
   },
   {
     "name": "@otplib/plugin-base32-scure",
     "path": "packages/plugin-base32-scure/dist/index.js",
     "limit": "1 KB",
-    "ignore": ["@scure/base"]
+    "ignore": ["@otplib/core", "@scure/base"]
+  },
+  {
+    "name": "@otplib/plugin-base32-alt",
+    "path": "packages/plugin-base32-alt/dist/index.js",
+    "limit": "1 KB",
+    "ignore": ["@otplib/core"]
+  },
+  {
+    "name": "otplib (total)",
+    "path": "packages/otplib/dist/index.js",
+    "limit": "10 KB"
+  },
+  {
+    "name": "@otplib/preset-v11 (total)",
+    "path": "packages/v11-adapter/dist/index.js",
+    "limit": "10 KB"
+  },
+  {
+    "name": "@otplib/v12-adapter (total)",
+    "path": "packages/v12-adapter/dist/index.js",
+    "limit": "10 KB"
   }
 ]
