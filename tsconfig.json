@@ -28,20 +28,12 @@
       "@otplib/plugin-crypto-web": ["./packages/plugin-crypto-web/src"],
       "@otplib/plugin-crypto-noble": ["./packages/plugin-crypto-noble/src"],
       "@otplib/plugin-base32-scure": ["./packages/plugin-base32-scure/src"],
+      "@otplib/plugin-base32-alt": ["./packages/plugin-base32-alt/src"],
+      "@otplib/preset-v11": ["./packages/v11-adapter/src"],
+      "@otplib/v12-adapter": ["./packages/v12-adapter/src"],
       "@repo/testing": ["./internal/testing/src"]
     }
   },
-  "files": [],
-  "references": [
-    { "path": "./packages/core" },
-    { "path": "./packages/plugin-base32-scure" },
-    { "path": "./packages/plugin-crypto-noble" },
-    { "path": "./packages/plugin-crypto-node" },
-    { "path": "./packages/plugin-crypto-web" },
-    { "path": "./packages/uri" },
-    { "path": "./packages/hotp" },
-    { "path": "./packages/totp" },
-    { "path": "./packages/otplib" },
-    { "path": "./internal/testing" }
-  ]
+  "include": ["**/src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
