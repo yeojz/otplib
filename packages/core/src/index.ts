@@ -66,6 +66,8 @@ export {
   validateCounter,
   validateTime,
   validatePeriod,
+  validateDigits,
+  validateAlgorithm,
   validateToken,
   validateCounterTolerance,
   validateEpochTolerance,

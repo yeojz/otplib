@@ -15,6 +15,8 @@ import {
   validateCounter,
   validateTime,
   validatePeriod,
+  validateDigits,
+  validateAlgorithm,
   validateToken,
   validateCounterTolerance,
   validateEpochTolerance,
@@ -50,6 +52,8 @@ import {
   TimeNotFiniteError,
   PeriodTooSmallError,
   PeriodTooLargeError,
+  DigitsError,
+  AlgorithmError,
   TokenLengthError,
   TokenFormatError,
   CounterToleranceError,
@@ -169,6 +173,57 @@ describe("createGuardrails and hasGuardrailOverrides", () => {
     expect(g1).not.toBe(g2); // Different references
     expect(g1.MAX_WINDOW).toBe(20);
     expect(g2.MAX_WINDOW).toBe(30);
+  });
+
+  it("should throw when MIN_SECRET_BYTES exceeds MAX_SECRET_BYTES", () => {
+    expect(() => createGuardrails({ MIN_SECRET_BYTES: 32, MAX_SECRET_BYTES: 16 })).toThrow(
+      "Guardrail 'MIN_SECRET_BYTES' must be <= 'MAX_SECRET_BYTES'",
+    );
+  });
+
+  it("should throw when MIN_PERIOD exceeds MAX_PERIOD", () => {
+    expect(() => createGuardrails({ MIN_PERIOD: 60, MAX_PERIOD: 30 })).toThrow(
+      "Guardrail 'MIN_PERIOD' must be <= 'MAX_PERIOD'",
+    );
+  });
+
+  it("should throw when MIN_SECRET_BYTES is invalid", () => {
+    expect(() => createGuardrails({ MIN_SECRET_BYTES: 0 })).toThrow(
+      "Guardrail 'MIN_SECRET_BYTES' must be >= 1",
+    );
+  });
+
+  it("should throw when MAX_SECRET_BYTES is invalid", () => {
+    expect(() => createGuardrails({ MAX_SECRET_BYTES: 0 })).toThrow(
+      "Guardrail 'MAX_SECRET_BYTES' must be >= 1",
+    );
+  });
+
+  it("should throw when MIN_PERIOD is invalid", () => {
+    expect(() => createGuardrails({ MIN_PERIOD: 0 })).toThrow(
+      "Guardrail 'MIN_PERIOD' must be >= 1",
+    );
+  });
+
+  it("should throw when MAX_PERIOD is invalid", () => {
+    expect(() => createGuardrails({ MAX_PERIOD: 0 })).toThrow(
+      "Guardrail 'MAX_PERIOD' must be >= 1",
+    );
+  });
+
+  it("should throw when MAX_WINDOW is invalid", () => {
+    expect(() => createGuardrails({ MAX_WINDOW: 0 })).toThrow(
+      "Guardrail 'MAX_WINDOW' must be >= 1",
+    );
+    expect(() => createGuardrails({ MAX_WINDOW: 1.5 })).toThrow(
+      "Guardrail 'MAX_WINDOW' must be a safe integer",
+    );
+  });
+
+  it("should throw when MAX_COUNTER is negative", () => {
+    expect(() => createGuardrails({ MAX_COUNTER: -1 })).toThrow(
+      "Guardrail 'MAX_COUNTER' must be >= 0",
+    );
   });
 });
 
@@ -313,6 +368,35 @@ describe("validatePeriod with guardrails", () => {
   });
 });
 
+describe("validateDigits", () => {
+  it("should accept valid digit lengths", () => {
+    expect(() => validateDigits(6)).not.toThrow();
+    expect(() => validateDigits(7)).not.toThrow();
+    expect(() => validateDigits(8)).not.toThrow();
+  });
+
+  it("should throw DigitsError for unsupported digit lengths", () => {
+    expect(() => validateDigits(5)).toThrowError(DigitsError);
+    expect(() => validateDigits(9)).toThrowError(DigitsError);
+    expect(() => validateDigits(0)).toThrowError(DigitsError);
+    expect(() => validateDigits(-1)).toThrowError(DigitsError);
+  });
+});
+
+describe("validateAlgorithm", () => {
+  it("should accept supported algorithms", () => {
+    expect(() => validateAlgorithm("sha1")).not.toThrow();
+    expect(() => validateAlgorithm("sha256")).not.toThrow();
+    expect(() => validateAlgorithm("sha512")).not.toThrow();
+  });
+
+  it("should throw AlgorithmError for unsupported algorithms", () => {
+    expect(() => validateAlgorithm("md5")).toThrowError(AlgorithmError);
+    expect(() => validateAlgorithm("SHA1")).toThrowError(AlgorithmError);
+    expect(() => validateAlgorithm("sha-1")).toThrowError(AlgorithmError);
+  });
+});
+
 describe("validateToken", () => {
   it("should accept valid 6-digit token", () => {
     expect(() => validateToken("123456", 6)).not.toThrow();
@@ -433,10 +517,13 @@ describe("validateCounterTolerance with guardrails", () => {
 });
 
 describe("validateEpochTolerance", () => {
+  const maxTotalToleranceSeconds = (MAX_WINDOW - 1) * DEFAULT_PERIOD;
+  const maxNumericToleranceSeconds = maxTotalToleranceSeconds / 2;
+
   it("should accept valid numeric tolerance", () => {
     expect(() => validateEpochTolerance(0)).not.toThrow();
     expect(() => validateEpochTolerance(30)).not.toThrow();
-    expect(() => validateEpochTolerance(MAX_WINDOW * DEFAULT_PERIOD)).not.toThrow();
+    expect(() => validateEpochTolerance(maxNumericToleranceSeconds)).not.toThrow();
   });
 
   it("should accept valid tuple tolerance", () => {
@@ -458,19 +545,18 @@ describe("validateEpochTolerance", () => {
   });
 
   it("should throw EpochToleranceTooLargeError for tolerance exceeding max", () => {
-    const maxToleranceSeconds = MAX_WINDOW * DEFAULT_PERIOD;
-    expect(() => validateEpochTolerance(maxToleranceSeconds + 1)).toThrowError(
+    expect(() => validateEpochTolerance(maxNumericToleranceSeconds + 1)).toThrowError(
       EpochToleranceTooLargeError,
     );
-    expect(() => validateEpochTolerance([0, maxToleranceSeconds + 1])).toThrowError(
+    expect(() => validateEpochTolerance([0, maxTotalToleranceSeconds + 1])).toThrowError(
       EpochToleranceTooLargeError,
     );
   });
 
   it("should accept higher tolerance when period is larger", () => {
-    // With default period 30s, max tolerance is MAX_WINDOW * 30 = 3000s
-    // With period 60s, max tolerance is MAX_WINDOW * 60 = 6000s
-    const toleranceExceedingDefault = MAX_WINDOW * DEFAULT_PERIOD + 1;
+    // With default period 30s, max numeric tolerance is 1470s (symmetric).
+    // With period 60s, max numeric tolerance is 2940s.
+    const toleranceExceedingDefault = maxNumericToleranceSeconds + 1;
 
     // Should throw with default period
     expect(() => validateEpochTolerance(toleranceExceedingDefault)).toThrowError(
@@ -482,17 +568,24 @@ describe("validateEpochTolerance", () => {
   });
 
   it("should use actual period for max tolerance calculation", () => {
-    // Max tolerance with 60s period = MAX_WINDOW * 60 = 6000s
-    expect(() => validateEpochTolerance(MAX_WINDOW * 60, 60)).not.toThrow();
-    expect(() => validateEpochTolerance(MAX_WINDOW * 60 + 1, 60)).toThrowError(
+    // Max numeric tolerance with 60s period is 2940s.
+    expect(() => validateEpochTolerance(((MAX_WINDOW - 1) * 60) / 2, 60)).not.toThrow();
+    expect(() => validateEpochTolerance(((MAX_WINDOW - 1) * 60) / 2 + 1, 60)).toThrowError(
       EpochToleranceTooLargeError,
     );
   });
 
   it("should have lower max tolerance when period is smaller", () => {
-    // Max tolerance with 10s period = MAX_WINDOW * 10 = 990s
-    expect(() => validateEpochTolerance(MAX_WINDOW * 10, 10)).not.toThrow();
-    expect(() => validateEpochTolerance(MAX_WINDOW * 10 + 1, 10)).toThrowError(
+    // Max numeric tolerance with 10s period is 490s.
+    expect(() => validateEpochTolerance(((MAX_WINDOW - 1) * 10) / 2, 10)).not.toThrow();
+    expect(() => validateEpochTolerance(((MAX_WINDOW - 1) * 10) / 2 + 1, 10)).toThrowError(
+      EpochToleranceTooLargeError,
+    );
+  });
+
+  it("should reject large bidirectional tolerance windows", () => {
+    // Symmetric large tolerances can create excessive checks.
+    expect(() => validateEpochTolerance([1500, 1500], DEFAULT_PERIOD)).toThrowError(
       EpochToleranceTooLargeError,
     );
   });
@@ -501,32 +594,39 @@ describe("validateEpochTolerance", () => {
 describe("validateEpochTolerance with guardrails", () => {
   it("should accept custom MAX_WINDOW for numeric tolerance", () => {
     const g = createGuardrails({ MAX_WINDOW: 5 });
-    const maxToleranceSeconds = 5 * DEFAULT_PERIOD;
-    expect(() => validateEpochTolerance(maxToleranceSeconds, DEFAULT_PERIOD, g)).not.toThrow();
+    const maxNumericToleranceSeconds = ((5 - 1) * DEFAULT_PERIOD) / 2;
+    expect(() =>
+      validateEpochTolerance(maxNumericToleranceSeconds, DEFAULT_PERIOD, g),
+    ).not.toThrow();
   });
 
   it("should throw EpochToleranceTooLargeError with custom MAX_WINDOW", () => {
     const g = createGuardrails({ MAX_WINDOW: 3 });
-    const maxToleranceSeconds = 3 * DEFAULT_PERIOD;
-    expect(() => validateEpochTolerance(maxToleranceSeconds + 1, DEFAULT_PERIOD, g)).toThrowError(
-      EpochToleranceTooLargeError,
-    );
+    const maxNumericToleranceSeconds = ((3 - 1) * DEFAULT_PERIOD) / 2;
+    expect(() =>
+      validateEpochTolerance(maxNumericToleranceSeconds + 1, DEFAULT_PERIOD, g),
+    ).toThrowError(EpochToleranceTooLargeError);
   });
 
   it("should accept custom MAX_WINDOW for tuple tolerance", () => {
     const g = createGuardrails({ MAX_WINDOW: 2 });
-    const maxToleranceSeconds = 2 * DEFAULT_PERIOD;
-    expect(() =>
-      validateEpochTolerance([maxToleranceSeconds, maxToleranceSeconds], DEFAULT_PERIOD, g),
-    ).not.toThrow();
+    const maxToleranceSeconds = (2 - 1) * DEFAULT_PERIOD;
+    expect(() => validateEpochTolerance([maxToleranceSeconds, 0], DEFAULT_PERIOD, g)).not.toThrow();
   });
 
   it("should throw EpochToleranceTooLargeError for tuple exceeding custom MAX_WINDOW", () => {
     const g = createGuardrails({ MAX_WINDOW: 2 });
-    const maxToleranceSeconds = 2 * DEFAULT_PERIOD;
+    const maxToleranceSeconds = (2 - 1) * DEFAULT_PERIOD;
     expect(() =>
       validateEpochTolerance([0, maxToleranceSeconds + 1], DEFAULT_PERIOD, g),
     ).toThrowError(EpochToleranceTooLargeError);
+  });
+
+  it("should throw EpochToleranceTooLargeError when tuple total exceeds custom MAX_WINDOW", () => {
+    const g = createGuardrails({ MAX_WINDOW: 4 });
+    expect(() => validateEpochTolerance([60, 60], DEFAULT_PERIOD, g)).toThrowError(
+      EpochToleranceTooLargeError,
+    );
   });
 });
 
@@ -1164,7 +1264,7 @@ describe("validateSecret with guardrails", () => {
     expect(() => validateSecret(secret, g)).toThrow(SecretTooLongError);
   });
 
-  it("allows extreme values without validation", () => {
+  it("allows extreme but valid values", () => {
     const secret = new Uint8Array(2);
     const g = createGuardrails({ MIN_SECRET_BYTES: 1, MAX_SECRET_BYTES: 1000 });
     expect(() => validateSecret(secret, g)).not.toThrow();

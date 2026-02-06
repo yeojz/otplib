@@ -99,7 +99,7 @@ export function generate(uri: OTPAuthURI): string {
   const queryParams: string[] = [];
 
   if (params.secret) {
-    queryParams.push(`secret=${params.secret}`);
+    queryParams.push(`secret=${encodeURIComponent(params.secret)}`);
   }
 
   if (params.issuer) {

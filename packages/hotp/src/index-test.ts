@@ -11,6 +11,8 @@ import {
   SecretTooLongError,
   CounterOverflowError,
   CounterToleranceTooLargeError,
+  DigitsError,
+  AlgorithmError,
 } from "@otplib/core";
 import { RFC4226_VECTORS, BASE_SECRET } from "@repo/testing";
 
@@ -171,6 +173,28 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
         expect(result).toHaveLength(6);
         expect(result).toMatch(/^\d{6}$/);
       });
+
+      it("should throw DigitsError for invalid digits", async () => {
+        await expect(
+          generate({
+            secret,
+            counter: 0,
+            digits: 5 as never,
+            crypto,
+          }),
+        ).rejects.toThrow(DigitsError);
+      });
+
+      it("should throw AlgorithmError for invalid algorithm", async () => {
+        await expect(
+          generate({
+            secret,
+            counter: 0,
+            algorithm: "md5" as never,
+            crypto,
+          }),
+        ).rejects.toThrow(AlgorithmError);
+      });
     });
 
     describe("verify", () => {
@@ -318,6 +342,30 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
         if (result.valid) {
           expect(result.delta).toBe(0);
         }
+      });
+
+      it("should throw DigitsError for invalid digits", async () => {
+        await expect(
+          verify({
+            secret,
+            counter: 0,
+            token: "123456",
+            digits: 9 as never,
+            crypto,
+          }),
+        ).rejects.toThrow(DigitsError);
+      });
+
+      it("should throw AlgorithmError for invalid algorithm", async () => {
+        await expect(
+          verify({
+            secret,
+            counter: 0,
+            token: "123456",
+            algorithm: "md5" as never,
+            crypto,
+          }),
+        ).rejects.toThrow(AlgorithmError);
       });
     });
 
@@ -769,6 +817,12 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
           expect(sha256).toHaveLength(6);
           expect(sha512).toHaveLength(6);
         });
+
+        it("should throw DigitsError for invalid digits", () => {
+          expect(() => generateSync({ secret, counter: 0, digits: 9 as never, crypto })).toThrow(
+            DigitsError,
+          );
+        });
       });
 
       describe("verifySync", () => {
@@ -827,6 +881,18 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
           if (result.valid) {
             expect(result.delta).toBe(3);
           }
+        });
+
+        it("should throw AlgorithmError for invalid algorithm", () => {
+          expect(() =>
+            verifySync({
+              secret,
+              counter: 0,
+              token: "123456",
+              algorithm: "md5" as never,
+              crypto,
+            }),
+          ).toThrow(AlgorithmError);
         });
       });
     });
