@@ -45,13 +45,17 @@ import {
   SecretTooLongError,
   CounterNegativeError,
   CounterOverflowError,
+  CounterNotIntegerError,
   TimeNegativeError,
+  TimeNotFiniteError,
   PeriodTooSmallError,
   PeriodTooLargeError,
   TokenLengthError,
   TokenFormatError,
+  CounterToleranceError,
   CounterToleranceTooLargeError,
   CounterToleranceNegativeError,
+  EpochToleranceError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
@@ -232,6 +236,14 @@ describe("validateCounter", () => {
       validateCounter(BigInt(Number.MAX_SAFE_INTEGER) + 1n, createGuardrails()),
     ).toThrowError(CounterOverflowError);
   });
+
+  it("should throw CounterNotIntegerError for non-integer numbers", () => {
+    expect(() => validateCounter(1.5, createGuardrails())).toThrowError(CounterNotIntegerError);
+    expect(() => validateCounter(NaN, createGuardrails())).toThrowError(CounterNotIntegerError);
+    expect(() => validateCounter(Infinity, createGuardrails())).toThrowError(
+      CounterNotIntegerError,
+    );
+  });
 });
 
 describe("validateTime", () => {
@@ -246,6 +258,12 @@ describe("validateTime", () => {
 
   it("should throw TimeNegativeError for negative time", () => {
     expect(() => validateTime(-1)).toThrowError(TimeNegativeError);
+  });
+
+  it("should throw TimeNotFiniteError for non-finite time values", () => {
+    expect(() => validateTime(NaN)).toThrowError(TimeNotFiniteError);
+    expect(() => validateTime(Infinity)).toThrowError(TimeNotFiniteError);
+    expect(() => validateTime(-Infinity)).toThrowError(TimeNotFiniteError);
   });
 });
 
@@ -349,6 +367,18 @@ describe("validateCounterTolerance", () => {
     );
   });
 
+  it("should throw CounterToleranceError for non-integer values", () => {
+    expect(() => validateCounterTolerance(1.5, createGuardrails())).toThrowError(
+      CounterToleranceError,
+    );
+    expect(() => validateCounterTolerance([1, 1.1], createGuardrails())).toThrowError(
+      CounterToleranceError,
+    );
+    expect(() => validateCounterTolerance(NaN, createGuardrails())).toThrowError(
+      CounterToleranceError,
+    );
+  });
+
   it("should throw CounterToleranceTooLargeError for tolerance exceeding max", () => {
     // n=100 → [0, 100] → 101 checks > MAX_WINDOW
     expect(() => validateCounterTolerance(MAX_WINDOW, createGuardrails())).toThrowError(
@@ -419,6 +449,12 @@ describe("validateEpochTolerance", () => {
     expect(() => validateEpochTolerance(-1)).toThrowError(EpochToleranceNegativeError);
     expect(() => validateEpochTolerance([-1, 0])).toThrowError(EpochToleranceNegativeError);
     expect(() => validateEpochTolerance([0, -1])).toThrowError(EpochToleranceNegativeError);
+  });
+
+  it("should throw EpochToleranceError for non-integer values", () => {
+    expect(() => validateEpochTolerance(1.5)).toThrowError(EpochToleranceError);
+    expect(() => validateEpochTolerance([30, 1.2])).toThrowError(EpochToleranceError);
+    expect(() => validateEpochTolerance(NaN)).toThrowError(EpochToleranceError);
   });
 
   it("should throw EpochToleranceTooLargeError for tolerance exceeding max", () => {

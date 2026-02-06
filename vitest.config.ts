@@ -6,7 +6,6 @@ import { defineConfig, defineProject } from "vitest/config";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const alias = {
   "@otplib/core": path.resolve(__dirname, "packages/core/src"),
-  "@otplib/base32": path.resolve(__dirname, "packages/base32/src"),
   "@otplib/hotp": path.resolve(__dirname, "packages/hotp/src"),
   "@otplib/totp": path.resolve(__dirname, "packages/totp/src"),
   "@otplib/uri": path.resolve(__dirname, "packages/uri/src"),

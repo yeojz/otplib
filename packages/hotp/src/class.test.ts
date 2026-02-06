@@ -60,6 +60,17 @@ describe("HOTP Class", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("should support Uint8Array secret without Base32 plugin", async () => {
+    const secret = new Uint8Array(20).fill(1);
+    const hotp = new HOTP({ secret, crypto });
+
+    const token = await hotp.generate(0);
+    const result = await hotp.verify({ token, counter: 0 });
+
+    expect(token).toMatch(/^\d{6}$/);
+    expect(result.valid).toBe(true);
+  });
+
   it("should create instance with no options (testing default parameter)", () => {
     const hotp = new HOTP();
     expect(hotp).toBeInstanceOf(HOTP);

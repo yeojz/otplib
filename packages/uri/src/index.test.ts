@@ -410,11 +410,23 @@ describe("URI", () => {
 
     it("should parse URI without query string", () => {
       const uri = "otpauth://totp/user";
-      const parsed = parse(uri);
+      expect(() => parse(uri)).toThrow("Missing required parameter: secret");
+    });
 
-      expect(parsed.type).toBe("totp");
-      expect(parsed.label).toBe("user");
-      expect(parsed.params.secret).toBeUndefined();
+    it("should throw when secret parameter is missing", () => {
+      const uri = "otpauth://totp/user?issuer=Service";
+      expect(() => parse(uri)).toThrow("Missing required parameter: secret");
+    });
+
+    it("should reject malformed numeric parameters", () => {
+      const malformedCounter = `otpauth://hotp/user?secret=${BASE_SECRET_BASE32}&counter=10abc`;
+      expect(() => parse(malformedCounter)).toThrow("Invalid value for parameter 'counter'");
+
+      const emptyPeriod = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}&period=`;
+      expect(() => parse(emptyPeriod)).toThrow("Invalid value for parameter 'period'");
+
+      const negativePeriod = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}&period=-1`;
+      expect(() => parse(negativePeriod)).toThrow("Invalid value for parameter 'period'");
     });
 
     it("should throw on label exceeding max length after decoding", () => {

@@ -4,13 +4,17 @@ import {
   SecretTooLongError,
   CounterNegativeError,
   CounterOverflowError,
+  CounterNotIntegerError,
   TimeNegativeError,
+  TimeNotFiniteError,
   PeriodTooSmallError,
   PeriodTooLargeError,
   TokenLengthError,
   TokenFormatError,
+  CounterToleranceError,
   CounterToleranceTooLargeError,
   CounterToleranceNegativeError,
+  EpochToleranceError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
@@ -281,6 +285,10 @@ export function validateCounter(
   counter: number | bigint,
   guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
+  if (typeof counter === "number" && (!Number.isFinite(counter) || !Number.isInteger(counter))) {
+    throw new CounterNotIntegerError();
+  }
+
   const value = typeof counter === "bigint" ? counter : BigInt(counter);
 
   if (value < 0n) {
@@ -299,6 +307,10 @@ export function validateCounter(
  * @throws {TimeNegativeError} If time is negative
  */
 export function validateTime(time: number): void {
+  if (!Number.isFinite(time)) {
+    throw new TimeNotFiniteError();
+  }
+
   if (time < 0) {
     throw new TimeNegativeError();
   }
@@ -366,6 +378,10 @@ export function validateCounterTolerance(
 ): void {
   const [past, future] = normalizeCounterTolerance(counterTolerance);
 
+  if (!Number.isSafeInteger(past) || !Number.isSafeInteger(future)) {
+    throw new CounterToleranceError("Counter tolerance values must be safe integers");
+  }
+
   if (past < 0 || future < 0) {
     throw new CounterToleranceNegativeError();
   }
@@ -406,6 +422,10 @@ export function validateEpochTolerance(
   const [pastTolerance, futureTolerance] = Array.isArray(epochTolerance)
     ? epochTolerance
     : [epochTolerance, epochTolerance];
+
+  if (!Number.isSafeInteger(pastTolerance) || !Number.isSafeInteger(futureTolerance)) {
+    throw new EpochToleranceError("Epoch tolerance values must be safe integers");
+  }
 
   // Check for negative values
   if (pastTolerance < 0 || futureTolerance < 0) {
