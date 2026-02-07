@@ -12,7 +12,10 @@ const alias = {
   "@otplib/plugin-crypto-node": path.resolve(__dirname, "packages/plugin-crypto-node/src"),
   "@otplib/plugin-crypto-web": path.resolve(__dirname, "packages/plugin-crypto-web/src"),
   "@otplib/plugin-crypto-noble": path.resolve(__dirname, "packages/plugin-crypto-noble/src"),
+  "@otplib/plugin-base32-alt": path.resolve(__dirname, "packages/plugin-base32-alt/src"),
   "@otplib/plugin-base32-scure": path.resolve(__dirname, "packages/plugin-base32-scure/src"),
+  "@otplib/preset-v11": path.resolve(__dirname, "packages/v11-adapter/src"),
+  "@otplib/v12-adapter": path.resolve(__dirname, "packages/v12-adapter/src"),
   "@repo/testing": path.resolve(__dirname, "internal/testing/src"),
   otplib: path.resolve(__dirname, "packages/otplib/src"),
 };
