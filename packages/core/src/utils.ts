@@ -37,6 +37,20 @@ import type {
 } from "./types.js";
 
 /**
+ * Supported OTP digit lengths for validation.
+ *
+ * @internal
+ */
+const SUPPORTED_DIGITS = [6, 7, 8];
+
+/**
+ * Supported hash algorithm names for validation.
+ *
+ * @internal
+ */
+const SUPPORTED_ALGORITHMS = ["sha1", "sha256", "sha512"];
+
+/**
  * Singleton TextEncoder instance to avoid repeated allocations
  */
 const textEncoder = new TextEncoder();
@@ -410,8 +424,8 @@ export function validatePeriod(
  * @throws {DigitsError} If digits is not 6, 7, or 8
  */
 export function validateDigits(digits: number): void {
-  if (digits !== 6 && digits !== 7 && digits !== 8) {
-    throw new DigitsError(`Digits must be 6, 7, or 8, got ${digits}`);
+  if (!SUPPORTED_DIGITS.includes(digits)) {
+    throw new DigitsError(`Digits must be one of ${SUPPORTED_DIGITS.join(", ")}, got ${digits}`);
   }
 }
 
@@ -422,9 +436,9 @@ export function validateDigits(digits: number): void {
  * @throws {AlgorithmError} If algorithm is unsupported
  */
 export function validateAlgorithm(algorithm: string): asserts algorithm is HashAlgorithm {
-  if (algorithm !== "sha1" && algorithm !== "sha256" && algorithm !== "sha512") {
+  if (!SUPPORTED_ALGORITHMS.includes(algorithm)) {
     throw new AlgorithmError(
-      `Algorithm must be one of 'sha1', 'sha256', or 'sha512', got '${algorithm}'`,
+      `Algorithm must be one of ${SUPPORTED_ALGORITHMS.join(", ")}, got '${algorithm}'`,
     );
   }
 }
