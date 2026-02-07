@@ -64,6 +64,7 @@ import {
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
   Base32PluginMissingError,
+  ConfigurationError,
   SecretMissingError,
   LabelMissingError,
   IssuerMissingError,
@@ -176,51 +177,64 @@ describe("createGuardrails and hasGuardrailOverrides", () => {
   });
 
   it("should throw when MIN_SECRET_BYTES exceeds MAX_SECRET_BYTES", () => {
+    expect(() => createGuardrails({ MIN_SECRET_BYTES: 32, MAX_SECRET_BYTES: 16 })).toThrowError(
+      ConfigurationError,
+    );
     expect(() => createGuardrails({ MIN_SECRET_BYTES: 32, MAX_SECRET_BYTES: 16 })).toThrow(
       "Guardrail 'MIN_SECRET_BYTES' must be <= 'MAX_SECRET_BYTES'",
     );
   });
 
   it("should throw when MIN_PERIOD exceeds MAX_PERIOD", () => {
+    expect(() => createGuardrails({ MIN_PERIOD: 60, MAX_PERIOD: 30 })).toThrowError(
+      ConfigurationError,
+    );
     expect(() => createGuardrails({ MIN_PERIOD: 60, MAX_PERIOD: 30 })).toThrow(
       "Guardrail 'MIN_PERIOD' must be <= 'MAX_PERIOD'",
     );
   });
 
   it("should throw when MIN_SECRET_BYTES is invalid", () => {
+    expect(() => createGuardrails({ MIN_SECRET_BYTES: 0 })).toThrowError(ConfigurationError);
     expect(() => createGuardrails({ MIN_SECRET_BYTES: 0 })).toThrow(
       "Guardrail 'MIN_SECRET_BYTES' must be >= 1",
     );
   });
 
   it("should throw when MAX_SECRET_BYTES is invalid", () => {
+    expect(() => createGuardrails({ MAX_SECRET_BYTES: 0 })).toThrowError(ConfigurationError);
     expect(() => createGuardrails({ MAX_SECRET_BYTES: 0 })).toThrow(
       "Guardrail 'MAX_SECRET_BYTES' must be >= 1",
     );
   });
 
   it("should throw when MIN_PERIOD is invalid", () => {
+    expect(() => createGuardrails({ MIN_PERIOD: 0 })).toThrowError(ConfigurationError);
     expect(() => createGuardrails({ MIN_PERIOD: 0 })).toThrow(
       "Guardrail 'MIN_PERIOD' must be >= 1",
     );
   });
 
   it("should throw when MAX_PERIOD is invalid", () => {
+    expect(() => createGuardrails({ MAX_PERIOD: 0 })).toThrowError(ConfigurationError);
     expect(() => createGuardrails({ MAX_PERIOD: 0 })).toThrow(
       "Guardrail 'MAX_PERIOD' must be >= 1",
     );
   });
 
   it("should throw when MAX_WINDOW is invalid", () => {
+    expect(() => createGuardrails({ MAX_WINDOW: 0 })).toThrowError(ConfigurationError);
     expect(() => createGuardrails({ MAX_WINDOW: 0 })).toThrow(
       "Guardrail 'MAX_WINDOW' must be >= 1",
     );
+    expect(() => createGuardrails({ MAX_WINDOW: 1.5 })).toThrowError(ConfigurationError);
     expect(() => createGuardrails({ MAX_WINDOW: 1.5 })).toThrow(
       "Guardrail 'MAX_WINDOW' must be a safe integer",
     );
   });
 
   it("should throw when MAX_COUNTER is negative", () => {
+    expect(() => createGuardrails({ MAX_COUNTER: -1 })).toThrowError(ConfigurationError);
     expect(() => createGuardrails({ MAX_COUNTER: -1 })).toThrow(
       "Guardrail 'MAX_COUNTER' must be >= 0",
     );

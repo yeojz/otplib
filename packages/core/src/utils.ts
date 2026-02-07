@@ -21,6 +21,7 @@ import {
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
   Base32PluginMissingError,
+  ConfigurationError,
   SecretMissingError,
   LabelMissingError,
   IssuerMissingError,
@@ -149,7 +150,7 @@ export type OTPGuardrails = Readonly<OTPGuardrailsConfig> & {
  */
 function assertGuardrailSafeInteger(name: string, value: unknown): asserts value is number {
   if (typeof value !== "number" || !Number.isSafeInteger(value)) {
-    throw new Error(`Guardrail '${name}' must be a safe integer`);
+    throw new ConfigurationError(`Guardrail '${name}' must be a safe integer`);
   }
 }
 
@@ -182,7 +183,7 @@ const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
  *
  * @param custom - Optional partial guardrails to override defaults
  * @returns Frozen guardrails object
- * @throws {Error} If custom guardrails violate safety invariants
+ * @throws {ConfigurationError} If custom guardrails violate safety invariants
  *
  * @example Basic usage
  * ```ts
@@ -221,42 +222,42 @@ export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuar
   if (custom.MIN_SECRET_BYTES !== undefined) {
     assertGuardrailSafeInteger("MIN_SECRET_BYTES", custom.MIN_SECRET_BYTES);
     if (custom.MIN_SECRET_BYTES < 1) {
-      throw new Error("Guardrail 'MIN_SECRET_BYTES' must be >= 1");
+      throw new ConfigurationError("Guardrail 'MIN_SECRET_BYTES' must be >= 1");
     }
   }
 
   if (custom.MAX_SECRET_BYTES !== undefined) {
     assertGuardrailSafeInteger("MAX_SECRET_BYTES", custom.MAX_SECRET_BYTES);
     if (custom.MAX_SECRET_BYTES < 1) {
-      throw new Error("Guardrail 'MAX_SECRET_BYTES' must be >= 1");
+      throw new ConfigurationError("Guardrail 'MAX_SECRET_BYTES' must be >= 1");
     }
   }
 
   if (custom.MIN_PERIOD !== undefined) {
     assertGuardrailSafeInteger("MIN_PERIOD", custom.MIN_PERIOD);
     if (custom.MIN_PERIOD < 1) {
-      throw new Error("Guardrail 'MIN_PERIOD' must be >= 1");
+      throw new ConfigurationError("Guardrail 'MIN_PERIOD' must be >= 1");
     }
   }
 
   if (custom.MAX_PERIOD !== undefined) {
     assertGuardrailSafeInteger("MAX_PERIOD", custom.MAX_PERIOD);
     if (custom.MAX_PERIOD < 1) {
-      throw new Error("Guardrail 'MAX_PERIOD' must be >= 1");
+      throw new ConfigurationError("Guardrail 'MAX_PERIOD' must be >= 1");
     }
   }
 
   if (custom.MAX_COUNTER !== undefined) {
     assertGuardrailSafeInteger("MAX_COUNTER", custom.MAX_COUNTER);
     if (custom.MAX_COUNTER < 0) {
-      throw new Error("Guardrail 'MAX_COUNTER' must be >= 0");
+      throw new ConfigurationError("Guardrail 'MAX_COUNTER' must be >= 0");
     }
   }
 
   if (custom.MAX_WINDOW !== undefined) {
     assertGuardrailSafeInteger("MAX_WINDOW", custom.MAX_WINDOW);
     if (custom.MAX_WINDOW < 1) {
-      throw new Error("Guardrail 'MAX_WINDOW' must be >= 1");
+      throw new ConfigurationError("Guardrail 'MAX_WINDOW' must be >= 1");
     }
   }
 
@@ -266,11 +267,11 @@ export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuar
   };
 
   if (merged.MIN_SECRET_BYTES > merged.MAX_SECRET_BYTES) {
-    throw new Error("Guardrail 'MIN_SECRET_BYTES' must be <= 'MAX_SECRET_BYTES'");
+    throw new ConfigurationError("Guardrail 'MIN_SECRET_BYTES' must be <= 'MAX_SECRET_BYTES'");
   }
 
   if (merged.MIN_PERIOD > merged.MAX_PERIOD) {
-    throw new Error("Guardrail 'MIN_PERIOD' must be <= 'MAX_PERIOD'");
+    throw new ConfigurationError("Guardrail 'MIN_PERIOD' must be <= 'MAX_PERIOD'");
   }
 
   return Object.freeze({
