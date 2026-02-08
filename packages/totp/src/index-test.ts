@@ -12,6 +12,8 @@ import {
   SecretTooShortError,
   PeriodTooLargeError,
   EpochToleranceTooLargeError,
+  DigitsError,
+  AlgorithmError,
 } from "@otplib/core";
 import { RFC6238_VECTORS, BASE_SECRET, hexToNumber } from "@repo/testing";
 
@@ -266,6 +268,28 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
 
         expect(result1).toBe(result2);
       });
+
+      it("should throw DigitsError for invalid digits", async () => {
+        await expect(
+          generate({
+            secret,
+            epoch: 59,
+            digits: 9 as never,
+            crypto,
+          }),
+        ).rejects.toThrow(DigitsError);
+      });
+
+      it("should throw AlgorithmError for invalid algorithm", async () => {
+        await expect(
+          generate({
+            secret,
+            epoch: 59,
+            algorithm: "md5" as never,
+            crypto,
+          }),
+        ).rejects.toThrow(AlgorithmError);
+      });
     });
 
     describe("verify", () => {
@@ -488,6 +512,30 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
 
         expect(result.valid).toBe(false);
+      });
+
+      it("should throw DigitsError for invalid digits", async () => {
+        await expect(
+          verify({
+            secret,
+            token: "123456",
+            epoch: 59,
+            digits: 9 as never,
+            crypto,
+          }),
+        ).rejects.toThrow(DigitsError);
+      });
+
+      it("should throw AlgorithmError for invalid algorithm", async () => {
+        await expect(
+          verify({
+            secret,
+            token: "123456",
+            epoch: 59,
+            algorithm: "md5" as never,
+            crypto,
+          }),
+        ).rejects.toThrow(AlgorithmError);
       });
     });
 
@@ -1726,6 +1774,12 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           expect(result7).toHaveLength(7);
           expect(result8).toHaveLength(8);
         });
+
+        it("should throw DigitsError for invalid digits", () => {
+          expect(() => generateSync({ secret, epoch: 59, digits: 9 as never, crypto })).toThrow(
+            DigitsError,
+          );
+        });
       });
 
       describe("verifySync", () => {
@@ -1787,6 +1841,18 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             epochTolerance: 30,
           });
           expect(result.valid).toBe(true);
+        });
+
+        it("should throw AlgorithmError for invalid algorithm", () => {
+          expect(() =>
+            verifySync({
+              secret,
+              token: "123456",
+              epoch: 59,
+              algorithm: "md5" as never,
+              crypto,
+            }),
+          ).toThrow(AlgorithmError);
         });
       });
     });
@@ -1988,7 +2054,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             token,
             period: 30,
             crypto,
-            epochTolerance: 150,
+            epochTolerance: [150, 0],
             guardrails: lenientGuardrails,
           });
 

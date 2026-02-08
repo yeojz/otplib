@@ -55,12 +55,10 @@ export function createURIDistributionTests(ctx: TestContext): void {
           expect(result.label).toBe("Example Corp:user@example.com");
         });
 
-        it("should parse URI without query parameters", () => {
-          const result = parse("otpauth://totp/TestLabel");
-
-          expect(result.type).toBe("totp");
-          expect(result.label).toBe("TestLabel");
-          expect(result.params.secret).toBe(undefined);
+        it("should throw for URI without query parameters", () => {
+          expect(() => parse("otpauth://totp/TestLabel")).toThrow(
+            "Missing required parameter: secret",
+          );
         });
       });
 
@@ -177,15 +175,16 @@ export function createURIDistributionTests(ctx: TestContext): void {
       });
 
       describe("edge cases", () => {
-        it("should handle empty parameter values", () => {
-          const result = parse("otpauth://totp/Test?secret=&issuer=");
-          expect(result.params.secret).toBe("");
-          expect(result.params.issuer).toBe("");
+        it("should throw for empty secret parameter", () => {
+          expect(() => parse("otpauth://totp/Test?secret=&issuer=")).toThrow(
+            "Missing required parameter: secret",
+          );
         });
 
-        it("should handle parameters without values", () => {
-          const result = parse("otpauth://totp/Test?secret");
-          expect(result.params.secret).toBe(undefined);
+        it("should throw for parameters without values", () => {
+          expect(() => parse("otpauth://totp/Test?secret")).toThrow(
+            "Missing required parameter: secret",
+          );
         });
 
         it("should handle special characters in issuer", () => {

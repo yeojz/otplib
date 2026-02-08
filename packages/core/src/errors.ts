@@ -93,6 +93,16 @@ export class CounterOverflowError extends CounterError {
 }
 
 /**
+ * Error thrown when counter is not an integer
+ */
+export class CounterNotIntegerError extends CounterError {
+  constructor() {
+    super("Counter must be a finite integer");
+    this.name = "CounterNotIntegerError";
+  }
+}
+
+/**
  * Error thrown when time is invalid
  */
 export class TimeError extends OTPError {
@@ -109,6 +119,16 @@ export class TimeNegativeError extends TimeError {
   constructor() {
     super("Time must be non-negative");
     this.name = "TimeNegativeError";
+  }
+}
+
+/**
+ * Error thrown when time is not a finite number
+ */
+export class TimeNotFiniteError extends TimeError {
+  constructor() {
+    super("Time must be a finite number");
+    this.name = "TimeNotFiniteError";
   }
 }
 

@@ -43,6 +43,7 @@ describe("guardrails integration", () => {
   it("should allow custom guardrails in generate", async () => {
     const strictGuardrails = createGuardrails({
       MIN_SECRET_BYTES: 100,
+      MAX_SECRET_BYTES: 200,
     });
 
     await expect(generate({ secret, guardrails: strictGuardrails })).rejects.toThrow();
@@ -51,6 +52,7 @@ describe("guardrails integration", () => {
   it("should allow custom guardrails in generateSync", () => {
     const strictGuardrails = createGuardrails({
       MIN_SECRET_BYTES: 100,
+      MAX_SECRET_BYTES: 200,
     });
 
     expect(() => generateSync({ secret, guardrails: strictGuardrails })).toThrow();
@@ -59,6 +61,7 @@ describe("guardrails integration", () => {
   it("should allow custom guardrails in verify", async () => {
     const strictGuardrails = createGuardrails({
       MIN_SECRET_BYTES: 100,
+      MAX_SECRET_BYTES: 200,
     });
 
     const token = await generate({ secret });
@@ -69,6 +72,7 @@ describe("guardrails integration", () => {
   it("should allow custom guardrails in verifySync", () => {
     const strictGuardrails = createGuardrails({
       MIN_SECRET_BYTES: 100,
+      MAX_SECRET_BYTES: 200,
     });
 
     const token = generateSync({ secret });
@@ -80,6 +84,7 @@ describe("guardrails integration", () => {
     const otp = new OTP();
     const strictGuardrails = createGuardrails({
       MIN_SECRET_BYTES: 100,
+      MAX_SECRET_BYTES: 200,
     });
 
     await expect(otp.generate({ secret, guardrails: strictGuardrails })).rejects.toThrow();
@@ -88,6 +93,7 @@ describe("guardrails integration", () => {
   it("should use class guardrails when provided in constructor", async () => {
     const strictGuardrails = createGuardrails({
       MIN_SECRET_BYTES: 100,
+      MAX_SECRET_BYTES: 200,
     });
     const otp = new OTP({ guardrails: strictGuardrails });
 
@@ -97,6 +103,7 @@ describe("guardrails integration", () => {
   it("should allow per-call guardrails overrides in OTP class", async () => {
     const strictGuardrails = createGuardrails({
       MIN_SECRET_BYTES: 100,
+      MAX_SECRET_BYTES: 200,
     });
     const lenientGuardrails = createGuardrails({
       MIN_SECRET_BYTES: 1,

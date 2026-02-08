@@ -79,7 +79,6 @@ export class HOTP {
 
     requireSecret(secret);
     requireCryptoPlugin(crypto);
-    requireBase32Plugin(base32);
 
     // Use class guardrails, or override if provided in options
     const guardrails = options?.guardrails ?? this.guardrails;
@@ -118,7 +117,6 @@ export class HOTP {
 
     requireSecret(secret);
     requireCryptoPlugin(crypto);
-    requireBase32Plugin(base32);
 
     // Use class guardrails, or override if provided in options
     const guardrails = options?.guardrails ?? this.guardrails;

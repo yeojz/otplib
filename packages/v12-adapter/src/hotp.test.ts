@@ -82,7 +82,7 @@ describe("HOTP (v12-adapter)", () => {
     });
 
     it("should apply guardrails from constructor", () => {
-      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100 });
+      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100, MAX_SECRET_BYTES: 200 });
       const hotp = new HOTP({ guardrails: strictGuardrails });
 
       expect(() => hotp.generate(BASE_SECRET, 0)).toThrow();

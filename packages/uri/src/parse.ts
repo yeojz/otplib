@@ -1,4 +1,4 @@
-import { InvalidURIError, InvalidParameterError } from "./types.js";
+import { InvalidURIError, InvalidParameterError, MissingParameterError } from "./types.js";
 
 import type { OTPAuthURI, OTPAuthParams } from "./types.js";
 import type { HashAlgorithm, Digits } from "@otplib/core";
@@ -7,6 +7,15 @@ import type { HashAlgorithm, Digits } from "@otplib/core";
 const MAX_URI_LENGTH = 2048; // Standard URL length limit
 const MAX_LABEL_LENGTH = 512;
 const MAX_PARAM_VALUE_LENGTH = 1024;
+
+type MutableOTPAuthParams = {
+  secret?: string;
+  issuer?: string;
+  algorithm?: HashAlgorithm;
+  digits?: Digits;
+  counter?: number;
+  period?: number;
+};
 
 /**
  * Format error message for caught errors
@@ -99,29 +108,25 @@ export function parse(uri: string): OTPAuthURI {
 
   const params = parseQueryString(queryString);
 
+  if (!params.secret) {
+    throw new MissingParameterError("secret");
+  }
+
   return {
     type,
     label,
-    params,
+    params: params as OTPAuthParams,
   };
 }
 
 /**
  * Parse query string into parameters object
  */
-function parseQueryString(queryString: string): OTPAuthParams {
-  // Use mutable type during construction
-  const params: {
-    secret?: string;
-    issuer?: string;
-    algorithm?: HashAlgorithm;
-    digits?: Digits;
-    counter?: number;
-    period?: number;
-  } = {};
+function parseQueryString(queryString: string): MutableOTPAuthParams {
+  const params: MutableOTPAuthParams = {};
 
   if (!queryString) {
-    return params as OTPAuthParams;
+    return params;
   }
 
   const pairs = queryString.split("&");
@@ -152,15 +157,35 @@ function parseQueryString(queryString: string): OTPAuthParams {
         params.digits = parseDigits(value);
         break;
       case "counter":
-        params.counter = parseInt(value, 10);
+        params.counter = parseIntegerParameter("counter", value, 0);
         break;
       case "period":
-        params.period = parseInt(value, 10);
+        params.period = parseIntegerParameter("period", value, 1);
         break;
     }
   }
 
-  return params as OTPAuthParams;
+  return params;
+}
+
+/**
+ * Parse an integer parameter with strict validation
+ */
+function parseIntegerParameter(name: string, value: string, min: number): number {
+  if (!/^-?\d+$/.test(value)) {
+    throw new InvalidParameterError(name, value);
+  }
+
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new InvalidParameterError(name, value);
+  }
+
+  if (parsed < min) {
+    throw new InvalidParameterError(name, value);
+  }
+
+  return parsed;
 }
 
 /**
@@ -184,7 +209,11 @@ function parseAlgorithm(value: string): HashAlgorithm {
  * Parse digits string
  */
 function parseDigits(value: string): Digits {
-  const digits = parseInt(value, 10);
+  if (!/^\d+$/.test(value)) {
+    throw new InvalidParameterError("digits", value);
+  }
+
+  const digits = Number(value);
   if (digits === 6 || digits === 7 || digits === 8) {
     return digits;
   }

@@ -77,7 +77,7 @@ describe("TOTP (v11-adapter)", () => {
     });
 
     it("should apply guardrails from constructor", () => {
-      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100 });
+      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100, MAX_SECRET_BYTES: 200 });
       const totp = new TOTP({ guardrails: strictGuardrails });
 
       expect(() => totp.generate(BASE_SECRET)).toThrow();

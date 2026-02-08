@@ -340,6 +340,7 @@ export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
         epoch: opts.epoch,
         t0: opts.t0,
         epochTolerance: opts.epochTolerance,
+        afterTimeStep: opts.afterTimeStep,
         guardrails: opts.guardrails,
       }),
     hotp: (counter) =>
@@ -385,6 +386,7 @@ export function verifySync(options: OTPVerifyOptions): VerifyResult {
         epoch: opts.epoch,
         t0: opts.t0,
         epochTolerance: opts.epochTolerance,
+        afterTimeStep: opts.afterTimeStep,
         guardrails: opts.guardrails,
       }),
     hotp: (counter) =>

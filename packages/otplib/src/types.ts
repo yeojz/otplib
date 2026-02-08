@@ -132,6 +132,14 @@ export type OTPVerifyOptions = OTPGenerateOptions & {
    * - Tuple [past, future]: explicit window control
    */
   counterTolerance?: number | [number, number];
+
+  /**
+   * Minimum allowed TOTP time step for replay protection (optional)
+   *
+   * Rejects tokens with timeStep <= afterTimeStep.
+   * Only used by TOTP strategy.
+   */
+  afterTimeStep?: number;
 };
 
 /**
@@ -145,7 +153,9 @@ export type OTPGenerateOptionsWithDefaults = Required<Omit<OTPGenerateOptions, "
  * OTP verify options with all defaults applied
  */
 export type OTPVerifyOptionsWithDefaults = OTPGenerateOptionsWithDefaults &
-  Required<Omit<OTPVerifyOptions, keyof OTPGenerateOptions>>;
+  Required<Omit<OTPVerifyOptions, keyof OTPGenerateOptions | "afterTimeStep">> & {
+    afterTimeStep?: number;
+  };
 
 /**
  * Strategy handlers for TOTP/HOTP dispatch
