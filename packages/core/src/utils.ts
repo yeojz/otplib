@@ -41,14 +41,14 @@ import type {
  *
  * @internal
  */
-const SUPPORTED_DIGITS = [6, 7, 8];
+const SUPPORTED_DIGITS = Object.freeze([6, 7, 8] as const);
 
 /**
  * Supported hash algorithm names for validation.
  *
  * @internal
  */
-const SUPPORTED_ALGORITHMS = ["sha1", "sha256", "sha512"];
+const SUPPORTED_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as const);
 
 /**
  * Singleton TextEncoder instance to avoid repeated allocations
@@ -365,8 +365,15 @@ export function validateCounter(
   counter: number | bigint,
   guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
-  if (typeof counter === "number" && (!Number.isFinite(counter) || !Number.isInteger(counter))) {
-    throw new CounterNotIntegerError();
+  if (typeof counter === "number") {
+    if (!Number.isFinite(counter) || !Number.isInteger(counter)) {
+      throw new CounterNotIntegerError();
+    }
+
+    if (!Number.isSafeInteger(counter)) {
+      // Numbers outside the safe integer range cannot be reliably converted to bigint
+      throw new CounterOverflowError();
+    }
   }
 
   const value = typeof counter === "bigint" ? counter : BigInt(counter);
