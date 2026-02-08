@@ -27,13 +27,14 @@ import {
   IssuerMissingError,
   SecretTypeError,
 } from "./errors.js";
-
-import type {
-  HashAlgorithm,
-  SecretOptions,
-  OTPResultOk,
-  OTPResultError,
-  OTPResult,
+import {
+  DIGITS,
+  HASH_ALGORITHMS,
+  type HashAlgorithm,
+  type SecretOptions,
+  type OTPResultOk,
+  type OTPResultError,
+  type OTPResult,
 } from "./types.js";
 
 /**
@@ -41,14 +42,14 @@ import type {
  *
  * @internal
  */
-const SUPPORTED_DIGITS = Object.freeze([6, 7, 8] as const);
+const SUPPORTED_DIGITS: readonly number[] = DIGITS;
 
 /**
  * Supported hash algorithm names for validation.
  *
  * @internal
  */
-const SUPPORTED_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as const);
+const SUPPORTED_ALGORITHMS: readonly string[] = HASH_ALGORITHMS;
 
 /**
  * Singleton TextEncoder instance to avoid repeated allocations
