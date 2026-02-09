@@ -503,18 +503,11 @@ export function validateEpochTolerance(
     throw new EpochToleranceNegativeError();
   }
 
-  // Per-side tolerance cannot exceed the max representable range.
-  // MAX_WINDOW checks means at most MAX_WINDOW - 1 periods of tolerance.
+  // MAX_WINDOW checks means at most MAX_WINDOW - 1 periods of tolerance
+  // (the current time step always consumes one check).
   const maxToleranceSeconds = (guardrails.MAX_WINDOW - 1) * period;
-  const maxAllowed = Math.max(pastTolerance, futureTolerance);
-
-  if (maxAllowed > maxToleranceSeconds) {
-    throw new EpochToleranceTooLargeError(maxToleranceSeconds, maxAllowed);
-  }
-
-  // Aggregate tolerance must stay within the configured verification window.
-  // This prevents large bidirectional windows that can trigger excessive HMAC checks.
   const totalToleranceSeconds = pastTolerance + futureTolerance;
+
   if (totalToleranceSeconds > maxToleranceSeconds) {
     throw new EpochToleranceTooLargeError(maxToleranceSeconds, totalToleranceSeconds);
   }
