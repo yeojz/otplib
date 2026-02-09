@@ -1036,5 +1036,151 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
       });
     });
+
+    describe("hooks", () => {
+      const STEAM_CHARS = "23456789BCDFGHJKMNPQRTVWXY";
+
+      function steamEncodeToken(truncatedValue: number, digits: number): string {
+        let code = "";
+        let value = truncatedValue;
+        for (let i = 0; i < digits; i++) {
+          code += STEAM_CHARS[value % STEAM_CHARS.length];
+          value = Math.floor(value / STEAM_CHARS.length);
+        }
+        return code;
+      }
+
+      function steamValidateToken(token: string, digits: number): void {
+        if (token.length !== digits) {
+          throw new Error(`Expected ${digits} characters, got ${token.length}`);
+        }
+        for (const ch of token) {
+          if (!STEAM_CHARS.includes(ch)) {
+            throw new Error(`Invalid character: ${ch}`);
+          }
+        }
+      }
+
+      describe("generate", () => {
+        it("should use encodeToken hook instead of default numeric encoding", async () => {
+          const result = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          expect(result).toHaveLength(5);
+          for (const ch of result) {
+            expect(STEAM_CHARS).toContain(ch);
+          }
+        });
+
+        it("should produce different output than default encoding with encodeToken hook", async () => {
+          const defaultResult = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+          });
+
+          const hookResult = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          expect(hookResult).not.toBe(defaultResult);
+        });
+      });
+
+      describe("generateSync", () => {
+        it("should use encodeToken hook instead of default numeric encoding", () => {
+          const result = generateSync({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          expect(result).toHaveLength(5);
+          for (const ch of result) {
+            expect(STEAM_CHARS).toContain(ch);
+          }
+        });
+      });
+
+      describe("verify", () => {
+        it("should use validateToken hook instead of default digit-only check", async () => {
+          const token = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          const result = await verify({
+            secret,
+            counter: 0,
+            token,
+            crypto,
+            digits: 5,
+            hooks: {
+              encodeToken: steamEncodeToken,
+              validateToken: steamValidateToken,
+            },
+          });
+
+          expect(result.valid).toBe(true);
+        });
+
+        it("should throw when custom validateToken rejects token", async () => {
+          await expect(
+            verify({
+              secret,
+              counter: 0,
+              token: "!!!!!",
+              crypto,
+              digits: 5,
+              hooks: {
+                encodeToken: steamEncodeToken,
+                validateToken: steamValidateToken,
+              },
+            }),
+          ).rejects.toThrow("Invalid character");
+        });
+      });
+
+      describe("verifySync", () => {
+        it("should use validateToken hook instead of default digit-only check", () => {
+          const token = generateSync({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          const result = verifySync({
+            secret,
+            counter: 0,
+            token,
+            crypto,
+            digits: 5,
+            hooks: {
+              encodeToken: steamEncodeToken,
+              validateToken: steamValidateToken,
+            },
+          });
+
+          expect(result.valid).toBe(true);
+        });
+      });
+    });
   });
 }

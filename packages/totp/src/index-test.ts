@@ -2621,5 +2621,141 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         });
       });
     });
+
+    describe("hooks", () => {
+      const STEAM_CHARS = "23456789BCDFGHJKMNPQRTVWXY";
+
+      function steamEncodeToken(truncatedValue: number, digits: number): string {
+        let code = "";
+        let value = truncatedValue;
+        for (let i = 0; i < digits; i++) {
+          code += STEAM_CHARS[value % STEAM_CHARS.length];
+          value = Math.floor(value / STEAM_CHARS.length);
+        }
+        return code;
+      }
+
+      function steamValidateToken(token: string, digits: number): void {
+        if (token.length !== digits) {
+          throw new Error(`Expected ${digits} characters, got ${token.length}`);
+        }
+        for (const ch of token) {
+          if (!STEAM_CHARS.includes(ch)) {
+            throw new Error(`Invalid character: ${ch}`);
+          }
+        }
+      }
+
+      describe("generate", () => {
+        it("should pass hooks through to HOTP generate", async () => {
+          const result = await generate({
+            secret,
+            epoch: 59,
+            period: 30,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          expect(result).toHaveLength(5);
+          for (const ch of result) {
+            expect(STEAM_CHARS).toContain(ch);
+          }
+        });
+      });
+
+      describe("generateSync", () => {
+        it("should pass hooks through to HOTP generateSync", () => {
+          const result = generateSync({
+            secret,
+            epoch: 59,
+            period: 30,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          expect(result).toHaveLength(5);
+          for (const ch of result) {
+            expect(STEAM_CHARS).toContain(ch);
+          }
+        });
+      });
+
+      describe("verify", () => {
+        it("should use validateToken hook instead of default digit-only check", async () => {
+          const epoch = 59;
+          const token = await generate({
+            secret,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          const result = await verify({
+            secret,
+            token,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 5,
+            hooks: {
+              encodeToken: steamEncodeToken,
+              validateToken: steamValidateToken,
+            },
+          });
+
+          expect(result.valid).toBe(true);
+        });
+
+        it("should throw when custom validateToken rejects token", async () => {
+          await expect(
+            verify({
+              secret,
+              token: "!!!!!",
+              epoch: 59,
+              period: 30,
+              crypto,
+              digits: 5,
+              hooks: {
+                encodeToken: steamEncodeToken,
+                validateToken: steamValidateToken,
+              },
+            }),
+          ).rejects.toThrow("Invalid character");
+        });
+      });
+
+      describe("verifySync", () => {
+        it("should use validateToken hook instead of default digit-only check", () => {
+          const epoch = 59;
+          const token = generateSync({
+            secret,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          const result = verifySync({
+            secret,
+            token,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 5,
+            hooks: {
+              encodeToken: steamEncodeToken,
+              validateToken: steamValidateToken,
+            },
+          });
+
+          expect(result.valid).toBe(true);
+        });
+      });
+    });
   });
 }
