@@ -58,6 +58,7 @@ export default defineConfig({
           { text: "Getting Started", link: "/guide/getting-started" },
           { text: "Advanced Usage", link: "/guide/advanced-usage" },
           { text: "Plugins", link: "/guide/plugins" },
+          { text: "Hooks", link: "/guide/hooks" },
           { text: "Troubleshooting", link: "/guide/troubleshooting" },
         ],
       },
