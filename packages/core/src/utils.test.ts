@@ -15,8 +15,6 @@ import {
   validateCounter,
   validateTime,
   validatePeriod,
-  validateDigits,
-  validateAlgorithm,
   validateToken,
   validateCounterTolerance,
   validateEpochTolerance,
@@ -52,8 +50,6 @@ import {
   TimeNotFiniteError,
   PeriodTooSmallError,
   PeriodTooLargeError,
-  DigitsError,
-  AlgorithmError,
   TokenLengthError,
   TokenFormatError,
   CounterToleranceError,
@@ -379,35 +375,6 @@ describe("validatePeriod with guardrails", () => {
   it("should throw PeriodTooLargeError with custom MAX_PERIOD", () => {
     const g = createGuardrails({ MAX_PERIOD: 60 });
     expect(() => validatePeriod(61, g)).toThrowError(PeriodTooLargeError);
-  });
-});
-
-describe("validateDigits", () => {
-  it("should accept valid digit lengths", () => {
-    expect(() => validateDigits(6)).not.toThrow();
-    expect(() => validateDigits(7)).not.toThrow();
-    expect(() => validateDigits(8)).not.toThrow();
-  });
-
-  it("should throw DigitsError for unsupported digit lengths", () => {
-    expect(() => validateDigits(5)).toThrowError(DigitsError);
-    expect(() => validateDigits(9)).toThrowError(DigitsError);
-    expect(() => validateDigits(0)).toThrowError(DigitsError);
-    expect(() => validateDigits(-1)).toThrowError(DigitsError);
-  });
-});
-
-describe("validateAlgorithm", () => {
-  it("should accept supported algorithms", () => {
-    expect(() => validateAlgorithm("sha1")).not.toThrow();
-    expect(() => validateAlgorithm("sha256")).not.toThrow();
-    expect(() => validateAlgorithm("sha512")).not.toThrow();
-  });
-
-  it("should throw AlgorithmError for unsupported algorithms", () => {
-    expect(() => validateAlgorithm("md5")).toThrowError(AlgorithmError);
-    expect(() => validateAlgorithm("SHA1")).toThrowError(AlgorithmError);
-    expect(() => validateAlgorithm("sha-1")).toThrowError(AlgorithmError);
   });
 });
 

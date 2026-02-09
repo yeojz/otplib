@@ -9,8 +9,6 @@ import {
   TimeNotFiniteError,
   PeriodTooSmallError,
   PeriodTooLargeError,
-  DigitsError,
-  AlgorithmError,
   TokenLengthError,
   TokenFormatError,
   CounterToleranceError,
@@ -27,29 +25,14 @@ import {
   IssuerMissingError,
   SecretTypeError,
 } from "./errors.js";
-import {
-  DIGITS,
-  HASH_ALGORITHMS,
-  type HashAlgorithm,
-  type SecretOptions,
-  type OTPResultOk,
-  type OTPResultError,
-  type OTPResult,
+
+import type {
+  HashAlgorithm,
+  SecretOptions,
+  OTPResultOk,
+  OTPResultError,
+  OTPResult,
 } from "./types.js";
-
-/**
- * Supported OTP digit lengths for validation.
- *
- * @internal
- */
-const SUPPORTED_DIGITS: readonly number[] = DIGITS;
-
-/**
- * Supported hash algorithm names for validation.
- *
- * @internal
- */
-const SUPPORTED_ALGORITHMS: readonly string[] = HASH_ALGORITHMS;
 
 /**
  * Singleton TextEncoder instance to avoid repeated allocations
@@ -422,32 +405,6 @@ export function validatePeriod(
 
   if (period > guardrails.MAX_PERIOD) {
     throw new PeriodTooLargeError(guardrails.MAX_PERIOD);
-  }
-}
-
-/**
- * Validate digits value
- *
- * @param digits - Number of digits for OTP
- * @throws {DigitsError} If digits is not 6, 7, or 8
- */
-export function validateDigits(digits: number): void {
-  if (!SUPPORTED_DIGITS.includes(digits)) {
-    throw new DigitsError(`Digits must be one of ${SUPPORTED_DIGITS.join(", ")}, got ${digits}`);
-  }
-}
-
-/**
- * Validate hash algorithm
- *
- * @param algorithm - Hash algorithm
- * @throws {AlgorithmError} If algorithm is unsupported
- */
-export function validateAlgorithm(algorithm: string): asserts algorithm is HashAlgorithm {
-  if (!SUPPORTED_ALGORITHMS.includes(algorithm)) {
-    throw new AlgorithmError(
-      `Algorithm must be one of ${SUPPORTED_ALGORITHMS.join(", ")}, got '${algorithm}'`,
-    );
   }
 }
 

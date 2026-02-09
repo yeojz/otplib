@@ -12,8 +12,6 @@ import {
   createGuardrails,
   dynamicTruncate,
   truncateDigits,
-  validateAlgorithm,
-  validateDigits,
   validateCounter,
   validateSecret,
   validateToken,
@@ -55,8 +53,6 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
 
   requireSecret(secret);
   requireCryptoPlugin(crypto);
-  validateAlgorithm(algorithm);
-  validateDigits(digits);
 
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
@@ -181,8 +177,6 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
 
   requireSecret(secret);
   requireCryptoPlugin(crypto);
-  validateAlgorithm(algorithm);
-  validateDigits(digits);
 
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);

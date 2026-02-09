@@ -1,22 +1,12 @@
 /**
  * Supported hash algorithms for HMAC operations
  */
-export const HASH_ALGORITHMS = ["sha1", "sha256", "sha512"] as const;
-
-/**
- * Supported hash algorithms for HMAC operations
- */
-export type HashAlgorithm = (typeof HASH_ALGORITHMS)[number];
+export type HashAlgorithm = "sha1" | "sha256" | "sha512";
 
 /**
  * Supported number of digits for OTP codes
  */
-export const DIGITS = [6, 7, 8] as const;
-
-/**
- * Supported number of digits for OTP codes
- */
-export type Digits = (typeof DIGITS)[number];
+export type Digits = 6 | 7 | 8;
 
 /**
  * Cryptographic plugin type for abstracting HMAC and random byte generation
