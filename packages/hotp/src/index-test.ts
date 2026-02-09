@@ -12,7 +12,13 @@ import {
   CounterOverflowError,
   CounterToleranceTooLargeError,
 } from "@otplib/core";
-import { RFC4226_VECTORS, BASE_SECRET } from "@repo/testing";
+import {
+  RFC4226_VECTORS,
+  BASE_SECRET,
+  STEAM_CHARS,
+  steamEncodeToken,
+  steamValidateToken,
+} from "@repo/testing";
 
 import { generate, generateSync, verify, verifySync } from "./index.ts";
 
@@ -1038,29 +1044,6 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
     });
 
     describe("hooks", () => {
-      const STEAM_CHARS = "23456789BCDFGHJKMNPQRTVWXY";
-
-      function steamEncodeToken(truncatedValue: number, digits: number): string {
-        let code = "";
-        let value = truncatedValue;
-        for (let i = 0; i < digits; i++) {
-          code += STEAM_CHARS[value % STEAM_CHARS.length];
-          value = Math.floor(value / STEAM_CHARS.length);
-        }
-        return code;
-      }
-
-      function steamValidateToken(token: string, digits: number): void {
-        if (token.length !== digits) {
-          throw new Error(`Expected ${digits} characters, got ${token.length}`);
-        }
-        for (const ch of token) {
-          if (!STEAM_CHARS.includes(ch)) {
-            throw new Error(`Invalid character: ${ch}`);
-          }
-        }
-      }
-
       describe("generate", () => {
         it("should use encodeToken hook instead of default numeric encoding", async () => {
           const result = await generate({
