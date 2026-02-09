@@ -43,6 +43,17 @@ describe("URI", () => {
       expect(uri).toContain("user%2Btag%40example.com");
     });
 
+    it("should percent-encode secret values in query params", () => {
+      const uri = generateTOTP({
+        issuer: "Service",
+        label: "user",
+        secret: "ABC&period=1",
+      });
+
+      expect(uri).toContain("secret=ABC%26period%3D1");
+      expect(parse(uri).params.secret).toBe("ABC&period=1");
+    });
+
     it("should include algorithm parameter", () => {
       const uri = generateTOTP({
         issuer: "Service",
@@ -383,6 +394,11 @@ describe("URI", () => {
       expect(() => parse(uri9)).toThrow("Invalid value for parameter 'digits'");
     });
 
+    it("should throw on non-numeric digits value", () => {
+      const uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&digits=abc`;
+      expect(() => parse(uri)).toThrow("Invalid value for parameter 'digits'");
+    });
+
     it("should parse valid digits values", () => {
       const uri6 = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&digits=6`;
       expect(parse(uri6).params.digits).toBe(6);
@@ -410,11 +426,28 @@ describe("URI", () => {
 
     it("should parse URI without query string", () => {
       const uri = "otpauth://totp/user";
-      const parsed = parse(uri);
+      expect(() => parse(uri)).toThrow("Missing required parameter: secret");
+    });
 
-      expect(parsed.type).toBe("totp");
-      expect(parsed.label).toBe("user");
-      expect(parsed.params.secret).toBeUndefined();
+    it("should throw when secret parameter is missing", () => {
+      const uri = "otpauth://totp/user?issuer=Service";
+      expect(() => parse(uri)).toThrow("Missing required parameter: secret");
+    });
+
+    it("should reject malformed numeric parameters", () => {
+      const malformedCounter = `otpauth://hotp/user?secret=${BASE_SECRET_BASE32}&counter=10abc`;
+      expect(() => parse(malformedCounter)).toThrow("Invalid value for parameter 'counter'");
+
+      const emptyPeriod = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}&period=`;
+      expect(() => parse(emptyPeriod)).toThrow("Invalid value for parameter 'period'");
+
+      const negativePeriod = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}&period=-1`;
+      expect(() => parse(negativePeriod)).toThrow("Invalid value for parameter 'period'");
+    });
+
+    it("should reject integer parameters outside safe integer range", () => {
+      const hugeCounter = `otpauth://hotp/user?secret=${BASE_SECRET_BASE32}&counter=9007199254740992`;
+      expect(() => parse(hugeCounter)).toThrow("Invalid value for parameter 'counter'");
     });
 
     it("should throw on label exceeding max length after decoding", () => {

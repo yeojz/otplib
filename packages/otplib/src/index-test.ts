@@ -268,6 +268,31 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
 
         expect(result.valid).toBe(true);
       });
+
+      it("should support afterTimeStep replay protection for TOTP", async () => {
+        const token = await generate({
+          secret: TEST_SECRET,
+          epoch: 60, // time step 2
+        });
+
+        const allowed = await verify({
+          secret: TEST_SECRET,
+          token,
+          epoch: 90, // current step 3
+          epochTolerance: 30, // checks steps 2..4
+          afterTimeStep: 1,
+        });
+        expect(allowed.valid).toBe(true);
+
+        const blocked = await verify({
+          secret: TEST_SECRET,
+          token,
+          epoch: 90,
+          epochTolerance: 30,
+          afterTimeStep: 2, // rejects step <= 2
+        });
+        expect(blocked.valid).toBe(false);
+      });
     });
 
     describe("error handling", () => {
@@ -553,6 +578,31 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         });
 
         expect(result.valid).toBe(true);
+      });
+
+      it("should support afterTimeStep replay protection synchronously", () => {
+        const token = generateSync({
+          secret: TEST_SECRET,
+          epoch: 60, // time step 2
+        });
+
+        const allowed = verifySync({
+          secret: TEST_SECRET,
+          token,
+          epoch: 90, // step 3
+          epochTolerance: 30,
+          afterTimeStep: 1,
+        });
+        expect(allowed.valid).toBe(true);
+
+        const blocked = verifySync({
+          secret: TEST_SECRET,
+          token,
+          epoch: 90,
+          epochTolerance: 30,
+          afterTimeStep: 2,
+        });
+        expect(blocked.valid).toBe(false);
       });
     });
 

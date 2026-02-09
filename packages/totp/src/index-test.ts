@@ -1988,7 +1988,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             token,
             period: 30,
             crypto,
-            epochTolerance: 150,
+            epochTolerance: [150, 0],
             guardrails: lenientGuardrails,
           });
 

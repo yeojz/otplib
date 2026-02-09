@@ -4,17 +4,22 @@ import {
   SecretTooLongError,
   CounterNegativeError,
   CounterOverflowError,
+  CounterNotIntegerError,
   TimeNegativeError,
+  TimeNotFiniteError,
   PeriodTooSmallError,
   PeriodTooLargeError,
   TokenLengthError,
   TokenFormatError,
+  CounterToleranceError,
   CounterToleranceTooLargeError,
   CounterToleranceNegativeError,
+  EpochToleranceError,
   EpochToleranceNegativeError,
   EpochToleranceTooLargeError,
   CryptoPluginMissingError,
   Base32PluginMissingError,
+  ConfigurationError,
   SecretMissingError,
   LabelMissingError,
   IssuerMissingError,
@@ -139,6 +144,22 @@ export type OTPGuardrails = Readonly<OTPGuardrailsConfig> & {
 };
 
 /**
+ * Validate guardrail numeric field
+ */
+function assertGuardrailSafeInteger(
+  name: string,
+  value: unknown,
+  min: number,
+): asserts value is number {
+  if (typeof value !== "number" || !Number.isSafeInteger(value)) {
+    throw new ConfigurationError(`Guardrail '${name}' must be a safe integer`);
+  }
+  if (value < min) {
+    throw new ConfigurationError(`Guardrail '${name}' must be >= ${min}`);
+  }
+}
+
+/**
  * Default guardrails matching RFC recommendations
  *
  * Frozen to ensure immutability. Used as default parameter for validation functions.
@@ -167,7 +188,7 @@ const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
  *
  * @param custom - Optional partial guardrails to override defaults
  * @returns Frozen guardrails object
- * @throws {Error} If custom guardrails violate safety invariants
+ * @throws {ConfigurationError} If custom guardrails violate safety invariants
  *
  * @example Basic usage
  * ```ts
@@ -203,9 +224,45 @@ export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuar
     return DEFAULT_GUARDRAILS;
   }
 
-  return Object.freeze({
+  if (custom.MIN_SECRET_BYTES !== undefined) {
+    assertGuardrailSafeInteger("MIN_SECRET_BYTES", custom.MIN_SECRET_BYTES, 1);
+  }
+
+  if (custom.MAX_SECRET_BYTES !== undefined) {
+    assertGuardrailSafeInteger("MAX_SECRET_BYTES", custom.MAX_SECRET_BYTES, 1);
+  }
+
+  if (custom.MIN_PERIOD !== undefined) {
+    assertGuardrailSafeInteger("MIN_PERIOD", custom.MIN_PERIOD, 1);
+  }
+
+  if (custom.MAX_PERIOD !== undefined) {
+    assertGuardrailSafeInteger("MAX_PERIOD", custom.MAX_PERIOD, 1);
+  }
+
+  if (custom.MAX_COUNTER !== undefined) {
+    assertGuardrailSafeInteger("MAX_COUNTER", custom.MAX_COUNTER, 0);
+  }
+
+  if (custom.MAX_WINDOW !== undefined) {
+    assertGuardrailSafeInteger("MAX_WINDOW", custom.MAX_WINDOW, 1);
+  }
+
+  const merged = {
     ...DEFAULT_GUARDRAILS,
     ...custom,
+  };
+
+  if (merged.MIN_SECRET_BYTES > merged.MAX_SECRET_BYTES) {
+    throw new ConfigurationError("Guardrail 'MIN_SECRET_BYTES' must be <= 'MAX_SECRET_BYTES'");
+  }
+
+  if (merged.MIN_PERIOD > merged.MAX_PERIOD) {
+    throw new ConfigurationError("Guardrail 'MIN_PERIOD' must be <= 'MAX_PERIOD'");
+  }
+
+  return Object.freeze({
+    ...merged,
     [OVERRIDE_SYMBOL]: true,
   });
 }
@@ -281,6 +338,17 @@ export function validateCounter(
   counter: number | bigint,
   guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
+  if (typeof counter === "number") {
+    if (!Number.isFinite(counter) || !Number.isInteger(counter)) {
+      throw new CounterNotIntegerError();
+    }
+
+    if (!Number.isSafeInteger(counter)) {
+      // Numbers outside the safe integer range cannot be reliably converted to bigint
+      throw new CounterOverflowError();
+    }
+  }
+
   const value = typeof counter === "bigint" ? counter : BigInt(counter);
 
   if (value < 0n) {
@@ -299,6 +367,10 @@ export function validateCounter(
  * @throws {TimeNegativeError} If time is negative
  */
 export function validateTime(time: number): void {
+  if (!Number.isFinite(time)) {
+    throw new TimeNotFiniteError();
+  }
+
   if (time < 0) {
     throw new TimeNegativeError();
   }
@@ -354,9 +426,9 @@ export function validateToken(token: string, digits: number): void {
  *
  * @example
  * ```ts
- * validateCounterTolerance(1);        // OK: 3 offsets [-1, 0, 1]
- * validateCounterTolerance(100);      // OK: 201 offsets [-100, ..., 100]
- * validateCounterTolerance(101);      // Throws: exceeds MAX_WINDOW
+ * validateCounterTolerance(1);        // OK: [0, 1] = 2 checks
+ * validateCounterTolerance(98);       // OK: [0, 98] = 99 checks
+ * validateCounterTolerance(99);       // Throws: exceeds MAX_WINDOW
  * validateCounterTolerance([0, 1]);   // OK: 2 offsets
  * ```
  */
@@ -365,6 +437,10 @@ export function validateCounterTolerance(
   guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
 ): void {
   const [past, future] = normalizeCounterTolerance(counterTolerance);
+
+  if (!Number.isSafeInteger(past) || !Number.isSafeInteger(future)) {
+    throw new CounterToleranceError("Counter tolerance values must be safe integers");
+  }
 
   if (past < 0 || future < 0) {
     throw new CounterToleranceNegativeError();
@@ -391,11 +467,11 @@ export function validateCounterTolerance(
  *
  * @example
  * ```ts
- * validateEpochTolerance(30);            // OK: 30 seconds (default period 30s)
+ * validateEpochTolerance(30);            // OK: 30 seconds symmetric
  * validateEpochTolerance([5, 0]);        // OK: 5 seconds past only
  * validateEpochTolerance([-5, 0]);       // Throws: negative values not allowed
- * validateEpochTolerance(3600);          // Throws: exceeds MAX_WINDOW * period
- * validateEpochTolerance(6000, 60);      // OK with 60s period (MAX_WINDOW * 60 = 6000)
+ * validateEpochTolerance(1471);          // Throws with default guardrails (30s period)
+ * validateEpochTolerance(2940, 60);      // OK with 60s period
  * ```
  */
 export function validateEpochTolerance(
@@ -407,18 +483,22 @@ export function validateEpochTolerance(
     ? epochTolerance
     : [epochTolerance, epochTolerance];
 
+  if (!Number.isSafeInteger(pastTolerance) || !Number.isSafeInteger(futureTolerance)) {
+    throw new EpochToleranceError("Epoch tolerance values must be safe integers");
+  }
+
   // Check for negative values
   if (pastTolerance < 0 || futureTolerance < 0) {
     throw new EpochToleranceNegativeError();
   }
 
-  // Check total tolerance doesn't exceed reasonable limits
-  // Convert to periods and check against MAX_WINDOW
-  const maxToleranceSeconds = guardrails.MAX_WINDOW * period;
-  const maxAllowed = Math.max(pastTolerance, futureTolerance);
+  // MAX_WINDOW checks means at most MAX_WINDOW - 1 periods of tolerance
+  // (the current time step always consumes one check).
+  const maxToleranceSeconds = (guardrails.MAX_WINDOW - 1) * period;
+  const totalToleranceSeconds = pastTolerance + futureTolerance;
 
-  if (maxAllowed > maxToleranceSeconds) {
-    throw new EpochToleranceTooLargeError(maxToleranceSeconds, maxAllowed);
+  if (totalToleranceSeconds > maxToleranceSeconds) {
+    throw new EpochToleranceTooLargeError(maxToleranceSeconds, totalToleranceSeconds);
   }
 }
 

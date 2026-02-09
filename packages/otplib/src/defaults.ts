@@ -42,5 +42,6 @@ export function normalizeVerifyOptions(options: OTPVerifyOptions): OTPVerifyOpti
     token: options.token,
     epochTolerance: options.epochTolerance ?? 0,
     counterTolerance: options.counterTolerance ?? 0,
+    afterTimeStep: options.afterTimeStep,
   };
 }

@@ -73,6 +73,18 @@ describe("TOTP Class", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("should support Uint8Array secret without Base32 plugin", async () => {
+    const secret = new Uint8Array(20).fill(1);
+    const epoch = 1234567890;
+    const totp = new TOTP({ secret, crypto });
+
+    const token = await totp.generate({ epoch });
+    const result = await totp.verify(token, { epoch });
+
+    expect(token).toMatch(/^\d{6}$/);
+    expect(result.valid).toBe(true);
+  });
+
   it("should create instance with no options (testing default parameter)", () => {
     const totp = new TOTP();
     expect(totp).toBeInstanceOf(TOTP);

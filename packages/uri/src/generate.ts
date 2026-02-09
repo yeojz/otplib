@@ -68,9 +68,9 @@ export type HOTPURIOptions = URIOptions & {
  * @example
  * ```ts
  * import { generate } from '@otplib/uri';
- * import { encode } from '@otplib/base32';
+ * import { base32 } from '@otplib/plugin-base32-scure';
  *
- * const secret = encode(new Uint8Array([1, 2, 3, 4, 5]));
+ * const secret = base32.encode(new Uint8Array([1, 2, 3, 4, 5]));
  *
  * const uri = generate({
  *   type: 'totp',
@@ -99,7 +99,7 @@ export function generate(uri: OTPAuthURI): string {
   const queryParams: string[] = [];
 
   if (params.secret) {
-    queryParams.push(`secret=${params.secret}`);
+    queryParams.push(`secret=${encodeURIComponent(params.secret)}`);
   }
 
   if (params.issuer) {

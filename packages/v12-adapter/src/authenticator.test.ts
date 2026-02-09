@@ -68,7 +68,7 @@ describe("Authenticator (v12-adapter)", () => {
     });
 
     it("should apply guardrails from constructor", () => {
-      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100 });
+      const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100, MAX_SECRET_BYTES: 200 });
       const auth = new Authenticator({ guardrails: strictGuardrails });
       const secret = auth.generateSecret();
 

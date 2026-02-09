@@ -177,6 +177,14 @@ export type OTPVerifyOptions = {
   counterTolerance?: number | [number, number];
 
   /**
+   * Minimum allowed TOTP time step for replay protection (optional)
+   *
+   * Rejects tokens with timeStep <= afterTimeStep.
+   * Only used by TOTP strategy.
+   */
+  afterTimeStep?: number;
+
+  /**
    * Validation guardrails
    */
   guardrails?: OTPGuardrails;
