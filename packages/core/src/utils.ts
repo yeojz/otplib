@@ -146,9 +146,16 @@ export type OTPGuardrails = Readonly<OTPGuardrailsConfig> & {
 /**
  * Validate guardrail numeric field
  */
-function assertGuardrailSafeInteger(name: string, value: unknown): asserts value is number {
+function assertGuardrailSafeInteger(
+  name: string,
+  value: unknown,
+  min: number,
+): asserts value is number {
   if (typeof value !== "number" || !Number.isSafeInteger(value)) {
     throw new ConfigurationError(`Guardrail '${name}' must be a safe integer`);
+  }
+  if (value < min) {
+    throw new ConfigurationError(`Guardrail '${name}' must be >= ${min}`);
   }
 }
 
@@ -218,45 +225,27 @@ export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuar
   }
 
   if (custom.MIN_SECRET_BYTES !== undefined) {
-    assertGuardrailSafeInteger("MIN_SECRET_BYTES", custom.MIN_SECRET_BYTES);
-    if (custom.MIN_SECRET_BYTES < 1) {
-      throw new ConfigurationError("Guardrail 'MIN_SECRET_BYTES' must be >= 1");
-    }
+    assertGuardrailSafeInteger("MIN_SECRET_BYTES", custom.MIN_SECRET_BYTES, 1);
   }
 
   if (custom.MAX_SECRET_BYTES !== undefined) {
-    assertGuardrailSafeInteger("MAX_SECRET_BYTES", custom.MAX_SECRET_BYTES);
-    if (custom.MAX_SECRET_BYTES < 1) {
-      throw new ConfigurationError("Guardrail 'MAX_SECRET_BYTES' must be >= 1");
-    }
+    assertGuardrailSafeInteger("MAX_SECRET_BYTES", custom.MAX_SECRET_BYTES, 1);
   }
 
   if (custom.MIN_PERIOD !== undefined) {
-    assertGuardrailSafeInteger("MIN_PERIOD", custom.MIN_PERIOD);
-    if (custom.MIN_PERIOD < 1) {
-      throw new ConfigurationError("Guardrail 'MIN_PERIOD' must be >= 1");
-    }
+    assertGuardrailSafeInteger("MIN_PERIOD", custom.MIN_PERIOD, 1);
   }
 
   if (custom.MAX_PERIOD !== undefined) {
-    assertGuardrailSafeInteger("MAX_PERIOD", custom.MAX_PERIOD);
-    if (custom.MAX_PERIOD < 1) {
-      throw new ConfigurationError("Guardrail 'MAX_PERIOD' must be >= 1");
-    }
+    assertGuardrailSafeInteger("MAX_PERIOD", custom.MAX_PERIOD, 1);
   }
 
   if (custom.MAX_COUNTER !== undefined) {
-    assertGuardrailSafeInteger("MAX_COUNTER", custom.MAX_COUNTER);
-    if (custom.MAX_COUNTER < 0) {
-      throw new ConfigurationError("Guardrail 'MAX_COUNTER' must be >= 0");
-    }
+    assertGuardrailSafeInteger("MAX_COUNTER", custom.MAX_COUNTER, 0);
   }
 
   if (custom.MAX_WINDOW !== undefined) {
-    assertGuardrailSafeInteger("MAX_WINDOW", custom.MAX_WINDOW);
-    if (custom.MAX_WINDOW < 1) {
-      throw new ConfigurationError("Guardrail 'MAX_WINDOW' must be >= 1");
-    }
+    assertGuardrailSafeInteger("MAX_WINDOW", custom.MAX_WINDOW, 1);
   }
 
   const merged = {
