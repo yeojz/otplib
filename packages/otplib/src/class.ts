@@ -22,6 +22,7 @@ import type {
   HashAlgorithm,
   Base32Plugin,
   OTPGuardrails,
+  OTPHooks,
 } from "@otplib/core";
 import type { VerifyResult as HOTPVerifyResult } from "@otplib/hotp";
 import type { VerifyResult as TOTPVerifyResult } from "@otplib/totp";
@@ -108,6 +109,11 @@ export type OTPGenerateOptions = {
    * Validation guardrails
    */
   guardrails?: OTPGuardrails;
+
+  /**
+   * Hooks for customizing token encoding and validation
+   */
+  hooks?: OTPHooks;
 };
 
 /**
@@ -188,6 +194,11 @@ export type OTPVerifyOptions = {
    * Validation guardrails
    */
   guardrails?: OTPGuardrails;
+
+  /**
+   * Hooks for customizing token encoding and validation
+   */
+  hooks?: OTPHooks;
 };
 
 /**

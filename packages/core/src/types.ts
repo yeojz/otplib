@@ -4,9 +4,58 @@
 export type HashAlgorithm = "sha1" | "sha256" | "sha512";
 
 /**
- * Supported number of digits for OTP codes
+ * Number of characters in the OTP code.
+ *
+ * Standard TOTP/HOTP uses 6-8 digits. Non-standard variants (e.g., Steam Guard)
+ * may use different lengths. Runtime validation is handled by guardrails.
  */
-export type Digits = 6 | 7 | 8;
+export type Digits = number;
+
+/**
+ * Hooks for customizing OTP token encoding and validation.
+ *
+ * These allow non-standard OTP variants (e.g., Steam Guard) to hook into
+ * the generation and verification pipeline, replacing the default numeric
+ * encoding with custom schemes without modifying core behavior.
+ *
+ * When not provided, the standard RFC 4226 numeric encoding is used.
+ *
+ * @example Steam Guard integration
+ * ```typescript
+ * import { generate } from '@otplib/totp';
+ * import { steam } from '@otplib/community-plugin-steam';
+ *
+ * const code = await generate({
+ *   secret,
+ *   crypto,
+ *   ...steam, // { digits: 5, hooks: { encodeToken, validateToken } }
+ * });
+ * ```
+ */
+export type OTPHooks = {
+  /**
+   * Custom token encoder. Replaces the default numeric encoding (truncateDigits).
+   *
+   * Receives the 31-bit truncated HMAC integer and the desired code length,
+   * and must return the formatted token string.
+   *
+   * @param truncatedValue - 31-bit unsigned integer from dynamic truncation
+   * @param digits - Desired token length
+   * @returns Encoded token string
+   */
+  readonly encodeToken?: (truncatedValue: number, digits: number) => string;
+
+  /**
+   * Custom token validator. Replaces the default digit-only format check.
+   *
+   * Should throw an error if the token is malformed for this encoding scheme.
+   *
+   * @param token - Token string to validate
+   * @param digits - Expected token length
+   * @throws {Error} If token format is invalid
+   */
+  readonly validateToken?: (token: string, digits: number) => void;
+};
 
 /**
  * Cryptographic plugin type for abstracting HMAC and random byte generation

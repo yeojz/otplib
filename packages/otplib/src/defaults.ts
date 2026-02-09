@@ -33,6 +33,7 @@ export function normalizeGenerateOptions(
     t0: options.t0 ?? 0,
     counter: options.counter,
     guardrails: options.guardrails ?? createGuardrails(),
+    hooks: options.hooks,
   };
 }
 

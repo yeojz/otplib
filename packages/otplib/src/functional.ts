@@ -217,8 +217,8 @@ export function generateURI(options: {
  */
 export async function generate(options: OTPGenerateOptions): Promise<string> {
   const opts = normalizeGenerateOptions(options);
-  const { secret, crypto, base32, algorithm, digits } = opts;
-  const commonOptions = { secret, crypto, base32, algorithm, digits };
+  const { secret, crypto, base32, algorithm, digits, hooks } = opts;
+  const commonOptions = { secret, crypto, base32, algorithm, digits, hooks };
 
   return executeByStrategy(opts.strategy, opts.counter, {
     totp: () =>
@@ -329,8 +329,8 @@ export function generateSync(options: OTPGenerateOptions): string {
  */
 export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
   const opts = normalizeVerifyOptions(options);
-  const { secret, token, crypto, base32, algorithm, digits } = opts;
-  const commonOptions = { secret, token, crypto, base32, algorithm, digits };
+  const { secret, token, crypto, base32, algorithm, digits, hooks } = opts;
+  const commonOptions = { secret, token, crypto, base32, algorithm, digits, hooks };
 
   return executeByStrategy(opts.strategy, opts.counter, {
     totp: () =>
@@ -375,8 +375,8 @@ export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
  */
 export function verifySync(options: OTPVerifyOptions): VerifyResult {
   const opts = normalizeVerifyOptions(options);
-  const { secret, token, crypto, base32, algorithm, digits } = opts;
-  const commonOptions = { secret, token, crypto, base32, algorithm, digits };
+  const { secret, token, crypto, base32, algorithm, digits, hooks } = opts;
+  const commonOptions = { secret, token, crypto, base32, algorithm, digits, hooks };
 
   return executeByStrategy(opts.strategy, opts.counter, {
     totp: () =>

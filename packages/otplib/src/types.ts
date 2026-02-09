@@ -8,6 +8,7 @@ import type {
   Digits,
   HashAlgorithm,
   OTPGuardrails,
+  OTPHooks,
 } from "@otplib/core";
 import type { HOTPOptions } from "@otplib/hotp";
 import type { TOTPOptions } from "@otplib/totp";
@@ -105,6 +106,13 @@ export type OTPGenerateOptions = {
    * Used by HOTP strategy (required)
    */
   counter?: number;
+
+  /**
+   * Hooks for customizing token encoding and validation.
+   * Allows non-standard OTP variants (e.g., Steam Guard) to replace
+   * the default numeric encoding with custom schemes.
+   */
+  hooks?: OTPHooks;
 };
 
 /**
@@ -145,8 +153,11 @@ export type OTPVerifyOptions = OTPGenerateOptions & {
 /**
  * OTP options with all defaults applied
  */
-export type OTPGenerateOptionsWithDefaults = Required<Omit<OTPGenerateOptions, "counter">> & {
+export type OTPGenerateOptionsWithDefaults = Required<
+  Omit<OTPGenerateOptions, "counter" | "hooks">
+> & {
   counter?: number;
+  hooks?: OTPHooks;
 };
 
 /**
