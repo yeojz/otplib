@@ -187,7 +187,13 @@ It should **throw an error** if the token is malformed. Returning without throwi
 
 ### Steam Guard Encoding
 
-Steam Guard uses a 5-character alphanumeric token instead of the standard 6-digit numeric OTP. Here is a complete implementation:
+Steam Guard uses a 5-character alphanumeric token instead of the standard 6-digit numeric OTP.
+
+::: warning A note on the examples
+The following provides a working code but is not exhuastively tested.
+
+Steam may change their implementation any time.
+:::
 
 ```typescript
 const STEAM_CHARS = "23456789BCDFGHJKMNPQRTVWXY";

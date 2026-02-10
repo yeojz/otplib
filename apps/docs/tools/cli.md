@@ -20,7 +20,7 @@ import CLIShowcase from '../.vitepress/components/CLIShowcase.vue'
       <code>npm install -g otplib-cli</code>
     </div>
     <div class="install-cta">
-      <a href="/guide/cli-tool" class="btn">Read the Docs</a>
+      <a href="/guide/cli" class="btn">Read the Docs</a>
     </div>
   </div>
 </section>
@@ -70,7 +70,7 @@ import CLIShowcase from '../.vitepress/components/CLIShowcase.vue'
 <section class="cta">
   <h2>Ready to get started?</h2>
   <p>Check out the full documentation for detailed usage, architecture, and integration guides.</p>
-  <a href="/guide/cli-tool" class="btn">Read the Docs</a>
+  <a href="/guide/cli" class="btn">Read the Docs</a>
 </section>
 
 </div>

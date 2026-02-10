@@ -65,7 +65,7 @@ export default defineConfig({
       {
         text: "Apps / Tools",
         collapsed: false,
-        items: [{ text: "Command Line (CLI)", link: "/guide/cli-tool.md" }],
+        items: [{ text: "Command Line (CLI)", link: "/guide/cli.md" }],
       },
       {
         text: "Other Topics",
