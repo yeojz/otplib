@@ -112,62 +112,6 @@ const result = verifySync({
 });
 ```
 
-## Example: Steam Guard Encoding
-
-Steam Guard uses a 5-character alphanumeric token instead of the standard 6-digit numeric OTP. Here is a complete implementation:
-
-```typescript
-const STEAM_CHARS = "23456789BCDFGHJKMNPQRTVWXY";
-
-function steamEncodeToken(truncatedValue: number, digits: number): string {
-  let code = "";
-  let value = truncatedValue;
-  for (let i = 0; i < digits; i++) {
-    code += STEAM_CHARS[value % STEAM_CHARS.length];
-    value = Math.floor(value / STEAM_CHARS.length);
-  }
-  return code;
-}
-
-function steamValidateToken(token: string, digits: number): void {
-  if (token.length !== digits) {
-    throw new Error(`Expected ${digits} characters, got ${token.length}`);
-  }
-  for (const ch of token) {
-    if (!STEAM_CHARS.includes(ch)) {
-      throw new Error(`Invalid character: ${ch}`);
-    }
-  }
-}
-```
-
-Using it:
-
-```typescript
-import { generate, verify } from "otplib";
-
-const steamHooks = {
-  encodeToken: steamEncodeToken,
-  validateToken: steamValidateToken,
-};
-
-// Generate a Steam Guard-style token (5 characters)
-const token = await generate({
-  secret,
-  digits: 5,
-  hooks: steamHooks,
-});
-// e.g., "V4XBK"
-
-// Verify
-const result = await verify({
-  secret,
-  token,
-  digits: 5,
-  hooks: steamHooks,
-});
-```
-
 ## Writing Custom Hooks
 
 ### truncateDigest
@@ -238,3 +182,111 @@ It should **throw an error** if the token is malformed. Returning without throwi
 | **Scope**    | Affects HMAC computation or secret encoding      | Affects token encoding and validation only |
 | **Examples** | `plugin-crypto-node`, `plugin-base32-scure`      | Steam Guard encoding, custom alphabets     |
 | **Required** | Yes (crypto plugin is mandatory)                 | No (defaults to RFC 4226 numeric encoding) |
+
+## Examples
+
+### Steam Guard Encoding
+
+Steam Guard uses a 5-character alphanumeric token instead of the standard 6-digit numeric OTP. Here is a complete implementation:
+
+```typescript
+const STEAM_CHARS = "23456789BCDFGHJKMNPQRTVWXY";
+
+function steamEncodeToken(truncatedValue: number, digits: number): string {
+  let code = "";
+  let value = truncatedValue;
+  for (let i = 0; i < digits; i++) {
+    code += STEAM_CHARS[value % STEAM_CHARS.length];
+    value = Math.floor(value / STEAM_CHARS.length);
+  }
+  return code;
+}
+
+function steamValidateToken(token: string, digits: number): void {
+  if (token.length !== digits) {
+    throw new Error(`Expected ${digits} characters, got ${token.length}`);
+  }
+  for (const ch of token) {
+    if (!STEAM_CHARS.includes(ch)) {
+      throw new Error(`Invalid character: ${ch}`);
+    }
+  }
+}
+```
+
+Using it:
+
+```typescript
+import { generate, verify } from "otplib";
+
+const steamHooks = {
+  encodeToken: steamEncodeToken,
+  validateToken: steamValidateToken,
+};
+
+// Generate a Steam Guard-style token (5 characters)
+const token = await generate({
+  secret,
+  digits: 5,
+  hooks: steamHooks,
+});
+// e.g., "V4XBK"
+
+// Verify
+const result = await verify({
+  secret,
+  token,
+  digits: 5,
+  hooks: steamHooks,
+});
+```
+
+### MOTP-Style Hex Encoding
+
+Mobile-OTP (mOTP) produces short hexadecimal tokens instead of decimal digits. The actual mOTP algorithm uses MD5 internally, but you can achieve the same **hex-encoded token format** on top of the standard HOTP/TOTP pipeline using hooks.
+
+::: warning Not a full mOTP implementation
+True mOTP replaces the entire HMAC step with `MD5(epoch/10s + secret + PIN)`. The example below only reproduces the hex-encoded output format — the underlying HMAC computation still follows RFC 4226. If you need full mOTP compatibility, you would also need a custom crypto plugin.
+:::
+
+```typescript
+function motpEncodeToken(truncatedValue: number, digits: number): string {
+  return truncatedValue.toString(16).toLowerCase().slice(0, digits).padStart(digits, "0");
+}
+
+function motpValidateToken(token: string, digits: number): void {
+  if (token.length !== digits) {
+    throw new Error(`Expected ${digits} characters, got ${token.length}`);
+  }
+  if (!/^[0-9a-f]+$/.test(token)) {
+    throw new Error("Token must contain only hex characters (0-9, a-f)");
+  }
+}
+```
+
+Using it:
+
+```typescript
+import { generate, verify } from "otplib";
+
+const motpHooks = {
+  encodeToken: motpEncodeToken,
+  validateToken: motpValidateToken,
+};
+
+// Generate a 6-character hex token
+const token = await generate({
+  secret,
+  digits: 6,
+  hooks: motpHooks,
+});
+// e.g., "a3f1b2"
+
+// Verify
+const result = await verify({
+  secret,
+  token,
+  digits: 6,
+  hooks: motpHooks,
+});
+```
