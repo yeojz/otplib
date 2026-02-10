@@ -287,4 +287,5 @@ otplib handles secrets securely:
 - [Runtime Compatibility](./runtime-compatibility) - Platform-specific setup and recommendations
 - [Advanced Usage](./advanced-usage) - Security best practices and production considerations
 - [Plugins](./plugins) - Custom backends and plugins
+- [Hooks](./hooks) - Custom token encoding for non-standard OTP variants
 - [API Reference](../api/) - Detailed API documentation

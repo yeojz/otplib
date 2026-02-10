@@ -58,13 +58,14 @@ export default defineConfig({
           { text: "Getting Started", link: "/guide/getting-started" },
           { text: "Advanced Usage", link: "/guide/advanced-usage" },
           { text: "Plugins", link: "/guide/plugins" },
+          { text: "Hooks", link: "/guide/hooks" },
           { text: "Troubleshooting", link: "/guide/troubleshooting" },
         ],
       },
       {
         text: "Apps / Tools",
         collapsed: false,
-        items: [{ text: "Command Line (CLI)", link: "/guide/cli-tool.md" }],
+        items: [{ text: "Command Line (CLI)", link: "/guide/cli.md" }],
       },
       {
         text: "Other Topics",

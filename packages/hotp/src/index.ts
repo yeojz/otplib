@@ -24,7 +24,7 @@ import {
 
 import type { HOTPGenerateOptions, HOTPVerifyOptions, VerifyResult } from "./types.js";
 import type { CryptoContext } from "@otplib/core";
-import type { Digits, HashAlgorithm, CryptoPlugin } from "@otplib/core";
+import type { Digits, HashAlgorithm, CryptoPlugin, OTPHooks } from "@otplib/core";
 
 /**
  * Normalized options for HOTP generation
@@ -36,6 +36,7 @@ type HOTPGenerateOptionsInternal = {
   digits: Digits;
   secretBytes: Uint8Array;
   counterBytes: Uint8Array;
+  hooks?: OTPHooks;
 };
 
 /**
@@ -49,7 +50,16 @@ type HOTPGenerateOptionsInternal = {
  * @internal
  */
 function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptionsInternal {
-  const { secret, counter, algorithm = "sha1", digits = 6, crypto, base32, guardrails } = options;
+  const {
+    secret,
+    counter,
+    algorithm = "sha1",
+    digits = 6,
+    crypto,
+    base32,
+    guardrails,
+    hooks,
+  } = options;
 
   requireSecret(secret);
   requireCryptoPlugin(crypto);
@@ -61,7 +71,7 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
   const ctx = createCryptoContext(crypto);
   const counterBytes = counterToBytes(counter);
 
-  return { ctx, algorithm, digits, secretBytes, counterBytes };
+  return { ctx, algorithm, digits, secretBytes, counterBytes, hooks };
 }
 
 /**
@@ -94,11 +104,12 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
  * ```
  */
 export async function generate(options: HOTPGenerateOptions): Promise<string> {
-  const { ctx, algorithm, digits, secretBytes, counterBytes } = getHOTPGenerateOptions(options);
+  const { ctx, algorithm, digits, secretBytes, counterBytes, hooks } =
+    getHOTPGenerateOptions(options);
   const hmac = await ctx.hmac(algorithm, secretBytes, counterBytes);
-  const dt = dynamicTruncate(hmac);
+  const dt = hooks?.truncateDigest ? hooks.truncateDigest(hmac) : dynamicTruncate(hmac);
 
-  return truncateDigits(dt, digits);
+  return hooks?.encodeToken ? hooks.encodeToken(dt, digits) : truncateDigits(dt, digits);
 }
 
 /**
@@ -130,11 +141,12 @@ export async function generate(options: HOTPGenerateOptions): Promise<string> {
  * ```
  */
 export function generateSync(options: HOTPGenerateOptions): string {
-  const { ctx, algorithm, digits, secretBytes, counterBytes } = getHOTPGenerateOptions(options);
+  const { ctx, algorithm, digits, secretBytes, counterBytes, hooks } =
+    getHOTPGenerateOptions(options);
   const hmac = ctx.hmacSync(algorithm, secretBytes, counterBytes);
-  const dt = dynamicTruncate(hmac);
+  const dt = hooks?.truncateDigest ? hooks.truncateDigest(hmac) : dynamicTruncate(hmac);
 
-  return truncateDigits(dt, digits);
+  return hooks?.encodeToken ? hooks.encodeToken(dt, digits) : truncateDigits(dt, digits);
 }
 
 /**
@@ -173,6 +185,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
     base32,
     counterTolerance = 0,
     guardrails = createGuardrails(),
+    hooks,
   } = options;
 
   requireSecret(secret);
@@ -181,7 +194,14 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
-  validateToken(token, digits);
+
+  // Use custom validator if provided, otherwise default digit-only check
+  if (hooks?.validateToken) {
+    hooks.validateToken(token, digits);
+  } else {
+    validateToken(token, digits);
+  }
+
   validateCounterTolerance(counterTolerance, guardrails);
 
   const counterNum = typeof counter === "bigint" ? Number(counter) : counter;
@@ -202,6 +222,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
       digits,
       crypto,
       guardrails,
+      hooks,
     }),
   };
 }

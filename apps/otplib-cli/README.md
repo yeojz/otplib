@@ -95,7 +95,7 @@ Options: `-f, --file <path>` (default: `.env.otplibx`)
 
 ## Documentation
 
-See the [full documentation](https://otplib.yeojz.dev/guide/cli-tool) for detailed usage, architecture, and integration with other secret managers.
+See the [full documentation](https://otplib.yeojz.dev/guide/cli) for detailed usage, architecture, and integration with other secret managers.
 
 ## License
 

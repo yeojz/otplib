@@ -28,7 +28,7 @@ import {
 import { generate as generateHOTP, generateSync as generateHOTPSync } from "@otplib/hotp";
 
 import type { TOTPGenerateOptions, TOTPVerifyOptions, VerifyResult } from "./types.js";
-import type { CryptoPlugin, Digits, HashAlgorithm, OTPGuardrails } from "@otplib/core";
+import type { CryptoPlugin, Digits, HashAlgorithm, OTPGuardrails, OTPHooks } from "@otplib/core";
 
 /**
  * Normalized options for TOTP generation
@@ -41,6 +41,7 @@ type TOTPGenerateOptionsInternal = {
   digits: Digits;
   crypto: CryptoPlugin;
   guardrails: OTPGuardrails;
+  hooks?: OTPHooks;
 };
 
 /**
@@ -64,6 +65,7 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     crypto,
     base32,
     guardrails = createGuardrails(),
+    hooks,
   } = options;
 
   requireSecret(secret);
@@ -83,6 +85,7 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     digits,
     crypto,
     guardrails,
+    hooks,
   };
 }
 
@@ -242,6 +245,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     epochTolerance = 0,
     afterTimeStep,
     guardrails = createGuardrails(),
+    hooks,
   } = options;
 
   requireSecret(secret);
@@ -251,7 +255,14 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   validateSecret(secretBytes, guardrails);
   validateTime(epoch);
   validatePeriod(period, guardrails);
-  validateToken(token, digits);
+
+  // Use custom validator if provided, otherwise default digit-only check
+  if (hooks?.validateToken) {
+    hooks.validateToken(token, digits);
+  } else {
+    validateToken(token, digits);
+  }
+
   validateEpochTolerance(epochTolerance, period, guardrails);
 
   const currentCounter = Math.floor((epoch - t0) / period);
@@ -285,6 +296,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
       digits,
       crypto,
       guardrails,
+      hooks,
     }),
   };
 }

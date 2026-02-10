@@ -100,6 +100,7 @@ export class TOTP {
       crypto,
       base32,
       guardrails,
+      hooks: mergedOptions.hooks,
     });
   }
 
@@ -147,6 +148,7 @@ export class TOTP {
       crypto,
       base32,
       guardrails,
+      hooks: mergedOptions.hooks,
     });
   }
 

@@ -12,7 +12,14 @@ import {
   CounterOverflowError,
   CounterToleranceTooLargeError,
 } from "@otplib/core";
-import { RFC4226_VECTORS, BASE_SECRET } from "@repo/testing";
+import {
+  RFC4226_VECTORS,
+  BASE_SECRET,
+  STEAM_CHARS,
+  steamEncodeToken,
+  steamValidateToken,
+  staticTruncate,
+} from "@repo/testing";
 
 import { generate, generateSync, verify, verifySync } from "./index.ts";
 
@@ -1033,6 +1040,241 @@ export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
               guardrails: restrictiveGuardrails,
             }),
           ).toThrow(SecretTooLongError);
+        });
+      });
+    });
+
+    describe("hooks", () => {
+      describe("generate", () => {
+        it("should use encodeToken hook instead of default numeric encoding", async () => {
+          const result = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          expect(result).toHaveLength(5);
+          for (const ch of result) {
+            expect(STEAM_CHARS).toContain(ch);
+          }
+        });
+
+        it("should produce different output than default encoding with encodeToken hook", async () => {
+          const defaultResult = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+          });
+
+          const hookResult = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          expect(hookResult).not.toBe(defaultResult);
+        });
+      });
+
+      describe("generateSync", () => {
+        it("should use encodeToken hook instead of default numeric encoding", () => {
+          const result = generateSync({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          expect(result).toHaveLength(5);
+          for (const ch of result) {
+            expect(STEAM_CHARS).toContain(ch);
+          }
+        });
+      });
+
+      describe("verify", () => {
+        it("should use validateToken hook instead of default digit-only check", async () => {
+          const token = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          const result = await verify({
+            secret,
+            counter: 0,
+            token,
+            crypto,
+            digits: 5,
+            hooks: {
+              encodeToken: steamEncodeToken,
+              validateToken: steamValidateToken,
+            },
+          });
+
+          expect(result.valid).toBe(true);
+        });
+
+        it("should throw when custom validateToken rejects token", async () => {
+          await expect(
+            verify({
+              secret,
+              counter: 0,
+              token: "!!!!!",
+              crypto,
+              digits: 5,
+              hooks: {
+                encodeToken: steamEncodeToken,
+                validateToken: steamValidateToken,
+              },
+            }),
+          ).rejects.toThrow("Invalid character");
+        });
+      });
+
+      describe("verifySync", () => {
+        it("should use validateToken hook instead of default digit-only check", () => {
+          const token = generateSync({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: { encodeToken: steamEncodeToken },
+          });
+
+          const result = verifySync({
+            secret,
+            counter: 0,
+            token,
+            crypto,
+            digits: 5,
+            hooks: {
+              encodeToken: steamEncodeToken,
+              validateToken: steamValidateToken,
+            },
+          });
+
+          expect(result.valid).toBe(true);
+        });
+      });
+
+      describe("truncateDigest", () => {
+        it("should use truncateDigest hook in generate", async () => {
+          const result = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+            hooks: { truncateDigest: staticTruncate },
+          });
+
+          expect(result).toHaveLength(6);
+          expect(result).toMatch(/^\d{6}$/);
+        });
+
+        it("should use truncateDigest hook in generateSync", () => {
+          const result = generateSync({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+            hooks: { truncateDigest: staticTruncate },
+          });
+
+          expect(result).toHaveLength(6);
+          expect(result).toMatch(/^\d{6}$/);
+        });
+
+        it("should use truncateDigest return value for token encoding", async () => {
+          const fixedValue = 123456;
+          const result = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+            hooks: { truncateDigest: () => fixedValue },
+          });
+
+          // 123456 % 1000000 = 123456, zero-padded to 6 digits
+          expect(result).toBe("123456");
+        });
+
+        it("should compose truncateDigest with encodeToken", async () => {
+          const result = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 5,
+            hooks: {
+              truncateDigest: staticTruncate,
+              encodeToken: steamEncodeToken,
+            },
+          });
+
+          expect(result).toHaveLength(5);
+          for (const ch of result) {
+            expect(STEAM_CHARS).toContain(ch);
+          }
+        });
+
+        it("should round-trip through verify with truncateDigest hook", async () => {
+          const hooks = { truncateDigest: staticTruncate };
+
+          const token = await generate({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+            hooks,
+          });
+
+          const result = await verify({
+            secret,
+            counter: 0,
+            token,
+            crypto,
+            digits: 6,
+            hooks,
+          });
+
+          expect(result.valid).toBe(true);
+          if (result.valid) {
+            expect(result.delta).toBe(0);
+          }
+        });
+
+        it("should round-trip through verifySync with truncateDigest hook", () => {
+          const hooks = { truncateDigest: staticTruncate };
+
+          const token = generateSync({
+            secret,
+            counter: 0,
+            crypto,
+            digits: 6,
+            hooks,
+          });
+
+          const result = verifySync({
+            secret,
+            counter: 0,
+            token,
+            crypto,
+            digits: 6,
+            hooks,
+          });
+
+          expect(result.valid).toBe(true);
+          if (result.valid) {
+            expect(result.delta).toBe(0);
+          }
         });
       });
     });

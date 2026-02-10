@@ -91,6 +91,7 @@ export class HOTP {
       crypto,
       base32,
       guardrails,
+      hooks: mergedOptions.hooks,
     });
   }
 
@@ -131,6 +132,7 @@ export class HOTP {
       crypto,
       base32,
       guardrails,
+      hooks: mergedOptions.hooks,
     });
   }
 

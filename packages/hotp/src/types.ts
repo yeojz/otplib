@@ -10,6 +10,7 @@ import type {
   HashAlgorithm,
   Base32Plugin,
   OTPGuardrails,
+  OTPHooks,
 } from "@otplib/core";
 
 /**
@@ -42,6 +43,12 @@ export type HOTPOptions = {
    * Use this carefully - see danger-zone documentation
    */
   readonly guardrails?: OTPGuardrails;
+  /**
+   * Hooks for customizing token encoding and validation.
+   * Allows non-standard OTP variants (e.g., Steam Guard) to replace
+   * the default numeric encoding with custom schemes.
+   */
+  readonly hooks?: OTPHooks;
 };
 
 /**

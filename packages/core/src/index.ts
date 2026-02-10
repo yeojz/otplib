@@ -4,6 +4,7 @@ export type {
   CryptoPlugin,
   Digits,
   HashAlgorithm,
+  OTPHooks,
   SecretOptions,
   OTPResult,
   OTPResultOk,
