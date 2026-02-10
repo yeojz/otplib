@@ -1,4 +1,4 @@
-ARG IMAGE_TAG=20-alpine
+ARG IMAGE_TAG=24-alpine
 FROM node:${IMAGE_TAG}
 
 # Install pnpm

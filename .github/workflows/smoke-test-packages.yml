@@ -11,7 +11,7 @@ on:
 permissions: {}
 
 env:
-  NODE_VERSION_TARGET: "20"
+  NODE_VERSION_TARGET: "24"
   TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
