@@ -107,7 +107,7 @@ export async function generate(options: HOTPGenerateOptions): Promise<string> {
   const { ctx, algorithm, digits, secretBytes, counterBytes, hooks } =
     getHOTPGenerateOptions(options);
   const hmac = await ctx.hmac(algorithm, secretBytes, counterBytes);
-  const dt = dynamicTruncate(hmac);
+  const dt = hooks?.truncateDigest ? hooks.truncateDigest(hmac) : dynamicTruncate(hmac);
 
   return hooks?.encodeToken ? hooks.encodeToken(dt, digits) : truncateDigits(dt, digits);
 }
@@ -144,7 +144,7 @@ export function generateSync(options: HOTPGenerateOptions): string {
   const { ctx, algorithm, digits, secretBytes, counterBytes, hooks } =
     getHOTPGenerateOptions(options);
   const hmac = ctx.hmacSync(algorithm, secretBytes, counterBytes);
-  const dt = dynamicTruncate(hmac);
+  const dt = hooks?.truncateDigest ? hooks.truncateDigest(hmac) : dynamicTruncate(hmac);
 
   return hooks?.encodeToken ? hooks.encodeToken(dt, digits) : truncateDigits(dt, digits);
 }

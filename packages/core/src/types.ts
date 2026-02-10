@@ -55,6 +55,24 @@ export type OTPHooks = {
    * @throws {Error} If token format is invalid
    */
   readonly validateToken?: (token: string, digits: number) => void;
+
+  /**
+   * Custom HMAC digest truncation. Replaces the default RFC 4226 dynamic truncation.
+   *
+   * Receives the raw HMAC digest and must return a 31-bit unsigned integer
+   * (0–2,147,483,647). The integer is then passed to `encodeToken` (or the
+   * default `truncateDigits`) to produce the final token string.
+   *
+   * @param hmacResult - Raw HMAC digest as a byte array
+   * @returns 31-bit unsigned integer (0 to 0x7FFFFFFF)
+   *
+   * @example Static truncation (always use first 4 bytes)
+   * ```typescript
+   * const truncateDigest = (hmac: Uint8Array): number =>
+   *   ((hmac[0] & 0x7f) << 24) | (hmac[1] << 16) | (hmac[2] << 8) | hmac[3];
+   * ```
+   */
+  readonly truncateDigest?: (hmacResult: Uint8Array) => number;
 };
 
 /**

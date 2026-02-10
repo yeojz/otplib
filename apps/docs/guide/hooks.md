@@ -10,30 +10,36 @@ When no hooks are provided, the standard RFC 4226 numeric encoding is used.
 import type { OTPHooks } from "@otplib/core";
 
 type OTPHooks = {
+  readonly truncateDigest?: (hmacResult: Uint8Array) => number;
   readonly encodeToken?: (truncatedValue: number, digits: number) => string;
   readonly validateToken?: (token: string, digits: number) => void;
 };
 ```
 
-| Hook            | Purpose                                                        | Default Behaviour                        |
-| --------------- | -------------------------------------------------------------- | ---------------------------------------- |
-| `encodeToken`   | Converts the 31-bit truncated HMAC integer into a token string | Decimal modulo (`10^digits`) zero-padded |
-| `validateToken` | Checks that a token string is well-formed before verification  | Asserts digits-only and correct length   |
+| Hook             | Purpose                                                        | Default Behaviour                        |
+| ---------------- | -------------------------------------------------------------- | ---------------------------------------- |
+| `truncateDigest` | Extracts a 31-bit integer from the raw HMAC digest             | RFC 4226 dynamic truncation              |
+| `encodeToken`    | Converts the 31-bit truncated HMAC integer into a token string | Decimal modulo (`10^digits`) zero-padded |
+| `validateToken`  | Checks that a token string is well-formed before verification  | Asserts digits-only and correct length   |
 
 ## How Hooks Integrate
 
 Hooks are passed via the `hooks` option on `generate` / `verify` (and their sync variants). They apply at the HOTP layer and propagate automatically through TOTP.
 
 ```
-HMAC → Dynamic Truncation → 31-bit integer
-                                 │
-                    ┌────────────┴────────────┐
-                    │ encodeToken provided?    │
-                    ├─── yes ──► hooks.encodeToken(value, digits)
-                    └─── no  ──► truncateDigits(value, digits)
-                                 │
-                                 ▼
-                            token string
+HMAC digest (Uint8Array)
+      │
+      ├─── truncateDigest provided? ──► hooks.truncateDigest(hmac)
+      └─── no                       ──► dynamicTruncate(hmac)
+      │
+      ▼
+31-bit integer
+      │
+      ├─── encodeToken provided? ──► hooks.encodeToken(value, digits)
+      └─── no                    ──► truncateDigits(value, digits)
+      │
+      ▼
+ token string
 ```
 
 During verification the same flow applies in reverse — `validateToken` is called before the token is compared:
@@ -163,6 +169,37 @@ const result = await verify({
 ```
 
 ## Writing Custom Hooks
+
+### truncateDigest
+
+Your `truncateDigest` function receives:
+
+| Parameter    | Type         | Description                   |
+| ------------ | ------------ | ----------------------------- |
+| `hmacResult` | `Uint8Array` | Raw HMAC digest (20–64 bytes) |
+
+It must return a 31-bit unsigned integer (0–2,147,483,647).
+
+**Example: Static truncation** (always use the first 4 bytes instead of the dynamic offset):
+
+```typescript
+function staticTruncate(hmacResult: Uint8Array): number {
+  return (
+    ((hmacResult[0] & 0x7f) << 24) | (hmacResult[1] << 16) | (hmacResult[2] << 8) | hmacResult[3]
+  );
+}
+```
+
+Using it:
+
+```typescript
+import { generate } from "otplib";
+
+const token = await generate({
+  secret,
+  hooks: { truncateDigest: staticTruncate },
+});
+```
 
 ### encodeToken
 

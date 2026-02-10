@@ -20,6 +20,7 @@ import {
   STEAM_CHARS,
   steamEncodeToken,
   steamValidateToken,
+  staticTruncate,
 } from "@repo/testing";
 
 import {
@@ -2738,6 +2739,109 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           });
 
           expect(result.valid).toBe(true);
+        });
+      });
+
+      describe("truncateDigest", () => {
+        it("should pass truncateDigest hook through to HOTP generate", async () => {
+          const result = await generate({
+            secret,
+            epoch: 59,
+            period: 30,
+            crypto,
+            digits: 6,
+            hooks: { truncateDigest: staticTruncate },
+          });
+
+          expect(result).toHaveLength(6);
+          expect(result).toMatch(/^\d{6}$/);
+        });
+
+        it("should pass truncateDigest hook through to HOTP generateSync", () => {
+          const result = generateSync({
+            secret,
+            epoch: 59,
+            period: 30,
+            crypto,
+            digits: 6,
+            hooks: { truncateDigest: staticTruncate },
+          });
+
+          expect(result).toHaveLength(6);
+          expect(result).toMatch(/^\d{6}$/);
+        });
+
+        it("should round-trip through verify with truncateDigest hook", async () => {
+          const epoch = 59;
+          const hooks = { truncateDigest: staticTruncate };
+
+          const token = await generate({
+            secret,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 6,
+            hooks,
+          });
+
+          const result = await verify({
+            secret,
+            token,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 6,
+            hooks,
+          });
+
+          expect(result.valid).toBe(true);
+        });
+
+        it("should round-trip through verifySync with truncateDigest hook", () => {
+          const epoch = 59;
+          const hooks = { truncateDigest: staticTruncate };
+
+          const token = generateSync({
+            secret,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 6,
+            hooks,
+          });
+
+          const result = verifySync({
+            secret,
+            token,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 6,
+            hooks,
+          });
+
+          expect(result.valid).toBe(true);
+        });
+
+        it("should compose truncateDigest with encodeToken through TOTP->HOTP chain", async () => {
+          const epoch = 59;
+
+          const result = await generate({
+            secret,
+            epoch,
+            period: 30,
+            crypto,
+            digits: 5,
+            hooks: {
+              truncateDigest: staticTruncate,
+              encodeToken: steamEncodeToken,
+            },
+          });
+
+          expect(result).toHaveLength(5);
+          for (const ch of result) {
+            expect(STEAM_CHARS).toContain(ch);
+          }
         });
       });
     });

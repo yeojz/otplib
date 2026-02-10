@@ -45,3 +45,18 @@ export function steamValidateToken(token: string, digits: number): void {
     }
   }
 }
+
+/**
+ * Static truncation: always uses the first 4 bytes (offset 0)
+ * instead of the RFC 4226 dynamic offset.
+ *
+ * Useful for deterministic testing of the truncateDigest hook.
+ *
+ * @param hmacResult - Raw HMAC digest as a byte array
+ * @returns 31-bit unsigned integer
+ */
+export function staticTruncate(hmacResult: Uint8Array): number {
+  return (
+    ((hmacResult[0] & 0x7f) << 24) | (hmacResult[1] << 16) | (hmacResult[2] << 8) | hmacResult[3]
+  );
+}
