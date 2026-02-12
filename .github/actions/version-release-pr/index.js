@@ -156,6 +156,8 @@ This PR was automatically created by the prepare-release workflow.
 **New version:** ${newVersion}`;
 
 console.log(`\nCreating branch: ${branchName}`);
+run("git", ["config", "user.name", "github-actions[bot]"]);
+run("git", ["config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"]);
 run("git", ["checkout", "-b", branchName]);
 
 console.log("Committing changes...");
