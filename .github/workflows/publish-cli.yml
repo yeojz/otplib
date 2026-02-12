@@ -2,9 +2,6 @@ name: Publish CLI
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "cli-v*.*.*"
 
 permissions: {}
 
