@@ -15,7 +15,7 @@ concurrency:
 
 # Shared configuration
 env:
-  NODE_VERSION_TARGET: "22"
+  NODE_VERSION_TARGET: "24"
   TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
@@ -36,6 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies
@@ -64,6 +65,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies
@@ -274,6 +276,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies
