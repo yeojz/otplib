@@ -328,15 +328,20 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
       });
 
       it("should compute epoch as timeStep * period + t0", async () => {
+        const epoch = 1234567890;
+        const period = 30;
+        const t0 = 0;
         const result = await generate({
           secret,
-          epoch: 1234567890,
-          period: 30,
-          t0: 0,
+          epoch,
+          period,
+          t0,
           crypto,
           format: "detailed",
         });
-        expect(result.epoch).toBe(result.timeStep * 30 + 0);
+        expect(result.epoch).toBe(result.timeStep * period + t0);
+        expect(result.epoch).toBeLessThanOrEqual(epoch);
+        expect(result.epoch % period).toBe(0);
       });
 
       it("should reflect custom t0 in epoch computation", async () => {
