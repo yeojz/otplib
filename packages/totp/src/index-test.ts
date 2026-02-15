@@ -276,6 +276,141 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
       });
     });
 
+    describe("generate format option", () => {
+      it("should return string when format is omitted", async () => {
+        const result = await generate({
+          secret,
+          epoch: 1234567890,
+          crypto,
+        });
+        expect(typeof result).toBe("string");
+      });
+
+      it("should return string when format is 'default'", async () => {
+        const result = await generate({
+          secret,
+          epoch: 1234567890,
+          crypto,
+          format: "default",
+        });
+        expect(typeof result).toBe("string");
+      });
+
+      it("should return detailed result when format is 'detailed'", async () => {
+        const result = await generate({
+          secret,
+          epoch: 1234567890,
+          crypto,
+          format: "detailed",
+        });
+        expect(typeof result).toBe("object");
+        expect(result).toHaveProperty("token");
+        expect(result).toHaveProperty("timeStep");
+        expect(result).toHaveProperty("epoch");
+        expect(typeof result.token).toBe("string");
+        expect(typeof result.timeStep).toBe("number");
+        expect(typeof result.epoch).toBe("number");
+      });
+
+      it("should have matching token in detailed and default results", async () => {
+        const plain = await generate({
+          secret,
+          epoch: 1234567890,
+          crypto,
+        });
+        const detailed = await generate({
+          secret,
+          epoch: 1234567890,
+          crypto,
+          format: "detailed",
+        });
+        expect(detailed.token).toBe(plain);
+      });
+
+      it("should compute epoch as timeStep * period + t0", async () => {
+        const result = await generate({
+          secret,
+          epoch: 1234567890,
+          period: 30,
+          t0: 0,
+          crypto,
+          format: "detailed",
+        });
+        expect(result.epoch).toBe(result.timeStep * 30 + 0);
+      });
+
+      it("should reflect custom t0 in epoch computation", async () => {
+        const t0 = 100;
+        const result = await generate({
+          secret,
+          epoch: 1234567890,
+          period: 30,
+          t0,
+          crypto,
+          format: "detailed",
+        });
+        expect(result.epoch).toBe(result.timeStep * 30 + t0);
+      });
+
+      it("should have timeStep and epoch matching verify result", async () => {
+        const epoch = 1234567890;
+        const detailed = await generate({
+          secret,
+          epoch,
+          crypto,
+          format: "detailed",
+        });
+        const verifyResult = await verify({
+          secret,
+          token: detailed.token,
+          epoch,
+          crypto,
+        });
+        expect(verifyResult.valid).toBe(true);
+        if (verifyResult.valid) {
+          expect(verifyResult.timeStep).toBe(detailed.timeStep);
+          expect(verifyResult.epoch).toBe(detailed.epoch);
+        }
+      });
+
+      it("should return string from generateSync when format is omitted", () => {
+        const result = generateSync({
+          secret,
+          epoch: 1234567890,
+          crypto,
+        });
+        expect(typeof result).toBe("string");
+      });
+
+      it("should return detailed result from generateSync when format is 'detailed'", () => {
+        const result = generateSync({
+          secret,
+          epoch: 1234567890,
+          crypto,
+          format: "detailed",
+        });
+        expect(typeof result).toBe("object");
+        expect(result).toHaveProperty("token");
+        expect(result).toHaveProperty("timeStep");
+        expect(result).toHaveProperty("epoch");
+      });
+
+      it("should have matching token in sync detailed and default results", () => {
+        const plain = generateSync({
+          secret,
+          epoch: 1234567890,
+          crypto,
+        });
+        const detailed = generateSync({
+          secret,
+          epoch: 1234567890,
+          crypto,
+          format: "detailed",
+        });
+        expect(detailed.token).toBe(plain);
+      });
+    });
+
     describe("verify", () => {
       it("should verify valid TOTP code", async () => {
         const epoch = 59;

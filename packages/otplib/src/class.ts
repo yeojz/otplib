@@ -23,6 +23,8 @@ import type {
   Base32Plugin,
   OTPGuardrails,
   OTPHooks,
+  OTPFormat,
+  TOTPGenerateResult,
 } from "@otplib/core";
 import type { VerifyResult as HOTPVerifyResult } from "@otplib/hotp";
 import type { VerifyResult as TOTPVerifyResult } from "@otplib/totp";
@@ -114,6 +116,16 @@ export type OTPGenerateOptions = {
    * Hooks for customizing token encoding and validation
    */
   hooks?: OTPHooks;
+
+  /**
+   * Output format for TOTP generation
+   *
+   * - `"default"` (or omitted): returns a plain `string` token
+   * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
+   *
+   * Only applies to TOTP strategy; ignored for HOTP.
+   */
+  format?: OTPFormat;
 };
 
 /**
@@ -327,14 +339,16 @@ export class OTP {
    * @param options - Generation options
    * @returns OTP code
    */
-  async generate(options: OTPGenerateOptions): Promise<string> {
+  async generate(options: OTPGenerateOptions & { format: "detailed" }): Promise<TOTPGenerateResult>;
+  async generate(options: OTPGenerateOptions): Promise<string>;
+  async generate(options: OTPGenerateOptions): Promise<string | TOTPGenerateResult> {
     return functionalGenerate({
       ...options,
       strategy: this.strategy,
       crypto: this.crypto,
       base32: this.base32,
       guardrails: options.guardrails ?? this.guardrails,
-    });
+    } as Parameters<typeof functionalGenerate>[0]);
   }
 
   /**
@@ -344,14 +358,16 @@ export class OTP {
    * @returns OTP code
    * @throws {HMACError} If the crypto plugin doesn't support sync operations
    */
-  generateSync(options: OTPGenerateOptions): string {
+  generateSync(options: OTPGenerateOptions & { format: "detailed" }): TOTPGenerateResult;
+  generateSync(options: OTPGenerateOptions): string;
+  generateSync(options: OTPGenerateOptions): string | TOTPGenerateResult {
     return functionalGenerateSync({
       ...options,
       strategy: this.strategy,
       crypto: this.crypto,
       base32: this.base32,
       guardrails: options.guardrails ?? this.guardrails,
-    });
+    } as Parameters<typeof functionalGenerateSync>[0]);
   }
 
   /**

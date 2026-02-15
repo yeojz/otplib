@@ -11,6 +11,7 @@ import type {
   Base32Plugin,
   OTPGuardrails,
   OTPHooks,
+  OTPFormat,
 } from "@otplib/core";
 
 /**
@@ -60,6 +61,13 @@ export type TOTPOptions = {
    * the default numeric encoding with custom schemes.
    */
   readonly hooks?: OTPHooks;
+  /**
+   * Output format for generation
+   *
+   * - `"default"` (or omitted): returns a plain `string` token
+   * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
+   */
+  readonly format?: OTPFormat;
 };
 
 /**

@@ -224,6 +224,71 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
       });
     });
 
+    describe("generate format option", () => {
+      it("should return detailed result for TOTP with format 'detailed'", async () => {
+        const result = await generate({
+          secret: TEST_SECRET,
+          epoch: 1234567890,
+          format: "detailed",
+        });
+        expect(typeof result).toBe("object");
+        expect(result).toHaveProperty("token");
+        expect(result).toHaveProperty("timeStep");
+        expect(result).toHaveProperty("epoch");
+      });
+
+      it("should return string for HOTP even with format 'detailed'", async () => {
+        const result = await generate({
+          secret: TEST_SECRET,
+          strategy: "hotp",
+          counter: 0,
+          format: "detailed",
+        });
+        // HOTP ignores format, returns string
+        expect(typeof result).toBe("string");
+      });
+
+      it("should return detailed result from generateSync for TOTP", () => {
+        const result = generateSync({
+          secret: TEST_SECRET,
+          epoch: 1234567890,
+          format: "detailed",
+        });
+        expect(typeof result).toBe("object");
+        expect(result).toHaveProperty("token");
+        expect(result).toHaveProperty("timeStep");
+        expect(result).toHaveProperty("epoch");
+      });
+    });
+
+    describe("OTP class format option", () => {
+      it("should return detailed result from OTP class with TOTP strategy", async () => {
+        const otp = new OTP({ strategy: "totp" });
+        const result = await otp.generate({
+          secret: TEST_SECRET,
+          epoch: 1234567890,
+          format: "detailed",
+        });
+        expect(typeof result).toBe("object");
+        expect(result).toHaveProperty("token");
+        expect(result).toHaveProperty("timeStep");
+        expect(result).toHaveProperty("epoch");
+      });
+
+      it("should return detailed result from OTP class generateSync", () => {
+        const otp = new OTP({ strategy: "totp" });
+        const result = otp.generateSync({
+          secret: TEST_SECRET,
+          epoch: 1234567890,
+          format: "detailed",
+        });
+        expect(typeof result).toBe("object");
+        expect(result).toHaveProperty("token");
+        expect(result).toHaveProperty("timeStep");
+        expect(result).toHaveProperty("epoch");
+      });
+    });
+
     describe("verify", () => {
       it("should verify correct TOTP code", async () => {
         const epoch = 1234567890;

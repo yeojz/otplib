@@ -9,6 +9,8 @@ export type {
   OTPResult,
   OTPResultOk,
   OTPResultError,
+  OTPFormat,
+  TOTPGenerateResult,
 } from "./types.js";
 
 export type { OTPGuardrailsConfig, OTPGuardrails } from "./utils.js";

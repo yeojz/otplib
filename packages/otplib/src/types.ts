@@ -9,6 +9,7 @@ import type {
   HashAlgorithm,
   OTPGuardrails,
   OTPHooks,
+  OTPFormat,
 } from "@otplib/core";
 import type { HOTPOptions } from "@otplib/hotp";
 import type { TOTPOptions } from "@otplib/totp";
@@ -113,6 +114,16 @@ export type OTPGenerateOptions = {
    * the default numeric encoding with custom schemes.
    */
   hooks?: OTPHooks;
+
+  /**
+   * Output format for TOTP generation
+   *
+   * - `"default"` (or omitted): returns a plain `string` token
+   * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
+   *
+   * Only applies to TOTP strategy; ignored for HOTP.
+   */
+  format?: OTPFormat;
 };
 
 /**
@@ -154,10 +165,11 @@ export type OTPVerifyOptions = OTPGenerateOptions & {
  * OTP options with all defaults applied
  */
 export type OTPGenerateOptionsWithDefaults = Required<
-  Omit<OTPGenerateOptions, "counter" | "hooks">
+  Omit<OTPGenerateOptions, "counter" | "hooks" | "format">
 > & {
   counter?: number;
   hooks?: OTPHooks;
+  format?: OTPFormat;
 };
 
 /**

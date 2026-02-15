@@ -19,7 +19,7 @@ import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 import { generate as generateCode, verify as verifyCode } from "./index.js";
 
 import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types.js";
-import type { OTPGuardrails } from "@otplib/core";
+import type { OTPGuardrails, TOTPGenerateResult } from "@otplib/core";
 
 /**
  * TOTP class for time-based one-time password generation
@@ -71,7 +71,11 @@ export class TOTP {
    * @param options - Optional overrides
    * @returns The TOTP code
    */
-  async generate(options?: Partial<TOTPOptions>): Promise<string> {
+  async generate(
+    options: Partial<TOTPOptions> & { format: "detailed" },
+  ): Promise<TOTPGenerateResult>;
+  async generate(options?: Partial<TOTPOptions>): Promise<string>;
+  async generate(options?: Partial<TOTPOptions>): Promise<string | TOTPGenerateResult> {
     const mergedOptions = { ...this.options, ...options };
     const {
       secret,
@@ -82,6 +86,7 @@ export class TOTP {
       period = 30,
       epoch,
       t0 = 0,
+      format,
     } = mergedOptions;
 
     requireSecret(secret);
@@ -101,7 +106,8 @@ export class TOTP {
       base32,
       guardrails,
       hooks: mergedOptions.hooks,
-    });
+      format,
+    } as Parameters<typeof generateCode>[0]);
   }
 
   /**

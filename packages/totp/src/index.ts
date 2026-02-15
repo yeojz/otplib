@@ -28,7 +28,14 @@ import {
 import { generate as generateHOTP, generateSync as generateHOTPSync } from "@otplib/hotp";
 
 import type { TOTPGenerateOptions, TOTPVerifyOptions, VerifyResult } from "./types.js";
-import type { CryptoPlugin, Digits, HashAlgorithm, OTPGuardrails, OTPHooks } from "@otplib/core";
+import type {
+  CryptoPlugin,
+  Digits,
+  HashAlgorithm,
+  OTPGuardrails,
+  OTPHooks,
+  TOTPGenerateResult,
+} from "@otplib/core";
 
 /**
  * Normalized options for TOTP generation
@@ -42,6 +49,8 @@ type TOTPGenerateOptionsInternal = {
   crypto: CryptoPlugin;
   guardrails: OTPGuardrails;
   hooks?: OTPHooks;
+  epoch: number;
+  timeStep: number;
 };
 
 /**
@@ -86,6 +95,8 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     crypto,
     guardrails,
     hooks,
+    epoch: counter * period + t0,
+    timeStep: counter,
   };
 }
 
@@ -125,9 +136,20 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
  * // Returns: '123456'
  * ```
  */
-export async function generate(options: TOTPGenerateOptions): Promise<string> {
+export async function generate(
+  options: TOTPGenerateOptions & { readonly format: "detailed" },
+): Promise<TOTPGenerateResult>;
+export async function generate(
+  options: TOTPGenerateOptions & { readonly format?: "default" },
+): Promise<string>;
+export async function generate(options: TOTPGenerateOptions): Promise<string | TOTPGenerateResult>;
+export async function generate(options: TOTPGenerateOptions): Promise<string | TOTPGenerateResult> {
   const opt = getTOTPGenerateOptions(options);
-  return generateHOTP(opt);
+  const token = await generateHOTP(opt);
+  if (options.format === "detailed") {
+    return { token, timeStep: opt.timeStep, epoch: opt.epoch };
+  }
+  return token;
 }
 
 /**
@@ -159,9 +181,20 @@ export async function generate(options: TOTPGenerateOptions): Promise<string> {
  * // Returns: '123456'
  * ```
  */
-export function generateSync(options: TOTPGenerateOptions): string {
+export function generateSync(
+  options: TOTPGenerateOptions & { readonly format: "detailed" },
+): TOTPGenerateResult;
+export function generateSync(
+  options: TOTPGenerateOptions & { readonly format?: "default" },
+): string;
+export function generateSync(options: TOTPGenerateOptions): string | TOTPGenerateResult;
+export function generateSync(options: TOTPGenerateOptions): string | TOTPGenerateResult {
   const opt = getTOTPGenerateOptions(options);
-  return generateHOTPSync(opt);
+  const token = generateHOTPSync(opt);
+  if (options.format === "detailed") {
+    return { token, timeStep: opt.timeStep, epoch: opt.epoch };
+  }
+  return token;
 }
 
 /**
@@ -218,7 +251,7 @@ type TOTPVerifyOptionsInternal = {
   period: number;
   afterTimeStep?: number;
 
-  getGenerateOptions: (counter: number) => TOTPGenerateOptions;
+  getGenerateOptions: (counter: number) => Omit<TOTPGenerateOptions, "format">;
 };
 
 /**
@@ -488,7 +521,14 @@ export function getTimeStepUsed(
   return Math.floor((time - t0) / period);
 }
 
-export type { CryptoPlugin, Digits, HashAlgorithm, OTPResult } from "@otplib/core";
+export type {
+  CryptoPlugin,
+  Digits,
+  HashAlgorithm,
+  OTPResult,
+  OTPFormat,
+  TOTPGenerateResult,
+} from "@otplib/core";
 export type {
   TOTPOptions,
   TOTPGenerateOptions,

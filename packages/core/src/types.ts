@@ -183,10 +183,6 @@ export type SecretOptions = {
   readonly length?: number;
 };
 
-// ============================================================================
-// Result Type for Functional Error Handling
-// ============================================================================
-
 /**
  * Success result containing a value
  */
@@ -220,3 +216,34 @@ export type OTPResultError<E> = {
  * ```
  */
 export type OTPResult<T, E = Error> = OTPResultOk<T> | OTPResultError<E>;
+
+/**
+ * Output format for TOTP generation
+ *
+ * - `"default"`: Returns a plain string token (backward compatible)
+ * - `"detailed"`: Returns a structured result with token, timeStep, and epoch
+ */
+export type OTPFormat = "default" | "detailed";
+
+/**
+ * Structured result from TOTP generation when using `format: "detailed"`
+ *
+ * Contains the token along with its computed time metadata, enabling
+ * replay protection and time-window deduplication.
+ *
+ * @example
+ * ```typescript
+ * const result = await generate({
+ *   secret, crypto,
+ *   format: "detailed",
+ * });
+ * // result.token    - the OTP string
+ * // result.timeStep - RFC 6238 T value (counter)
+ * // result.epoch    - period-start Unix timestamp in seconds
+ * ```
+ */
+export type TOTPGenerateResult = {
+  readonly token: string;
+  readonly timeStep: number;
+  readonly epoch: number;
+};

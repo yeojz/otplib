@@ -96,6 +96,37 @@ describe("TOTP Class", () => {
     expect(totp).toBeInstanceOf(TOTP);
   });
 
+  it("should return detailed result when format is 'detailed'", async () => {
+    const epoch = 1234567890;
+    const totp = new TOTP({
+      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      crypto,
+      base32,
+    });
+
+    const result = await totp.generate({ epoch, format: "detailed" });
+
+    expect(result).toHaveProperty("token");
+    expect(result).toHaveProperty("timeStep");
+    expect(result).toHaveProperty("epoch");
+    expect(typeof result.token).toBe("string");
+    expect(result.token.length).toBe(6);
+    expect(result.epoch).toBe(result.timeStep * 30 + 0);
+  });
+
+  it("should return string when format is not specified (backward compat)", async () => {
+    const totp = new TOTP({
+      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      crypto,
+      base32,
+    });
+
+    const result = await totp.generate();
+
+    expect(typeof result).toBe("string");
+    expect(result.length).toBe(6);
+  });
+
   it("should allow options override with partial options in generate", async () => {
     const totp = new TOTP({
       secret: TEST_SECRET_HOTP_BASE32,

@@ -26,7 +26,13 @@ import type {
   OTPStrategy,
   StrategyHandlers,
 } from "./types.js";
-import type { CryptoPlugin, Base32Plugin, Digits, HashAlgorithm } from "@otplib/core";
+import type {
+  CryptoPlugin,
+  Base32Plugin,
+  Digits,
+  HashAlgorithm,
+  TOTPGenerateResult,
+} from "@otplib/core";
 import type { VerifyResult as HOTPVerifyResult } from "@otplib/hotp";
 import type { VerifyResult as TOTPVerifyResult } from "@otplib/totp";
 
@@ -215,7 +221,11 @@ export function generateURI(options: {
  * });
  * ```
  */
-export async function generate(options: OTPGenerateOptions): Promise<string> {
+export async function generate(
+  options: OTPGenerateOptions & { format: "detailed"; strategy?: "totp" },
+): Promise<TOTPGenerateResult>;
+export async function generate(options: OTPGenerateOptions): Promise<string>;
+export async function generate(options: OTPGenerateOptions): Promise<string | TOTPGenerateResult> {
   const opts = normalizeGenerateOptions(options);
   const { secret, crypto, base32, algorithm, digits, hooks } = opts;
   const commonOptions = { secret, crypto, base32, algorithm, digits, hooks };
@@ -228,7 +238,8 @@ export async function generate(options: OTPGenerateOptions): Promise<string> {
         epoch: opts.epoch,
         t0: opts.t0,
         guardrails: opts.guardrails,
-      }),
+        format: opts.format,
+      } as Parameters<typeof generateTOTP>[0]),
     hotp: (counter) =>
       generateHOTP({
         ...commonOptions,
@@ -257,7 +268,11 @@ export async function generate(options: OTPGenerateOptions): Promise<string> {
  * });
  * ```
  */
-export function generateSync(options: OTPGenerateOptions): string {
+export function generateSync(
+  options: OTPGenerateOptions & { format: "detailed"; strategy?: "totp" },
+): TOTPGenerateResult;
+export function generateSync(options: OTPGenerateOptions): string;
+export function generateSync(options: OTPGenerateOptions): string | TOTPGenerateResult {
   const opts = normalizeGenerateOptions(options);
   const { secret, crypto, base32, algorithm, digits } = opts;
   const commonOptions = { secret, crypto, base32, algorithm, digits };
@@ -270,7 +285,8 @@ export function generateSync(options: OTPGenerateOptions): string {
         epoch: opts.epoch,
         t0: opts.t0,
         guardrails: opts.guardrails,
-      }),
+        format: opts.format,
+      } as Parameters<typeof generateTOTPSync>[0]),
     hotp: (counter) =>
       generateHOTPSync({
         ...commonOptions,
