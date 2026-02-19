@@ -173,35 +173,46 @@ The CI workflow tests:
 
 - **Lint**: Code quality and formatting checks
 - **Type Check**: TypeScript type validation across all packages
-- **Build**: Package compilation and bundle size validation
-- **test-node**: Tests on Node.js 20, 22, 24 (each builds locally)
-- **test-deno**: Tests on Deno 1.x and 2.x (uses build artifacts)
-- **test-bun**: Tests on Bun 1.x (uses build artifacts)
+- **Build & Test**: Unit tests with coverage, package compilation, bundle size validation
+- **test-node**: Distribution tests on Node.js 20, 22, 24 (uses build artifacts)
+- **test-deno**: Distribution tests on Deno 1.x and 2.x (uses build artifacts)
+- **test-bun**: Distribution tests on Bun 1.x (uses build artifacts)
+- **Security Audit**: `pnpm audit` at moderate severity threshold
+- **Reporting**: Coverage and bundle analysis uploaded to Codecov
 
 ### Architecture
 
 The CI workflow is optimized for efficiency:
 
 ```
-Stage 1: Foundation (parallel)
+Stage 1: Quality Checks (parallel)
   ├── lint
   ├── typecheck
-  └── security-audit
+  └── security-audit (independent, no blocking)
 
-Stage 2a: Build & Test (parallel)
-  ├── build (Node 20) → uploads artifacts
-  └── test-node (Node 20/22/24) → builds locally
+Stage 2: Build & Test
+  └── build-and-test (needs lint + typecheck)
+        → runs unit tests with coverage
+        → builds packages
+        → checks bundle size
+        → uploads coverage + dist artifacts
 
-Stage 2b: Runtime Tests (parallel)
-  ├── test-deno → downloads from build
-  └── test-bun → downloads from build
+Stage 3: Distribution Tests (parallel, all need build-and-test)
+  ├── test-node (Node 20, 22, 24) → downloads dist artifacts
+  ├── test-deno (Deno 1.x, 2.x)  → downloads dist artifacts
+  ├── test-bun  (Bun 1.x)        → downloads dist artifacts
+  └── reporting                   → uploads to Codecov
+
+Stage 4: Validation
+  └── all-checks (needs all above)
 ```
 
 This architecture ensures:
 
-- Each Node version builds independently (compatibility testing)
-- Deno and Bun reuse build artifacts (efficiency)
-- Maximum parallelization (faster CI)
+- Unit tests and builds happen once (efficiency)
+- Each runtime downloads and validates the same built artifacts
+- Maximum parallelization across distribution tests
+- A single aggregated check for branch protection rules
 
 ## Continuous Integration
 
@@ -213,19 +224,18 @@ The GitHub Actions workflow (`.github/workflows/ci.yml`) automatically runs on:
 
 ### CI Workflow Stages
 
-1. **Quality Checks** - Lint, type check, security audit
-2. **Build** - Compile packages and upload artifacts
-3. **Test** - Run tests across all supported runtimes
-4. **Validate** - Aggregate results and ensure all checks pass
+1. **Quality Checks** - Lint, type check, security audit (parallel)
+2. **Build & Test** - Unit tests, package compilation, bundle size check; uploads coverage and dist artifacts
+3. **Distribution Tests** - Run against built artifacts across all supported runtimes (parallel)
+4. **Reporting** - Coverage and bundle analysis uploaded to Codecov
+5. **Validate** - `all-checks` aggregates results for branch protection
 
 ### Artifacts
 
-Build artifacts (`packages/*/dist`) are:
+Two artifact sets are produced by the `build-and-test` job:
 
-- Uploaded from the build job (Node 20)
-- Downloaded by test-deno and test-bun jobs
-- Retained for 1 day
-- Used to avoid redundant builds
+- **`dist-artifacts`** (`packages/*/dist`) - downloaded by `test-node`, `test-deno`, `test-bun`, and `reporting`; retained for 1 day
+- **`coverage-artifacts`** (`coverage/`, `reports/junit.xml`) - downloaded by `reporting` for Codecov upload
 
 ## Troubleshooting
 

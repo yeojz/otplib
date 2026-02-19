@@ -12,30 +12,27 @@
 
 TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime (Node, Bun, Deno, Browser) support via plugins.
 
-A web based demo is available at [https://otplib.yeojz.dev](https://otplib.yeojz.dev).
+> [!TIP] Demo
+> A web based demo is available at [https://otplib.yeojz.dev](https://otplib.yeojz.dev).
+>
+> You can scan the TOTP / HOTP QR Code there with your authenticator application
 
 ## Features
 
 - **Zero Configuration** - Works out of the box with sensible defaults
 - **RFC Compliant** - RFC 6238 (TOTP) and RFC 4226 (HOTP)
 - **TypeScript-First** - Full type definitions
-- **Google Authenticator Compatible** - Full otpauth:// URI support
 - **Plugin Interface** - Flexible plugin system for customising your cryptographic and base32 requirements (if you want to deviate from the defaults)
 - **Cross-platform** - Tested against Node.js, Bun, Deno, and browsers
+- **Google Authenticator Compatible** - Full otpauth:// URI support
+- **Security-audited plugins** — Default crypto uses `@noble/hashes` and `@scure/base`, both independently audited
+- **Async-first API** — All operations are async by default; sync variants available for compatible plugins
 
-## Breaking Changes (v13)
-
-> [!IMPORTANT]  
-> v13 is a complete rewrite with breaking changes:
+> [!IMPORTANT] Breaking Changes (v13)
+> v13 is a complete rewrite with breaking changes.
 >
-> - **New**
->   - **Security-audited plugins** — Default crypto uses `@noble/hashes` and `@scure/base`, both independently audited
->   - **Cross-platform defaults** — Works out-of-the-box in Node.js, Bun, Deno, and browsers
->   - **Full type safety** — Comprehensive TypeScript types with strict mode from the ground up
->   - **Async-first API** — All operations are async by default; sync variants available for compatible plugins
-> - **Removed**
->   - **Separate authenticator package** — TOTP now covers all authenticator functionality
->   - **Outdated plugins** — Legacy crypto adapters removed in favor of modern, audited alternatives
+> - **Removed Separate authenticator package** — TOTP now covers all authenticator functionality
+> - **Removed Outdated plugins** — Legacy crypto adapters removed in favor of modern, audited alternatives
 >
 > See [Migration Guide](https://otplib.yeojz.dev/guide/v12-adapter.html) for details.
 
@@ -81,6 +78,7 @@ console.log(result.valid); // true
 | [`@otplib/plugin-crypto-noble`](./packages/plugin-crypto-noble) | [![npm](https://img.shields.io/npm/v/@otplib/plugin-crypto-noble.svg)](https://www.npmjs.com/package/@otplib/plugin-crypto-noble) | [![npm](https://img.shields.io/npm/dm/@otplib/plugin-crypto-noble.svg)](https://www.npmjs.com/package/@otplib/plugin-crypto-noble) |
 | [`@otplib/plugin-crypto-node`](./packages/plugin-crypto-node)   | [![npm](https://img.shields.io/npm/v/@otplib/plugin-crypto-node.svg)](https://www.npmjs.com/package/@otplib/plugin-crypto-node)   | [![npm](https://img.shields.io/npm/dm/@otplib/plugin-crypto-node.svg)](https://www.npmjs.com/package/@otplib/plugin-crypto-node)   |
 | [`@otplib/plugin-crypto-web`](./packages/plugin-crypto-web)     | [![npm](https://img.shields.io/npm/v/@otplib/plugin-crypto-web.svg)](https://www.npmjs.com/package/@otplib/plugin-crypto-web)     | [![npm](https://img.shields.io/npm/dm/@otplib/plugin-crypto-web.svg)](https://www.npmjs.com/package/@otplib/plugin-crypto-web)     |
+| [`otplib-cli`](./packages/otplib-cli)                           | [![npm](https://img.shields.io/npm/v/otplib-cli.svg)](https://www.npmjs.com/package/otplib-cli)                                   | [![npm](https://img.shields.io/npm/dm/otplib-cli.svg)](https://www.npmjs.com/package/otplib-cli)                                   |
 
 ## Documentation
 
