@@ -12,51 +12,22 @@ yarn add @otplib/hotp
 
 ## Usage
 
-```typescript
-import { generate, verify } from "@otplib/hotp";
-import { crypto } from "@otplib/plugin-crypto-node";
-import { base32 } from "@otplib/plugin-base32-scure";
-
-// Generate an HOTP token for counter 0
-const token = await generate({
-  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
-  counter: 0,
-  crypto,
-  base32,
-});
-
-// Verify an HOTP token
-const result = await verify({
-  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
-  token: "123456",
-  counter: 0,
-  crypto,
-  base32,
-  counterTolerance: 0,
-});
-
-// result.valid: boolean
-// result.delta: number | null
-```
-
-## Functions
-
 ### generate
 
 Generate an HOTP code for a specific counter:
 
 ```typescript
-import { generate } from '@otplib/hotp';
-import { crypto } from '@otplib/plugin-crypto-node';
-import { base32 } from '@otplib/plugin-base32-scure';
+import { generate } from "@otplib/hotp";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const token = await generate({
-  secret: new Uint8Array([...]),  // Required: secret as bytes
-  counter: 0,                      // Required: counter value
-  crypto,                          // Required: crypto plugin
-  base32,                          // Optional: base32 plugin (for decoding)
-  algorithm: 'sha1',               // Optional: 'sha1' | 'sha256' | 'sha512'
-  digits: 6,                       // Optional: 6 | 7 | 8
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Required: Base32 string or Uint8Array
+  counter: 0, // Required: counter value
+  crypto, // Required: crypto plugin
+  base32, // Optional: base32 plugin (required if secret is a string)
+  algorithm: "sha1", // Optional: 'sha1' | 'sha256' | 'sha512'
+  digits: 6, // Optional: 6 | 7 | 8
 });
 ```
 
@@ -65,22 +36,36 @@ const token = await generate({
 Verify an HOTP code:
 
 ```typescript
-import { verify } from '@otplib/hotp';
-import { crypto } from '@otplib/plugin-crypto-node';
-import { base32 } from '@otplib/plugin-base32-scure';
+import { verify } from "@otplib/hotp";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const result = await verify({
-  secret: new Uint8Array([...]),  // Required: secret as bytes
-  token: '123456',                 // Required: token to verify
-  counter: 0,                      // Required: expected counter
-  crypto,                          // Required: crypto plugin
-  base32,                          // Optional: base32 plugin (for decoding)
-  algorithm: 'sha1',               // Optional: hash algorithm
-  digits: 6,                       // Optional: expected digits
-  counterTolerance: 5,             // Optional: look-ahead tolerance
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Required: Base32 string or Uint8Array
+  token: "123456", // Required: token to verify
+  counter: 0, // Required: expected counter
+  crypto, // Required: crypto plugin
+  base32, // Optional: base32 plugin (required if secret is a string)
+  algorithm: "sha1", // Optional: hash algorithm
+  digits: 6, // Optional: expected digits
+  counterTolerance: 5, // Optional: number or [past, future] tuple
 });
 
-// Returns: { valid: boolean, delta: number | null }
+// Returns: { valid: true, delta: number } | { valid: false }
+```
+
+`counterTolerance` accepts a plain number (creates a look-ahead-only window `[0, n]`, the secure default per RFC 4226) or a `[past, future]` tuple for explicit control (e.g., `[2, 5]`).
+
+### Sync Variants
+
+`generateSync` and `verifySync` are synchronous alternatives with the same signatures. They require a crypto plugin that supports sync HMAC operations, such as `@otplib/plugin-crypto-node` or `@otplib/plugin-crypto-noble`. Using them with `@otplib/plugin-crypto-web` will throw.
+
+```typescript
+import { generateSync, verifySync } from "@otplib/hotp";
+import { crypto } from "@otplib/plugin-crypto-node";
+
+const token = generateSync({ secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", counter: 0, crypto });
+const result = verifySync({ secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", token, counter: 0, crypto });
 ```
 
 ## Documentation

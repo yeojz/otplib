@@ -165,14 +165,13 @@ const uri = generate({
 
 ## Google Authenticator Compatibility
 
-::: warning Google Authenticator Limitations
-Google Authenticator has specific requirements:
-
-- Only supports `sha1` algorithm
-- Only supports `6` or `8` digits
-- Only supports `30` second period for TOTP
-- Issuer should be included in both label and parameter
-  :::
+> [!WARNING]
+> Google Authenticator has specific requirements:
+>
+> - Only supports `sha1` algorithm
+> - Only supports `6` or `8` digits
+> - Only supports `30` second period for TOTP
+> - Issuer should be included in both label and parameter
 
 ### Compatible URI
 

@@ -20,19 +20,18 @@ TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime (N
 ## Features
 
 - **Zero Configuration** - Works out of the box with sensible defaults
-- **RFC Compliant** - RFC 6238 (TOTP) and RFC 4226 (HOTP)
+- **RFC Compliant** - RFC 6238 (TOTP) and RFC 4226 (HOTP) + Google Authenticator Compatible
 - **TypeScript-First** - Full type definitions
 - **Plugin Interface** - Flexible plugin system for customising your cryptographic and base32 requirements (if you want to deviate from the defaults)
 - **Cross-platform** - Tested against Node.js, Bun, Deno, and browsers
-- **Google Authenticator Compatible** - Full otpauth:// URI support
 - **Security-audited plugins** — Default crypto uses `@noble/hashes` and `@scure/base`, both independently audited
 - **Async-first API** — All operations are async by default; sync variants available for compatible plugins
 
 > [!IMPORTANT] Breaking Changes (v13)
-> v13 is a complete rewrite with breaking changes.
+> v13 is a complete rewrite with breaking changes. For example:
 >
-> - **Removed Separate authenticator package** — TOTP now covers all authenticator functionality
-> - **Removed Outdated plugins** — Legacy crypto adapters removed in favor of modern, audited alternatives
+> - **(Removed) Separate authenticator package** — TOTP now covers all authenticator functionality with default plugins
+> - **(Removed) Outdated plugins** — Legacy crypto adapters removed in favor of modern, audited alternatives
 >
 > See [Migration Guide](https://otplib.yeojz.dev/guide/v12-adapter.html) for details.
 

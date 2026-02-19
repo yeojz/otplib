@@ -12,49 +12,23 @@ yarn add @otplib/totp
 
 ## Usage
 
-```typescript
-import { generate, verify } from "@otplib/totp";
-import { crypto } from "@otplib/plugin-crypto-node";
-import { base32 } from "@otplib/plugin-base32-scure";
-
-// Generate a TOTP token
-const token = await generate({
-  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
-  crypto,
-  base32,
-});
-
-// Verify a TOTP token
-const result = await verify({
-  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
-  token: "123456",
-  crypto,
-  base32,
-});
-
-// result.valid: boolean
-// result.delta: number | null
-```
-
-## Functions
-
 ### generate
 
 Generate a TOTP code:
 
 ```typescript
-import { generate } from '@otplib/totp';
-import { crypto } from '@otplib/plugin-crypto-node';
-import { base32 } from '@otplib/plugin-base32-scure';
+import { generate } from "@otplib/totp";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const token = await generate({
-  secret: new Uint8Array([...]),  // Required: secret as bytes
-  crypto,                          // Required: crypto plugin
-  base32,                          // Optional: base32 plugin (for decoding)
-  algorithm: 'sha1',               // Optional: 'sha1' | 'sha256' | 'sha512'
-  digits: 6,                       // Optional: 6 | 7 | 8
-  period: 30,                      // Optional: time step in seconds
-  epoch: Math.floor(Date.now() / 1000), // Optional: current time in seconds
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Required: Base32 string or Uint8Array
+  crypto, // Required: crypto plugin
+  base32, // Optional: base32 plugin (required if secret is a string)
+  algorithm: "sha1", // Optional: 'sha1' | 'sha256' | 'sha512'
+  digits: 6, // Optional: 6 | 7 | 8
+  period: 30, // Optional: time step in seconds
+  epoch: Date.now() / 1000, // Optional: Unix timestamp in seconds (defaults to now)
 });
 ```
 
@@ -63,55 +37,62 @@ const token = await generate({
 Verify a TOTP code:
 
 ```typescript
-import { verify } from '@otplib/totp';
-import { crypto } from '@otplib/plugin-crypto-node';
-import { base32 } from '@otplib/plugin-base32-scure';
+import { verify } from "@otplib/totp";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
 
 const result = await verify({
-  secret: new Uint8Array([...]),  // Required: secret as bytes
-  token: '123456',                 // Required: token to verify
-  crypto,                          // Required: crypto plugin
-  base32,                          // Optional: base32 plugin (for decoding)
-  algorithm: 'sha1',               // Optional: hash algorithm
-  digits: 6,                       // Optional: expected digits
-  period: 30,                      // Optional: time step
-  epoch: Math.floor(Date.now() / 1000), // Optional: current time
-  epochTolerance: 30,              // Optional: time tolerance in seconds
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Required: Base32 string or Uint8Array
+  token: "123456", // Required: token to verify
+  crypto, // Required: crypto plugin
+  base32, // Optional: base32 plugin (required if secret is a string)
+  algorithm: "sha1", // Optional: hash algorithm
+  digits: 6, // Optional: expected digits
+  period: 30, // Optional: time step in seconds
+  epoch: Date.now() / 1000, // Optional: Unix timestamp in seconds (defaults to now)
+  epochTolerance: 30, // Optional: number or [past, future] tuple
+  afterTimeStep: lastTimeStep, // Optional: reject time steps <= this value (replay protection)
 });
 
-// Returns: { valid: boolean, delta: number | null }
+// Returns: { valid: true, delta: number, epoch: number, timeStep: number } | { valid: false }
 ```
+
+`epochTolerance` accepts a number (symmetric window `±n` seconds) or a `[past, future]` tuple for asymmetric control (e.g., `[30, 0]` accepts only past tokens, as recommended by RFC 6238 for transmission-delay handling).
+
+`afterTimeStep` is an exclusive lower bound on the matched time step: any match at `timeStep <= afterTimeStep` is rejected. Pass the `timeStep` from the previous successful verification to prevent token reuse.
 
 ### getRemainingTime
 
-Get the remaining time before the next TOTP period:
+Get remaining seconds until the next TOTP period. All parameters are optional and default to the current time with a 30-second period:
 
 ```typescript
 import { getRemainingTime } from "@otplib/totp";
 
-const seconds = getRemainingTime(
-  Math.floor(Date.now() / 1000), // time
-  30, // period
-  0, // t0
-);
-
-// Returns: number of seconds remaining
+const seconds = getRemainingTime(); // uses current time, period=30, t0=0
+const seconds2 = getRemainingTime(epoch, 30); // explicit time and period
 ```
 
 ### getTimeStepUsed
 
-Get the time step used for a specific time:
+Get the current TOTP counter (time step) value. All parameters are optional:
 
 ```typescript
 import { getTimeStepUsed } from "@otplib/totp";
 
-const counter = getTimeStepUsed(
-  Math.floor(Date.now() / 1000), // time
-  30, // period
-  0, // t0
-);
+const counter = getTimeStepUsed(); // uses current time, period=30, t0=0
+const counter2 = getTimeStepUsed(epoch, 30); // explicit time and period
+```
 
-// Returns: the counter value
+### Sync Variants
+
+`generateSync` and `verifySync` are synchronous alternatives with the same signatures. They require a crypto plugin that supports sync HMAC operations, such as `@otplib/plugin-crypto-node` or `@otplib/plugin-crypto-noble`. Using them with `@otplib/plugin-crypto-web` will throw.
+
+```typescript
+import { generateSync, verifySync } from "@otplib/totp";
+import { crypto } from "@otplib/plugin-crypto-node";
+
+const token = generateSync({ secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", crypto });
+const result = verifySync({ secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", token, crypto });
 ```
 
 ## Documentation

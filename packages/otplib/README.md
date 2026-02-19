@@ -10,19 +10,18 @@ TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime (N
 ## Features
 
 - **Zero Configuration** - Works out of the box with sensible defaults
-- **RFC Compliant** - RFC 6238 (TOTP) and RFC 4226 (HOTP)
+- **RFC Compliant** - RFC 6238 (TOTP) and RFC 4226 (HOTP) + Google Authenticator Compatible
 - **TypeScript-First** - Full type definitions
 - **Plugin Interface** - Flexible plugin system for customising your cryptographic and base32 requirements (if you want to deviate from the defaults)
 - **Cross-platform** - Tested against Node.js, Bun, Deno, and browsers
-- **Google Authenticator Compatible** - Full otpauth:// URI support
 - **Security-audited plugins** — Default crypto uses `@noble/hashes` and `@scure/base`, both independently audited
 - **Async-first API** — All operations are async by default; sync variants available for compatible plugins
 
 > [!IMPORTANT] Breaking Changes (v13)
-> v13 is a complete rewrite with breaking changes.
+> v13 is a complete rewrite with breaking changes. For example:
 >
-> - **Removed Separate authenticator package** — TOTP now covers all authenticator functionality
-> - **Removed Outdated plugins** — Legacy crypto adapters removed in favor of modern, audited alternatives
+> - **(Removed) Separate authenticator package** — TOTP now covers all authenticator functionality with default plugins
+> - **(Removed) Outdated plugins** — Legacy crypto adapters removed in favor of modern, audited alternatives
 >
 > See [Migration Guide](https://otplib.yeojz.dev/guide/v12-adapter.html) for details.
 
@@ -54,8 +53,9 @@ const secret = generateSecret();
 // Generate a TOTP token
 const token = await generate({ secret });
 
-// Verify a token
-const isValid = await verify({ secret, token });
+// Verify a token — returns VerifyResult, not a boolean
+const result = await verify({ secret, token });
+console.log(result.valid); // true or false
 
 // Generate QR code URI for authenticator apps
 const uri = generateURI({
@@ -65,12 +65,14 @@ const uri = generateURI({
 });
 ```
 
+Sync variants (`generateSync`, `verifySync`) are available when using a sync-compatible crypto plugin such as `@otplib/plugin-crypto-node` or `@otplib/plugin-crypto-noble`.
+
 ### Class API
 
 ```typescript
 import { OTP } from "otplib";
 
-// Create OTP instance (defaults to TOTP)
+// Create OTP instance (defaults to TOTP strategy)
 const otp = new OTP();
 
 // Generate a secret
@@ -79,8 +81,9 @@ const secret = otp.generateSecret();
 // Generate a TOTP token
 const token = await otp.generate({ secret });
 
-// Verify a token
-const isValid = await otp.verify({ secret, token });
+// Verify a token — returns VerifyResult, not a boolean
+const result = await otp.verify({ secret, token });
+console.log(result.valid); // true or false
 
 // Generate QR code URI for authenticator apps
 const uri = otp.generateURI({
@@ -88,6 +91,23 @@ const uri = otp.generateURI({
   label: "user@example.com",
   secret,
 });
+```
+
+The class also exposes `generateSync` and `verifySync` for use with sync-compatible crypto plugins.
+
+#### HOTP (counter-based) with the Class API
+
+Pass `strategy: 'hotp'` to switch to counter-based OTP. A `counter` value is required for generation and verification.
+
+```typescript
+import { OTP } from "otplib";
+
+const otp = new OTP({ strategy: "hotp" });
+const secret = otp.generateSecret();
+
+const token = await otp.generate({ secret, counter: 0 });
+const result = await otp.verify({ secret, token, counter: 0 });
+console.log(result.valid); // true or false
 ```
 
 ## Notes
@@ -103,7 +123,7 @@ const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY";
 
 However, if you need to use secrets in other formats, you can either use the `plugin-base32-alt` plugin for raw strings or pass a byte array (using `stringToBytes` helper) for binary data.
 
-For more details and examples, see the [Secret Handling Guide](https://otplib.yeojz.dev/guide/secret-handling.md) and related plugin documentation in the guides directory.
+For more details and examples, see the [Secret Handling Guide](https://otplib.yeojz.dev/guide/secret-handling) and related plugin documentation in the guides directory.
 
 ## Documentation
 

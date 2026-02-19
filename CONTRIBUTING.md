@@ -4,10 +4,10 @@ Thank you for your interest in contributing to otplib! This guide covers everyth
 
 ## Development Setup
 
-### Prerequisites
+### Environment
 
-- Node.js >= 20.0.0
-- pnpm >= 10.0.0
+- Node.js >= 24.0.0
+- pnpm >= 10.30.1
 
 ### Getting Started
 
