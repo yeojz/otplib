@@ -13,14 +13,14 @@
     "docs:benchmarks": "tsx src/generate-json.ts"
   },
   "dependencies": {
-    "@otplib/core": "workspace:*",
-    "@otplib/hotp": "workspace:*",
-    "@otplib/totp": "workspace:*",
-    "@otplib/uri": "workspace:*",
-    "@otplib/plugin-base32-scure": "workspace:*",
-    "@otplib/plugin-crypto-node": "workspace:*",
-    "@otplib/plugin-crypto-noble": "workspace:*",
-    "@repo/testing": "workspace:*"
+    "@otplib/core": "*",
+    "@otplib/hotp": "*",
+    "@otplib/totp": "*",
+    "@otplib/uri": "*",
+    "@otplib/plugin-base32-scure": "*",
+    "@otplib/plugin-crypto-node": "*",
+    "@otplib/plugin-crypto-noble": "*",
+    "@repo/testing": "*"
   },
   "devDependencies": {
     "tinybench": "^6.0.0",

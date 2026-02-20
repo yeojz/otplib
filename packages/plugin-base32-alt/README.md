@@ -7,7 +7,6 @@ Base32 encoding.
 
 ```bash
 npm install @otplib/plugin-base32-alt
-pnpm add @otplib/plugin-base32-alt
 yarn add @otplib/plugin-base32-alt
 ```
 

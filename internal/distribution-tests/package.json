@@ -11,15 +11,15 @@
     "test:dist-deno": "deno test --allow-read --no-check src/deno.test.ts"
   },
   "dependencies": {
-    "@otplib/core": "workspace:*",
-    "@otplib/hotp": "workspace:*",
-    "@otplib/totp": "workspace:*",
-    "@otplib/uri": "workspace:*",
-    "otplib": "workspace:*",
-    "@otplib/plugin-base32-scure": "workspace:*",
-    "@otplib/plugin-crypto-node": "workspace:*",
-    "@otplib/plugin-crypto-noble": "workspace:*",
-    "@otplib/plugin-crypto-web": "workspace:*",
-    "@repo/testing": "workspace:*"
+    "@otplib/core": "*",
+    "@otplib/hotp": "*",
+    "@otplib/totp": "*",
+    "@otplib/uri": "*",
+    "otplib": "*",
+    "@otplib/plugin-base32-scure": "*",
+    "@otplib/plugin-crypto-node": "*",
+    "@otplib/plugin-crypto-noble": "*",
+    "@otplib/plugin-crypto-web": "*",
+    "@repo/testing": "*"
   }
 }

@@ -53,13 +53,13 @@
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "dependencies": {
-    "@otplib/core": "workspace:*"
+    "@otplib/core": "*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
-    "@repo/testing": "workspace:*"
+    "@repo/testing": "*"
   },
   "publishConfig": {
     "access": "public"

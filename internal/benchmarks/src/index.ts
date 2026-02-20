@@ -4,14 +4,14 @@
  * Runs all benchmark suites and outputs a summary.
  *
  * Usage:
- *   pnpm --filter @repo/benchmarks bench
+ *   npm run bench -w @repo/benchmarks
  *
  * Individual suites:
- *   pnpm --filter @repo/benchmarks bench:hotp
- *   pnpm --filter @repo/benchmarks bench:totp
- *   pnpm --filter @repo/benchmarks bench:base32
- *   pnpm --filter @repo/benchmarks bench:utils
- *   pnpm --filter @repo/benchmarks bench:uri
+ *   npm run bench:hotp -w @repo/benchmarks
+ *   npm run bench:totp -w @repo/benchmarks
+ *   npm run bench:base32 -w @repo/benchmarks
+ *   npm run bench:utils -w @repo/benchmarks
+ *   npm run bench:uri -w @repo/benchmarks
  */
 
 import {

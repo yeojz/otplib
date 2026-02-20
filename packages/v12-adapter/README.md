@@ -10,7 +10,6 @@ This adapter mimics the v12 synchronous API while using v13's plugins under the 
 
 ```bash
 npm install @otplib/v12-adapter
-pnpm add @otplib/v12-adapter
 yarn add @otplib/v12-adapter
 ```
 

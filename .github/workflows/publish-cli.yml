@@ -27,23 +27,20 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
-
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ env.NODE_VERSION_TARGET }}
-          cache: "pnpm"
+          cache: "npm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Build CLI
-        run: pnpm --filter otplib-cli build
+        run: npm run build -w otplib-cli
 
       - name: Dry run publish
-        run: pnpm --filter otplib-cli publish --access public --no-git-checks --dry-run
+        run: npm publish -w otplib-cli --access public --dry-run
 
   publish-npm:
     environment: production
@@ -61,25 +58,22 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
-
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         with:
           node-version: ${{ env.NODE_VERSION_TARGET }}
-          cache: "pnpm"
+          cache: "npm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Build CLI
-        run: pnpm --filter otplib-cli build
+        run: npm run build -w otplib-cli
 
       - name: Publish to npm
-        run: pnpm --filter otplib-cli publish --access public --no-git-checks
+        run: npm publish -w otplib-cli --access public
         env:
           NPM_CONFIG_PROVENANCE: true
 
@@ -90,7 +84,7 @@ jobs:
       - name: Pack release artifact
         run: |
           mkdir -p release-artifacts
-          pnpm --filter otplib-cli exec npm pack --pack-destination ${{ github.workspace }}/release-artifacts
+          npm pack -w otplib-cli --pack-destination ${{ github.workspace }}/release-artifacts
 
       - name: Create GitHub Release
         if: success()

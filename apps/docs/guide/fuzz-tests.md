@@ -22,5 +22,5 @@ These tests are located in the internal `@repo/fuzz-tests` package.
 
 ```bash
 # Run all fuzz tests
-pnpm --filter @repo/fuzz-tests test
+npm run test -w @repo/fuzz-tests
 ```

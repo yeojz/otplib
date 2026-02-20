@@ -1,16 +1,13 @@
 ARG IMAGE_TAG=24-alpine
 FROM node:${IMAGE_TAG}
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
-
 WORKDIR /workspace
 
 # Copy everything (including pre-built dist/)
 COPY . .
 
 # Install dependencies (for running tests)
-RUN pnpm install --frozen-lockfile
+RUN npm ci
 
 # Default command (can be overridden)
-CMD ["pnpm", "test:ci"]
+CMD ["npm", "run", "test:ci"]

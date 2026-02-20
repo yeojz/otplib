@@ -9,7 +9,7 @@ services:
     volumes:
       - bun-1-node-modules:/workspace/node_modules
     working_dir: /workspace
-    command: sh -c "pnpm install --frozen-lockfile && bun test ./packages/*/src/*.bun.test.ts"
+    command: sh -c "npm ci && bun test ./packages/*/src/*.bun.test.ts"
 
   # Deno 1.x
   deno-1:
@@ -28,7 +28,7 @@ services:
       - sh
       - -c
       - |
-        pnpm install --frozen-lockfile
+        npm ci
         sed -i 's/"nodeModulesDir": "auto"/"nodeModulesDir": true/' deno.json
         sed -i 's/"version": "5"/"version": "3"/' deno.lock
         deno test --allow-read --no-check --unstable-sloppy-imports packages/*/src/*.deno.test.ts
@@ -46,7 +46,7 @@ services:
     environment:
       - DENO_DIR=/deno-dir
     working_dir: /workspace
-    command: sh -c "pnpm install --frozen-lockfile && deno test --allow-read --no-check packages/*/src/*.deno.test.ts"
+    command: sh -c "npm ci && deno test --allow-read --no-check packages/*/src/*.deno.test.ts"
 
   # Node.js 20
   node-20:
@@ -58,7 +58,7 @@ services:
     volumes:
       - node-20-node-modules:/workspace/node_modules
     working_dir: /workspace
-    command: pnpm test:ci run
+    command: npm run test:ci
 
   # Node.js 22
   node-22:
@@ -70,7 +70,7 @@ services:
     volumes:
       - node-22-node-modules:/workspace/node_modules
     working_dir: /workspace
-    command: pnpm test:ci run
+    command: npm run test:ci
 
   # Node.js 24
   node-24:
@@ -82,7 +82,7 @@ services:
     volumes:
       - node-24-node-modules:/workspace/node_modules
     working_dir: /workspace
-    command: pnpm test:ci run
+    command: npm run test:ci
 
 volumes:
   bun-1-node-modules:

@@ -8,14 +8,14 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@otplib/core": "workspace:*",
-    "@otplib/hotp": "workspace:*",
-    "@otplib/totp": "workspace:*",
-    "@otplib/uri": "workspace:*",
-    "@otplib/plugin-crypto-node": "workspace:*",
-    "@otplib/plugin-crypto-noble": "workspace:*",
-    "@otplib/plugin-base32-scure": "workspace:*",
-    "@repo/testing": "workspace:*"
+    "@otplib/core": "*",
+    "@otplib/hotp": "*",
+    "@otplib/totp": "*",
+    "@otplib/uri": "*",
+    "@otplib/plugin-crypto-node": "*",
+    "@otplib/plugin-crypto-noble": "*",
+    "@otplib/plugin-base32-scure": "*",
+    "@repo/testing": "*"
   },
   "devDependencies": {
     "fast-check": "^4.5.3",

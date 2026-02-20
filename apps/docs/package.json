@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "qrcode": "^1.5.4",
-    "otplib": "workspace:*"
+    "otplib": "*"
   },
   "devDependencies": {
     "vitepress": "^1.6.4"

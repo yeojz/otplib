@@ -16,7 +16,6 @@ Core types, interfaces, and utilities for the otplib OTP library suite.
 
 ```bash
 npm install @otplib/core
-pnpm add @otplib/core
 yarn add @otplib/core
 ```
 

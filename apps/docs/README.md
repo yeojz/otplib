@@ -6,10 +6,10 @@ Documentation site for otplib, built with [VitePress](https://vitepress.dev/).
 
 ```bash
 # Start development server
-pnpm dev
+npm run docs:dev
 
 # Or from root
-pnpm docs:dev
+npm run docs:dev
 ```
 
 The site will be available at `http://localhost:5173`.
@@ -18,10 +18,10 @@ The site will be available at `http://localhost:5173`.
 
 ```bash
 # Build for production
-pnpm build
+npm run docs:build
 
 # Or from root
-pnpm docs:build
+npm run docs:build
 ```
 
 Output will be in the `.vitepress/dist/` directory.
@@ -30,10 +30,10 @@ Output will be in the `.vitepress/dist/` directory.
 
 ```bash
 # Serve production build locally
-pnpm serve
+npm run docs:serve
 
 # Or from root
-pnpm docs:serve
+npm run docs:serve
 ```
 
 ## Structure

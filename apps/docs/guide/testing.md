@@ -30,28 +30,28 @@ The `test:docker` command runs tests in Docker containers for each runtime:
 
 ```bash
 # Test all runtimes
-pnpm run test:docker
+npm run test:docker
 
 # Test specific runtime
-pnpm run test:docker node-20
-pnpm run test:docker node-22
-pnpm run test:docker node-24
-pnpm run test:docker bun-1
-pnpm run test:docker deno-1
-pnpm run test:docker deno-2
+npm run test:docker node-20
+npm run test:docker node-22
+npm run test:docker node-24
+npm run test:docker bun-1
+npm run test:docker deno-1
+npm run test:docker deno-2
 ```
 
 ### Available Runtimes
 
-| Runtime   | Command                        | Description                     |
-| --------- | ------------------------------ | ------------------------------- |
-| `node-20` | `pnpm run test:docker node-20` | Tests on Node.js 20 Alpine      |
-| `node-22` | `pnpm run test:docker node-22` | Tests on Node.js 22             |
-| `node-24` | `pnpm run test:docker node-24` | Tests on Node.js 24             |
-| `bun-1`   | `pnpm run test:docker bun-1`   | Tests on Bun 1.3 Alpine         |
-| `deno-1`  | `pnpm run test:docker deno-1`  | Tests on Deno 1.x               |
-| `deno-2`  | `pnpm run test:docker deno-2`  | Tests on Deno 2.x               |
-| `all`     | `pnpm run test:docker`         | Tests all runtimes sequentially |
+| Runtime   | Command                       | Description                     |
+| --------- | ----------------------------- | ------------------------------- |
+| `node-20` | `npm run test:docker node-20` | Tests on Node.js 20 Alpine      |
+| `node-22` | `npm run test:docker node-22` | Tests on Node.js 22             |
+| `node-24` | `npm run test:docker node-24` | Tests on Node.js 24             |
+| `bun-1`   | `npm run test:docker bun-1`   | Tests on Bun 1.3 Alpine         |
+| `deno-1`  | `npm run test:docker deno-1`  | Tests on Deno 1.x               |
+| `deno-2`  | `npm run test:docker deno-2`  | Tests on Deno 2.x               |
+| `all`     | `npm run test:docker`         | Tests all runtimes sequentially |
 
 ### Docker Test Architecture
 
@@ -255,7 +255,7 @@ docker compose down
 Docker tests may take longer than CI. Consider testing individual runtimes:
 
 ```bash
-pnpm run test:docker node-20
+npm run test:docker node-20
 ```
 
 ### Artifact download fails in CI
@@ -270,7 +270,7 @@ Check that:
 
 1. **Run local checks before pushing** - Use `./scripts/test-ci.sh all-checks`
 2. **Test artifact flow** - Use `./scripts/test-ci.sh artifacts` to verify cross-runtime compatibility
-3. **Use Docker for final validation** - Run `pnpm run test:docker` to match CI environment
+3. **Use Docker for final validation** - Run `npm run test:docker` to match CI environment
 4. **Check CI logs** - GitHub Actions provides detailed logs for debugging
 5. **Monitor artifact size** - Build job checks bundle size automatically
 
@@ -281,7 +281,7 @@ When contributing to otplib:
 1. Write tests for new functionality
 2. Ensure tests pass locally: `./scripts/test-ci.sh all-checks`
 3. Verify cross-runtime compatibility: `./scripts/test-ci.sh artifacts`
-4. Optionally validate in Docker: `pnpm run test:docker`
+4. Optionally validate in Docker: `npm run test:docker`
 5. Push your changes and let CI run the full test suite
 
 For more information on contributing, see the [Contributing Guide](https://github.com/yeojz/otplib/blob/main/CONTRIBUTING.md).

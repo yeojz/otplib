@@ -6,7 +6,6 @@ RFC 6238 TOTP implementation for otplib.
 
 ```bash
 npm install @otplib/totp
-pnpm install @otplib/totp
 yarn add @otplib/totp
 ```
 

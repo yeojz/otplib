@@ -2,15 +2,15 @@ pre-commit:
   parallel: true
   commands:
     format:
-      run: pnpm format:check
+      run: npm run format:check
       stage_fixed: true
     lint:
-      run: pnpm lint
+      run: npm run lint
     typecheck:
-      run: pnpm typecheck
+      run: npm run typecheck
 
 pre-push:
   parallel: true
   commands:
     test:
-      run: pnpm test
+      run: npm test

@@ -6,7 +6,6 @@ Base32 encoding/decoding plugin for otplib using the `@scure/base` library.
 
 ```bash
 npm install @otplib/plugin-base32-scure
-pnpm add @otplib/plugin-base32-scure
 yarn add @otplib/plugin-base32-scure
 ```
 

@@ -14,7 +14,7 @@ Benchmarks are located in the internal `@repo/benchmarks` package.
 
 ```bash
 # Run all benchmarks
-pnpm --filter @repo/benchmarks bench
+npm run bench -w @repo/benchmarks
 ```
 
 ## Performance Results

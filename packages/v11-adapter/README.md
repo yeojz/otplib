@@ -10,7 +10,6 @@ This adapter mimics the v11 API while using v13's plugins under the hood. Howeve
 
 ```bash
 npm install @otplib/preset-v11
-pnpm add @otplib/preset-v11
 yarn add @otplib/preset-v11
 ```
 

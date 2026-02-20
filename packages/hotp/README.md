@@ -6,7 +6,6 @@ RFC 4226 HOTP implementation for otplib.
 
 ```bash
 npm install @otplib/hotp
-pnpm install @otplib/hotp
 yarn add @otplib/hotp
 ```
 

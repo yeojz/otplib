@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "commander": "^14.0.3",
-    "otplib": "workspace:*"
+    "otplib": "*"
   },
   "devDependencies": {
     "@types/node": "^25.3.0",

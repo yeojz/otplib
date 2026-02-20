@@ -23,7 +23,7 @@ onMounted(async () => {
     <div v-if="loading">Loading benchmarks...</div>
     <div v-else-if="error">
       Failed to load benchmark data. Run
-      <code>pnpm --filter @repo/benchmarks generate-data</code> to generate it.
+      <code>npm run docs:benchmarks -w @repo/benchmarks</code> to generate it.
     </div>
     <div v-else>
       <p>

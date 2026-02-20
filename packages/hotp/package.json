@@ -54,13 +54,13 @@
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "dependencies": {
-    "@otplib/core": "workspace:*",
-    "@otplib/uri": "workspace:*"
+    "@otplib/core": "*",
+    "@otplib/uri": "*"
   },
   "devDependencies": {
-    "@otplib/plugin-base32-scure": "workspace:*",
-    "@otplib/plugin-crypto-node": "workspace:*",
-    "@repo/testing": "workspace:*",
+    "@otplib/plugin-base32-scure": "*",
+    "@otplib/plugin-crypto-node": "*",
+    "@repo/testing": "*",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"

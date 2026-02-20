@@ -6,8 +6,8 @@ Thank you for your interest in contributing to otplib! This guide covers everyth
 
 ### Prerequisites
 
-- Node.js >= 20.0.0
-- pnpm >= 8.0.0
+- Node.js >= 22.0.0
+- npm >= 11.0.0
 
 ### Getting Started
 
@@ -17,39 +17,39 @@ git clone https://github.com/yeojz/otplib.git
 cd otplib
 
 # Install dependencies
-pnpm install
+npm install
 ```
 
 ## Common Commands
 
 ```bash
 # Development
-pnpm install          # Install dependencies
-pnpm build            # Build all packages (required before testing)
-pnpm test             # Run all tests
-pnpm test:ci          # Run tests with coverage
-pnpm fix              # Lint + format (run before commits)
-pnpm typecheck        # TypeScript validation
+npm install           # Install dependencies
+npm run build         # Build all packages (required before testing)
+npm test              # Run all tests
+npm run test:ci       # Run tests with coverage
+npm run fix           # Lint + format (run before commits)
+npm run typecheck     # TypeScript validation
 
 # Single package testing
-pnpm --filter @otplib/core test -- --project packages
-pnpm --filter otplib-cli test -- --project otplib-cli
+npm run test -w @otplib/core -- --project packages
+npm run test -w otplib-cli -- --project otplib-cli
 
 # Run specific test file
-pnpm vitest run packages/core/src/utils.test.ts
+npx vitest run packages/core/src/utils.test.ts
 
 # Multi-runtime distribution tests (See #Testing)
-pnpm test:dist-bun    # Bun distribution tests
-pnpm test:dist-deno   # Deno distribution tests
+npm run test:dist-bun    # Bun distribution tests
+npm run test:dist-deno   # Deno distribution tests
 # OR
-pnpm test:docker bun-1
+npm run test:docker bun-1
 
 # Documentation
-pnpm docs:dev         # Start docs dev server. (Requires a manual pnpm run build before running)
-pnpm docs:build       # Build documentation
+npm run docs:dev         # Start docs dev server. (Requires a manual npm run build before running)
+npm run docs:build       # Build documentation
 
 # Other
-pnpm size             # Check bundle sizes
+npm run size             # Check bundle sizes
 ```
 
 ## Project Structure
@@ -95,26 +95,26 @@ otplib/
 **Unit Tests** (`packages/*/src/*.test.ts`)
 
 - Test source code directly using Vitest
-- Run with `pnpm test` or `pnpm test:ci` (with coverage)
+- Run with `npm test` or `npm run test:ci` (with coverage)
 
 **Distribution Tests** (`internal/distribution-tests/`)
 
 - Test built artifacts (dist/) across Node.js 20/22/24, Deno, and Bun
 - Ensures published packages work correctly in all target runtimes
-- Run with `pnpm build && pnpm test:dist-node`
+- Run with `npm run build && npm run test:dist-node`
 
 ### Local Testing
 
 ```bash
 # Unit tests (source code)
-pnpm test
-pnpm test:ci          # with coverage
+npm test
+npm run test:ci          # with coverage
 
 # Distribution tests (built artifacts)
-pnpm build            # Required: build packages first
-pnpm test:dist-node   # Node.js distribution tests
-pnpm test:dist-bun    # Bun distribution tests (requires Bun)
-pnpm test:dist-deno   # Deno distribution tests (requires Deno)
+npm run build            # Required: build packages first
+npm run test:dist-node   # Node.js distribution tests
+npm run test:dist-bun    # Bun distribution tests (requires Bun)
+npm run test:dist-deno   # Deno distribution tests (requires Deno)
 ```
 
 ### Docker-based Multi-Runtime Testing
@@ -146,7 +146,7 @@ See [tests/docker-compose.test.yml](tests/docker-compose.test.yml) for configura
 
 - TypeScript strict mode enabled
 - ESLint and Prettier for formatting
-- Run `pnpm fix` before committing
+- Run `npm run fix` before committing
 
 ### Commit Messages
 
@@ -169,16 +169,16 @@ chore: update dependencies
 4. **Update documentation** if adding/changing APIs
 5. **Run all checks** before submitting:
    ```bash
-   pnpm fix && pnpm typecheck && pnpm test:ci
+   npm run fix && npm run typecheck && npm run test:ci
    ```
 
 ### PR Checklist
 
-- [ ] Tests pass (`pnpm test:ci`)
-- [ ] Coverage thresholds met (if applicable) (`pnpm test:ci`)
-- [ ] Types check (`pnpm typecheck`)
-- [ ] Linting passes (`pnpm lint`)
-- [ ] Code formatted (`pnpm format`)
+- [ ] Tests pass (`npm run test:ci`)
+- [ ] Coverage thresholds met (if applicable) (`npm run test:ci`)
+- [ ] Types check (`npm run typecheck`)
+- [ ] Linting passes (`npm run lint`)
+- [ ] Code formatted (`npm run format`)
 - [ ] Documentation updated (if applicable)
 
 ### Release Process (For Maintainers)

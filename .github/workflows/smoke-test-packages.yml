@@ -16,8 +16,7 @@ env:
 
 jobs:
   # Note:
-  # This workflow uses `npm` instead of `pnpm` for package management
-  # My assumption is that more users are on npm.
+  # This workflow uses `npm` for package management.
   smoke-test-packages:
     environment: general
     name: Smoke Test (Packages)

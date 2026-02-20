@@ -53,7 +53,7 @@
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "dependencies": {
-    "@otplib/core": "workspace:*"
+    "@otplib/core": "*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

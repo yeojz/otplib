@@ -6,7 +6,6 @@ Parse and generate `otpauth://` URIs for OTP account provisioning.
 
 ```bash
 npm install @otplib/uri
-pnpm add @otplib/uri
 yarn add @otplib/uri
 ```
 

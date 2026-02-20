@@ -44,7 +44,6 @@ A web based demo is available at [https://otplib.yeojz.dev](https://otplib.yeojz
 ```bash
 # Node
 npm install otplib
-pnpm add otplib
 yarn add otplib
 ```
 

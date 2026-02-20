@@ -6,7 +6,6 @@ Node.js crypto plugin for otplib using the built-in `crypto` module.
 
 ```bash
 npm install @otplib/plugin-crypto-node
-pnpm add @otplib/plugin-crypto-node
 yarn add @otplib/plugin-crypto-node
 ```
 

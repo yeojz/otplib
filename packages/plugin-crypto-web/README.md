@@ -6,7 +6,6 @@ Web Crypto API plugin for otplib, compatible with browsers and edge runtimes.
 
 ```bash
 npm install @otplib/plugin-crypto-web
-pnpm add @otplib/plugin-crypto-web
 yarn add @otplib/plugin-crypto-web
 ```
 

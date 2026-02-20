@@ -6,7 +6,6 @@ Pure JavaScript crypto plugin for otplib using [@noble/hashes](https://github.co
 
 ```bash
 npm install @otplib/plugin-crypto-noble
-pnpm add @otplib/plugin-crypto-noble
 yarn add @otplib/plugin-crypto-noble
 ```
 
