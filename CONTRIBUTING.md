@@ -7,7 +7,7 @@ Thank you for your interest in contributing to otplib! This guide covers everyth
 ### Prerequisites
 
 - Node.js >= 20.0.0
-- pnpm >= 8.0.0
+- pnpm >= 10.0.0
 
 ### Getting Started
 
