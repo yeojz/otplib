@@ -39,6 +39,9 @@ jobs:
       - name: Build packages
         run: npm run build
 
+      - name: Resolve workspace versions
+        run: node scripts/resolve-workspace-versions.js
+
       - name: Dry run publish
         run: npm run release:packages-dry-run
 
@@ -70,6 +73,9 @@ jobs:
 
       - name: Build packages
         run: npm run build
+
+      - name: Resolve workspace versions
+        run: node scripts/resolve-workspace-versions.js
 
       - name: Publish to npm
         run: npm run release:packages

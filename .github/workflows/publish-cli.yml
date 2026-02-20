@@ -39,6 +39,9 @@ jobs:
       - name: Build CLI
         run: npm run build -w otplib-cli
 
+      - name: Resolve workspace versions
+        run: node scripts/resolve-workspace-versions.js
+
       - name: Dry run publish
         run: npm publish -w otplib-cli --access public --dry-run
 
@@ -71,6 +74,9 @@ jobs:
 
       - name: Build CLI
         run: npm run build -w otplib-cli
+
+      - name: Resolve workspace versions
+        run: node scripts/resolve-workspace-versions.js
 
       - name: Publish to npm
         run: npm publish -w otplib-cli --access public
