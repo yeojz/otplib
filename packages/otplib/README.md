@@ -5,7 +5,7 @@ TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime (N
 > [!TIP] Demo
 > A web based demo is available at [https://otplib.yeojz.dev](https://otplib.yeojz.dev).
 >
-> You can scan the TOTP / HOTP QR Code there with your authenticator application
+> You can scan the TOTP / HOTP QR Code samples with your chosen authenticator app to test.
 
 ## Features
 

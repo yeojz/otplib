@@ -19,16 +19,35 @@ Generate a TOTP code:
 ```typescript
 import { generate } from "@otplib/totp";
 import { crypto } from "@otplib/plugin-crypto-node";
-import { base32 } from "@otplib/plugin-base32-scure";
+
+const secret = new Uint8Array([
+  0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
+  0x37, 0x38, 0x39, 0x30,
+]); // 20-byte HMAC key
 
 const token = await generate({
-  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Required: Base32 string or Uint8Array
+  secret, // Required: Uint8Array or Base32 string
   crypto, // Required: crypto plugin
-  base32, // Optional: base32 plugin (required if secret is a string)
   algorithm: "sha1", // Optional: 'sha1' | 'sha256' | 'sha512'
   digits: 6, // Optional: 6 | 7 | 8
   period: 30, // Optional: time step in seconds
   epoch: Date.now() / 1000, // Optional: Unix timestamp in seconds (defaults to now)
+});
+```
+
+#### With Base32 secrets
+
+If your secret is a Base32 string (e.g., from Google Authenticator), provide a `base32` plugin to decode it:
+
+```typescript
+import { generate } from "@otplib/totp";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { base32 } from "@otplib/plugin-base32-scure";
+
+const token = await generate({
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
+  crypto,
+  base32, // Required when secret is a string
 });
 ```
 
@@ -39,13 +58,11 @@ Verify a TOTP code:
 ```typescript
 import { verify } from "@otplib/totp";
 import { crypto } from "@otplib/plugin-crypto-node";
-import { base32 } from "@otplib/plugin-base32-scure";
 
 const result = await verify({
-  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Required: Base32 string or Uint8Array
+  secret, // Required: Uint8Array or Base32 string
   token: "123456", // Required: token to verify
   crypto, // Required: crypto plugin
-  base32, // Optional: base32 plugin (required if secret is a string)
   algorithm: "sha1", // Optional: hash algorithm
   digits: 6, // Optional: expected digits
   period: 30, // Optional: time step in seconds
@@ -91,8 +108,13 @@ const counter2 = getTimeStepUsed(epoch, 30); // explicit time and period
 import { generateSync, verifySync } from "@otplib/totp";
 import { crypto } from "@otplib/plugin-crypto-node";
 
-const token = generateSync({ secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", crypto });
-const result = verifySync({ secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", token, crypto });
+const secret = new Uint8Array([
+  0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
+  0x37, 0x38, 0x39, 0x30,
+]);
+
+const token = generateSync({ secret, crypto });
+const result = verifySync({ secret, token, crypto });
 ```
 
 ## Documentation
