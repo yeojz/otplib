@@ -4,13 +4,20 @@ Core types, interfaces, and utilities for the otplib OTP library suite.
 
 ## Overview
 
-`@otplib/core` provides the foundational abstractions for all otplib packages. It includes:
+`@otplib/core` provides the foundational abstractions for all otplib packages:
 
-- **Type Definitions**: TypeScript interfaces for OTP operations
-- **Error Classes**: Hierarchical error types for validation and crypto operations
-- **Validation Utilities**: Input validation for secrets, counters, time, and tokens
-- **Crypto Abstraction**: Pluggable crypto backend via `CryptoContext`
-- **Base32 Abstraction**: Pluggable Base32 encoding/decoding via `Base32Context`
+- **Type Definitions** - TypeScript interfaces for OTP operations
+- **Error Classes** - Hierarchical error types for validation and crypto operations
+- **Validation Utilities** - Input validation for secrets, counters, time, and tokens
+- **Crypto Abstraction** - Pluggable crypto backend via `CryptoContext`
+- **Base32 Abstraction** - Pluggable Base32 encoding/decoding via `Base32Context`
+
+This package is primarily used as a dependency by other otplib packages. Direct usage is only necessary when building custom plugins or extending the library.
+
+> [!IMPORTANT] Breaking Changes (v13)
+> The `totp` and `hotp` specific logic have been moved to their individual packages.
+>
+> See [Getting Started](https://otplib.yeojz.dev/guide/getting-started) for details.
 
 ## Installation
 
@@ -20,278 +27,136 @@ pnpm add @otplib/core
 yarn add @otplib/core
 ```
 
-## Core Concepts
+## Usage
 
-### Plugin Architecture
+`@otplib/core` provides baseline functionality and definitions for the library suite. It defines the errors, input validations and the plugin interfaces.
 
-otplib uses a plugin architecture for both cryptographic operations and Base32 encoding:
+### Catching specific error types
 
-```typescript
-import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
-
-// Crypto plugins implement HMAC and random byte generation
-interface CryptoPlugin {
-  name: string;
-  hmac(
-    algorithm: HashAlgorithm,
-    key: Uint8Array,
-    data: Uint8Array,
-  ): Uint8Array | Promise<Uint8Array>;
-  randomBytes(length: number): Uint8Array;
-}
-
-// Base32 plugins implement encoding and decoding
-interface Base32Plugin {
-  name: string;
-  encode(data: Uint8Array, options?: Base32EncodeOptions): string;
-  decode(str: string): Uint8Array;
-}
-```
-
-### CryptoContext
-
-The `CryptoContext` class provides a unified interface for crypto operations:
+All otplib errors extend `OTPError`. Import concrete subclasses to distinguish them in a catch block.
 
 ```typescript
-import { createCryptoContext } from "@otplib/core";
-import { crypto as plugin } from "@otplib/plugin-crypto-node";
-
-const crypto = createCryptoContext(plugin);
-
-// Async HMAC computation
-const digest = await crypto.hmac("sha1", key, data);
-
-// Sync HMAC computation
-const digest = crypto.hmacSync("sha1", key, data);
-
-// Random bytes
-const secret = crypto.randomBytes(20);
-```
-
-### Base32Context
-
-The `Base32Context` class provides a unified interface for Base32 operations:
-
-```typescript
-import { createBase32Context } from "@otplib/core";
-import { base32 as plugin } from "@otplib/plugin-base32-scure";
-
-const base32 = createBase32Context(plugin);
-
-// Encode binary data to Base32
-const encoded = base32.encode(new Uint8Array([1, 2, 3]), { padding: false });
-
-// Decode Base32 string to binary
-const decoded = base32.decode("MFRGGZDFMZTWQ");
-```
-
-## Validation Utilities
-
-### Secret Validation
-
-```typescript
-import { validateSecret, MIN_SECRET_BYTES, RECOMMENDED_SECRET_BYTES } from "@otplib/core";
+import { Base32DecodeError, HMACError, SecretTooShortError } from "@otplib/core";
 
 try {
-  validateSecret(secretBytes);
-} catch (error) {
-  if (error instanceof SecretTooShortError) {
-    console.error(`Secret must be at least ${MIN_SECRET_BYTES} bytes`);
-  } else if (error instanceof SecretTooLongError) {
-    console.error(`Secret must not exceed ${RECOMMENDED_SECRET_BYTES} bytes`);
+  const token = await generate({ secret, crypto, base32 });
+} catch (err) {
+  if (err instanceof SecretTooShortError) {
+    // secret is fewer than 16 bytes (128 bits)
+  } else if (err instanceof Base32DecodeError) {
+    // secret string contained invalid Base32 characters
+  } else if (err instanceof HMACError) {
+    // the crypto plugin's HMAC operation failed; err.cause holds the original error
   }
 }
 ```
 
-### Counter Validation
+### Validating inputs
+
+Use the validation utilities before passing values to generation or verification functions.
 
 ```typescript
-import { validateCounter, MAX_COUNTER } from "@otplib/core";
+import { validateSecret, validateToken, validateCounter } from "@otplib/core";
 
-try {
-  validateCounter(123n);
-  validateCounter(0);
-} catch (error) {
-  if (error instanceof CounterNegativeError) {
-    console.error("Counter cannot be negative");
-  } else if (error instanceof CounterOverflowError) {
-    console.error(`Counter exceeds maximum (${MAX_COUNTER})`);
-  }
-}
+// validateSecret accepts a decoded Uint8Array
+validateSecret(decodedSecretBytes); // throws SecretTooShortError / SecretTooLongError
+
+// validateToken checks length and digit-only format
+validateToken(token, 6); // throws TokenLengthError or TokenFormatError
+
+// validateCounter checks for negatives, non-integers, and overflow
+validateCounter(counter); // throws CounterNegativeError / CounterNotIntegerError / CounterOverflowError
 ```
 
-### Time and Period Validation
+### Creating a custom crypto plugin
+
+`createCryptoPlugin` wraps your HMAC and random-bytes implementations into a `CryptoPlugin` that any otplib package accepts.
 
 ```typescript
-import { validateTime, validatePeriod, MIN_PERIOD, MAX_PERIOD } from "@otplib/core";
+import { createCryptoPlugin } from "@otplib/core";
 
-validateTime(Math.floor(Date.now() / 1000));
-validatePeriod(30); // Default TOTP period
+const myCrypto = createCryptoPlugin({
+  name: "my-crypto",
+  hmac: async (algorithm, key, data) => {
+    // Return Uint8Array — async and sync returns are both accepted
+  },
+  randomBytes: (length) => {
+    // Return a cryptographically secure Uint8Array of the requested length
+  },
+});
 ```
 
-### Token Validation
+### Creating a custom Base32 plugin
+
+`createBase32Plugin` wraps encode/decode functions into a `Base32Plugin`. Use this to bypass Base32 entirely or to integrate an alternative encoding library.
 
 ```typescript
-import { validateToken } from "@otplib/core";
+import { createBase32Plugin, stringToBytes, bytesToString } from "@otplib/core";
 
-try {
-  validateToken("123456", 6);
-} catch (error) {
-  if (error instanceof TokenLengthError) {
-    console.error("Token has incorrect length");
-  } else if (error instanceof TokenFormatError) {
-    console.error("Token must contain only digits");
-  }
-}
+// Example: UTF-8 passthrough (no Base32 encoding)
+const plaintextPlugin = createBase32Plugin({
+  name: "plaintext",
+  encode: bytesToString,
+  decode: stringToBytes,
+});
 ```
 
-## Utility Functions
+### Converting secret formats
 
-### Counter Conversion
+`stringToBytes` and `bytesToString` convert between UTF-8 strings and `Uint8Array`. Use `stringToBytes` when you have a raw passphrase rather than a Base32-encoded secret.
 
 ```typescript
-import { counterToBytes } from "@otplib/core";
+import { stringToBytes, bytesToString } from "@otplib/core";
 
-// Convert counter to 8-byte big-endian array
-const counterBytes = counterToBytes(42n);
-// Output: Uint8Array [0, 0, 0, 0, 0, 0, 0, 42]
+// Raw passphrase → Uint8Array for use as secret bytes
+const secretBytes = stringToBytes("my-raw-passphrase");
+
+// Uint8Array → string (UTF-8 decode)
+const str = bytesToString(secretBytes);
 ```
 
-### Dynamic Truncation (RFC 4226)
+`normalizeSecret` handles the common case of accepting either a Base32 string or a `Uint8Array` and returning bytes, given a Base32 plugin.
 
 ```typescript
-import { dynamicTruncate } from '@otplib/core';
+import { normalizeSecret } from "@otplib/core";
 
-// Extract 31-bit integer from HMAC result
-const hmacResult = new Uint8Array([...]); // 20 bytes for SHA-1
-const truncated = dynamicTruncate(hmacResult);
+const bytes = normalizeSecret("JBSWY3DPEHPK3PXP", base32Plugin);
+// or pass Uint8Array directly — returned unchanged
+const bytes2 = normalizeSecret(existingUint8Array);
 ```
 
-### OTP Generation
+### Generating a secret with explicit plugins
+
+When using `@otplib/core` directly (rather than the main `otplib` bundle), you must supply the crypto and Base32 plugins explicitly.
 
 ```typescript
-import { truncateDigits } from "@otplib/core";
+import { generateSecret } from "@otplib/core";
+import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
+import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
-// Convert truncated value to OTP string
-const otp = truncateDigits(123456789, 6);
-// Output: "456789"
+const secret = generateSecret({
+  crypto: new NodeCryptoPlugin(),
+  base32: new ScureBase32Plugin(),
+  length: 20, // 160 bits — RFC 4226 recommendation
+});
 ```
-
-### Constant-Time Comparison
-
-```typescript
-import { constantTimeEqual } from "@otplib/core";
-
-// Timing-safe comparison to prevent timing attacks
-const isValid = constantTimeEqual("123456", "123456");
-const isValid = constantTimeEqual(uint8Array1, uint8Array2);
-```
-
-## Error Handling
-
-All errors extend from `OTPError`:
-
-```typescript
-import {
-  OTPError,
-  SecretError,
-  SecretTooShortError,
-  SecretTooLongError,
-  CounterError,
-  CounterNegativeError,
-  CounterOverflowError,
-  TimeError,
-  PeriodError,
-  TokenError,
-  TokenLengthError,
-  TokenFormatError,
-  CryptoError,
-  HMACError,
-  RandomBytesError,
-} from "@otplib/core";
-
-// Check error types
-try {
-  // ... OTP operation
-} catch (error) {
-  if (error instanceof SecretTooShortError) {
-    // Handle short secret
-  } else if (error instanceof CryptoError) {
-    // Handle crypto failure
-  }
-}
-```
-
-## Type Definitions
-
-### Hash Algorithms
-
-```typescript
-type HashAlgorithm = "sha1" | "sha256" | "sha512";
-```
-
-### OTP Digits
-
-```typescript
-type Digits = 6 | 7 | 8;
-```
-
-### HOTP Options
-
-```typescript
-interface HOTPOptions {
-  secret: Uint8Array;
-  counter: number | bigint;
-  algorithm?: HashAlgorithm;
-  digits?: Digits;
-}
-```
-
-### TOTP Options
-
-```typescript
-interface TOTPOptions {
-  secret: Uint8Array;
-  epoch?: number; // Unix time in seconds
-  algorithm?: HashAlgorithm;
-  digits?: Digits;
-  period?: number; // Time step in seconds (default: 30)
-}
-```
-
-### Verification Options
-
-```typescript
-interface HOTPVerifyOptions extends HOTPOptions {
-  token: string;
-  counterTolerance?: number | [number, number]; // Number: [0, n] look-ahead; Tuple: [past, future]
-}
-
-interface TOTPVerifyOptions extends TOTPOptions {
-  token: string;
-  epochTolerance?: number | [number, number]; // Time tolerance in seconds
-}
-
-interface VerifyResult {
-  valid: boolean;
-  delta?: number; // Counter/time steps from expected value
-}
-```
-
-## Related Packages
-
-- `@otplib/hotp` - HOTP implementation
-- `@otplib/totp` - TOTP implementation
-- `@otplib/plugin-crypto-node` - Node.js crypto plugin
-- `@otplib/plugin-crypto-web` - Web Crypto API plugin
-- `@otplib/plugin-base32-scure` - Base32 plugin using @scure/base
 
 ## Documentation
 
-Full documentation available at [otplib.yeojz.dev](https://otplib.yeojz.dev):
+Full API reference and usage guides at [otplib.yeojz.dev](https://otplib.yeojz.dev):
 
 - [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started)
+- [Plugins Guide](https://otplib.yeojz.dev/guide/plugins)
 - [API Reference](https://otplib.yeojz.dev/api/)
+
+## Related Packages
+
+- `@otplib/hotp` - HOTP implementation (RFC 4226)
+- `@otplib/totp` - TOTP implementation (RFC 6238)
+- `@otplib/plugin-crypto-node` - Node.js crypto plugin
+- `@otplib/plugin-crypto-web` - Web Crypto API plugin
+- `@otplib/plugin-crypto-noble` - Noble hashes crypto plugin
+- `@otplib/plugin-base32-scure` - Base32 plugin using @scure/base
 
 ## License
 

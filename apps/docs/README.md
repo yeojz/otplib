@@ -39,7 +39,7 @@ pnpm docs:serve
 ## Structure
 
 ```
-packages/docs/
+apps/docs/
 ├── .vitepress/           # VitePress configuration
 ├── guide/               # User guide
 ├── api/                 # API reference

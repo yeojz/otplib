@@ -4,10 +4,10 @@ Thank you for your interest in contributing to otplib! This guide covers everyth
 
 ## Development Setup
 
-### Prerequisites
+### Environment
 
-- Node.js >= 20.0.0
-- pnpm >= 10.0.0
+- Node.js >= 24.0.0
+- pnpm >= 10.30.1
 
 ### Getting Started
 
@@ -54,31 +54,9 @@ pnpm size             # Check bundle sizes
 
 ## Project Structure
 
-```
-otplib/
-├── packages/
-│   ├── core/              # Core interfaces, types, utilities
-│   ├── hotp/              # HOTP implementation (RFC 4226)
-│   ├── totp/              # TOTP implementation (RFC 6238)
-│   ├── uri/               # otpauth:// URI generation/parsing
-│   ├── otplib/            # All-in-one bundle
-│   ├── plugin-crypto-node/    # Node.js crypto plugin
-│   ├── plugin-crypto-web/     # Web Crypto API plugin
-│   ├── plugin-crypto-noble/   # Noble hashes plugin
-│   └── plugin-base32-scure/   # Scure base32 plugin
-├── apps/
-│   ├── docs/              # VitePress documentation
-└── internal/
-    ├── benchmarks/        # Performance benchmarks
-    ├── distribution-tests/# Tests for built artifacts across runtimes
-    ├── fuzz-tests/        # Property-based fuzz testing
-    ├── testing/           # Testing utilities and test suites
-    └── typedoc/           # API documentation generator to put in docs/
-```
-
-- `internal/` - Internal packages that are not to be published
-- `packages/` - Part of the core `otplib` ecosystem
-- `apps/` - Applications that uses the library (i.e `packages/`)
+- `packages/` - Published packages in the `otplib` ecosystem (core, hotp, totp, uri, otplib bundle, crypto/base32 plugins)
+- `apps/` - Applications built on top of `packages/` (docs site, CLI)
+- `internal/` - Internal tooling, not published (distribution tests, benchmarks, fuzz tests, test utilities)
 
 ## Testing Requirements
 

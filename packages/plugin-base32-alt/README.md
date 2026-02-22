@@ -108,6 +108,19 @@ const customBypass = createBase32Plugin({
 
 - `CreateBase32PluginOptions` - Options for `createBase32Plugin`
 
+## Documentation
+
+Full documentation available at [otplib.yeojz.dev](https://otplib.yeojz.dev):
+
+- [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started)
+- [Plugins Guide](https://otplib.yeojz.dev/guide/plugins)
+- [API Reference](https://otplib.yeojz.dev/api/)
+
+## Related Packages
+
+- `@otplib/plugin-base32-scure` - Default Base32 plugin using @scure/base (audited)
+- `@otplib/core` - Core types and `createBase32Plugin` factory
+
 ## License
 
 [MIT](./LICENSE)

@@ -14,9 +14,9 @@ yarn add @otplib/plugin-crypto-web
 
 This plugin provides HMAC and random byte generation using the Web Crypto API. It supports all hash algorithms available in modern browsers:
 
-- `SHA-1`
-- `SHA-256`
-- `SHA-512`
+- `sha1`
+- `sha256`
+- `sha512`
 
 ## Usage
 
@@ -61,10 +61,10 @@ The Web Crypto API only supports asynchronous operations:
 import { crypto } from "@otplib/plugin-crypto-web";
 
 // Async HMAC (required by Web Crypto API)
-const digest = await crypto.hmac("SHA-1", key, data);
+const digest = await crypto.hmac("sha1", key, data);
 
-// Async random bytes
-const bytes = await crypto.randomBytes(20);
+// Synchronous random bytes
+const bytes = crypto.randomBytes(20); // synchronous
 ```
 
 ## Edge Runtime Support
@@ -94,9 +94,9 @@ Use this plugin when:
 
 ## Performance
 
-- All operations return Promises (asynchronous only)
-- Uses native browser crypto implementations
-- Uses OS-level crypto primitives
+- HMAC operations are asynchronous (returns `Promise`)
+- `randomBytes` is synchronous (uses `crypto.getRandomValues`)
+- Uses native browser crypto implementations backed by OS-level primitives
 
 ## Limitations
 

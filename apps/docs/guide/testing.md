@@ -10,14 +10,110 @@ otplib is designed to work across multiple JavaScript runtimes:
 - **Bun** (version 1.x)
 - **Deno** (versions 1.x, 2.x)
 
-The project provides two main testing approaches:
+The project provides two testing approaches:
 
-1. **Docker testing** - Using Docker containers for isolated runtime testing
-2. **Local CI testing** - Using `act` to run GitHub Actions workflows locally
+1. **Local testing** - Running pnpm test commands directly
+2. **Docker testing** - Using Docker containers for isolated multi-runtime testing
+
+## Local Testing
+
+Local testing is the primary development workflow. It uses Vitest for unit tests and runtime-specific test runners for distribution tests.
+
+### Prerequisites
+
+- Node.js >= 24.0.0
+- pnpm >= 10.30.1
+- (Optional) Bun and/or Deno installed locally for distribution tests
+
+### Unit Tests
+
+Unit tests validate source code directly using Vitest:
+
+```bash
+# Run all unit tests
+pnpm test
+
+# Run unit tests with coverage
+pnpm test:ci
+
+# Test a single package
+pnpm --filter @otplib/core test -- run --project packages
+
+# Run a specific test file
+pnpm vitest run packages/core/src/utils.test.ts
+```
+
+### Distribution Tests
+
+Distribution tests validate the built artifacts (`dist/`) across runtimes. These ensure that published packages work correctly in all target environments.
+
+A build is required before running distribution tests:
+
+```bash
+# Build packages first
+pnpm build
+
+# Node.js distribution tests (Node 20, 22, 24)
+pnpm test:dist-node
+
+# Bun distribution tests (requires Bun installed)
+pnpm test:dist-bun
+
+# Deno distribution tests (requires Deno installed)
+pnpm test:dist-deno
+```
+
+### Pre-Commit Validation
+
+Before committing changes, run the full validation suite:
+
+```bash
+pnpm test && pnpm fix && pnpm typecheck
+```
+
+Or with coverage:
+
+```bash
+pnpm test:ci && pnpm fix && pnpm typecheck
+```
+
+### What Gets Tested
+
+| Command          | What it tests                                        |
+| ---------------- | ---------------------------------------------------- |
+| `pnpm test`      | Unit tests across all packages                       |
+| `pnpm test:ci`   | Unit tests with coverage (enforces coverage targets) |
+| `pnpm lint`      | Code quality and style checks                        |
+| `pnpm format`    | Code formatting (Prettier)                           |
+| `pnpm typecheck` | TypeScript type validation across all packages       |
+| `pnpm size`      | Bundle size validation                               |
+
+### Recommended Workflow
+
+For day-to-day development:
+
+1. **While developing** - Run targeted tests:
+
+   ```bash
+   pnpm --filter @otplib/core test -- run --project packages
+   ```
+
+2. **Before committing** - Run full checks:
+
+   ```bash
+   pnpm fix && pnpm typecheck && pnpm test:ci
+   ```
+
+3. **Before pushing** - Verify distribution tests pass (if you have Bun/Deno installed):
+   ```bash
+   pnpm build && pnpm test:dist-node
+   pnpm test:dist-bun
+   pnpm test:dist-deno
+   ```
 
 ## Docker Testing
 
-For testing in isolated containerized environments, use the Docker test runner.
+For testing in isolated containerized environments without installing runtimes locally, use the Docker test runner.
 
 ### Prerequisites
 
@@ -69,139 +165,17 @@ Docker testing is particularly useful for:
 
 - **Reproducing CI issues** - Exact match to CI environment
 - **Testing new runtime versions** - Before updating CI configuration
-- **Isolated testing** - Without affecting local environment
+- **Isolated testing** - Without installing Bun/Deno locally
 - **Multi-runtime validation** - Ensure consistency across platforms
 
-### Local CI vs Docker Testing
+### Local vs Docker Testing
 
-| Feature       | Local CI (`act`)      | Docker Testing                    |
-| ------------- | --------------------- | --------------------------------- |
-| **Speed**     | Fast (shared cache)   | Slower (build images each time)   |
-| **Accuracy**  | High (GitHub Actions) | Very High (production containers) |
-| **Isolation** | Container isolation   | Full container isolation          |
-| **Use Case**  | Development workflow  | CI reproduction, validation       |
-
-## Local CI Testing
-
-The `test-ci.sh` script allows you to run GitHub Actions workflows locally using [act](https://github.com/nektos/act), which runs GitHub Actions in Docker containers.
-
-### Prerequisites
-
-Install `act` on your system:
-
-```bash
-# macOS
-brew install act
-
-# Linux
-curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
-```
-
-### Usage
-
-The test script provides several commands for testing different parts of the CI workflow:
-
-```bash
-# Show all available commands
-./scripts/test-ci.sh
-
-# List all CI jobs
-./scripts/test-ci.sh list
-
-# Dry run (shows execution order without running)
-./scripts/test-ci.sh dry-run
-
-# Test individual jobs
-./scripts/test-ci.sh build        # Build packages and upload artifacts
-./scripts/test-ci.sh test-node    # Test Node.js versions
-./scripts/test-ci.sh test-deno    # Test Deno versions
-./scripts/test-ci.sh test-bun     # Test Bun
-
-# Test artifact flow (recommended)
-./scripts/test-ci.sh artifacts    # Tests: build → test-deno/test-bun
-
-# Run all critical checks
-./scripts/test-ci.sh all-checks   # lint → typecheck → build → test-node
-
-# Full workflow (slow!)
-./scripts/test-ci.sh full
-```
-
-### Command Reference
-
-| Command      | Description                               | Time      |
-| ------------ | ----------------------------------------- | --------- |
-| `list`       | Shows all available CI jobs               | 5s        |
-| `dry-run`    | Shows job execution order without running | 5s        |
-| `build`      | Builds packages and uploads artifacts     | 2-3 min   |
-| `test-node`  | Tests on Node 20, 22, 24                  | 3-5 min   |
-| `test-deno`  | Tests Deno 1.x, 2.x                       | 2-3 min   |
-| `test-bun`   | Tests Bun 1.x                             | 1-2 min   |
-| `artifacts`  | Tests artifact upload/download flow       | 5-8 min   |
-| `all-checks` | Runs lint, typecheck, build, test-node    | 5-8 min   |
-| `full`       | Complete CI workflow                      | 10-15 min |
-
-### Recommended Workflow
-
-For development, we recommend this testing workflow:
-
-1. **Quick validation** - Before committing changes:
-
-   ```bash
-   ./scripts/test-ci.sh build
-   ```
-
-2. **Test artifact flow** - Verify cross-runtime compatibility:
-
-   ```bash
-   ./scripts/test-ci.sh artifacts
-   ```
-
-   This tests the complete artifact upload/download flow, ensuring that:
-   - Build job creates and uploads artifacts correctly
-   - test-deno downloads and uses artifacts
-   - test-bun downloads and uses artifacts
-
-3. **Pre-commit checks** - Run all critical checks:
-   ```bash
-   ./scripts/test-ci.sh all-checks
-   ```
-
-### What Gets Tested
-
-The CI workflow tests:
-
-- **Lint**: Code quality and formatting checks
-- **Type Check**: TypeScript type validation across all packages
-- **Build**: Package compilation and bundle size validation
-- **test-node**: Tests on Node.js 20, 22, 24 (each builds locally)
-- **test-deno**: Tests on Deno 1.x and 2.x (uses build artifacts)
-- **test-bun**: Tests on Bun 1.x (uses build artifacts)
-
-### Architecture
-
-The CI workflow is optimized for efficiency:
-
-```
-Stage 1: Foundation (parallel)
-  ├── lint
-  ├── typecheck
-  └── security-audit
-
-Stage 2a: Build & Test (parallel)
-  ├── build (Node 20) → uploads artifacts
-  └── test-node (Node 20/22/24) → builds locally
-
-Stage 2b: Runtime Tests (parallel)
-  ├── test-deno → downloads from build
-  └── test-bun → downloads from build
-```
-
-This architecture ensures:
-
-- Each Node version builds independently (compatibility testing)
-- Deno and Bun reuse build artifacts (efficiency)
-- Maximum parallelization (faster CI)
+| Feature       | Local Testing              | Docker Testing                    |
+| ------------- | -------------------------- | --------------------------------- |
+| **Speed**     | Fast                       | Slower (builds images each time)  |
+| **Setup**     | Runtimes installed locally | Only Docker required              |
+| **Isolation** | Shared environment         | Full container isolation          |
+| **Use Case**  | Day-to-day development     | CI reproduction, final validation |
 
 ## Continuous Integration
 
@@ -213,30 +187,44 @@ The GitHub Actions workflow (`.github/workflows/ci.yml`) automatically runs on:
 
 ### CI Workflow Stages
 
-1. **Quality Checks** - Lint, type check, security audit
-2. **Build** - Compile packages and upload artifacts
-3. **Test** - Run tests across all supported runtimes
-4. **Validate** - Aggregate results and ensure all checks pass
+```
+Stage 1: Quality Checks (parallel)
+  |- lint
+  |- typecheck
+  \- security-audit (independent, no blocking)
+
+Stage 2: Build & Test
+  \- build-and-test (needs lint + typecheck)
+        -> runs unit tests with coverage
+        -> builds packages
+        -> checks bundle size
+        -> uploads coverage + dist artifacts
+
+Stage 3: Distribution Tests (parallel, all need build-and-test)
+  |- test-node (Node 20, 22, 24) -> downloads dist artifacts
+  |- test-deno (Deno 1.x, 2.x)  -> downloads dist artifacts
+  |- test-bun  (Bun 1.x)        -> downloads dist artifacts
+  \- reporting                   -> uploads to Codecov
+
+Stage 4: Validation
+  \- all-checks (needs all above)
+```
+
+This architecture ensures:
+
+- Unit tests and builds happen once (efficiency)
+- Each runtime downloads and validates the same built artifacts
+- Maximum parallelization across distribution tests
+- Ensures that tests run on the distributed code instead of raw code
 
 ### Artifacts
 
-Build artifacts (`packages/*/dist`) are:
+Two artifact sets are produced by the `build-and-test` job:
 
-- Uploaded from the build job (Node 20)
-- Downloaded by test-deno and test-bun jobs
-- Retained for 1 day
-- Used to avoid redundant builds
+- **`dist-artifacts`** (`packages/*/dist`) - downloaded by `test-node`, `test-deno`, `test-bun`, and `reporting`; retained for 1 day
+- **`coverage-artifacts`** (`coverage/`, `reports/junit.xml`) - downloaded by `reporting` for Codecov upload
 
 ## Troubleshooting
-
-### act fails with architecture errors
-
-If you're on Apple M-series hardware:
-
-```bash
-# The script automatically handles this, but if you run act directly:
-act --container-architecture linux/amd64 -j build
-```
 
 ### Docker tests fail to build
 
@@ -268,8 +256,8 @@ Check that:
 
 ## Best Practices
 
-1. **Run local checks before pushing** - Use `./scripts/test-ci.sh all-checks`
-2. **Test artifact flow** - Use `./scripts/test-ci.sh artifacts` to verify cross-runtime compatibility
+1. **Run local checks before pushing** - Use `pnpm fix && pnpm typecheck && pnpm test:ci`
+2. **Build before distribution tests** - Always run `pnpm build` first
 3. **Use Docker for final validation** - Run `pnpm run test:docker` to match CI environment
 4. **Check CI logs** - GitHub Actions provides detailed logs for debugging
 5. **Monitor artifact size** - Build job checks bundle size automatically
@@ -279,8 +267,8 @@ Check that:
 When contributing to otplib:
 
 1. Write tests for new functionality
-2. Ensure tests pass locally: `./scripts/test-ci.sh all-checks`
-3. Verify cross-runtime compatibility: `./scripts/test-ci.sh artifacts`
+2. Ensure tests pass locally: `pnpm fix && pnpm typecheck && pnpm test:ci`
+3. Optionally verify cross-runtime compatibility: `pnpm build && pnpm test:dist-node`
 4. Optionally validate in Docker: `pnpm run test:docker`
 5. Push your changes and let CI run the full test suite
 
