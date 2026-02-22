@@ -287,6 +287,28 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(result).toHaveProperty("timeStep");
         expect(result).toHaveProperty("epoch");
       });
+
+      it("should return string from OTP class with HOTP strategy even with format 'detailed'", async () => {
+        const otp = new OTP({ strategy: "hotp" });
+        const result = await otp.generate({
+          secret: TEST_SECRET,
+          counter: 0,
+          format: "detailed",
+        });
+        // HOTP ignores format; always returns a string
+        expect(typeof result).toBe("string");
+      });
+
+      it("should return string from OTP class generateSync with HOTP strategy and format 'detailed'", () => {
+        const otp = new OTP({ strategy: "hotp" });
+        const result = otp.generateSync({
+          secret: TEST_SECRET,
+          counter: 0,
+          format: "detailed",
+        });
+        // HOTP ignores format; always returns a string
+        expect(typeof result).toBe("string");
+      });
     });
 
     describe("verify", () => {

@@ -336,11 +336,20 @@ export class OTP {
   /**
    * Generate an OTP token based on the configured strategy
    *
+   * When `format: "detailed"` is passed with a TOTP strategy, returns
+   * `TOTPGenerateResult`. HOTP strategy ignores `format` and always
+   * returns a string, so the return type is widened to the union.
+   *
    * @param options - Generation options
-   * @returns OTP code
+   * @returns OTP code (string for HOTP, string or TOTPGenerateResult for TOTP with format)
    */
-  async generate(options: OTPGenerateOptions & { format: "detailed" }): Promise<TOTPGenerateResult>;
-  async generate(options: OTPGenerateOptions): Promise<string>;
+  async generate(
+    options: OTPGenerateOptions & { format: "detailed" },
+  ): Promise<string | TOTPGenerateResult>;
+  async generate(
+    options: Omit<OTPGenerateOptions, "format"> & { format?: "default" },
+  ): Promise<string>;
+  async generate(options: OTPGenerateOptions): Promise<string | TOTPGenerateResult>;
   async generate(options: OTPGenerateOptions): Promise<string | TOTPGenerateResult> {
     return functionalGenerate({
       ...options,
@@ -354,12 +363,17 @@ export class OTP {
   /**
    * Generate an OTP token based on the configured strategy synchronously
    *
+   * When `format: "detailed"` is passed with a TOTP strategy, returns
+   * `TOTPGenerateResult`. HOTP strategy ignores `format` and always
+   * returns a string, so the return type is widened to the union.
+   *
    * @param options - Generation options
-   * @returns OTP code
+   * @returns OTP code (string for HOTP, string or TOTPGenerateResult for TOTP with format)
    * @throws {HMACError} If the crypto plugin doesn't support sync operations
    */
-  generateSync(options: OTPGenerateOptions & { format: "detailed" }): TOTPGenerateResult;
-  generateSync(options: OTPGenerateOptions): string;
+  generateSync(options: OTPGenerateOptions & { format: "detailed" }): string | TOTPGenerateResult;
+  generateSync(options: Omit<OTPGenerateOptions, "format"> & { format?: "default" }): string;
+  generateSync(options: OTPGenerateOptions): string | TOTPGenerateResult;
   generateSync(options: OTPGenerateOptions): string | TOTPGenerateResult {
     return functionalGenerateSync({
       ...options,

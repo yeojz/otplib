@@ -196,6 +196,46 @@ if (result.valid) {
 }
 ```
 
+### Detailed Generate Results
+
+By default, `generate` returns a plain token string. Pass `format: "detailed"` to receive a structured result containing the token along with the time-step metadata used to produce it:
+
+```typescript
+import { generate } from "otplib";
+
+const result = await generate({
+  secret,
+  format: "detailed",
+});
+
+result.token; // "123456" - the OTP code
+result.timeStep; // 41152263 - RFC 6238 T value (counter)
+result.epoch; // 1234567890 - period-start Unix timestamp in seconds
+```
+
+| Property   | Type     | Description                                     |
+| ---------- | -------- | ----------------------------------------------- |
+| `token`    | `string` | The OTP code (same value as the default format) |
+| `timeStep` | `number` | RFC 6238 time-step counter (T value)            |
+| `epoch`    | `number` | Period-start Unix timestamp in seconds          |
+
+The `epoch` in the result is computed as `timeStep * period + t0` and represents the start of the time period, not the input epoch. The `timeStep` and `epoch` values match those returned by `verify` for the same token.
+
+The `format` option also works with `generateSync`:
+
+```typescript
+import { generateSync } from "otplib";
+
+const result = generateSync({
+  secret,
+  format: "detailed",
+});
+```
+
+> **Note:** The `format` option only applies to TOTP generation. HOTP always returns a plain string token regardless of the `format` value.
+
+This is particularly useful for replay protection, as shown in the next section.
+
 ### Replay Protection (TOTP)
 
 By default, TOTP codes can be reused within their validity period (determined by `epochTolerance`). To prevent replay attacks, you can track the time step from each successful verification and use the `afterTimeStep` parameter to reject previously used time steps.
@@ -298,6 +338,26 @@ await verify({ secret, token, afterTimeStep: 1.5 });
 // Throws: Invalid afterTimeStep: cannot be greater than current time step plus window
 // (when current time step + window < 100)
 await verify({ secret, token, afterTimeStep: 100 });
+```
+
+#### Using Detailed Generate for Replay Protection
+
+You can also use `format: "detailed"` with `generate` to obtain the `timeStep` for server-initiated flows (e.g., sending an OTP via SMS) without an extra call:
+
+```typescript
+import { generate, verify } from "otplib";
+
+// Server generates and sends OTP
+const result = await generate({ secret, format: "detailed" });
+await sendSMS(user.phone, result.token);
+await db.saveLastTimeStep(userId, result.timeStep);
+
+// Later, verify with replay protection
+const verification = await verify({
+  secret,
+  token: userInput,
+  afterTimeStep: await db.getLastTimeStep(userId),
+});
 ```
 
 #### Complete Example with Database

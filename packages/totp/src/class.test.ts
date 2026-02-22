@@ -139,4 +139,37 @@ describe("TOTP Class", () => {
     const token = await totp.generate({ digits: 8 });
     expect(token.length).toBe(8);
   });
+
+  it("should return string from no-arg generate regardless of instance config", async () => {
+    // format is not a constructor option, so no-arg generate always returns string
+    const totp = new TOTP({
+      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      crypto,
+      base32,
+    });
+
+    const result = await totp.generate();
+    expect(typeof result).toBe("string");
+    expect(result.length).toBe(6);
+  });
+
+  it("should only return detailed result when format is passed at call site", async () => {
+    const epoch = 1234567890;
+    const totp = new TOTP({
+      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      crypto,
+      base32,
+    });
+
+    // No-arg call returns string
+    const stringResult = await totp.generate({ epoch });
+    expect(typeof stringResult).toBe("string");
+
+    // format: "detailed" at call site returns detailed result
+    const detailedResult = await totp.generate({ epoch, format: "detailed" });
+    expect(typeof detailedResult).toBe("object");
+    expect(detailedResult).toHaveProperty("token");
+    expect(detailedResult).toHaveProperty("timeStep");
+    expect(detailedResult).toHaveProperty("epoch");
+  });
 });

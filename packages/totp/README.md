@@ -35,6 +35,27 @@ const token = await generate({
 });
 ```
 
+#### Detailed results
+
+Pass `format: "detailed"` to receive the token along with time-step metadata. This is useful for replay protection without additional utility calls.
+
+```typescript
+import { generate } from "@otplib/totp";
+import { crypto } from "@otplib/plugin-crypto-node";
+
+const result = await generate({
+  secret,
+  crypto,
+  format: "detailed",
+});
+
+// result.token    - the OTP string
+// result.timeStep - RFC 6238 T value (counter)
+// result.epoch    - period-start Unix timestamp in seconds
+```
+
+Without `format` (or with `format: "default"`), `generate` returns a plain `string` as before.
+
 #### With Base32 secrets
 
 If your secret is a Base32 string (e.g., from Google Authenticator), provide a `base32` plugin to decode it:
@@ -153,6 +174,10 @@ const secret = new Uint8Array([
 
 const token = generateSync({ secret, crypto });
 const result = verifySync({ secret, token, crypto });
+
+// format: "detailed" works with generateSync too
+const detailed = generateSync({ secret, crypto, format: "detailed" });
+// detailed.token, detailed.timeStep, detailed.epoch
 ```
 
 ## Compatibility with Authenticator Apps

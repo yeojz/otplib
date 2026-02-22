@@ -178,7 +178,7 @@ Secrets must be at least 16 bytes (128 bits) after decoding. If you need to work
 :::
 
 ```typescript
-const token = await generate({
+const result = await generate({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Base32-encoded secret (required)
 
   // Optional
@@ -186,6 +186,7 @@ const token = await generate({
   digits: 6, // 6, 7, or 8 digits
   period: 30, // Time step in seconds (default: 30)
   epoch: Date.now() / 1000, // Current Unix timestamp in seconds
+  format: "detailed", // Return { token, timeStep, epoch } instead of a string
 });
 
 // Verification with tolerance
@@ -196,7 +197,24 @@ const result = await verify({
 });
 ```
 
+When `format` is `"detailed"`, `generate` returns a `TOTPGenerateResult` object instead of a plain string:
+
+```typescript
+const result = await generate({
+  secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY",
+  format: "detailed",
+});
+
+result.token; // "123456" - the OTP code
+result.timeStep; // RFC 6238 T value (counter)
+result.epoch; // Period-start Unix timestamp in seconds
+```
+
+This is useful for [replay protection](./advanced-usage#replay-protection-totp) without separate utility calls. See [Detailed Generate Results](./advanced-usage#detailed-generate-results) for more.
+
 ### HOTP Options
+
+> **Note:** The `format` option only applies to TOTP. HOTP always returns a plain string token.
 
 ```typescript
 const token = await generate({

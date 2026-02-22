@@ -61,13 +61,6 @@ export type TOTPOptions = {
    * the default numeric encoding with custom schemes.
    */
   readonly hooks?: OTPHooks;
-  /**
-   * Output format for generation
-   *
-   * - `"default"` (or omitted): returns a plain `string` token
-   * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
-   */
-  readonly format?: OTPFormat;
 };
 
 /**
@@ -79,6 +72,16 @@ export type TOTPOptions = {
 export type TOTPGenerateOptions = TOTPOptions & {
   readonly secret: string | Uint8Array;
   readonly crypto: CryptoPlugin;
+  /**
+   * Output format for generation
+   *
+   * - `"default"` (or omitted): returns a plain `string` token
+   * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
+   *
+   * This is a per-call option (not available at the class constructor level)
+   * to ensure TypeScript overload resolution accurately reflects the return type.
+   */
+  readonly format?: OTPFormat;
 };
 
 /**

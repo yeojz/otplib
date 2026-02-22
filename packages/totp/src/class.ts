@@ -19,7 +19,7 @@ import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 import { generate as generateCode, verify as verifyCode } from "./index.js";
 
 import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types.js";
-import type { OTPGuardrails, TOTPGenerateResult } from "@otplib/core";
+import type { OTPGuardrails, OTPFormat, TOTPGenerateResult } from "@otplib/core";
 
 /**
  * TOTP class for time-based one-time password generation
@@ -68,14 +68,19 @@ export class TOTP {
   /**
    * Generate a TOTP code
    *
-   * @param options - Optional overrides
+   * @param options - Optional overrides (format is per-call only, not inherited from constructor)
    * @returns The TOTP code
    */
   async generate(
     options: Partial<TOTPOptions> & { format: "detailed" },
   ): Promise<TOTPGenerateResult>;
-  async generate(options?: Partial<TOTPOptions>): Promise<string>;
-  async generate(options?: Partial<TOTPOptions>): Promise<string | TOTPGenerateResult> {
+  async generate(options?: Partial<TOTPOptions> & { format?: "default" }): Promise<string>;
+  async generate(
+    options: Partial<TOTPOptions> & { format?: OTPFormat },
+  ): Promise<string | TOTPGenerateResult>;
+  async generate(
+    options?: Partial<TOTPOptions> & { format?: OTPFormat },
+  ): Promise<string | TOTPGenerateResult> {
     const mergedOptions = { ...this.options, ...options };
     const {
       secret,
@@ -86,8 +91,8 @@ export class TOTP {
       period = 30,
       epoch,
       t0 = 0,
-      format,
     } = mergedOptions;
+    const format = options?.format;
 
     requireSecret(secret);
     requireCryptoPlugin(crypto);
