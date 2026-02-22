@@ -319,7 +319,7 @@ try {
 const uri = authenticator.keyuri("user@example.com", "MyApp", secret);
 
 // v13 - functional
-import { generateURI } from "@otplib/totp";
+import { generateURI } from "otplib";
 const uri = generateURI({
   issuer: "MyApp",
   label: "user@example.com",
