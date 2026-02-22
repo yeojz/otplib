@@ -16,15 +16,18 @@ import { generateTOTP as generateTOTPURI, generateHOTP as generateHOTURI } from 
 import {
   defaultCrypto,
   defaultBase32,
-  normalizeGenerateOptions,
-  normalizeVerifyOptions,
+  normalizeTOTPGenerateOptions,
+  normalizeHOTPGenerateOptions,
+  normalizeTOTPVerifyOptions,
+  normalizeHOTPVerifyOptions,
 } from "./defaults.js";
 
 import type {
   OTPGenerateOptions,
   OTPVerifyOptions,
   OTPStrategy,
-  StrategyHandlers,
+  TOTPGenerateOptions,
+  HOTPGenerateOptions,
 } from "./types.js";
 import type {
   CryptoPlugin,
@@ -40,25 +43,22 @@ export type { OTPStrategy };
 
 export type VerifyResult = TOTPVerifyResult | HOTPVerifyResult;
 
-function executeByStrategy<T>(
-  strategy: OTPStrategy,
-  counter: number | undefined,
-  handlers: StrategyHandlers<T>,
-): T {
-  if (strategy === "totp") {
-    return handlers.totp();
-  }
-  if (strategy === "hotp") {
-    if (counter === undefined) {
-      throw new ConfigurationError(
-        "Counter is required for HOTP strategy. Example: { strategy: 'hotp', counter: 0 }",
-      );
-    }
-    return handlers.hotp(counter);
+function resolveStrategy(strategy: unknown): OTPStrategy {
+  if (strategy === undefined || strategy === "totp" || strategy === "hotp") {
+    return strategy ?? "totp";
   }
   throw new ConfigurationError(
     `Unknown OTP strategy: ${strategy}. Valid strategies are 'totp' or 'hotp'.`,
   );
+}
+
+function requireCounter(counter: number | undefined): number {
+  if (counter === undefined) {
+    throw new ConfigurationError(
+      "Counter is required for HOTP strategy. Example: { strategy: 'hotp', counter: 0 }",
+    );
+  }
+  return counter;
 }
 
 /**
@@ -164,7 +164,7 @@ export function generateURI(options: {
   counter?: number;
 }): string {
   const {
-    strategy = "totp",
+    strategy,
     issuer,
     label,
     secret,
@@ -173,10 +173,19 @@ export function generateURI(options: {
     period = 30,
     counter,
   } = options;
+  const resolvedStrategy = resolveStrategy(strategy);
 
-  return executeByStrategy(strategy, counter, {
-    totp: () => generateTOTPURI({ issuer, label, secret, algorithm, digits, period }),
-    hotp: (counter) => generateHOTURI({ issuer, label, secret, algorithm, digits, counter }),
+  if (resolvedStrategy === "totp") {
+    return generateTOTPURI({ issuer, label, secret, algorithm, digits, period });
+  }
+
+  return generateHOTURI({
+    issuer,
+    label,
+    secret,
+    algorithm,
+    digits,
+    counter: requireCounter(counter),
   });
 }
 
@@ -222,30 +231,51 @@ export function generateURI(options: {
  * ```
  */
 export async function generate(
-  options: OTPGenerateOptions & { format: "detailed"; strategy?: "totp" },
+  options: TOTPGenerateOptions & { format: "detailed" },
 ): Promise<TOTPGenerateResult>;
-export async function generate(options: OTPGenerateOptions): Promise<string>;
+export async function generate(options: TOTPGenerateOptions): Promise<string>;
+export async function generate(options: HOTPGenerateOptions): Promise<string>;
 export async function generate(options: OTPGenerateOptions): Promise<string | TOTPGenerateResult> {
-  const opts = normalizeGenerateOptions(options);
-  const { secret, crypto, base32, algorithm, digits, hooks } = opts;
-  const commonOptions = { secret, crypto, base32, algorithm, digits, hooks };
+  const strategy = resolveStrategy(options.strategy);
 
-  return executeByStrategy(opts.strategy, opts.counter, {
-    totp: () =>
-      generateTOTP({
-        ...commonOptions,
-        period: opts.period,
-        epoch: opts.epoch,
-        t0: opts.t0,
-        guardrails: opts.guardrails,
-        format: opts.format,
-      } as Parameters<typeof generateTOTP>[0]),
-    hotp: (counter) =>
-      generateHOTP({
-        ...commonOptions,
-        counter,
-        guardrails: opts.guardrails,
-      }),
+  if (strategy === "hotp") {
+    const opts = normalizeHOTPGenerateOptions({
+      ...options,
+      strategy: "hotp",
+      counter: requireCounter(options.counter),
+    });
+    const { secret, crypto, base32, algorithm, digits, hooks } = opts;
+
+    return generateHOTP({
+      secret,
+      crypto,
+      base32,
+      algorithm,
+      digits,
+      hooks,
+      counter: opts.counter,
+      guardrails: opts.guardrails,
+    });
+  }
+
+  const opts = normalizeTOTPGenerateOptions({
+    ...options,
+    strategy: "totp",
+  });
+  const { secret, crypto, base32, algorithm, digits, hooks } = opts;
+
+  return generateTOTP({
+    secret,
+    crypto,
+    base32,
+    algorithm,
+    digits,
+    hooks,
+    period: opts.period,
+    epoch: opts.epoch,
+    t0: opts.t0,
+    guardrails: opts.guardrails,
+    format: opts.format,
   });
 }
 
@@ -269,30 +299,51 @@ export async function generate(options: OTPGenerateOptions): Promise<string | TO
  * ```
  */
 export function generateSync(
-  options: OTPGenerateOptions & { format: "detailed"; strategy?: "totp" },
+  options: TOTPGenerateOptions & { format: "detailed" },
 ): TOTPGenerateResult;
-export function generateSync(options: OTPGenerateOptions): string;
+export function generateSync(options: TOTPGenerateOptions): string;
+export function generateSync(options: HOTPGenerateOptions): string;
 export function generateSync(options: OTPGenerateOptions): string | TOTPGenerateResult {
-  const opts = normalizeGenerateOptions(options);
-  const { secret, crypto, base32, algorithm, digits } = opts;
-  const commonOptions = { secret, crypto, base32, algorithm, digits };
+  const strategy = resolveStrategy(options.strategy);
 
-  return executeByStrategy(opts.strategy, opts.counter, {
-    totp: () =>
-      generateTOTPSync({
-        ...commonOptions,
-        period: opts.period,
-        epoch: opts.epoch,
-        t0: opts.t0,
-        guardrails: opts.guardrails,
-        format: opts.format,
-      } as Parameters<typeof generateTOTPSync>[0]),
-    hotp: (counter) =>
-      generateHOTPSync({
-        ...commonOptions,
-        counter,
-        guardrails: opts.guardrails,
-      }),
+  if (strategy === "hotp") {
+    const opts = normalizeHOTPGenerateOptions({
+      ...options,
+      strategy: "hotp",
+      counter: requireCounter(options.counter),
+    });
+    const { secret, crypto, base32, algorithm, digits, hooks } = opts;
+
+    return generateHOTPSync({
+      secret,
+      crypto,
+      base32,
+      algorithm,
+      digits,
+      hooks,
+      counter: opts.counter,
+      guardrails: opts.guardrails,
+    });
+  }
+
+  const opts = normalizeTOTPGenerateOptions({
+    ...options,
+    strategy: "totp",
+  });
+  const { secret, crypto, base32, algorithm, digits, hooks } = opts;
+
+  return generateTOTPSync({
+    secret,
+    crypto,
+    base32,
+    algorithm,
+    digits,
+    hooks,
+    period: opts.period,
+    epoch: opts.epoch,
+    t0: opts.t0,
+    guardrails: opts.guardrails,
+    format: opts.format,
   });
 }
 
@@ -344,28 +395,50 @@ export function generateSync(options: OTPGenerateOptions): string | TOTPGenerate
  * ```
  */
 export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
-  const opts = normalizeVerifyOptions(options);
-  const { secret, token, crypto, base32, algorithm, digits, hooks } = opts;
-  const commonOptions = { secret, token, crypto, base32, algorithm, digits, hooks };
+  const strategy = resolveStrategy(options.strategy);
 
-  return executeByStrategy(opts.strategy, opts.counter, {
-    totp: () =>
-      verifyTOTP({
-        ...commonOptions,
-        period: opts.period,
-        epoch: opts.epoch,
-        t0: opts.t0,
-        epochTolerance: opts.epochTolerance,
-        afterTimeStep: opts.afterTimeStep,
-        guardrails: opts.guardrails,
-      }),
-    hotp: (counter) =>
-      verifyHOTP({
-        ...commonOptions,
-        counter,
-        counterTolerance: opts.counterTolerance,
-        guardrails: opts.guardrails,
-      }),
+  if (strategy === "hotp") {
+    const opts = normalizeHOTPVerifyOptions({
+      ...options,
+      strategy: "hotp",
+      counter: requireCounter(options.counter),
+    });
+    const { secret, token, crypto, base32, algorithm, digits, hooks } = opts;
+
+    return verifyHOTP({
+      secret,
+      token,
+      crypto,
+      base32,
+      algorithm,
+      digits,
+      hooks,
+      counter: opts.counter,
+      counterTolerance: opts.counterTolerance,
+      guardrails: opts.guardrails,
+    });
+  }
+
+  const opts = normalizeTOTPVerifyOptions({
+    ...options,
+    strategy: "totp",
+  });
+  const { secret, token, crypto, base32, algorithm, digits, hooks } = opts;
+
+  return verifyTOTP({
+    secret,
+    token,
+    crypto,
+    base32,
+    algorithm,
+    digits,
+    hooks,
+    period: opts.period,
+    epoch: opts.epoch,
+    t0: opts.t0,
+    epochTolerance: opts.epochTolerance,
+    afterTimeStep: opts.afterTimeStep,
+    guardrails: opts.guardrails,
   });
 }
 
@@ -390,27 +463,49 @@ export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
  * ```
  */
 export function verifySync(options: OTPVerifyOptions): VerifyResult {
-  const opts = normalizeVerifyOptions(options);
-  const { secret, token, crypto, base32, algorithm, digits, hooks } = opts;
-  const commonOptions = { secret, token, crypto, base32, algorithm, digits, hooks };
+  const strategy = resolveStrategy(options.strategy);
 
-  return executeByStrategy(opts.strategy, opts.counter, {
-    totp: () =>
-      verifyTOTPSync({
-        ...commonOptions,
-        period: opts.period,
-        epoch: opts.epoch,
-        t0: opts.t0,
-        epochTolerance: opts.epochTolerance,
-        afterTimeStep: opts.afterTimeStep,
-        guardrails: opts.guardrails,
-      }),
-    hotp: (counter) =>
-      verifyHOTPSync({
-        ...commonOptions,
-        counter,
-        counterTolerance: opts.counterTolerance,
-        guardrails: opts.guardrails,
-      }),
+  if (strategy === "hotp") {
+    const opts = normalizeHOTPVerifyOptions({
+      ...options,
+      strategy: "hotp",
+      counter: requireCounter(options.counter),
+    });
+    const { secret, token, crypto, base32, algorithm, digits, hooks } = opts;
+
+    return verifyHOTPSync({
+      secret,
+      token,
+      crypto,
+      base32,
+      algorithm,
+      digits,
+      hooks,
+      counter: opts.counter,
+      counterTolerance: opts.counterTolerance,
+      guardrails: opts.guardrails,
+    });
+  }
+
+  const opts = normalizeTOTPVerifyOptions({
+    ...options,
+    strategy: "totp",
+  });
+  const { secret, token, crypto, base32, algorithm, digits, hooks } = opts;
+
+  return verifyTOTPSync({
+    secret,
+    token,
+    crypto,
+    base32,
+    algorithm,
+    digits,
+    hooks,
+    period: opts.period,
+    epoch: opts.epoch,
+    t0: opts.t0,
+    epochTolerance: opts.epochTolerance,
+    afterTimeStep: opts.afterTimeStep,
+    guardrails: opts.guardrails,
   });
 }

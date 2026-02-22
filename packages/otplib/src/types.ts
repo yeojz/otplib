@@ -39,11 +39,11 @@ export type OTPAuthOptions = {
 };
 
 /**
- * Common options for OTP generation
+ * Common options for OTP generation and verification
  *
  * These options apply to both TOTP and HOTP strategies.
  */
-export type OTPGenerateOptions = {
+export type OTPGenerateCommonOptions = {
   /**
    * Base32-encoded secret key
    *
@@ -103,35 +103,77 @@ export type OTPGenerateOptions = {
   t0?: number;
 
   /**
-   * Counter value
-   * Used by HOTP strategy (required)
-   */
-  counter?: number;
-
-  /**
    * Hooks for customizing token encoding and validation.
    * Allows non-standard OTP variants (e.g., Steam Guard) to replace
    * the default numeric encoding with custom schemes.
    */
   hooks?: OTPHooks;
+};
 
+/**
+ * TOTP-specific generation options
+ */
+export type TOTPExtraArgs = {
   /**
    * Output format for TOTP generation
    *
    * - `"default"` (or omitted): returns a plain `string` token
    * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
-   *
-   * Only applies to TOTP strategy; ignored for HOTP.
    */
   format?: OTPFormat;
 };
 
 /**
- * Options for OTP verification
- *
- * Extends OTPFunctionalOptions with token and tolerance parameters.
+ * TOTP generation options
  */
-export type OTPVerifyOptions = OTPGenerateOptions & {
+export type TOTPGenerateOptions = OTPGenerateCommonOptions &
+  TOTPExtraArgs & {
+    /**
+     * OTP strategy to use (default: 'totp')
+     */
+    strategy?: "totp";
+
+    /**
+     * Counter value
+     *
+     * Accepted for backward compatibility and ignored by TOTP strategy.
+     */
+    counter?: number;
+  };
+
+/**
+ * HOTP generation options
+ */
+export type HOTPGenerateOptions = OTPGenerateCommonOptions & {
+  /**
+   * OTP strategy to use
+   */
+  strategy: "hotp";
+
+  /**
+   * Counter value
+   * Used by HOTP strategy (required)
+   */
+  counter: number;
+
+  /**
+   * Output format for generation
+   *
+   * Accepted for backward compatibility and ignored by HOTP strategy.
+   * This will be tightened in a future major version.
+   */
+  format?: OTPFormat;
+};
+
+/**
+ * Common options for OTP generation
+ */
+export type OTPGenerateOptions = TOTPGenerateOptions | HOTPGenerateOptions;
+
+/**
+ * Common options for OTP verification
+ */
+export type OTPVerifyCommonOptions = OTPGenerateCommonOptions & {
   /**
    * OTP code to verify
    */
@@ -159,31 +201,110 @@ export type OTPVerifyOptions = OTPGenerateOptions & {
    * Only used by TOTP strategy.
    */
   afterTimeStep?: number;
+
+  /**
+   * Output format for verification
+   *
+   * Accepted for backward compatibility and ignored by verify operations.
+   * This will be tightened in a future major version.
+   */
+  format?: OTPFormat;
+};
+
+/**
+ * TOTP verification options
+ */
+export type TOTPVerifyOptions = OTPVerifyCommonOptions & {
+  /**
+   * OTP strategy to use (default: 'totp')
+   */
+  strategy?: "totp";
+
+  /**
+   * Counter value
+   *
+   * Accepted for backward compatibility and ignored by TOTP strategy.
+   */
+  counter?: number;
+};
+
+/**
+ * HOTP verification options
+ */
+export type HOTPVerifyOptions = OTPVerifyCommonOptions & {
+  /**
+   * OTP strategy to use
+   */
+  strategy: "hotp";
+
+  /**
+   * Counter value
+   * Used by HOTP strategy (required)
+   */
+  counter: number;
+};
+
+/**
+ * Options for OTP verification
+ */
+export type OTPVerifyOptions = TOTPVerifyOptions | HOTPVerifyOptions;
+
+type OTPNormalizedCommonOptions = Required<Omit<OTPGenerateCommonOptions, "hooks">> & {
+  hooks?: OTPHooks;
+};
+
+/**
+ * TOTP options with all defaults applied
+ */
+export type TOTPGenerateOptionsWithDefaults = OTPNormalizedCommonOptions &
+  TOTPExtraArgs & {
+    strategy: "totp";
+    counter?: number;
+  };
+
+/**
+ * HOTP options with all defaults applied
+ */
+export type HOTPGenerateOptionsWithDefaults = OTPNormalizedCommonOptions & {
+  strategy: "hotp";
+  counter: number;
+  format?: OTPFormat;
 };
 
 /**
  * OTP options with all defaults applied
  */
-export type OTPGenerateOptionsWithDefaults = Required<
-  Omit<OTPGenerateOptions, "counter" | "hooks" | "format">
-> & {
-  counter?: number;
-  hooks?: OTPHooks;
+export type OTPGenerateOptionsWithDefaults =
+  | TOTPGenerateOptionsWithDefaults
+  | HOTPGenerateOptionsWithDefaults;
+
+type OTPVerifyNormalizedCommonOptions = OTPNormalizedCommonOptions & {
+  token: string;
+  epochTolerance: number | [number, number];
+  counterTolerance: number | [number, number];
+  afterTimeStep?: number;
   format?: OTPFormat;
+};
+
+/**
+ * TOTP verify options with all defaults applied
+ */
+export type TOTPVerifyOptionsWithDefaults = OTPVerifyNormalizedCommonOptions & {
+  strategy: "totp";
+  counter?: number;
+};
+
+/**
+ * HOTP verify options with all defaults applied
+ */
+export type HOTPVerifyOptionsWithDefaults = OTPVerifyNormalizedCommonOptions & {
+  strategy: "hotp";
+  counter: number;
 };
 
 /**
  * OTP verify options with all defaults applied
  */
-export type OTPVerifyOptionsWithDefaults = OTPGenerateOptionsWithDefaults &
-  Required<Omit<OTPVerifyOptions, keyof OTPGenerateOptions | "afterTimeStep">> & {
-    afterTimeStep?: number;
-  };
-
-/**
- * Strategy handlers for TOTP/HOTP dispatch
- */
-export type StrategyHandlers<T> = {
-  totp: () => T;
-  hotp: (counter: number) => T;
-};
+export type OTPVerifyOptionsWithDefaults =
+  | TOTPVerifyOptionsWithDefaults
+  | HOTPVerifyOptionsWithDefaults;

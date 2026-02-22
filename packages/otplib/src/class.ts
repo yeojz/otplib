@@ -16,6 +16,7 @@ import {
 } from "./functional.js";
 
 import type { OTPStrategy } from "./functional.js";
+import type { TOTPExtraArgs } from "./types.js";
 import type {
   CryptoPlugin,
   Digits,
@@ -23,7 +24,6 @@ import type {
   Base32Plugin,
   OTPGuardrails,
   OTPHooks,
-  OTPFormat,
   TOTPGenerateResult,
 } from "@otplib/core";
 import type { VerifyResult as HOTPVerifyResult } from "@otplib/hotp";
@@ -116,17 +116,7 @@ export type OTPGenerateOptions = {
    * Hooks for customizing token encoding and validation
    */
   hooks?: OTPHooks;
-
-  /**
-   * Output format for TOTP generation
-   *
-   * - `"default"` (or omitted): returns a plain `string` token
-   * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
-   *
-   * Only applies to TOTP strategy; ignored for HOTP.
-   */
-  format?: OTPFormat;
-};
+} & TOTPExtraArgs;
 
 /**
  * Options for verifying a token with the OTP class
@@ -397,7 +387,7 @@ export class OTP {
       crypto: this.crypto,
       base32: this.base32,
       guardrails: options.guardrails ?? this.guardrails,
-    });
+    } as Parameters<typeof functionalVerify>[0]);
   }
 
   /**
@@ -414,7 +404,7 @@ export class OTP {
       crypto: this.crypto,
       base32: this.base32,
       guardrails: options.guardrails ?? this.guardrails,
-    });
+    } as Parameters<typeof functionalVerifySync>[0]);
   }
 
   /**

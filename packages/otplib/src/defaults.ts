@@ -10,20 +10,23 @@ import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
 import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 
 import type {
-  OTPGenerateOptions,
-  OTPVerifyOptions,
-  OTPGenerateOptionsWithDefaults,
-  OTPVerifyOptionsWithDefaults,
+  OTPGenerateCommonOptions,
+  OTPVerifyCommonOptions,
+  TOTPGenerateOptions,
+  HOTPGenerateOptions,
+  TOTPVerifyOptions,
+  HOTPVerifyOptions,
+  TOTPGenerateOptionsWithDefaults,
+  HOTPGenerateOptionsWithDefaults,
+  TOTPVerifyOptionsWithDefaults,
+  HOTPVerifyOptionsWithDefaults,
 } from "./types.js";
 
 export { defaultCrypto, defaultBase32 };
 
-export function normalizeGenerateOptions(
-  options: OTPGenerateOptions,
-): OTPGenerateOptionsWithDefaults {
+function normalizeGenerateCommonOptions(options: OTPGenerateCommonOptions) {
   return {
     secret: options.secret,
-    strategy: options.strategy ?? "totp",
     crypto: options.crypto ?? defaultCrypto,
     base32: options.base32 ?? defaultBase32,
     algorithm: options.algorithm ?? "sha1",
@@ -31,19 +34,60 @@ export function normalizeGenerateOptions(
     period: options.period ?? 30,
     epoch: options.epoch ?? Math.floor(Date.now() / 1000),
     t0: options.t0 ?? 0,
-    counter: options.counter,
     guardrails: options.guardrails ?? createGuardrails(),
     hooks: options.hooks,
-    format: options.format,
   };
 }
 
-export function normalizeVerifyOptions(options: OTPVerifyOptions): OTPVerifyOptionsWithDefaults {
+function normalizeVerifyCommonOptions(options: OTPVerifyCommonOptions) {
   return {
-    ...normalizeGenerateOptions(options),
+    ...normalizeGenerateCommonOptions(options),
     token: options.token,
     epochTolerance: options.epochTolerance ?? 0,
     counterTolerance: options.counterTolerance ?? 0,
     afterTimeStep: options.afterTimeStep,
+    format: options.format,
+  };
+}
+
+export function normalizeTOTPGenerateOptions(
+  options: TOTPGenerateOptions,
+): TOTPGenerateOptionsWithDefaults {
+  return {
+    ...normalizeGenerateCommonOptions(options),
+    strategy: "totp",
+    counter: options.counter,
+    format: options.format,
+  };
+}
+
+export function normalizeHOTPGenerateOptions(
+  options: HOTPGenerateOptions,
+): HOTPGenerateOptionsWithDefaults {
+  return {
+    ...normalizeGenerateCommonOptions(options),
+    strategy: "hotp",
+    counter: options.counter,
+    format: options.format,
+  };
+}
+
+export function normalizeTOTPVerifyOptions(
+  options: TOTPVerifyOptions,
+): TOTPVerifyOptionsWithDefaults {
+  return {
+    ...normalizeVerifyCommonOptions(options),
+    strategy: "totp",
+    counter: options.counter,
+  };
+}
+
+export function normalizeHOTPVerifyOptions(
+  options: HOTPVerifyOptions,
+): HOTPVerifyOptionsWithDefaults {
+  return {
+    ...normalizeVerifyCommonOptions(options),
+    strategy: "hotp",
+    counter: options.counter,
   };
 }
