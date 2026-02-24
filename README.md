@@ -12,7 +12,8 @@
 
 TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime (Node, Bun, Deno, Browser) support via plugins.
 
-> [!TIP] Demo
+> [!TIP]
+>
 > A web based demo is available at [https://otplib.yeojz.dev](https://otplib.yeojz.dev).
 >
 > You can scan and test the TOTP / HOTP QR Code samples with your chosen authenticator app.
@@ -27,7 +28,8 @@ TypeScript-first library for HOTP and TOTP / Authenticator with multi-runtime (N
 - **Security-audited plugins** — Default crypto uses `@noble/hashes` and `@scure/base`, both independently audited
 - **Async-first API** — All operations are async by default; sync variants available for compatible plugins
 
-> [!IMPORTANT] Breaking Changes (v13)
+> [!IMPORTANT]
+>
 > v13 is a complete rewrite with breaking changes. For example:
 >
 > - **(Removed) Separate authenticator package** — TOTP now covers all authenticator functionality with default plugins
