@@ -288,6 +288,7 @@ jobs:
   reporting:
     name: Reporting (Coverage and Bundle Analysis)
     needs: build-and-test
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push' }}
     runs-on: ubuntu-latest
     environment: test
     permissions:
@@ -382,7 +383,7 @@ jobs:
              [[ "${{ needs.test-deno.result }}" != "success" ]] || \
              [[ "${{ needs.test-bun.result }}" != "success" ]] || \
              [[ "${{ needs.security-audit.result }}" != "success" ]] || \
-             [[ "${{ needs.reporting.result }}" != "success" ]]; then
+             [[ "${{ needs.reporting.result }}" != "success" && "${{ needs.reporting.result }}" != "skipped" ]]; then
             echo "One or more checks failed"
             exit 1
           fi
