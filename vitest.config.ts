@@ -72,6 +72,7 @@ export default defineConfig({
         "**/*.spec.ts",
         "**/*.d.ts",
         "tests/**",
+        // CLI entry points (shebang wrappers that call program.parse) — not unit-testable
         "packages/otplib-cli/src/**/cli.ts",
       ],
       thresholds: {
