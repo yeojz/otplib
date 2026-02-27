@@ -2,9 +2,3 @@ packages:
   - "apps/*"
   - "internal/*"
   - "packages/*"
-
-auditConfig:
-  ignoreCves:
-    # The vulnerable $data option is not enabled in ESLint's ajv usage
-    # Pending upstream fix: https://github.com/eslint/eslint/issues/20508.
-    - CVE-2025-69873
