@@ -1,6 +1,6 @@
 {
   "name": "otplib-cli",
-  "version": "2.0.0",
+  "version": "13.3.0",
   "description": "CLI tool for managing encrypted OTP vaults",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
@@ -11,13 +11,12 @@
   },
   "main": "./dist/index.cjs",
   "files": [
-    "dist",
-    "bin"
+    "dist"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/yeojz/otplib.git",
-    "directory": "apps/otplib-cli"
+    "directory": "packages/otplib-cli"
   },
   "keywords": [
     "otp",
@@ -29,6 +28,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "clean": "rm -rf dist .tsbuildinfo",
     "dev": "tsup --watch",
     "test": "vitest",
     "test:ci": "vitest run --coverage",
