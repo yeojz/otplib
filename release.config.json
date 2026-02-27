@@ -11,8 +11,8 @@
       "@otplib/plugin-crypto-web",
       "@otplib/preset-v11",
       "@otplib/v12-adapter",
-      "otplib"
-    ],
-    "cli": ["otplib-cli"]
+      "otplib",
+      "otplib-cli"
+    ]
   }
 }

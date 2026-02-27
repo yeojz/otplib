@@ -56,19 +56,6 @@ export default defineConfig({
           exclude: ["**/node_modules/**", "dist/**"],
         },
       }),
-      defineProject({
-        resolve: {
-          alias,
-        },
-        test: {
-          name: "otplib-cli",
-          root: path.resolve(__dirname, "apps/otplib-cli"),
-          globals: true,
-          environment: "node",
-          include: ["**/*.test.ts"],
-          exclude: ["**/node_modules/**", "dist/**"],
-        },
-      }),
     ],
     // Global coverage settings
     coverage: {
@@ -76,7 +63,7 @@ export default defineConfig({
       reporter: process.env.CI
         ? ["text", "json", "lcov", "json-summary"]
         : ["text", "json", "html", "lcov", "json-summary"],
-      include: ["packages/*/src/**/*.ts", "apps/otplib-cli/src/**/*.ts"],
+      include: ["packages/*/src/**/*.ts"],
       exclude: [
         "node_modules/",
         "dist/**",
@@ -85,16 +72,11 @@ export default defineConfig({
         "**/*.spec.ts",
         "**/*.d.ts",
         "tests/**",
-        "apps/otplib-cli/src/**/cli.ts",
+        // CLI entry points (shebang wrappers that call program.parse) — not unit-testable
+        "packages/otplib-cli/src/**/cli.ts",
       ],
       thresholds: {
         "packages/*/src/**": {
-          lines: 100,
-          branches: 100,
-          functions: 100,
-          statements: 100,
-        },
-        "apps/otplib-cli/src/**": {
           lines: 100,
           branches: 100,
           functions: 100,

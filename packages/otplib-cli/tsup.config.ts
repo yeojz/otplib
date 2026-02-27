@@ -6,7 +6,6 @@ export default defineConfig({
     otplibx: "src/otplibx/cli.ts",
   },
   format: ["cjs"],
-  dts: true,
   clean: true,
   sourcemap: true,
   target: "node20",

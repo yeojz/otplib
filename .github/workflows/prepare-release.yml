@@ -9,7 +9,6 @@ on:
         type: choice
         options:
           - packages
-          - cli
       bump:
         description: "Version bump type"
         required: true
