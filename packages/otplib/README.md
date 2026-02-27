@@ -42,6 +42,27 @@ bun add otplib
 deno install npm:otplib
 ```
 
+### CDN / Script Tag
+
+A self-contained IIFE build is available for use directly in browsers via a `<script>` tag:
+
+```html
+<!-- unpkg -->
+<script src="https://unpkg.com/otplib/dist/index.global.js"></script>
+
+<!-- or jsdelivr -->
+<script src="https://cdn.jsdelivr.net/npm/otplib/dist/index.global.js"></script>
+
+<script>
+  const { generateSecret, generate, verify } = otplib;
+
+  const secret = generateSecret();
+  generate({ secret }).then((token) => console.log("Token:", token));
+</script>
+```
+
+The IIFE build bundles all dependencies (including crypto and base32 plugins) into a single file and exposes everything under the `otplib` global.
+
 ## Quick Start
 
 ### Functional API (Recommended)

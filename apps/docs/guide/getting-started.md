@@ -37,6 +37,27 @@ npm install @otplib/plugin-base32-scure
 npm install @otplib/core
 ```
 
+### CDN / Script Tag
+
+For quick prototyping or environments without a bundler, use the IIFE build directly in the browser:
+
+```html
+<!-- unpkg -->
+<script src="https://unpkg.com/otplib/dist/index.global.js"></script>
+
+<!-- or jsdelivr -->
+<script src="https://cdn.jsdelivr.net/npm/otplib/dist/index.global.js"></script>
+
+<script>
+  const { generateSecret, generate, verify } = otplib;
+
+  const secret = generateSecret();
+  generate({ secret }).then((token) => console.log("Token:", token));
+</script>
+```
+
+The IIFE build bundles all dependencies into a single file and exposes everything under the `otplib` global.
+
 ## Quick Start
 
 ### Functional API (Recommended)
