@@ -51,6 +51,44 @@ const token = await generate({
 });
 ```
 
+#### With raw string secrets
+
+If your secret is a plain string (e.g. a passphrase), convert it to `Uint8Array` first using `stringToBytes` from `@otplib/core`:
+
+```typescript
+import { generate } from "@otplib/totp";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { stringToBytes } from "@otplib/core";
+
+const token = await generate({
+  secret: stringToBytes("mysecretpassphrase"),
+  crypto,
+});
+```
+
+Alternatively, [`@otplib/plugin-base32-alt`](https://www.npmjs.com/package/@otplib/plugin-base32-alt) provides bypass plugins for secrets in other encodings:
+
+```typescript
+import { generate } from "@otplib/totp";
+import { crypto } from "@otplib/plugin-crypto-node";
+import { bypassAsHex } from "@otplib/plugin-base32-alt";
+
+const token = await generate({
+  secret: "48656c6c6f", // hex-encoded secret
+  base32: bypassAsHex,
+  crypto,
+});
+```
+
+| Name             | Input format     |
+| ---------------- | ---------------- |
+| `bypassAsString` | Raw UTF-8 string |
+| `bypassAsHex`    | Hex string       |
+| `bypassAsBase64` | Base64 string    |
+
+> [!NOTE]
+> Raw string and bypass secrets are **not compatible** with authenticator apps or `otpauth://` URIs, which always expect Base32-encoded secrets.
+
 ### verify
 
 Verify a TOTP code:
@@ -116,6 +154,19 @@ const secret = new Uint8Array([
 const token = generateSync({ secret, crypto });
 const result = verifySync({ secret, token, crypto });
 ```
+
+## Compatibility with Authenticator Apps
+
+Most authenticator apps (Google Authenticator, Authy, Microsoft Authenticator, 1Password, etc.) use the following defaults:
+
+| Parameter   | Compatible Value | Notes                                       |
+| ----------- | ---------------- | ------------------------------------------- |
+| `algorithm` | `sha1`           | SHA-256/512 not supported by most apps      |
+| `digits`    | `6`              | 8-digit tokens not supported by most apps   |
+| `period`    | `30`             | 60-second period not supported by most apps |
+| `secret`    | Base32 string    | Always Base32-encoded in QR codes/URIs      |
+
+If you need to provision an authenticator app via QR code, use [`@otplib/uri`](https://www.npmjs.com/package/@otplib/uri) to generate an `otpauth://totp/` URI.
 
 ## Documentation
 

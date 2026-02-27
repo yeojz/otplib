@@ -20,7 +20,9 @@
     "2fa",
     "mfa",
     "time-based",
-    "one-time-password"
+    "one-time-password",
+    "authenticator",
+    "google-authenticator"
   ],
   "sideEffects": false,
   "type": "module",
