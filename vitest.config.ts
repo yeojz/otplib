@@ -62,7 +62,7 @@ export default defineConfig({
         },
         test: {
           name: "otplib-cli",
-          root: path.resolve(__dirname, "apps/otplib-cli"),
+          root: path.resolve(__dirname, "packages/otplib-cli"),
           globals: true,
           environment: "node",
           include: ["**/*.test.ts"],
@@ -76,7 +76,7 @@ export default defineConfig({
       reporter: process.env.CI
         ? ["text", "json", "lcov", "json-summary"]
         : ["text", "json", "html", "lcov", "json-summary"],
-      include: ["packages/*/src/**/*.ts", "apps/otplib-cli/src/**/*.ts"],
+      include: ["packages/*/src/**/*.ts", "packages/otplib-cli/src/**/*.ts"],
       exclude: [
         "node_modules/",
         "dist/**",
@@ -85,7 +85,7 @@ export default defineConfig({
         "**/*.spec.ts",
         "**/*.d.ts",
         "tests/**",
-        "apps/otplib-cli/src/**/cli.ts",
+        "packages/otplib-cli/src/**/cli.ts",
       ],
       thresholds: {
         "packages/*/src/**": {
@@ -94,7 +94,7 @@ export default defineConfig({
           functions: 100,
           statements: 100,
         },
-        "apps/otplib-cli/src/**": {
+        "packages/otplib-cli/src/**": {
           lines: 100,
           branches: 100,
           functions: 100,
