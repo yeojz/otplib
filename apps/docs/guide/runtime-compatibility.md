@@ -72,6 +72,36 @@ const token = await generate({ secret, crypto, base32 });
 The Web Crypto API requires a secure context (HTTPS) in browsers. Token generation will fail on non-secure origins.
 :::
 
+### CDN / Script Tag
+
+For use without a bundler, otplib provides a self-contained IIFE build that bundles all dependencies (including `@otplib/plugin-crypto-noble` and `@otplib/plugin-base32-scure`) into a single file:
+
+```html
+<!-- unpkg -->
+<script src="https://unpkg.com/otplib/dist/index.global.js"></script>
+
+<!-- or jsdelivr -->
+<script src="https://cdn.jsdelivr.net/npm/otplib/dist/index.global.js"></script>
+
+<script>
+  // Everything is available under the otplib global
+  const { generateSecret, generate, verify, generateURI, OTP } = otplib;
+
+  async function demo() {
+    const secret = generateSecret();
+    const token = await generate({ secret });
+    const result = await verify({ secret, token });
+    console.log("Valid:", result.valid);
+  }
+
+  demo();
+</script>
+```
+
+::: tip
+The IIFE build uses the noble crypto plugin (pure JS), so it works in any browser without requiring a secure context (HTTPS). If you need Web Crypto API instead, use the module-based import with `@otplib/plugin-crypto-web`.
+:::
+
 ## Universal Code
 
 For code that needs to run across all runtimes, use the pure JavaScript plugins:
