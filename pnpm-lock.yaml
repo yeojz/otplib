@@ -106,28 +106,6 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4(@algolia/client-search@5.47.0)(@types/node@25.3.0)(postcss@8.5.6)(qrcode@1.5.4)(search-insights@2.17.3)(typescript@5.9.3)
 
-  apps/otplib-cli:
-    dependencies:
-      commander:
-        specifier: ^14.0.3
-        version: 14.0.3
-      otplib:
-        specifier: workspace:*
-        version: link:../../packages/otplib
-    devDependencies:
-      '@types/node':
-        specifier: ^25.3.0
-        version: 25.3.0
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.18
-        version: 4.0.18(@types/node@25.3.0)(tsx@4.21.0)(yaml@2.8.2)
-
   internal/benchmarks:
     dependencies:
       '@otplib/core':
@@ -328,6 +306,28 @@ importers:
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.3.0)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/otplib-cli:
+    dependencies:
+      commander:
+        specifier: ^14.0.3
+        version: 14.0.3
+      otplib:
+        specifier: workspace:*
+        version: link:../otplib
+    devDependencies:
+      '@types/node':
+        specifier: ^25.3.0
+        version: 25.3.0
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
