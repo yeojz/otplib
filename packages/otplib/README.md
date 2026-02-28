@@ -133,11 +133,13 @@ const result = await otp.verify({ secret, token, counter: 0 });
 console.log(result.valid); // true or false
 ```
 
-## Notes
+## Compatibility with Authenticator Apps
 
 ### Secret Format
 
-By default, otplib expects secrets to be in **Base32** format. While the core HOTP (RFC 4226) and TOTP (RFC 6238) specifications work with raw binary data and don't mandate Base32 encoding, Base32 is the standard format used by authenticator applications and QR code URIs for compatibility.
+By default, otplib expects secrets to be in **Base32** format. This is the ensure broader compatiblity as it the standard format used by authenticator applications and QR code URIs.
+
+While the core HOTP (RFC 4226) and TOTP (RFC 6238) specifications work with raw binary data and don't mandate Base32 encoding, Base32
 
 ```typescript
 // Base32 secret (standard format for authenticator compatibility)
@@ -147,6 +149,21 @@ const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY";
 However, if you need to use secrets in other formats, you can either use the `plugin-base32-alt` plugin for raw strings or pass a byte array (using `stringToBytes` helper) for binary data.
 
 For more details and examples, see the [Secret Handling Guide](https://otplib.yeojz.dev/guide/secret-handling) and related plugin documentation in the guides directory.
+
+### Configuration Defaults
+
+RFC 4226 (HOTP) and RFC 6238 (TOTP) define flexible algorithms that allow different hash functions, digit lengths, and time steps. However, most authenticator apps (Google Authenticator, Authy, Microsoft Authenticator, 1Password, etc.) and services offering 2 factor authentication use the following defaults:
+
+| Parameter   | Value         |
+| ----------- | ------------- |
+| `algorithm` | `sha1`        |
+| `digits`    | `6`           |
+| `period`    | `30`          |
+| `secret`    | Base32 string |
+
+If you are deviating from these values, do validate that it is supported by the target application.
+
+If you need to provision an authenticator app via QR code, use [`@otplib/uri`](https://www.npmjs.com/package/@otplib/uri) to generate an `otpauth://totp/` URI.
 
 ## Documentation
 

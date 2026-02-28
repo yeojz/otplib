@@ -157,14 +157,16 @@ const result = verifySync({ secret, token, crypto });
 
 ## Compatibility with Authenticator Apps
 
-Most authenticator apps (Google Authenticator, Authy, Microsoft Authenticator, 1Password, etc.) use the following defaults:
+RFC 4226 (HOTP) and RFC 6238 (TOTP) define flexible algorithms that allow different hash functions, digit lengths, and time steps. However, most authenticator apps (Google Authenticator, Authy, Microsoft Authenticator, 1Password, etc.) and services offering 2 factor authentication use the following defaults:
 
-| Parameter   | Compatible Value | Notes                                       |
-| ----------- | ---------------- | ------------------------------------------- |
-| `algorithm` | `sha1`           | SHA-256/512 not supported by most apps      |
-| `digits`    | `6`              | 8-digit tokens not supported by most apps   |
-| `period`    | `30`             | 60-second period not supported by most apps |
-| `secret`    | Base32 string    | Always Base32-encoded in QR codes/URIs      |
+| Parameter   | Value         |
+| ----------- | ------------- |
+| `algorithm` | `sha1`        |
+| `digits`    | `6`           |
+| `period`    | `30`          |
+| `secret`    | Base32 string |
+
+If you are deviating from these values, do validate that it is supported by the target application.
 
 If you need to provision an authenticator app via QR code, use [`@otplib/uri`](https://www.npmjs.com/package/@otplib/uri) to generate an `otpauth://totp/` URI.
 
