@@ -96,7 +96,7 @@ describe("TOTP Class", () => {
     expect(totp).toBeInstanceOf(TOTP);
   });
 
-  it("should return detailed result when format is 'detailed'", async () => {
+  it("should return full result when format is 'full'", async () => {
     const epoch = 1234567890;
     const totp = new TOTP({
       secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
@@ -171,5 +171,65 @@ describe("TOTP Class", () => {
     expect(detailedResult).toHaveProperty("token");
     expect(detailedResult).toHaveProperty("timeStep");
     expect(detailedResult).toHaveProperty("epoch");
+  });
+
+  it("should return boolean when verify format is 'plain'", async () => {
+    const totp = new TOTP({
+      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      crypto,
+      base32,
+    });
+
+    const epoch = 1234567890;
+    const token = await totp.generate({ epoch });
+    const result = await totp.verify(token, { epoch, format: "plain" });
+
+    expect(result).toBe(true);
+  });
+
+  it("should return false when verify format is 'plain' and token is invalid", async () => {
+    const totp = new TOTP({
+      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      crypto,
+      base32,
+    });
+
+    const result = await totp.verify("000000", { epoch: 1234567890, format: "plain" });
+
+    expect(result).toBe(false);
+  });
+
+  it("should return VerifyResult when verify format is 'full'", async () => {
+    const totp = new TOTP({
+      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      crypto,
+      base32,
+    });
+
+    const epoch = 1234567890;
+    const token = await totp.generate({ epoch });
+    const result = await totp.verify(token, { epoch, format: "full" });
+
+    expect(result).toEqual({
+      valid: true,
+      delta: 0,
+      epoch: expect.any(Number),
+      timeStep: expect.any(Number),
+    });
+  });
+
+  it("should return VerifyResult when verify format is omitted (default)", async () => {
+    const totp = new TOTP({
+      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      crypto,
+      base32,
+    });
+
+    const epoch = 1234567890;
+    const token = await totp.generate({ epoch });
+    const result = await totp.verify(token, { epoch });
+
+    expect(result).toHaveProperty("valid", true);
+    expect(result).toHaveProperty("delta");
   });
 });

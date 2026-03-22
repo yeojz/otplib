@@ -225,11 +225,11 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
     });
 
     describe("generate format option", () => {
-      it("should return detailed result for TOTP with format 'detailed'", async () => {
+      it("should return full result for TOTP with format 'full'", async () => {
         const result = await generate({
           secret: TEST_SECRET,
           epoch: 1234567890,
-          format: "detailed",
+          format: "full",
         });
         expect(typeof result).toBe("object");
         expect(result).toHaveProperty("token");
@@ -237,22 +237,22 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(result).toHaveProperty("epoch");
       });
 
-      it("should return string for HOTP even with format 'detailed'", async () => {
+      it("should return string for HOTP even with format 'full'", async () => {
         const result = await generate({
           secret: TEST_SECRET,
           strategy: "hotp",
           counter: 0,
-          format: "detailed",
+          format: "full",
         });
         // HOTP ignores format, returns string
         expect(typeof result).toBe("string");
       });
 
-      it("should return detailed result from generateSync for TOTP", () => {
+      it("should return full result from generateSync for TOTP", () => {
         const result = generateSync({
           secret: TEST_SECRET,
           epoch: 1234567890,
-          format: "detailed",
+          format: "full",
         });
         expect(typeof result).toBe("object");
         expect(result).toHaveProperty("token");
@@ -262,12 +262,12 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
     });
 
     describe("OTP class format option", () => {
-      it("should return detailed result from OTP class with TOTP strategy", async () => {
+      it("should return full result from OTP class with TOTP strategy", async () => {
         const otp = new OTP({ strategy: "totp" });
         const result = await otp.generate({
           secret: TEST_SECRET,
           epoch: 1234567890,
-          format: "detailed",
+          format: "full",
         });
         expect(typeof result).toBe("object");
         expect(result).toHaveProperty("token");
@@ -275,12 +275,12 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(result).toHaveProperty("epoch");
       });
 
-      it("should return detailed result from OTP class generateSync", () => {
+      it("should return full result from OTP class generateSync", () => {
         const otp = new OTP({ strategy: "totp" });
         const result = otp.generateSync({
           secret: TEST_SECRET,
           epoch: 1234567890,
-          format: "detailed",
+          format: "full",
         });
         expect(typeof result).toBe("object");
         expect(result).toHaveProperty("token");
@@ -288,26 +288,113 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(result).toHaveProperty("epoch");
       });
 
-      it("should return string from OTP class with HOTP strategy even with format 'detailed'", async () => {
+      it("should return string from OTP class with HOTP strategy even with format 'full'", async () => {
         const otp = new OTP({ strategy: "hotp" });
         const result = await otp.generate({
           secret: TEST_SECRET,
           counter: 0,
-          format: "detailed",
+          format: "full",
         });
         // HOTP ignores format; always returns a string
         expect(typeof result).toBe("string");
       });
 
-      it("should return string from OTP class generateSync with HOTP strategy and format 'detailed'", () => {
+      it("should return string from OTP class generateSync with HOTP strategy and format 'full'", () => {
         const otp = new OTP({ strategy: "hotp" });
         const result = otp.generateSync({
           secret: TEST_SECRET,
           counter: 0,
-          format: "detailed",
+          format: "full",
         });
         // HOTP ignores format; always returns a string
         expect(typeof result).toBe("string");
+      });
+    });
+
+    describe("verify format options", () => {
+      it("should return boolean when format is 'plain'", async () => {
+        const token = await generate({ secret: TEST_SECRET, epoch: 1234567890 });
+        const result = await verify({
+          secret: TEST_SECRET,
+          token,
+          epoch: 1234567890,
+          format: "plain",
+        });
+        expect(result).toBe(true);
+      });
+
+      it("should return false when format is 'plain' and token is invalid", async () => {
+        const result = await verify({
+          secret: TEST_SECRET,
+          token: "000000",
+          epoch: 1234567890,
+          format: "plain",
+        });
+        expect(result).toBe(false);
+      });
+
+      it("should return VerifyResult when format is 'full'", async () => {
+        const token = await generate({ secret: TEST_SECRET, epoch: 1234567890 });
+        const result = await verify({
+          secret: TEST_SECRET,
+          token,
+          epoch: 1234567890,
+          format: "full",
+        });
+        expect(result).toEqual({
+          valid: true,
+          delta: 0,
+          epoch: expect.any(Number),
+          timeStep: expect.any(Number),
+        });
+      });
+
+      it("should return VerifyResult when format is omitted (default)", async () => {
+        const token = await generate({ secret: TEST_SECRET, epoch: 1234567890 });
+        const result = await verify({
+          secret: TEST_SECRET,
+          token,
+          epoch: 1234567890,
+        });
+        expect(result).toHaveProperty("valid", true);
+        expect(result).toHaveProperty("delta");
+      });
+
+      it("should return boolean when format is 'plain' (sync)", () => {
+        const token = generateSync({ secret: TEST_SECRET, epoch: 1234567890 });
+        const result = verifySync({
+          secret: TEST_SECRET,
+          token,
+          epoch: 1234567890,
+          format: "plain",
+        });
+        expect(result).toBe(true);
+      });
+
+      it("should return false when format is 'plain' and token is invalid (sync)", () => {
+        const result = verifySync({
+          secret: TEST_SECRET,
+          token: "000000",
+          epoch: 1234567890,
+          format: "plain",
+        });
+        expect(result).toBe(false);
+      });
+
+      it("should return VerifyResult when format is 'full' (sync)", () => {
+        const token = generateSync({ secret: TEST_SECRET, epoch: 1234567890 });
+        const result = verifySync({
+          secret: TEST_SECRET,
+          token,
+          epoch: 1234567890,
+          format: "full",
+        });
+        expect(result).toEqual({
+          valid: true,
+          delta: 0,
+          epoch: expect.any(Number),
+          timeStep: expect.any(Number),
+        });
       });
     });
 

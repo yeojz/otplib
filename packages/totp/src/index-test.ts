@@ -296,7 +296,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         expect(typeof result).toBe("string");
       });
 
-      it("should return detailed result when format is 'detailed'", async () => {
+      it("should return full result when format is 'full'", async () => {
         const result = await generate({
           secret,
           epoch: 1234567890,
@@ -387,7 +387,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
         expect(typeof result).toBe("string");
       });
 
-      it("should return detailed result from generateSync when format is 'detailed'", () => {
+      it("should return full result from generateSync when format is 'full'", () => {
         const result = generateSync({
           secret,
           epoch: 1234567890,
@@ -413,6 +413,122 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           format: "full",
         });
         expect(detailed.token).toBe(plain);
+      });
+
+      it("should return string when format is 'plain'", async () => {
+        const result = await generate({
+          secret,
+          crypto,
+          epoch: 59,
+          format: "plain",
+        });
+        expect(typeof result).toBe("string");
+        expect(result).toBe("287082");
+      });
+
+      it("should return string when format is 'plain' (sync)", () => {
+        const result = generateSync({
+          secret,
+          crypto,
+          epoch: 59,
+          format: "plain",
+        });
+        expect(typeof result).toBe("string");
+        expect(result).toBe("287082");
+      });
+    });
+
+    describe("verify format options", () => {
+      it("should return boolean when format is 'plain'", async () => {
+        const token = await generate({ secret, crypto, epoch: 59 });
+        const result = await verify({
+          secret,
+          crypto,
+          token,
+          epoch: 59,
+          format: "plain",
+        });
+        expect(result).toBe(true);
+      });
+
+      it("should return false when format is 'plain' and token is invalid", async () => {
+        const result = await verify({
+          secret,
+          crypto,
+          token: "000000",
+          epoch: 59,
+          format: "plain",
+        });
+        expect(result).toBe(false);
+      });
+
+      it("should return VerifyResult when format is 'full'", async () => {
+        const token = await generate({ secret, crypto, epoch: 59 });
+        const result = await verify({
+          secret,
+          crypto,
+          token,
+          epoch: 59,
+          format: "full",
+        });
+        expect(result).toEqual({
+          valid: true,
+          delta: 0,
+          epoch: expect.any(Number),
+          timeStep: expect.any(Number),
+        });
+      });
+
+      it("should return VerifyResult when format is omitted (default)", async () => {
+        const token = await generate({ secret, crypto, epoch: 59 });
+        const result = await verify({
+          secret,
+          crypto,
+          token,
+          epoch: 59,
+        });
+        expect(result).toHaveProperty("valid", true);
+        expect(result).toHaveProperty("delta");
+      });
+
+      it("should return boolean when format is 'plain' (sync)", () => {
+        const token = generateSync({ secret, crypto, epoch: 59 });
+        const result = verifySync({
+          secret,
+          crypto,
+          token,
+          epoch: 59,
+          format: "plain",
+        });
+        expect(result).toBe(true);
+      });
+
+      it("should return false when format is 'plain' and token is invalid (sync)", () => {
+        const result = verifySync({
+          secret,
+          crypto,
+          token: "000000",
+          epoch: 59,
+          format: "plain",
+        });
+        expect(result).toBe(false);
+      });
+
+      it("should return VerifyResult when format is 'full' (sync)", () => {
+        const token = generateSync({ secret, crypto, epoch: 59 });
+        const result = verifySync({
+          secret,
+          crypto,
+          token,
+          epoch: 59,
+          format: "full",
+        });
+        expect(result).toEqual({
+          valid: true,
+          delta: 0,
+          epoch: expect.any(Number),
+          timeStep: expect.any(Number),
+        });
       });
     });
 
