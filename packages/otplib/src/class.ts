@@ -24,7 +24,8 @@ import type {
   Base32Plugin,
   OTPGuardrails,
   OTPHooks,
-  TOTPGenerateResult,
+  OTPFormat,
+  GenerateResult,
 } from "@otplib/core";
 import type { VerifyResult as HOTPVerifyResult } from "@otplib/hotp";
 import type { VerifyResult as TOTPVerifyResult } from "@otplib/totp";
@@ -201,6 +202,17 @@ export type OTPVerifyOptions = {
    * Hooks for customizing token encoding and validation
    */
   hooks?: OTPHooks;
+
+  /**
+   * Output format for verification
+   *
+   * - `"default"` (or omitted): returns `VerifyResult` object (same as `"full"`)
+   * - `"plain"`: returns `boolean` (true if valid, false if invalid)
+   * - `"full"`: returns `VerifyResult` object with delta, epoch, and timeStep
+   *
+   * Only used by TOTP strategy. HOTP ignores this option.
+   */
+  format?: OTPFormat;
 };
 
 /**
@@ -326,21 +338,21 @@ export class OTP {
   /**
    * Generate an OTP token based on the configured strategy
    *
-   * When `format: "detailed"` is passed with a TOTP strategy, returns
-   * `TOTPGenerateResult`. HOTP strategy ignores `format` and always
+   * When `format: "full"` is passed with a TOTP strategy, returns
+   * `GenerateResult`. HOTP strategy ignores `format` and always
    * returns a string, so the return type is widened to the union.
    *
    * @param options - Generation options
-   * @returns OTP code (string for HOTP, string or TOTPGenerateResult for TOTP with format)
+   * @returns OTP code (string for HOTP, string or GenerateResult for TOTP with format)
    */
   async generate(
-    options: OTPGenerateOptions & { format: "detailed" },
-  ): Promise<string | TOTPGenerateResult>;
+    options: OTPGenerateOptions & { format: "full" },
+  ): Promise<string | GenerateResult>;
   async generate(
-    options: Omit<OTPGenerateOptions, "format"> & { format?: "default" },
+    options: Omit<OTPGenerateOptions, "format"> & { format?: "default" | "plain" },
   ): Promise<string>;
-  async generate(options: OTPGenerateOptions): Promise<string | TOTPGenerateResult>;
-  async generate(options: OTPGenerateOptions): Promise<string | TOTPGenerateResult> {
+  async generate(options: OTPGenerateOptions): Promise<string | GenerateResult>;
+  async generate(options: OTPGenerateOptions): Promise<string | GenerateResult> {
     return functionalGenerate({
       ...options,
       strategy: this.strategy,
@@ -353,18 +365,20 @@ export class OTP {
   /**
    * Generate an OTP token based on the configured strategy synchronously
    *
-   * When `format: "detailed"` is passed with a TOTP strategy, returns
-   * `TOTPGenerateResult`. HOTP strategy ignores `format` and always
+   * When `format: "full"` is passed with a TOTP strategy, returns
+   * `GenerateResult`. HOTP strategy ignores `format` and always
    * returns a string, so the return type is widened to the union.
    *
    * @param options - Generation options
-   * @returns OTP code (string for HOTP, string or TOTPGenerateResult for TOTP with format)
+   * @returns OTP code (string for HOTP, string or GenerateResult for TOTP with format)
    * @throws {HMACError} If the crypto plugin doesn't support sync operations
    */
-  generateSync(options: OTPGenerateOptions & { format: "detailed" }): string | TOTPGenerateResult;
-  generateSync(options: Omit<OTPGenerateOptions, "format"> & { format?: "default" }): string;
-  generateSync(options: OTPGenerateOptions): string | TOTPGenerateResult;
-  generateSync(options: OTPGenerateOptions): string | TOTPGenerateResult {
+  generateSync(options: OTPGenerateOptions & { format: "full" }): string | GenerateResult;
+  generateSync(
+    options: Omit<OTPGenerateOptions, "format"> & { format?: "default" | "plain" },
+  ): string;
+  generateSync(options: OTPGenerateOptions): string | GenerateResult;
+  generateSync(options: OTPGenerateOptions): string | GenerateResult {
     return functionalGenerateSync({
       ...options,
       strategy: this.strategy,
@@ -380,7 +394,9 @@ export class OTP {
    * @param options - Verification options
    * @returns Verification result with validity and optional delta
    */
-  async verify(options: OTPVerifyOptions): Promise<VerifyResult> {
+  async verify(options: OTPVerifyOptions & { format: "plain" }): Promise<boolean>;
+  async verify(options: OTPVerifyOptions): Promise<VerifyResult>;
+  async verify(options: OTPVerifyOptions): Promise<boolean | VerifyResult> {
     return functionalVerify({
       ...options,
       strategy: this.strategy,
@@ -397,7 +413,9 @@ export class OTP {
    * @returns Verification result with validity and optional delta
    * @throws {HMACError} If the crypto plugin doesn't support sync operations
    */
-  verifySync(options: OTPVerifyOptions): VerifyResult {
+  verifySync(options: OTPVerifyOptions & { format: "plain" }): boolean;
+  verifySync(options: OTPVerifyOptions): VerifyResult;
+  verifySync(options: OTPVerifyOptions): boolean | VerifyResult {
     return functionalVerifySync({
       ...options,
       strategy: this.strategy,

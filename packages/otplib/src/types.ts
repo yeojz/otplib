@@ -117,8 +117,9 @@ export type TOTPExtraArgs = {
   /**
    * Output format for TOTP generation
    *
-   * - `"default"` (or omitted): returns a plain `string` token
-   * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
+   * - `"default"` (or omitted): returns a plain `string` token (same as `"plain"`)
+   * - `"plain"`: returns a plain `string` token
+   * - `"full"`: returns `{ token, timeStep, epoch }` with computed metadata
    */
   format?: OTPFormat;
 };
@@ -205,8 +206,11 @@ export type OTPVerifyCommonOptions = OTPGenerateCommonOptions & {
   /**
    * Output format for verification
    *
-   * Accepted for backward compatibility and ignored by verify operations.
-   * This will be tightened in a future major version.
+   * - `"default"` (or omitted): returns `VerifyResult` object (same as `"full"`)
+   * - `"plain"`: returns `boolean` (true if valid, false if invalid)
+   * - `"full"`: returns `VerifyResult` object with delta, epoch, and timeStep
+   *
+   * Only used by TOTP strategy. HOTP ignores this option.
    */
   format?: OTPFormat;
 };

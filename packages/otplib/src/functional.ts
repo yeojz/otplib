@@ -28,13 +28,14 @@ import type {
   OTPStrategy,
   TOTPGenerateOptions,
   HOTPGenerateOptions,
+  TOTPVerifyOptions,
 } from "./types.js";
 import type {
   CryptoPlugin,
   Base32Plugin,
   Digits,
   HashAlgorithm,
-  TOTPGenerateResult,
+  GenerateResult,
 } from "@otplib/core";
 import type { VerifyResult as HOTPVerifyResult } from "@otplib/hotp";
 import type { VerifyResult as TOTPVerifyResult } from "@otplib/totp";
@@ -231,11 +232,11 @@ export function generateURI(options: {
  * ```
  */
 export async function generate(
-  options: TOTPGenerateOptions & { format: "detailed" },
-): Promise<TOTPGenerateResult>;
+  options: TOTPGenerateOptions & { format: "full" },
+): Promise<GenerateResult>;
 export async function generate(options: TOTPGenerateOptions): Promise<string>;
 export async function generate(options: HOTPGenerateOptions): Promise<string>;
-export async function generate(options: OTPGenerateOptions): Promise<string | TOTPGenerateResult> {
+export async function generate(options: OTPGenerateOptions): Promise<string | GenerateResult> {
   const strategy = resolveStrategy(options.strategy);
 
   if (strategy === "hotp") {
@@ -298,12 +299,10 @@ export async function generate(options: OTPGenerateOptions): Promise<string | TO
  * });
  * ```
  */
-export function generateSync(
-  options: TOTPGenerateOptions & { format: "detailed" },
-): TOTPGenerateResult;
+export function generateSync(options: TOTPGenerateOptions & { format: "full" }): GenerateResult;
 export function generateSync(options: TOTPGenerateOptions): string;
 export function generateSync(options: HOTPGenerateOptions): string;
-export function generateSync(options: OTPGenerateOptions): string | TOTPGenerateResult {
+export function generateSync(options: OTPGenerateOptions): string | GenerateResult {
   const strategy = resolveStrategy(options.strategy);
 
   if (strategy === "hotp") {
@@ -394,7 +393,9 @@ export function generateSync(options: OTPGenerateOptions): string | TOTPGenerate
  * });
  * ```
  */
-export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
+export async function verify(options: TOTPVerifyOptions & { format: "plain" }): Promise<boolean>;
+export async function verify(options: OTPVerifyOptions): Promise<VerifyResult>;
+export async function verify(options: OTPVerifyOptions): Promise<boolean | VerifyResult> {
   const strategy = resolveStrategy(options.strategy);
 
   if (strategy === "hotp") {
@@ -439,6 +440,7 @@ export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
     epochTolerance: opts.epochTolerance,
     afterTimeStep: opts.afterTimeStep,
     guardrails: opts.guardrails,
+    format: opts.format,
   });
 }
 
@@ -462,7 +464,9 @@ export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
  * });
  * ```
  */
-export function verifySync(options: OTPVerifyOptions): VerifyResult {
+export function verifySync(options: TOTPVerifyOptions & { format: "plain" }): boolean;
+export function verifySync(options: OTPVerifyOptions): VerifyResult;
+export function verifySync(options: OTPVerifyOptions): boolean | VerifyResult {
   const strategy = resolveStrategy(options.strategy);
 
   if (strategy === "hotp") {
@@ -507,5 +511,6 @@ export function verifySync(options: OTPVerifyOptions): VerifyResult {
     epochTolerance: opts.epochTolerance,
     afterTimeStep: opts.afterTimeStep,
     guardrails: opts.guardrails,
+    format: opts.format,
   });
 }

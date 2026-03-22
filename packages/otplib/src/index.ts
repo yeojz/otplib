@@ -31,7 +31,7 @@ export type {
   OTPGuardrails,
   OTPGuardrailsConfig,
   OTPFormat,
-  TOTPGenerateResult,
+  GenerateResult,
 } from "@otplib/core";
 export type { VerifyResult } from "@otplib/totp";
 
