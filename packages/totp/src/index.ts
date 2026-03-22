@@ -440,9 +440,7 @@ export async function verify(options: TOTPVerifyOptions): Promise<boolean | Veri
  * }
  * ```
  */
-export function verifySync(
-  options: TOTPVerifyOptions & { readonly format: "plain" },
-): boolean;
+export function verifySync(options: TOTPVerifyOptions & { readonly format: "plain" }): boolean;
 export function verifySync(
   options: TOTPVerifyOptions & { readonly format?: "default" | "full" },
 ): VerifyResult;

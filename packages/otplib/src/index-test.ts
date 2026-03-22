@@ -341,12 +341,16 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
           epoch: 1234567890,
           format: "full",
         });
-        expect(result).toEqual({
-          valid: true,
-          delta: 0,
-          epoch: expect.any(Number),
-          timeStep: expect.any(Number),
-        });
+        const verifyResult = result as {
+          valid: boolean;
+          delta: number;
+          epoch: number;
+          timeStep: number;
+        };
+        expect(verifyResult.valid).toBe(true);
+        expect(verifyResult.delta).toBe(0);
+        expect(typeof verifyResult.epoch).toBe("number");
+        expect(typeof verifyResult.timeStep).toBe("number");
       });
 
       it("should return VerifyResult when format is omitted (default)", async () => {
@@ -356,8 +360,9 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
           token,
           epoch: 1234567890,
         });
-        expect(result).toHaveProperty("valid", true);
-        expect(result).toHaveProperty("delta");
+        const verifyResult = result as { valid: boolean; delta: number };
+        expect(verifyResult.valid).toBe(true);
+        expect(typeof verifyResult.delta).toBe("number");
       });
 
       it("should return boolean when format is 'plain' (sync)", () => {
@@ -389,12 +394,16 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
           epoch: 1234567890,
           format: "full",
         });
-        expect(result).toEqual({
-          valid: true,
-          delta: 0,
-          epoch: expect.any(Number),
-          timeStep: expect.any(Number),
-        });
+        const verifyResult = result as {
+          valid: boolean;
+          delta: number;
+          epoch: number;
+          timeStep: number;
+        };
+        expect(verifyResult.valid).toBe(true);
+        expect(verifyResult.delta).toBe(0);
+        expect(typeof verifyResult.epoch).toBe("number");
+        expect(typeof verifyResult.timeStep).toBe("number");
       });
     });
 

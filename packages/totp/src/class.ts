@@ -71,10 +71,10 @@ export class TOTP {
    * @param options - Optional overrides (format is per-call only, not inherited from constructor)
    * @returns The TOTP code
    */
+  async generate(options: Partial<TOTPOptions> & { format: "full" }): Promise<GenerateResult>;
   async generate(
-    options: Partial<TOTPOptions> & { format: "full" },
-  ): Promise<GenerateResult>;
-  async generate(options?: Partial<TOTPOptions> & { format?: "default" | "plain" }): Promise<string>;
+    options?: Partial<TOTPOptions> & { format?: "default" | "plain" },
+  ): Promise<string>;
   async generate(
     options: Partial<TOTPOptions> & { format?: OTPFormat },
   ): Promise<string | GenerateResult>;
