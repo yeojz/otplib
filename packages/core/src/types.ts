@@ -218,15 +218,16 @@ export type OTPResultError<E> = {
 export type OTPResult<T, E = Error> = OTPResultOk<T> | OTPResultError<E>;
 
 /**
- * Output format for TOTP generation
+ * Output format for OTP operations
  *
- * - `"default"`: Returns a plain string token (backward compatible)
- * - `"detailed"`: Returns a structured result with token, timeStep, and epoch
+ * - `"default"`: Preserves backward-compatible behavior per method
+ * - `"plain"`: Returns the primitive value (string for generate, boolean for verify)
+ * - `"full"`: Returns a structured result object (GenerateResult for generate, VerifyResult for verify)
  */
-export type OTPFormat = "default" | "detailed";
+export type OTPFormat = "default" | "plain" | "full";
 
 /**
- * Structured result from TOTP generation when using `format: "detailed"`
+ * Structured result from TOTP generation when using `format: "full"`
  *
  * Contains the token along with its computed time metadata, enabling
  * replay protection and time-window deduplication.
@@ -235,14 +236,14 @@ export type OTPFormat = "default" | "detailed";
  * ```typescript
  * const result = await generate({
  *   secret, crypto,
- *   format: "detailed",
+ *   format: "full",
  * });
  * // result.token    - the OTP string
  * // result.timeStep - RFC 6238 T value (counter)
  * // result.epoch    - period-start Unix timestamp in seconds
  * ```
  */
-export type TOTPGenerateResult = {
+export type GenerateResult = {
   readonly token: string;
   readonly timeStep: number;
   readonly epoch: number;
