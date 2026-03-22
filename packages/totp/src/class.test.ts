@@ -104,7 +104,7 @@ describe("TOTP Class", () => {
       base32,
     });
 
-    const result = await totp.generate({ epoch, format: "detailed" });
+    const result = await totp.generate({ epoch, format: "full" });
 
     expect(result).toHaveProperty("token");
     expect(result).toHaveProperty("timeStep");
@@ -165,8 +165,8 @@ describe("TOTP Class", () => {
     const stringResult = await totp.generate({ epoch });
     expect(typeof stringResult).toBe("string");
 
-    // format: "detailed" at call site returns detailed result
-    const detailedResult = await totp.generate({ epoch, format: "detailed" });
+    // format: "full" at call site returns detailed result
+    const detailedResult = await totp.generate({ epoch, format: "full" });
     expect(typeof detailedResult).toBe("object");
     expect(detailedResult).toHaveProperty("token");
     expect(detailedResult).toHaveProperty("timeStep");

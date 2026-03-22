@@ -19,7 +19,7 @@ import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 import { generate as generateCode, verify as verifyCode } from "./index.js";
 
 import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types.js";
-import type { OTPGuardrails, OTPFormat, TOTPGenerateResult } from "@otplib/core";
+import type { OTPGuardrails, OTPFormat, GenerateResult } from "@otplib/core";
 
 /**
  * TOTP class for time-based one-time password generation
@@ -72,15 +72,15 @@ export class TOTP {
    * @returns The TOTP code
    */
   async generate(
-    options: Partial<TOTPOptions> & { format: "detailed" },
-  ): Promise<TOTPGenerateResult>;
-  async generate(options?: Partial<TOTPOptions> & { format?: "default" }): Promise<string>;
+    options: Partial<TOTPOptions> & { format: "full" },
+  ): Promise<GenerateResult>;
+  async generate(options?: Partial<TOTPOptions> & { format?: "default" | "plain" }): Promise<string>;
   async generate(
     options: Partial<TOTPOptions> & { format?: OTPFormat },
-  ): Promise<string | TOTPGenerateResult>;
+  ): Promise<string | GenerateResult>;
   async generate(
     options?: Partial<TOTPOptions> & { format?: OTPFormat },
-  ): Promise<string | TOTPGenerateResult> {
+  ): Promise<string | GenerateResult> {
     const mergedOptions = { ...this.options, ...options };
     const {
       secret,
@@ -124,8 +124,16 @@ export class TOTP {
    */
   async verify(
     token: string,
+    options: Partial<Omit<TOTPVerifyOptions, "token">> & { format: "plain" },
+  ): Promise<boolean>;
+  async verify(
+    token: string,
+    options?: Partial<Omit<TOTPVerifyOptions, "token">> & { format?: "default" | "full" },
+  ): Promise<VerifyResult>;
+  async verify(
+    token: string,
     options?: Partial<Omit<TOTPVerifyOptions, "token">>,
-  ): Promise<VerifyResult> {
+  ): Promise<boolean | VerifyResult> {
     const mergedOptions = { ...this.options, ...options };
     const {
       secret,
@@ -139,6 +147,7 @@ export class TOTP {
       epochTolerance = 0,
       afterTimeStep,
     } = mergedOptions;
+    const format = options?.format;
 
     requireSecret(secret);
     requireCryptoPlugin(crypto);
@@ -160,7 +169,8 @@ export class TOTP {
       base32,
       guardrails,
       hooks: mergedOptions.hooks,
-    });
+      format,
+    } as Parameters<typeof verifyCode>[0]);
   }
 
   /**

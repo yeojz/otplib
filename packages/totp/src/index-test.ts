@@ -301,7 +301,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           secret,
           epoch: 1234567890,
           crypto,
-          format: "detailed",
+          format: "full",
         });
         expect(typeof result).toBe("object");
         expect(result).toHaveProperty("token");
@@ -322,7 +322,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           secret,
           epoch: 1234567890,
           crypto,
-          format: "detailed",
+          format: "full",
         });
         expect(detailed.token).toBe(plain);
       });
@@ -337,7 +337,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period,
           t0,
           crypto,
-          format: "detailed",
+          format: "full",
         });
         expect(result.epoch).toBe(result.timeStep * period + t0);
         expect(result.epoch).toBeLessThanOrEqual(epoch);
@@ -352,7 +352,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           period: 30,
           t0,
           crypto,
-          format: "detailed",
+          format: "full",
         });
         expect(result.epoch).toBe(result.timeStep * 30 + t0);
       });
@@ -363,7 +363,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           secret,
           epoch,
           crypto,
-          format: "detailed",
+          format: "full",
         });
         const verifyResult = await verify({
           secret,
@@ -392,7 +392,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           secret,
           epoch: 1234567890,
           crypto,
-          format: "detailed",
+          format: "full",
         });
         expect(typeof result).toBe("object");
         expect(result).toHaveProperty("token");
@@ -410,7 +410,7 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           secret,
           epoch: 1234567890,
           crypto,
-          format: "detailed",
+          format: "full",
         });
         expect(detailed.token).toBe(plain);
       });

@@ -75,8 +75,9 @@ export type TOTPGenerateOptions = TOTPOptions & {
   /**
    * Output format for generation
    *
-   * - `"default"` (or omitted): returns a plain `string` token
-   * - `"detailed"`: returns `{ token, timeStep, epoch }` with computed metadata
+   * - `"default"` (or omitted): returns a plain `string` token (same as `"plain"`)
+   * - `"plain"`: returns a plain `string` token
+   * - `"full"`: returns `{ token, timeStep, epoch }` with computed metadata
    *
    * This is a per-call option (not available at the class constructor level)
    * to ensure TypeScript overload resolution accurately reflects the return type.
@@ -184,6 +185,17 @@ export type TOTPVerifyOptions = TOTPGenerateOptions & {
    * ```
    */
   readonly afterTimeStep?: number;
+  /**
+   * Output format for verification
+   *
+   * - `"default"` (or omitted): returns `VerifyResult` object (same as `"full"`)
+   * - `"plain"`: returns `boolean` (true if valid, false if invalid)
+   * - `"full"`: returns `VerifyResult` object with delta, epoch, and timeStep
+   *
+   * This is a per-call option (not available at the class constructor level)
+   * to ensure TypeScript overload resolution accurately reflects the return type.
+   */
+  readonly format?: OTPFormat;
 };
 
 /**

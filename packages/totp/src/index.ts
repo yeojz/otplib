@@ -34,7 +34,7 @@ import type {
   HashAlgorithm,
   OTPGuardrails,
   OTPHooks,
-  TOTPGenerateResult,
+  GenerateResult,
 } from "@otplib/core";
 
 /**
@@ -137,16 +137,16 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
  * ```
  */
 export async function generate(
-  options: TOTPGenerateOptions & { readonly format: "detailed" },
-): Promise<TOTPGenerateResult>;
+  options: TOTPGenerateOptions & { readonly format: "full" },
+): Promise<GenerateResult>;
 export async function generate(
-  options: TOTPGenerateOptions & { readonly format?: "default" },
+  options: TOTPGenerateOptions & { readonly format?: "default" | "plain" },
 ): Promise<string>;
-export async function generate(options: TOTPGenerateOptions): Promise<string | TOTPGenerateResult>;
-export async function generate(options: TOTPGenerateOptions): Promise<string | TOTPGenerateResult> {
+export async function generate(options: TOTPGenerateOptions): Promise<string | GenerateResult>;
+export async function generate(options: TOTPGenerateOptions): Promise<string | GenerateResult> {
   const opt = getTOTPGenerateOptions(options);
   const token = await generateHOTP(opt);
-  if (options.format === "detailed") {
+  if (options.format === "full") {
     return { token, timeStep: opt.timeStep, epoch: opt.epoch };
   }
   return token;
@@ -182,16 +182,16 @@ export async function generate(options: TOTPGenerateOptions): Promise<string | T
  * ```
  */
 export function generateSync(
-  options: TOTPGenerateOptions & { readonly format: "detailed" },
-): TOTPGenerateResult;
+  options: TOTPGenerateOptions & { readonly format: "full" },
+): GenerateResult;
 export function generateSync(
-  options: TOTPGenerateOptions & { readonly format?: "default" },
+  options: TOTPGenerateOptions & { readonly format?: "default" | "plain" },
 ): string;
-export function generateSync(options: TOTPGenerateOptions): string | TOTPGenerateResult;
-export function generateSync(options: TOTPGenerateOptions): string | TOTPGenerateResult {
+export function generateSync(options: TOTPGenerateOptions): string | GenerateResult;
+export function generateSync(options: TOTPGenerateOptions): string | GenerateResult {
   const opt = getTOTPGenerateOptions(options);
   const token = generateHOTPSync(opt);
-  if (options.format === "detailed") {
+  if (options.format === "full") {
     return { token, timeStep: opt.timeStep, epoch: opt.epoch };
   }
   return token;
@@ -365,7 +365,14 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
  * }
  * ```
  */
-export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> {
+export async function verify(
+  options: TOTPVerifyOptions & { readonly format: "plain" },
+): Promise<boolean>;
+export async function verify(
+  options: TOTPVerifyOptions & { readonly format?: "default" | "full" },
+): Promise<VerifyResult>;
+export async function verify(options: TOTPVerifyOptions): Promise<boolean | VerifyResult>;
+export async function verify(options: TOTPVerifyOptions): Promise<boolean | VerifyResult> {
   const {
     token,
     crypto,
@@ -379,13 +386,15 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
   } = getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
-    // Early rejection: skip counters that don't meet afterTimeStep constraint
     if (shouldSkipAfterTimeStep(counter, afterTimeStep)) {
       continue;
     }
 
     const expected = await generate(getGenerateOptions(counter));
     if (crypto.constantTimeEqual(expected, token)) {
+      if (options.format === "plain") {
+        return true;
+      }
       return {
         valid: true,
         delta: counter - currentCounter,
@@ -395,6 +404,9 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
     }
   }
 
+  if (options.format === "plain") {
+    return false;
+  }
   return { valid: false };
 }
 
@@ -428,7 +440,14 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
  * }
  * ```
  */
-export function verifySync(options: TOTPVerifyOptions): VerifyResult {
+export function verifySync(
+  options: TOTPVerifyOptions & { readonly format: "plain" },
+): boolean;
+export function verifySync(
+  options: TOTPVerifyOptions & { readonly format?: "default" | "full" },
+): VerifyResult;
+export function verifySync(options: TOTPVerifyOptions): boolean | VerifyResult;
+export function verifySync(options: TOTPVerifyOptions): boolean | VerifyResult {
   const {
     token,
     crypto,
@@ -442,13 +461,15 @@ export function verifySync(options: TOTPVerifyOptions): VerifyResult {
   } = getTOTPVerifyOptions(options);
 
   for (let counter = minCounter; counter <= maxCounter; counter++) {
-    // Early rejection: skip counters that don't meet afterTimeStep constraint
     if (shouldSkipAfterTimeStep(counter, afterTimeStep)) {
       continue;
     }
 
     const expected = generateSync(getGenerateOptions(counter));
     if (crypto.constantTimeEqual(expected, token)) {
+      if (options.format === "plain") {
+        return true;
+      }
       return {
         valid: true,
         delta: counter - currentCounter,
@@ -458,6 +479,9 @@ export function verifySync(options: TOTPVerifyOptions): VerifyResult {
     }
   }
 
+  if (options.format === "plain") {
+    return false;
+  }
   return { valid: false };
 }
 
@@ -527,7 +551,7 @@ export type {
   HashAlgorithm,
   OTPResult,
   OTPFormat,
-  TOTPGenerateResult,
+  GenerateResult,
 } from "@otplib/core";
 export type {
   TOTPOptions,
