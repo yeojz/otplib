@@ -30,7 +30,11 @@ export type {
   OTPResult,
   OTPGuardrails,
   OTPGuardrailsConfig,
+  OTPAccount,
+  AccountOptions,
 } from "@otplib/core";
+
+export { accountToOptions } from "@otplib/core";
 export type { VerifyResult } from "@otplib/totp";
 
 export { HOTP } from "@otplib/hotp";

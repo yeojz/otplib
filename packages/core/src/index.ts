@@ -122,3 +122,6 @@ export type {
 } from "./utility-types.js";
 
 export { hasPlugins, hasCrypto, hasBase32 } from "./utility-types.js";
+
+export type { OTPAccount, AccountOptions } from "./account.js";
+export { accountToOptions } from "./account.js";

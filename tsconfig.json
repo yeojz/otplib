@@ -24,6 +24,7 @@
       "@otplib/hotp": ["./packages/hotp/src"],
       "@otplib/totp": ["./packages/totp/src"],
       "@otplib/uri": ["./packages/uri/src"],
+      "@otplib/cxf": ["./packages/cxf/src"],
       "@otplib/plugin-crypto-node": ["./packages/plugin-crypto-node/src"],
       "@otplib/plugin-crypto-web": ["./packages/plugin-crypto-web/src"],
       "@otplib/plugin-crypto-noble": ["./packages/plugin-crypto-noble/src"],

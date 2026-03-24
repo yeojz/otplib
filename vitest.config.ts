@@ -9,6 +9,7 @@ const alias = {
   "@otplib/hotp": path.resolve(__dirname, "packages/hotp/src"),
   "@otplib/totp": path.resolve(__dirname, "packages/totp/src"),
   "@otplib/uri": path.resolve(__dirname, "packages/uri/src"),
+  "@otplib/cxf": path.resolve(__dirname, "packages/cxf/src"),
   "@otplib/plugin-crypto-node": path.resolve(__dirname, "packages/plugin-crypto-node/src"),
   "@otplib/plugin-crypto-web": path.resolve(__dirname, "packages/plugin-crypto-web/src"),
   "@otplib/plugin-crypto-noble": path.resolve(__dirname, "packages/plugin-crypto-noble/src"),

@@ -1,0 +1,69 @@
+{
+  "name": "@otplib/cxf",
+  "version": "13.4.0",
+  "description": "FIDO Alliance Credential Exchange Format (CXF) support for otplib",
+  "license": "MIT",
+  "author": "Gerald Yeo <support@yeojz.dev>",
+  "homepage": "https://otplib.yeojz.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeojz/otplib.git",
+    "directory": "packages/cxf"
+  },
+  "bugs": {
+    "url": "https://github.com/yeojz/otplib/issues"
+  },
+  "keywords": [
+    "otp",
+    "totp",
+    "hotp",
+    "cxf",
+    "credential-exchange",
+    "fido",
+    "2fa",
+    "authenticator"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:ci": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist .tsbuildinfo"
+  },
+  "dependencies": {
+    "@otplib/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/testing": "workspace:*",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

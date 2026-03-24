@@ -1,7 +1,9 @@
-export { parse, parse as parseURI } from "./parse.js";
+export { parse } from "./parse.js";
 
 export { generate, generateTOTP, generateHOTP } from "./generate.js";
 export type { URIOptions, TOTPURIOptions, HOTPURIOptions } from "./generate.js";
+
+export { parseURI, generateURIFromAccount } from "./account.js";
 
 export {
   URIParseError,
