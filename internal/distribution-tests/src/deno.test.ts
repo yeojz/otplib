@@ -4,13 +4,8 @@
  * Tests the built artifacts using Noble crypto plugin (Deno-compatible).
  */
 
-import {
-  assertEquals,
-  assertNotEquals,
-  assertMatch,
-  assertThrows,
-  assertInstanceOf,
-} from "@std/assert";
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { TOTP } from "@otplib/totp";
@@ -23,7 +18,6 @@ import {
   verifySync,
   OTP,
 } from "otplib";
-import { createDenoTestContext } from "@repo/testing";
 
 import { createHOTPDistributionTests } from "./hotp-test.ts";
 import { createTOTPDistributionTests } from "./totp-test.ts";
@@ -33,41 +27,38 @@ import { createURIDistributionTests } from "./uri-test.ts";
 const crypto = new NobleCryptoPlugin();
 const base32 = new ScureBase32Plugin();
 
-// Create Deno test context for URI
-const uriCtx = createDenoTestContext(
-  { assertEquals, assertNotEquals, assertMatch, assertThrows, assertInstanceOf },
-  {},
-);
+// Run URI distribution tests
+createURIDistributionTests({
+  describe,
+  it,
+  expect,
+});
 
-createURIDistributionTests(uriCtx);
-uriCtx.runTests();
+// Run HOTP distribution tests
+createHOTPDistributionTests({
+  describe,
+  it,
+  expect,
+  crypto,
+  base32,
+});
 
-// Create Deno test context for HOTP
-const hotpCtx = createDenoTestContext(
-  { assertEquals, assertNotEquals, assertMatch, assertThrows, assertInstanceOf },
-  { crypto, base32 },
-);
+// Run TOTP distribution tests
+createTOTPDistributionTests({
+  describe,
+  it,
+  expect,
+  crypto,
+  base32,
+});
 
-createHOTPDistributionTests(hotpCtx);
-hotpCtx.runTests();
-
-// Create Deno test context for TOTP
-const totpCtx = createDenoTestContext(
-  { assertEquals, assertNotEquals, assertMatch, assertThrows, assertInstanceOf },
-  { crypto, base32 },
-);
-
-createTOTPDistributionTests(totpCtx);
-totpCtx.runTests();
-
-// Create Deno test context for otplib
-const otplibCtx = createDenoTestContext(
-  { assertEquals, assertNotEquals, assertMatch, assertThrows, assertInstanceOf },
-  { crypto, base32 },
-);
-
+// Run otplib distribution tests
 createOtplibDistributionTests({
-  ...otplibCtx,
+  describe,
+  it,
+  expect,
+  crypto,
+  base32,
   otplib: {
     generateSecret,
     generateURI,
@@ -79,4 +70,3 @@ createOtplibDistributionTests({
     OTP,
   },
 });
-otplibCtx.runTests();
