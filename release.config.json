@@ -5,6 +5,7 @@
       "@otplib/hotp",
       "@otplib/totp",
       "@otplib/uri",
+      "@otplib/plugin-base32-alt",
       "@otplib/plugin-base32-scure",
       "@otplib/plugin-crypto-noble",
       "@otplib/plugin-crypto-node",
