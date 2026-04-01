@@ -12,6 +12,9 @@ updates:
       day: "monday"
     open-pull-requests-limit: 10
     versioning-strategy: "increase"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     groups:
       dependencies-minor:
         dependency-type: "production"
