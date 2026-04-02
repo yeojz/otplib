@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { HOTP } from "./class.js";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { TEST_SECRET_BASE32 } from "@repo/testing";
 
 describe("HOTP Class", () => {
   const crypto = new NodeCryptoPlugin();
@@ -18,7 +19,7 @@ describe("HOTP Class", () => {
 
   it("should generate a token at counter", async () => {
     const hotp = new HOTP({
-      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      secret: TEST_SECRET_BASE32,
       crypto,
       base32,
     });
@@ -34,7 +35,7 @@ describe("HOTP Class", () => {
     const hotp = new HOTP({
       issuer: "MyService",
       label: "user@example.com",
-      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      secret: TEST_SECRET_BASE32,
       crypto,
       base32,
     });
@@ -42,14 +43,14 @@ describe("HOTP Class", () => {
     const uri = hotp.toURI(5);
 
     expect(uri).toContain("otpauth://hotp/");
-    expect(uri).toContain("secret=GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337");
+    expect(uri).toContain(`secret=${TEST_SECRET_BASE32}`);
     expect(uri).toContain("issuer=MyService");
     expect(uri).toContain("counter=5");
   });
 
   it("should allow options override in verify", async () => {
     const hotp = new HOTP({
-      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      secret: TEST_SECRET_BASE32,
       crypto,
       base32,
     });
@@ -85,7 +86,7 @@ describe("HOTP Class", () => {
     const hotp = new HOTP({
       issuer: "MyService",
       label: "user@example.com",
-      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      secret: TEST_SECRET_BASE32,
       crypto,
       base32,
     });
@@ -93,7 +94,7 @@ describe("HOTP Class", () => {
     const uri = hotp.toURI();
 
     expect(uri).toContain("otpauth://hotp/");
-    expect(uri).toContain("secret=GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337");
+    expect(uri).toContain(`secret=${TEST_SECRET_BASE32}`);
     expect(uri).toContain("issuer=MyService");
     expect(uri).toContain("counter=0");
   });
@@ -102,7 +103,7 @@ describe("HOTP Class", () => {
     const hotp = new HOTP({
       issuer: "MyService",
       label: "user@example.com",
-      secret: "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337",
+      secret: TEST_SECRET_BASE32,
       crypto,
       base32,
     });

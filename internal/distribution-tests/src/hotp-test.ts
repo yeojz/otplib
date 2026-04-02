@@ -6,7 +6,7 @@
 
 import { stringToBytes, createGuardrails } from "@otplib/core";
 import { generate, generateSync, verify, verifySync, HOTP } from "@otplib/hotp";
-import { RFC4226_VECTORS, BASE_SECRET } from "@repo/testing";
+import { RFC4226_VECTORS, BASE_SECRET, TEST_SECRET_BASE32 } from "@repo/testing";
 
 import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
@@ -17,7 +17,6 @@ import type { TestContext } from "@repo/testing";
 export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin, Base32Plugin>): void {
   const { describe, it, expect, crypto, base32 } = ctx;
   const secret = stringToBytes(BASE_SECRET);
-  const TEST_SECRET_BASE32 = "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337";
 
   describe("HOTP Distribution", () => {
     describe("RFC 4226 Appendix D - Test Vectors", () => {

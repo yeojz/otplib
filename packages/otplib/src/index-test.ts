@@ -20,6 +20,7 @@ import {
 
 import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
+import { TEST_SECRET_BASE32, TEST_SECRET_BUG_REPORT } from "@repo/testing";
 
 export type OtplibTestContext = TestContext<CryptoPlugin, Base32Plugin> & {
   otplib: {
@@ -34,7 +35,7 @@ export type OtplibTestContext = TestContext<CryptoPlugin, Base32Plugin> & {
   };
 };
 
-const TEST_SECRET = "GHDHB5FUNZ2Z4OT7PB2BUPHBIDR2J337"; // 20-byte Base32 secret
+const TEST_SECRET = TEST_SECRET_BASE32;
 
 /**
  * Creates the otplib test suite with injected dependencies
@@ -159,12 +160,12 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
           strategy: "totp",
           issuer: "MyApp",
           label: "31@xx.com",
-          secret: "243G2YOOEZWSZSIZOYNKCSIQ5HYUZRLX",
+          secret: TEST_SECRET_BUG_REPORT,
         });
 
         expect(uri).toMatch(/^otpauth:\/\/totp\//);
         expect(uri).toContain("MyApp:31%40xx.com");
-        expect(uri).toContain("secret=243G2YOOEZWSZSIZOYNKCSIQ5HYUZRLX");
+        expect(uri).toContain(`secret=${TEST_SECRET_BUG_REPORT}`);
       });
     });
 
