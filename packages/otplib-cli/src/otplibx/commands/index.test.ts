@@ -19,6 +19,7 @@ import { list } from "./list.js";
 import { token } from "./token.js";
 import { type } from "./type.js";
 import { verify } from "./verify.js";
+import { TEST_SECRET_CLI } from "@repo/testing";
 
 const mockStorage = vi.mocked(storage);
 
@@ -31,7 +32,7 @@ function encodePayloadHelper(payload: object): string {
 const TOTP_PAYLOAD = encodePayloadHelper({
   data: {
     type: "totp",
-    secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+    secret: TEST_SECRET_CLI,
     issuer: "GitHub",
     account: "user",
     algorithm: "SHA1",
@@ -42,7 +43,7 @@ const TOTP_PAYLOAD = encodePayloadHelper({
 const HOTP_PAYLOAD = encodePayloadHelper({
   data: {
     type: "hotp",
-    secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+    secret: TEST_SECRET_CLI,
     issuer: "Service",
     account: "user",
     algorithm: "SHA1",
@@ -87,7 +88,7 @@ describe("otplibx commands", () => {
     test("adds entry via storage.set", async () => {
       mockStorage.set.mockResolvedValue(undefined);
 
-      const result = await add("otpauth://totp/Test?secret=YNA3WOLVGZTOGOMLZ6QWD6VKIE======", {
+      const result = await add(`otpauth://totp/Test?secret=${TEST_SECRET_CLI}`, {
         file: ".env.test",
       });
 
@@ -108,7 +109,7 @@ describe("otplibx commands", () => {
     test("adds entry with custom bytes option", async () => {
       mockStorage.set.mockResolvedValue(undefined);
 
-      const result = await add("otpauth://totp/Test?secret=YNA3WOLVGZTOGOMLZ6QWD6VKIE======", {
+      const result = await add(`otpauth://totp/Test?secret=${TEST_SECRET_CLI}`, {
         file: ".env.test",
         bytes: 8,
       });
@@ -202,7 +203,7 @@ describe("otplibx commands", () => {
         BBBBBBB12: encodePayloadHelper({
           data: {
             type: "totp",
-            secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+            secret: TEST_SECRET_CLI,
             issuer: "Slack",
             account: "user",
             algorithm: "SHA1",
@@ -285,7 +286,7 @@ describe("otplibx commands", () => {
       const validToken = await generateOtp(
         {
           type: "totp",
-          secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+          secret: TEST_SECRET_CLI,
           algorithm: "SHA1",
           digits: 6,
           period: 30,

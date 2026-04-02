@@ -17,6 +17,7 @@ import {
   OTP,
   createGuardrails,
 } from "./index.js";
+import { TEST_SECRET_GUARDRAILS } from "@repo/testing";
 import { createOtplibTests } from "./index-test.ts";
 
 createOtplibTests({
@@ -38,7 +39,7 @@ createOtplibTests({
 });
 
 describe("guardrails integration", () => {
-  const secret = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"; // 20 bytes
+  const secret = TEST_SECRET_GUARDRAILS;
 
   it("should allow custom guardrails in generate", async () => {
     const strictGuardrails = createGuardrails({

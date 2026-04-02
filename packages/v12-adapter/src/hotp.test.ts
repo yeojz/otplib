@@ -7,7 +7,14 @@
 import { describe, it, expect } from "vitest";
 import { createGuardrails } from "@otplib/core";
 import { HOTP, HashAlgorithms, KeyEncodings, hotpDigestToToken, type HOTPOptions } from "./index";
-import { RFC4226_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
+import {
+  RFC4226_VECTORS,
+  BASE_SECRET,
+  BASE_SECRET_BASE32,
+  TEST_BASE_SECRET_BASE32,
+  TEST_BASE_SECRET_HEX,
+  TEST_BASE_SECRET_HEX_INVALID,
+} from "@repo/testing";
 
 describe("HOTP (v12-adapter)", () => {
   describe("constructor and options", () => {
@@ -204,7 +211,7 @@ describe("HOTP (v12-adapter)", () => {
     it("should decode Base32-encoded secrets", () => {
       const hotp = new HOTP({ encoding: KeyEncodings.BASE32 });
       // Base32 encoding of "12345678901234567890" (BASE_SECRET)
-      const base32EncodedSecret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+      const base32EncodedSecret = TEST_BASE_SECRET_BASE32;
       const token = hotp.generate(base32EncodedSecret, 0);
 
       expect(token).toHaveLength(6);
@@ -217,8 +224,7 @@ describe("HOTP (v12-adapter)", () => {
     });
 
     it("should decode hex-encoded secrets", () => {
-      // "12345678901234567890" as hex
-      const hexSecret = "3132333435363738393031323334353637383930";
+      const hexSecret = TEST_BASE_SECRET_HEX;
       const hotp = new HOTP({ encoding: KeyEncodings.HEX });
       const token = hotp.generate(hexSecret, 0);
 
@@ -233,15 +239,14 @@ describe("HOTP (v12-adapter)", () => {
     });
 
     it("should reject hex secrets with 0x prefix", () => {
-      const hexSecret = "0x3132333435363738393031323334353637383930";
+      const hexSecret = TEST_BASE_SECRET_HEX_INVALID;
       const hotp = new HOTP({ encoding: KeyEncodings.HEX });
 
       expect(() => hotp.generate(hexSecret, 0)).toThrow();
     });
 
     it("should handle hex secrets with spaces", () => {
-      // Same hex with spaces
-      const hexSecretWithSpaces = "31 32 33 34 35 36 37 38 39 30 31 32 33 34 35 36 37 38 39 30";
+      const hexSecretWithSpaces = TEST_BASE_SECRET_HEX.replace(/(..)/g, "$1 ").trim();
       const hotp = new HOTP({ encoding: KeyEncodings.HEX });
       const token = hotp.generate(hexSecretWithSpaces, 0);
 

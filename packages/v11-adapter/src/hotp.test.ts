@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { CryptoPlugin, createGuardrails } from "@otplib/core";
 import { HOTP, HashAlgorithms, type HOTPOptions } from "./index.js";
-import { RFC4226_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
+import {
+  RFC4226_VECTORS,
+  BASE_SECRET,
+  BASE_SECRET_BASE32,
+  TEST_SECRET_HEX,
+  TEST_SECRET_HEX_INVALID,
+} from "@repo/testing";
 
 describe("HOTP (v11-adapter)", () => {
   it("should match RFC 4226 vectors", () => {
@@ -24,8 +30,7 @@ describe("HOTP (v11-adapter)", () => {
 
   it("should support hex encoding", () => {
     const hotp = new HOTP();
-    // 32 chars = 16 bytes
-    const secret = "48656c6c6f2148656c6c6f2148656c6c";
+    const secret = TEST_SECRET_HEX;
 
     // Set explicit encoding in options
     hotp.options = { encoding: "hex" };
@@ -36,7 +41,7 @@ describe("HOTP (v11-adapter)", () => {
 
   it("should reject hex encoding with 0x prefix", () => {
     const hotp = new HOTP();
-    const secret = "0x48656c6c6f2148656c6c6f2148656c6c";
+    const secret = TEST_SECRET_HEX_INVALID;
 
     hotp.options = { encoding: "hex" };
 

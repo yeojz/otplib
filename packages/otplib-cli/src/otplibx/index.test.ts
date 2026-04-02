@@ -12,6 +12,7 @@ vi.mock("./storage/index.js", () => ({
 
 import storage from "./storage/index.js";
 import { createOtplibxCli } from "./index.js";
+import { TEST_SECRET_CLI } from "@repo/testing";
 
 const mockStorage = vi.mocked(storage);
 
@@ -24,7 +25,7 @@ function encodePayloadHelper(payload: object): string {
 const TOTP_PAYLOAD = encodePayloadHelper({
   data: {
     type: "totp",
-    secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+    secret: TEST_SECRET_CLI,
     issuer: "GitHub",
     account: "user",
     algorithm: "SHA1",
@@ -35,7 +36,7 @@ const TOTP_PAYLOAD = encodePayloadHelper({
 const HOTP_PAYLOAD = encodePayloadHelper({
   data: {
     type: "hotp",
-    secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+    secret: TEST_SECRET_CLI,
     issuer: "Service",
     account: "user",
     algorithm: "SHA1",
@@ -131,7 +132,7 @@ describe("otplibx CLI", () => {
 
       const { exitCode } = await runCli(
         ["add"],
-        createMockReadStdin("otpauth://totp/Test?secret=YNA3WOLVGZTOGOMLZ6QWD6VKIE======"),
+        createMockReadStdin(`otpauth://totp/Test?secret=${TEST_SECRET_CLI}`),
       );
 
       expect(exitCode).toBe(0);
@@ -469,7 +470,7 @@ describe("otplibx CLI", () => {
       const token = await generateOtp(
         {
           type: "totp",
-          secret: "YNA3WOLVGZTOGOMLZ6QWD6VKIE======",
+          secret: TEST_SECRET_CLI,
           algorithm: "SHA1",
           digits: 6,
           period: 30,
