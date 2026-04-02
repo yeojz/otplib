@@ -15,7 +15,7 @@ import {
 } from "@otplib/core";
 import {
   RFC6238_VECTORS,
-  BASE_SECRET,
+  RFC_TEST_SECRET,
   hexToNumber,
   STEAM_CHARS,
   steamEncodeToken,
@@ -40,7 +40,7 @@ import type { TestContext } from "@repo/testing";
  */
 export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
   const { describe, it, expect, crypto } = ctx;
-  const secret = stringToBytes(BASE_SECRET);
+  const secret = stringToBytes(RFC_TEST_SECRET);
 
   // Secrets with proper padding per RFC 6238
   const sha1Secret = stringToBytes(RFC6238_VECTORS.sha1.secret);

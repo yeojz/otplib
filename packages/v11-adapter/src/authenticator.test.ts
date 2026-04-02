@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { Authenticator } from "./index.js";
-import { BASE_SECRET_BASE32 } from "@repo/testing";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 import { CryptoPlugin, createGuardrails } from "@otplib/core";
 
 describe("Authenticator (v11-adapter)", () => {
   it("should generate token from base32 secret", () => {
     const auth = new Authenticator({ epoch: 0 });
-    const secret = BASE_SECRET_BASE32 + BASE_SECRET_BASE32; // Ensure > 16 bytes
+    const secret = TEST_SECRET_PARSE_BASE32 + TEST_SECRET_PARSE_BASE32; // Ensure > 16 bytes
     const token = auth.generate(secret);
 
     expect(token).toHaveLength(6);
@@ -16,7 +16,7 @@ describe("Authenticator (v11-adapter)", () => {
   it("should apply guardrails from constructor", () => {
     const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100, MAX_SECRET_BYTES: 200 });
     const auth = new Authenticator({ guardrails: strictGuardrails });
-    const secret = BASE_SECRET_BASE32 + BASE_SECRET_BASE32;
+    const secret = TEST_SECRET_PARSE_BASE32 + TEST_SECRET_PARSE_BASE32;
 
     expect(() => auth.generate(secret)).toThrow();
   });
@@ -54,7 +54,7 @@ describe("Authenticator (v11-adapter)", () => {
 
   it("should verify with object argument", () => {
     const auth = new Authenticator({ epoch: 0 });
-    const secret = BASE_SECRET_BASE32 + BASE_SECRET_BASE32;
+    const secret = TEST_SECRET_PARSE_BASE32 + TEST_SECRET_PARSE_BASE32;
     const token = auth.generate(secret);
 
     expect(auth.verify({ token, secret })).toBe(true);
@@ -68,7 +68,7 @@ describe("Authenticator (v11-adapter)", () => {
 
   it("should checkDelta with array window", () => {
     const auth = new Authenticator({ epoch: 60, window: [2, 0] });
-    const secret = BASE_SECRET_BASE32 + BASE_SECRET_BASE32;
+    const secret = TEST_SECRET_PARSE_BASE32 + TEST_SECRET_PARSE_BASE32;
 
     // Generate at epoch 0
     const auth0 = new Authenticator({ epoch: 0 });
@@ -80,7 +80,7 @@ describe("Authenticator (v11-adapter)", () => {
 
   it("should return null for invalid token in checkDelta", () => {
     const auth = new Authenticator();
-    const secret = BASE_SECRET_BASE32 + BASE_SECRET_BASE32;
+    const secret = TEST_SECRET_PARSE_BASE32 + TEST_SECRET_PARSE_BASE32;
     expect(auth.checkDelta("000000", secret)).toBe(null);
   });
 
@@ -93,7 +93,7 @@ describe("Authenticator (v11-adapter)", () => {
       } as unknown as CryptoPlugin,
     });
 
-    expect(auth.checkDelta("123", BASE_SECRET_BASE32)).toBe(null);
+    expect(auth.checkDelta("123", TEST_SECRET_PARSE_BASE32)).toBe(null);
   });
 
   it("should create new instance", () => {
@@ -105,7 +105,7 @@ describe("Authenticator (v11-adapter)", () => {
   it("should support number window", () => {
     // window = 1 step
     const auth = new Authenticator({ epoch: 30, window: 1 });
-    const secret = BASE_SECRET_BASE32 + BASE_SECRET_BASE32;
+    const secret = TEST_SECRET_PARSE_BASE32 + TEST_SECRET_PARSE_BASE32;
 
     const auth0 = new Authenticator({ epoch: 0 });
     const token = auth0.generate(secret);

@@ -6,7 +6,7 @@
 
 import { stringToBytes, createGuardrails } from "@otplib/core";
 import { generate, generateSync, verify, verifySync, HOTP } from "@otplib/hotp";
-import { RFC4226_VECTORS, BASE_SECRET, TEST_SECRET_BASE32 } from "@repo/testing";
+import { RFC4226_VECTORS, RFC_TEST_SECRET, TEST_SECRET_HOTP_BASE32 } from "@repo/testing";
 
 import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
@@ -16,7 +16,7 @@ import type { TestContext } from "@repo/testing";
  */
 export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin, Base32Plugin>): void {
   const { describe, it, expect, crypto, base32 } = ctx;
-  const secret = stringToBytes(BASE_SECRET);
+  const secret = stringToBytes(RFC_TEST_SECRET);
 
   describe("HOTP Distribution", () => {
     describe("RFC 4226 Appendix D - Test Vectors", () => {
@@ -266,7 +266,7 @@ export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin, Base3
           label: "user@example.com",
           crypto,
           base32,
-          secret: TEST_SECRET_BASE32,
+          secret: TEST_SECRET_HOTP_BASE32,
         });
 
         const token = await hotp.generate(0);
@@ -291,20 +291,20 @@ export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin, Base3
           label: "user@example.com",
           crypto,
           base32,
-          secret: TEST_SECRET_BASE32,
+          secret: TEST_SECRET_HOTP_BASE32,
         });
 
         const uri = hotp.toURI(5);
         expect(uri).toMatch(/^otpauth:\/\/hotp\//);
         expect(uri).toContain("counter=5");
-        expect(uri).toContain(`secret=${TEST_SECRET_BASE32}`);
+        expect(uri).toContain(`secret=${TEST_SECRET_HOTP_BASE32}`);
       });
 
       it("should verify with counterTolerance using HOTP class", async () => {
         const hotp = new HOTP({
           crypto,
           base32,
-          secret: TEST_SECRET_BASE32,
+          secret: TEST_SECRET_HOTP_BASE32,
         });
 
         const token = await hotp.generate(5);
@@ -320,7 +320,7 @@ export function createHOTPDistributionTests(ctx: TestContext<CryptoPlugin, Base3
         const hotp = new HOTP({
           crypto,
           base32,
-          secret: TEST_SECRET_BASE32,
+          secret: TEST_SECRET_HOTP_BASE32,
           algorithm: "sha256",
           digits: 8,
         });

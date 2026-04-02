@@ -32,7 +32,7 @@ import {
   generate as generateURI,
   generateTOTP as generateTOTPUri,
 } from "@otplib/uri";
-import { BASE_SECRET_BASE32 } from "@repo/testing";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 import { Bench } from "tinybench";
 
 console.log("=".repeat(60));
@@ -52,7 +52,7 @@ const base32 = new ScureBase32Plugin();
 const encodedSecret = base32.encode(secret);
 
 // URI test data
-const standardTotpUri = `otpauth://totp/ACME:john@example.com?secret=${BASE_SECRET_BASE32}&issuer=ACME`;
+const standardTotpUri = `otpauth://totp/ACME:john@example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=ACME`;
 const parsedUri = parseURI(standardTotpUri);
 
 const bench = new Bench({ time: 1000 });
@@ -107,7 +107,7 @@ bench
     generateTOTPUri({
       issuer: "ACME",
       label: "john@example.com",
-      secret: BASE_SECRET_BASE32,
+      secret: TEST_SECRET_PARSE_BASE32,
     });
   })
   .add("URI roundtrip (parse + generate)", () => {

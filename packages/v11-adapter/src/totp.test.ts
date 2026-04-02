@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { CryptoPlugin, createGuardrails } from "@otplib/core";
 import { TOTP, HashAlgorithms, type TOTPOptions } from "./index.js";
-import { RFC6238_VECTORS, BASE_SECRET, BASE_SECRET_BASE32 } from "@repo/testing";
+import { RFC6238_VECTORS, RFC_TEST_SECRET, TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 
 describe("TOTP (v11-adapter)", () => {
   describe("constructor and options", () => {
@@ -39,7 +39,7 @@ describe("TOTP (v11-adapter)", () => {
   describe("generate", () => {
     it("should generate 6-digit token by default", () => {
       const totp = new TOTP();
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token = totp.generate(secret);
 
       expect(token).toHaveLength(6);
@@ -48,7 +48,7 @@ describe("TOTP (v11-adapter)", () => {
 
     it("should generate different tokens at different times", () => {
       const totp = new TOTP();
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
 
       // v11 uses epoch in seconds
       totp.options = { epoch: 0 };
@@ -63,7 +63,7 @@ describe("TOTP (v11-adapter)", () => {
 
     it("should support custom step", () => {
       const totp = new TOTP<TOTPOptions>({ step: 60 });
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
 
       totp.options = { epoch: 0 };
       const token1 = totp.generate(secret);
@@ -80,7 +80,7 @@ describe("TOTP (v11-adapter)", () => {
       const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100, MAX_SECRET_BYTES: 200 });
       const totp = new TOTP({ guardrails: strictGuardrails });
 
-      expect(() => totp.generate(BASE_SECRET)).toThrow();
+      expect(() => totp.generate(RFC_TEST_SECRET)).toThrow();
     });
   });
 
@@ -132,7 +132,7 @@ describe("TOTP (v11-adapter)", () => {
   describe("checkDelta", () => {
     it("should return 0 for current window token", () => {
       const totp = new TOTP({ epoch: 0 });
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token = totp.generate(secret);
 
       expect(totp.checkDelta(token, secret)).toBe(0);
@@ -140,13 +140,13 @@ describe("TOTP (v11-adapter)", () => {
 
     it("should return null for invalid token", () => {
       const totp = new TOTP({ epoch: 0 });
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
 
       expect(totp.checkDelta("000000", secret)).toBe(null);
     });
 
     it("should return delta for token in window", () => {
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
 
       // Generate token for time step 0 (epoch 0)
       const totp1 = new TOTP({ epoch: 0 });
@@ -160,7 +160,7 @@ describe("TOTP (v11-adapter)", () => {
     });
 
     it("should support array-based window [past, future]", () => {
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
 
       const totp1 = new TOTP({ epoch: 0 });
       const pastToken = totp1.generate(secret);
@@ -185,14 +185,14 @@ describe("TOTP (v11-adapter)", () => {
       });
 
       // Should catch the error and return null instead of throwing
-      expect(totp.checkDelta("123456", BASE_SECRET)).toBe(null);
+      expect(totp.checkDelta("123456", RFC_TEST_SECRET)).toBe(null);
     });
   });
 
   describe("verify", () => {
     it("should verify with object-based API", () => {
       const totp = new TOTP({ epoch: 0 });
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token = totp.generate(secret);
 
       expect(totp.verify({ token, secret })).toBe(true);
@@ -211,12 +211,12 @@ describe("TOTP (v11-adapter)", () => {
   describe("keyuri", () => {
     it("should generate valid otpauth URI", () => {
       const totp = new TOTP();
-      const uri = totp.keyuri("user@example.com", "MyApp", BASE_SECRET_BASE32);
+      const uri = totp.keyuri("user@example.com", "MyApp", TEST_SECRET_PARSE_BASE32);
 
       expect(uri).toContain("otpauth://totp/");
       expect(uri).toContain("user%40example.com");
       expect(uri).toContain("issuer=MyApp");
-      expect(uri).toContain(`secret=${BASE_SECRET_BASE32}`);
+      expect(uri).toContain(`secret=${TEST_SECRET_PARSE_BASE32}`);
     });
   });
 

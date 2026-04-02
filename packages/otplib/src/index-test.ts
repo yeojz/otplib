@@ -20,7 +20,7 @@ import {
 
 import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
-import { TEST_SECRET_BASE32, TEST_SECRET_BUG_REPORT } from "@repo/testing";
+import { TEST_SECRET_HOTP_BASE32, TEST_SECRET_BUG_REPORT } from "@repo/testing";
 
 export type OtplibTestContext = TestContext<CryptoPlugin, Base32Plugin> & {
   otplib: {
@@ -35,7 +35,7 @@ export type OtplibTestContext = TestContext<CryptoPlugin, Base32Plugin> & {
   };
 };
 
-const TEST_SECRET = TEST_SECRET_BASE32;
+const TEST_SECRET = TEST_SECRET_HOTP_BASE32;
 
 /**
  * Creates the otplib test suite with injected dependencies

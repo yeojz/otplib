@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import { generateOtp, verifyOtp } from "./otp.js";
 import type { TotpData, HotpData } from "./types.js";
-import { TEST_BASE_SECRET_BASE32, BASE_SECRET_BASE32 } from "@repo/testing";
+import { TEST_SECRET_RFC_BASE32, TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 
 describe("generateOtp", () => {
   const fixedTime = 1704067200000;
@@ -11,7 +11,7 @@ describe("generateOtp", () => {
 
     const entry: TotpData = {
       type: "totp",
-      secret: TEST_BASE_SECRET_BASE32,
+      secret: TEST_SECRET_RFC_BASE32,
       digits: 6,
       algorithm: "SHA1",
       period: 30,
@@ -28,7 +28,7 @@ describe("generateOtp", () => {
 
     const entry: TotpData = {
       type: "totp",
-      secret: TEST_BASE_SECRET_BASE32,
+      secret: TEST_SECRET_RFC_BASE32,
       digits: 8,
       algorithm: "SHA256",
       period: 60,
@@ -43,7 +43,7 @@ describe("generateOtp", () => {
   test("generates HOTP code with counter", async () => {
     const entry: HotpData = {
       type: "hotp",
-      secret: TEST_BASE_SECRET_BASE32,
+      secret: TEST_SECRET_RFC_BASE32,
       digits: 6,
       algorithm: "SHA1",
       counter: 0,
@@ -59,7 +59,7 @@ describe("generateOtp", () => {
 
     const entry: TotpData = {
       type: "totp",
-      secret: TEST_BASE_SECRET_BASE32,
+      secret: TEST_SECRET_RFC_BASE32,
       digits: 6,
       algorithm: "SHA1",
       period: 30,
@@ -75,7 +75,7 @@ describe("generateOtp", () => {
   test("different HOTP counters return different codes", async () => {
     const entry1: HotpData = {
       type: "hotp",
-      secret: TEST_BASE_SECRET_BASE32,
+      secret: TEST_SECRET_RFC_BASE32,
       digits: 6,
       algorithm: "SHA1",
       counter: 0,
@@ -97,7 +97,7 @@ describe("generateOtp", () => {
 
     const entry: TotpData = {
       type: "totp",
-      secret: BASE_SECRET_BASE32,
+      secret: TEST_SECRET_PARSE_BASE32,
       digits: 6,
       algorithm: "SHA1",
       period: 30,
@@ -118,7 +118,7 @@ describe("verifyOtp", () => {
 
     const entry: TotpData = {
       type: "totp",
-      secret: TEST_BASE_SECRET_BASE32,
+      secret: TEST_SECRET_RFC_BASE32,
       digits: 6,
       algorithm: "SHA1",
       period: 30,
@@ -136,7 +136,7 @@ describe("verifyOtp", () => {
 
     const entry: TotpData = {
       type: "totp",
-      secret: TEST_BASE_SECRET_BASE32,
+      secret: TEST_SECRET_RFC_BASE32,
       digits: 6,
       algorithm: "SHA1",
       period: 30,
@@ -151,7 +151,7 @@ describe("verifyOtp", () => {
   test("verifies valid HOTP token", async () => {
     const entry: HotpData = {
       type: "hotp",
-      secret: TEST_BASE_SECRET_BASE32,
+      secret: TEST_SECRET_RFC_BASE32,
       digits: 6,
       algorithm: "SHA1",
       counter: 0,
@@ -168,7 +168,7 @@ describe("verifyOtp", () => {
 
     const entry: TotpData = {
       type: "totp",
-      secret: BASE_SECRET_BASE32,
+      secret: TEST_SECRET_PARSE_BASE32,
       digits: 6,
       algorithm: "SHA1",
       period: 30,

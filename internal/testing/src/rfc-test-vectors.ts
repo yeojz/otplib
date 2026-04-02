@@ -6,6 +6,8 @@
  * - RFC 6238 (TOTP) Appendix B
  *
  * This is the single source of truth for all test vectors across all runtimes.
+ * Constants prefixed with RFC_TEST_ are directly from the RFC specifications
+ * and must never be changed.
  */
 
 import { hexToNumber } from "./utils.js";
@@ -19,14 +21,16 @@ export { hexToNumber };
 /**
  * Base secret from RFC specifications
  * ASCII: "12345678901234567890" (20 bytes)
+ * Appears in RFC 4226 Appendix D and RFC 6238 Appendix B
  */
-export const BASE_SECRET = "12345678901234567890";
+export const RFC_TEST_SECRET = "12345678901234567890";
 
 /**
- * Base secret in Base32 encoding
- * Base32: "JBSWY3DPEHPK3PXP" (16 chars)
+ * Hex encoding of the RFC base secret
+ * Appears in RFC 4226 Appendix D as 0x3132333435363738393031323334353637383930
+ * and in RFC 6238 Appendix A reference implementation
  */
-export const BASE_SECRET_BASE32 = "JBSWY3DPEHPK3PXP";
+export const RFC_TEST_SECRET_HEX = "3132333435363738393031323334353637383930";
 
 /**
  * RFC 4226 Appendix D - HOTP Test Vectors
@@ -63,7 +67,7 @@ export const RFC4226_VECTORS = [
 export const RFC6238_VECTORS = {
   sha1: {
     // SHA1 uses 20-byte secret (the base secret as-is)
-    secret: BASE_SECRET,
+    secret: RFC_TEST_SECRET,
     vectors: [
       { epoch: 59, expected: "94287082", t: "0000000000000001" },
       { epoch: 1111111109, expected: "07081804", t: "00000000023523ec" },
@@ -75,7 +79,7 @@ export const RFC6238_VECTORS = {
   },
   sha256: {
     // SHA256 uses 32-byte secret (base secret repeated to 32 bytes)
-    secret: BASE_SECRET + BASE_SECRET.slice(0, 12),
+    secret: RFC_TEST_SECRET + RFC_TEST_SECRET.slice(0, 12),
     vectors: [
       { epoch: 59, expected: "46119246", t: "0000000000000001" },
       { epoch: 1111111109, expected: "68084774", t: "00000000023523ec" },
@@ -87,7 +91,7 @@ export const RFC6238_VECTORS = {
   },
   sha512: {
     // SHA512 uses 64-byte secret (base secret repeated to 64 bytes)
-    secret: BASE_SECRET.repeat(3) + BASE_SECRET.slice(0, 4),
+    secret: RFC_TEST_SECRET.repeat(3) + RFC_TEST_SECRET.slice(0, 4),
     vectors: [
       { epoch: 59, expected: "90693936", t: "0000000000000001" },
       { epoch: 1111111109, expected: "25091201", t: "00000000023523ec" },

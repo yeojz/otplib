@@ -9,11 +9,11 @@ import { createGuardrails } from "@otplib/core";
 import { HOTP, HashAlgorithms, KeyEncodings, hotpDigestToToken, type HOTPOptions } from "./index";
 import {
   RFC4226_VECTORS,
-  BASE_SECRET,
-  BASE_SECRET_BASE32,
-  TEST_BASE_SECRET_BASE32,
-  TEST_BASE_SECRET_HEX,
-  TEST_BASE_SECRET_HEX_INVALID,
+  RFC_TEST_SECRET,
+  TEST_SECRET_PARSE_BASE32,
+  TEST_SECRET_RFC_BASE32,
+  RFC_TEST_SECRET_HEX,
+  TEST_SECRET_RFC_HEX_INVALID,
 } from "@repo/testing";
 
 describe("HOTP (v12-adapter)", () => {
@@ -63,7 +63,7 @@ describe("HOTP (v12-adapter)", () => {
   describe("generate", () => {
     it("should generate 6-digit token by default", () => {
       const hotp = new HOTP();
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token = hotp.generate(secret, 0);
 
       expect(token).toHaveLength(6);
@@ -72,7 +72,7 @@ describe("HOTP (v12-adapter)", () => {
 
     it("should generate token for specific counter", () => {
       const hotp = new HOTP();
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token0 = hotp.generate(secret, 0);
       const token1 = hotp.generate(secret, 1);
 
@@ -81,7 +81,7 @@ describe("HOTP (v12-adapter)", () => {
 
     it("should support 8-digit tokens", () => {
       const hotp = new HOTP({ digits: 8 });
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token = hotp.generate(secret, 0);
 
       expect(token).toHaveLength(8);
@@ -92,14 +92,14 @@ describe("HOTP (v12-adapter)", () => {
       const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100, MAX_SECRET_BYTES: 200 });
       const hotp = new HOTP({ guardrails: strictGuardrails });
 
-      expect(() => hotp.generate(BASE_SECRET, 0)).toThrow();
+      expect(() => hotp.generate(RFC_TEST_SECRET, 0)).toThrow();
     });
   });
 
   describe("check", () => {
     it("should return true for valid token", () => {
       const hotp = new HOTP();
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token = hotp.generate(secret, 0);
 
       expect(hotp.check(token, secret, 0)).toBe(true);
@@ -107,14 +107,14 @@ describe("HOTP (v12-adapter)", () => {
 
     it("should return false for invalid token", () => {
       const hotp = new HOTP();
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
 
       expect(hotp.check("000000", secret, 0)).toBe(false);
     });
 
     it("should return false for wrong counter", () => {
       const hotp = new HOTP();
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token = hotp.generate(secret, 0);
 
       expect(hotp.check(token, secret, 1)).toBe(false);
@@ -124,7 +124,7 @@ describe("HOTP (v12-adapter)", () => {
   describe("verify", () => {
     it("should verify with object-based API", () => {
       const hotp = new HOTP();
-      const secret = BASE_SECRET;
+      const secret = RFC_TEST_SECRET;
       const token = hotp.generate(secret, 0);
 
       expect(hotp.verify({ token, secret, counter: 0 })).toBe(true);
@@ -143,18 +143,18 @@ describe("HOTP (v12-adapter)", () => {
   describe("keyuri", () => {
     it("should generate valid otpauth URI", () => {
       const hotp = new HOTP();
-      const uri = hotp.keyuri("user@example.com", "MyApp", BASE_SECRET_BASE32, 0);
+      const uri = hotp.keyuri("user@example.com", "MyApp", TEST_SECRET_PARSE_BASE32, 0);
 
       expect(uri).toContain("otpauth://hotp/");
       expect(uri).toContain("user%40example.com");
       expect(uri).toContain("issuer=MyApp");
-      expect(uri).toContain(`secret=${BASE_SECRET_BASE32}`);
+      expect(uri).toContain(`secret=${TEST_SECRET_PARSE_BASE32}`);
       expect(uri).toContain("counter=0");
     });
   });
   describe("RFC4226 - specific vectors", () => {
     // RFC 4226 Secret (20 bytes)
-    const secret = BASE_SECRET;
+    const secret = RFC_TEST_SECRET;
 
     it("should match RFC 4226 SHA1 vectors", () => {
       const hotp = new HOTP({
@@ -170,7 +170,7 @@ describe("HOTP (v12-adapter)", () => {
 
   describe("HOTP counter parity", () => {
     // Secret must be at least 16 bytes (128 bits)
-    const secret = BASE_SECRET;
+    const secret = RFC_TEST_SECRET;
 
     it("should verify token at specific counter", () => {
       const hotp = new HOTP();
@@ -210,8 +210,8 @@ describe("HOTP (v12-adapter)", () => {
   describe("secretToBytes encoding support", () => {
     it("should decode Base32-encoded secrets", () => {
       const hotp = new HOTP({ encoding: KeyEncodings.BASE32 });
-      // Base32 encoding of "12345678901234567890" (BASE_SECRET)
-      const base32EncodedSecret = TEST_BASE_SECRET_BASE32;
+      // Base32 encoding of "12345678901234567890" (RFC_TEST_SECRET)
+      const base32EncodedSecret = TEST_SECRET_RFC_BASE32;
       const token = hotp.generate(base32EncodedSecret, 0);
 
       expect(token).toHaveLength(6);
@@ -219,12 +219,12 @@ describe("HOTP (v12-adapter)", () => {
 
       // Verify the token matches ASCII version
       const hotpAscii = new HOTP({ encoding: KeyEncodings.ASCII });
-      const tokenAscii = hotpAscii.generate(BASE_SECRET, 0);
+      const tokenAscii = hotpAscii.generate(RFC_TEST_SECRET, 0);
       expect(token).toBe(tokenAscii);
     });
 
     it("should decode hex-encoded secrets", () => {
-      const hexSecret = TEST_BASE_SECRET_HEX;
+      const hexSecret = RFC_TEST_SECRET_HEX;
       const hotp = new HOTP({ encoding: KeyEncodings.HEX });
       const token = hotp.generate(hexSecret, 0);
 
@@ -233,26 +233,26 @@ describe("HOTP (v12-adapter)", () => {
 
       // Verify against ASCII version to confirm same result
       const hotpAscii = new HOTP({ encoding: KeyEncodings.ASCII });
-      const tokenAscii = hotpAscii.generate(BASE_SECRET, 0);
+      const tokenAscii = hotpAscii.generate(RFC_TEST_SECRET, 0);
 
       expect(token).toBe(tokenAscii);
     });
 
     it("should reject hex secrets with 0x prefix", () => {
-      const hexSecret = TEST_BASE_SECRET_HEX_INVALID;
+      const hexSecret = TEST_SECRET_RFC_HEX_INVALID;
       const hotp = new HOTP({ encoding: KeyEncodings.HEX });
 
       expect(() => hotp.generate(hexSecret, 0)).toThrow();
     });
 
     it("should handle hex secrets with spaces", () => {
-      const hexSecretWithSpaces = TEST_BASE_SECRET_HEX.replace(/(..)/g, "$1 ").trim();
+      const hexSecretWithSpaces = RFC_TEST_SECRET_HEX.replace(/(..)/g, "$1 ").trim();
       const hotp = new HOTP({ encoding: KeyEncodings.HEX });
       const token = hotp.generate(hexSecretWithSpaces, 0);
 
       // Verify against ASCII version to confirm spaces are stripped
       const hotpAscii = new HOTP({ encoding: KeyEncodings.ASCII });
-      const tokenAscii = hotpAscii.generate(BASE_SECRET, 0);
+      const tokenAscii = hotpAscii.generate(RFC_TEST_SECRET, 0);
 
       expect(token).toBe(tokenAscii);
     });

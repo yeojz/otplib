@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { generateUid, encodePayload, decodePayload, formatOutput, getLabel } from "./types.js";
 import type { OtpPayload, TotpData, HotpData } from "./types.js";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 
 describe("generateUid", () => {
   test("generates 9-character string starting with A followed by hex", () => {
@@ -32,7 +33,7 @@ describe("encodePayload / decodePayload", () => {
     const payload: OtpPayload = {
       data: {
         type: "totp",
-        secret: "JBSWY3DPEHPK3PXP",
+        secret: TEST_SECRET_PARSE_BASE32,
         issuer: "GitHub",
         account: "user",
         algorithm: "SHA1",

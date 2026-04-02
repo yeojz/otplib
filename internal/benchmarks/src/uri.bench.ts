@@ -8,7 +8,7 @@
  */
 
 import { parse, generate, generateTOTP, generateHOTP } from "@otplib/uri";
-import { BASE_SECRET_BASE32 } from "@repo/testing";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 import { Bench } from "tinybench";
 
 const bench = new Bench({ time: 1000 });
@@ -16,22 +16,22 @@ const bench = new Bench({ time: 1000 });
 // Test data - various URI complexities
 
 // Simple TOTP URI (minimal params)
-const simpleTotpUri = `otpauth://totp/Test?secret=${BASE_SECRET_BASE32}`;
+const simpleTotpUri = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}`;
 
 // Standard TOTP URI (typical Google Authenticator format)
-const standardTotpUri = `otpauth://totp/ACME:john@example.com?secret=${BASE_SECRET_BASE32}&issuer=ACME`;
+const standardTotpUri = `otpauth://totp/ACME:john@example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=ACME`;
 
 // Full TOTP URI (all parameters specified)
-const fullTotpUri = `otpauth://totp/ACME:john@example.com?secret=${BASE_SECRET_BASE32}&issuer=ACME&algorithm=SHA256&digits=8&period=60`;
+const fullTotpUri = `otpauth://totp/ACME:john@example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=ACME&algorithm=SHA256&digits=8&period=60`;
 
 // HOTP URI with counter
-const hotpUri = `otpauth://hotp/ACME:john@example.com?secret=${BASE_SECRET_BASE32}&issuer=ACME&counter=42`;
+const hotpUri = `otpauth://hotp/ACME:john@example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=ACME&counter=42`;
 
 // URI with URL-encoded characters
-const encodedUri = `otpauth://totp/My%20Service:user%40example.com?secret=${BASE_SECRET_BASE32}&issuer=My%20Service`;
+const encodedUri = `otpauth://totp/My%20Service:user%40example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=My%20Service`;
 
 // Long secret (64 bytes base32 encoded)
-const longSecretUri = `otpauth://totp/Test?secret=${BASE_SECRET_BASE32.repeat(6)}`;
+const longSecretUri = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32.repeat(6)}`;
 
 // Parsed URI objects for generation benchmarks
 const parsedSimple = parse(simpleTotpUri);
@@ -81,7 +81,7 @@ bench
     generateTOTP({
       issuer: "ACME",
       label: "john@example.com",
-      secret: BASE_SECRET_BASE32,
+      secret: TEST_SECRET_PARSE_BASE32,
       algorithm: "sha256",
       digits: 8,
       period: 60,
@@ -91,7 +91,7 @@ bench
     generateHOTP({
       issuer: "ACME",
       label: "john@example.com",
-      secret: BASE_SECRET_BASE32,
+      secret: TEST_SECRET_PARSE_BASE32,
       counter: 42,
     });
   });
@@ -106,7 +106,7 @@ bench
     const generated = generateTOTP({
       issuer: "Test",
       label: "user@test.com",
-      secret: BASE_SECRET_BASE32,
+      secret: TEST_SECRET_PARSE_BASE32,
     });
     parse(generated);
   });

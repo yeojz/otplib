@@ -13,7 +13,7 @@ import {
   getRemainingTime,
   getTimeStepUsed,
 } from "@otplib/totp";
-import { RFC6238_VECTORS, BASE_SECRET, hexToNumber } from "@repo/testing";
+import { RFC6238_VECTORS, RFC_TEST_SECRET, hexToNumber } from "@repo/testing";
 
 import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
@@ -23,7 +23,7 @@ import type { TestContext } from "@repo/testing";
  */
 export function createTOTPDistributionTests(ctx: TestContext<CryptoPlugin, Base32Plugin>): void {
   const { describe, it, expect, crypto } = ctx;
-  const secret = stringToBytes(BASE_SECRET);
+  const secret = stringToBytes(RFC_TEST_SECRET);
 
   // Secrets with proper padding per RFC 6238
   const sha1Secret = stringToBytes(RFC6238_VECTORS.sha1.secret);
