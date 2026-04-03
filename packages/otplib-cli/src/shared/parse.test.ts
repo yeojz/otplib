@@ -10,14 +10,15 @@ import {
 } from "./parse.js";
 import { encodePayload } from "./types.js";
 import type { HotpData, OtpPayload } from "./types.js";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 
 describe("parseOtpauthUri", () => {
   test("parses minimal TOTP URI", () => {
-    const result = parseOtpauthUri("otpauth://totp/GitHub:user?secret=JBSWY3DPEHPK3PXP");
+    const result = parseOtpauthUri(`otpauth://totp/GitHub:user?secret=${TEST_SECRET_PARSE_BASE32}`);
 
     expect(result).toEqual({
       type: "totp",
-      secret: "JBSWY3DPEHPK3PXP",
+      secret: TEST_SECRET_PARSE_BASE32,
       issuer: "GitHub",
       account: "user",
       algorithm: "SHA1",

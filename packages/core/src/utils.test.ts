@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { BASE_SECRET_BASE32 } from "@repo/testing";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 import {
   MIN_SECRET_BYTES,
   MAX_SECRET_BYTES,
@@ -968,7 +968,7 @@ describe("normalizeSecret", () => {
   });
 
   it("should decode string secret using base32 plugin", () => {
-    const secret = BASE_SECRET_BASE32;
+    const secret = TEST_SECRET_PARSE_BASE32;
     const decodedBytes = stringToBytes("abcde"); // Expected decoded result
 
     const mockBase32Plugin = {
@@ -983,7 +983,7 @@ describe("normalizeSecret", () => {
   });
 
   it("should throw when string secret provided without base32 plugin", () => {
-    const secret = BASE_SECRET_BASE32;
+    const secret = TEST_SECRET_PARSE_BASE32;
     expect(() => normalizeSecret(secret)).toThrowError("Base32 plugin is required.");
   });
 });
@@ -1047,7 +1047,7 @@ describe("requireIssuer", () => {
 
 describe("requireBase32String", () => {
   it("should not throw when secret is a string", () => {
-    expect(() => requireBase32String(BASE_SECRET_BASE32)).not.toThrow();
+    expect(() => requireBase32String(TEST_SECRET_PARSE_BASE32)).not.toThrow();
   });
 
   it("should throw SecretTypeError when secret is Uint8Array", () => {

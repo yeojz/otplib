@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { BASE_SECRET_BASE32 } from "@repo/testing";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 import { hasPlugins, hasCrypto, hasBase32 } from "./utility-types.js";
 import type { CryptoPlugin, Base32Plugin } from "./types.js";
 import { stringToBytes } from "./utils.js";
@@ -15,7 +15,7 @@ const mockCryptoPlugin: CryptoPlugin = {
 // Mock base32 plugin for testing
 const mockBase32Plugin: Base32Plugin = {
   name: "mock",
-  encode: () => BASE_SECRET_BASE32,
+  encode: () => TEST_SECRET_PARSE_BASE32,
   decode: () => stringToBytes("Hello"),
 };
 
@@ -61,7 +61,7 @@ describe("utility-types", () => {
       const options = {
         crypto: mockCryptoPlugin,
         base32: mockBase32Plugin,
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         digits: 6,
       };
 
@@ -117,7 +117,7 @@ describe("utility-types", () => {
     it("should work with additional properties", () => {
       const options = {
         base32: mockBase32Plugin,
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
       };
 
       expect(hasBase32(options)).toBe(true);

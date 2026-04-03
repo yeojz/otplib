@@ -18,7 +18,7 @@ import {
   InvalidParameterError,
   URIParseError,
 } from "@otplib/uri";
-import { BASE_SECRET_BASE32 } from "@repo/testing";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 
 // Valid Base32 alphabet (RFC 4648)
 const BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -190,7 +190,7 @@ describe("URI fuzz tests", () => {
           fc.string({ minLength: 1, maxLength: 20 }).filter((s) => s !== "totp" && s !== "hotp"),
           safeLabelChars,
           async (invalidType, label) => {
-            const uri = `otpauth://${invalidType}/${label}?secret=${BASE_SECRET_BASE32}`;
+            const uri = `otpauth://${invalidType}/${label}?secret=${TEST_SECRET_PARSE_BASE32}`;
             try {
               parse(uri);
             } catch (err) {
@@ -204,7 +204,7 @@ describe("URI fuzz tests", () => {
     it("should handle URIs with missing slash after type", async () => {
       await fc.assert(
         fc.asyncProperty(validType, async (type) => {
-          const uri = `otpauth://${type}?secret=${BASE_SECRET_BASE32}`;
+          const uri = `otpauth://${type}?secret=${TEST_SECRET_PARSE_BASE32}`;
           expect(() => parse(uri)).toThrow(URIParseError);
         }),
       );
@@ -232,7 +232,7 @@ describe("URI fuzz tests", () => {
         fc.asyncProperty(fc.string({ minLength: 1, maxLength: 50 }), async (unicodeLabel) => {
           try {
             const encoded = encodeURIComponent(unicodeLabel);
-            const uri = `otpauth://totp/${encoded}?secret=${BASE_SECRET_BASE32}`;
+            const uri = `otpauth://totp/${encoded}?secret=${TEST_SECRET_PARSE_BASE32}`;
             const result = parse(uri);
             expect(result).toBeDefined();
           } catch (err) {
@@ -248,7 +248,7 @@ describe("URI fuzz tests", () => {
         fc.asyncProperty(fc.string({ minLength: 1, maxLength: 50 }), async (unicodeIssuer) => {
           try {
             const encoded = encodeURIComponent(unicodeIssuer);
-            const uri = `otpauth://totp/test?secret=${BASE_SECRET_BASE32}&issuer=${encoded}`;
+            const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&issuer=${encoded}`;
             const result = parse(uri);
             expect(result).toBeDefined();
           } catch (err) {
@@ -266,7 +266,7 @@ describe("URI fuzz tests", () => {
             const controlChars = String.fromCharCode(...controlCodes);
             try {
               const encoded = encodeURIComponent(controlChars);
-              const uri = `otpauth://totp/${encoded}?secret=${BASE_SECRET_BASE32}`;
+              const uri = `otpauth://totp/${encoded}?secret=${TEST_SECRET_PARSE_BASE32}`;
               parse(uri);
             } catch (err) {
               expect(err).toBeInstanceOf(Error);
@@ -285,7 +285,7 @@ describe("URI fuzz tests", () => {
             // Create malformed percent encoding
             const hex = byte.toString(16).padStart(2, "0");
             const malformed = incomplete ? `%${hex.charAt(0)}` : `%${hex}%`;
-            const uri = `otpauth://totp/test${malformed}?secret=${BASE_SECRET_BASE32}`;
+            const uri = `otpauth://totp/test${malformed}?secret=${TEST_SECRET_PARSE_BASE32}`;
 
             try {
               parse(uri);
@@ -304,7 +304,7 @@ describe("URI fuzz tests", () => {
         fc.asyncProperty(
           fc.constantFrom("SHA1", "sha1", "SHA-1", "sha-1", "SHA256", "sha256", "SHA-256"),
           async (algo) => {
-            const uri = `otpauth://totp/test?secret=${BASE_SECRET_BASE32}&algorithm=${algo}`;
+            const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${algo}`;
 
             try {
               const result = parse(uri);
@@ -326,7 +326,7 @@ describe("URI fuzz tests", () => {
             return !["sha1", "sha256", "sha512"].includes(normalized);
           }),
           async (invalidAlgo) => {
-            const uri = `otpauth://totp/test?secret=${BASE_SECRET_BASE32}&algorithm=${encodeURIComponent(invalidAlgo)}`;
+            const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${encodeURIComponent(invalidAlgo)}`;
 
             try {
               parse(uri);
@@ -343,7 +343,7 @@ describe("URI fuzz tests", () => {
         fc.asyncProperty(
           fc.integer({ min: -100, max: 100 }).filter((d) => d !== 6 && d !== 7 && d !== 8),
           async (invalidDigits) => {
-            const uri = `otpauth://totp/test?secret=${BASE_SECRET_BASE32}&digits=${invalidDigits}`;
+            const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&digits=${invalidDigits}`;
 
             try {
               parse(uri);

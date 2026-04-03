@@ -14,7 +14,7 @@ import {
 } from "@otplib/core";
 import {
   RFC4226_VECTORS,
-  BASE_SECRET,
+  RFC_TEST_SECRET,
   STEAM_CHARS,
   steamEncodeToken,
   steamValidateToken,
@@ -31,7 +31,7 @@ import type { TestContext } from "@repo/testing";
  */
 export function createHOTPTests(ctx: TestContext<CryptoPlugin>): void {
   const { describe, it, expect, crypto } = ctx;
-  const secret = stringToBytes(BASE_SECRET);
+  const secret = stringToBytes(RFC_TEST_SECRET);
 
   describe("HOTP", () => {
     describe("RFC 4226 Appendix D - Test Vectors", () => {

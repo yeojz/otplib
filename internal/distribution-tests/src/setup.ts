@@ -11,5 +11,5 @@ export { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 export { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
 // Re-export testing utilities
-export { RFC4226_VECTORS, RFC6238_VECTORS, BASE_SECRET, hexToNumber } from "@repo/testing";
+export { RFC4226_VECTORS, RFC6238_VECTORS, RFC_TEST_SECRET, hexToNumber } from "@repo/testing";
 export type { TestContext } from "@repo/testing";

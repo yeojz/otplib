@@ -3,8 +3,8 @@ import { CryptoPlugin, createGuardrails } from "@otplib/core";
 import { HOTP, HashAlgorithms, type HOTPOptions } from "./index.js";
 import {
   RFC4226_VECTORS,
-  BASE_SECRET,
-  BASE_SECRET_BASE32,
+  RFC_TEST_SECRET,
+  TEST_SECRET_PARSE_BASE32,
   TEST_SECRET_HEX,
   TEST_SECRET_HEX_INVALID,
 } from "@repo/testing";
@@ -17,15 +17,15 @@ describe("HOTP (v11-adapter)", () => {
     });
 
     RFC4226_VECTORS.forEach(({ counter, expected }) => {
-      expect(hotp.generate(BASE_SECRET, counter)).toBe(expected);
+      expect(hotp.generate(RFC_TEST_SECRET, counter)).toBe(expected);
     });
   });
 
   it("should check token correctly", () => {
     const hotp = new HOTP();
-    const token = hotp.generate(BASE_SECRET, 0);
-    expect(hotp.check(token, BASE_SECRET, 0)).toBe(true);
-    expect(hotp.check(token, BASE_SECRET, 1)).toBe(false);
+    const token = hotp.generate(RFC_TEST_SECRET, 0);
+    expect(hotp.check(token, RFC_TEST_SECRET, 0)).toBe(true);
+    expect(hotp.check(token, RFC_TEST_SECRET, 1)).toBe(false);
   });
 
   it("should support hex encoding", () => {
@@ -51,7 +51,7 @@ describe("HOTP (v11-adapter)", () => {
   it("should support base32 encoding", () => {
     const hotp = new HOTP();
     // > 16 bytes
-    const secret = BASE_SECRET_BASE32.repeat(2);
+    const secret = TEST_SECRET_PARSE_BASE32.repeat(2);
 
     hotp.options = { encoding: "base32" };
     const token = hotp.generate(secret, 0);
@@ -63,7 +63,7 @@ describe("HOTP (v11-adapter)", () => {
     const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100, MAX_SECRET_BYTES: 200 });
     const hotp = new HOTP({ guardrails: strictGuardrails });
 
-    expect(() => hotp.generate(BASE_SECRET, 0)).toThrow();
+    expect(() => hotp.generate(RFC_TEST_SECRET, 0)).toThrow();
   });
 
   it("should manage options", () => {
@@ -100,8 +100,8 @@ describe("HOTP (v11-adapter)", () => {
 
   it("should verify with object argument", () => {
     const hotp = new HOTP();
-    const token = hotp.generate(BASE_SECRET, 0);
-    expect(hotp.verify({ token, secret: BASE_SECRET, counter: 0 })).toBe(true);
+    const token = hotp.generate(RFC_TEST_SECRET, 0);
+    expect(hotp.verify({ token, secret: RFC_TEST_SECRET, counter: 0 })).toBe(true);
   });
 
   it("should verify throw on invalid argument", () => {
@@ -112,7 +112,7 @@ describe("HOTP (v11-adapter)", () => {
 
   it("should generate keyuri", () => {
     const hotp = new HOTP();
-    const uri = hotp.keyuri("user", "issuer", BASE_SECRET, 5);
+    const uri = hotp.keyuri("user", "issuer", RFC_TEST_SECRET, 5);
     expect(uri).toContain("otpauth://hotp/");
     expect(uri).toContain("counter=5");
   });
@@ -137,6 +137,6 @@ describe("HOTP (v11-adapter)", () => {
         },
       } as unknown as CryptoPlugin,
     });
-    expect(hotp.check("123456", BASE_SECRET, 0)).toBe(false);
+    expect(hotp.check("123456", RFC_TEST_SECRET, 0)).toBe(false);
   });
 });

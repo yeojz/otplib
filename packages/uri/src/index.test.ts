@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generateTOTP, generateHOTP, parse, generate } from "./index.js";
 import { formatErrorMessage } from "./parse.js";
-import { BASE_SECRET_BASE32 } from "@repo/testing";
+import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 
 describe("URI", () => {
   describe("generateTOTP", () => {
@@ -9,11 +9,11 @@ describe("URI", () => {
       const uri = generateTOTP({
         issuer: "ACME Co",
         label: "john@example.com",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
       });
 
       expect(uri).toBe(
-        `otpauth://totp/ACME%20Co:john%40example.com?secret=${BASE_SECRET_BASE32}&issuer=ACME%20Co`,
+        `otpauth://totp/ACME%20Co:john%40example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=ACME%20Co`,
       );
     });
 
@@ -21,7 +21,7 @@ describe("URI", () => {
       const uri = generateTOTP({
         issuer: "GitHub",
         label: "user1",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         algorithm: "sha256",
         digits: 8,
         period: 60,
@@ -36,7 +36,7 @@ describe("URI", () => {
       const uri = generateTOTP({
         issuer: "Test Service",
         label: "user+tag@example.com",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
       });
 
       expect(uri).toContain("Test%20Service");
@@ -58,7 +58,7 @@ describe("URI", () => {
       const uri = generateTOTP({
         issuer: "Service",
         label: "user",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         algorithm: "sha512",
       });
 
@@ -69,7 +69,7 @@ describe("URI", () => {
       const uri = generateTOTP({
         issuer: "Service",
         label: "user",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         digits: 8,
       });
 
@@ -80,7 +80,7 @@ describe("URI", () => {
       const uri = generateTOTP({
         issuer: "Service",
         label: "user",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         period: 60,
       });
 
@@ -91,11 +91,11 @@ describe("URI", () => {
       const uri = generateTOTP({
         issuer: "Service",
         label: "user",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
       });
 
       // Default values (sha1, 6 digits, 30 period) are omitted for Google Authenticator compatibility
-      expect(uri).toContain(`secret=${BASE_SECRET_BASE32}`);
+      expect(uri).toContain(`secret=${TEST_SECRET_PARSE_BASE32}`);
       expect(uri).toContain("issuer=Service");
       expect(uri).not.toContain("algorithm=");
       expect(uri).not.toContain("digits=");
@@ -108,7 +108,7 @@ describe("URI", () => {
       const options = {
         issuer: undefined as unknown as string,
         label: "user@example.com",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
       };
 
       // This will call generateTOTP with undefined issuer
@@ -116,7 +116,7 @@ describe("URI", () => {
       const uri = generateTOTP(options);
 
       // When issuer is falsy, the label should just be the account name (no issuer: prefix)
-      expect(uri).toBe(`otpauth://totp/user%40example.com?secret=${BASE_SECRET_BASE32}`);
+      expect(uri).toBe(`otpauth://totp/user%40example.com?secret=${TEST_SECRET_PARSE_BASE32}`);
     });
   });
 
@@ -141,11 +141,11 @@ describe("URI", () => {
         type: "totp",
         label: "user",
         params: {
-          secret: BASE_SECRET_BASE32,
+          secret: TEST_SECRET_PARSE_BASE32,
         },
       });
 
-      expect(uri).toBe(`otpauth://totp/user?secret=${BASE_SECRET_BASE32}`);
+      expect(uri).toBe(`otpauth://totp/user?secret=${TEST_SECRET_PARSE_BASE32}`);
       expect(uri).not.toContain("issuer=");
     });
 
@@ -154,7 +154,7 @@ describe("URI", () => {
         type: "totp",
         label: "user",
         params: {
-          secret: BASE_SECRET_BASE32,
+          secret: TEST_SECRET_PARSE_BASE32,
           algorithm: "sha1",
         },
       });
@@ -167,7 +167,7 @@ describe("URI", () => {
         type: "totp",
         label: "user",
         params: {
-          secret: BASE_SECRET_BASE32,
+          secret: TEST_SECRET_PARSE_BASE32,
           digits: 6,
         },
       });
@@ -180,7 +180,7 @@ describe("URI", () => {
         type: "hotp",
         label: "user",
         params: {
-          secret: BASE_SECRET_BASE32,
+          secret: TEST_SECRET_PARSE_BASE32,
         },
       });
 
@@ -192,7 +192,7 @@ describe("URI", () => {
         type: "totp",
         label: "user",
         params: {
-          secret: BASE_SECRET_BASE32,
+          secret: TEST_SECRET_PARSE_BASE32,
           period: 30,
         },
       });
@@ -206,12 +206,12 @@ describe("URI", () => {
       const uri = generateHOTP({
         issuer: "ACME Co",
         label: "john@example.com",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         counter: 0,
       });
 
       expect(uri).toBe(
-        `otpauth://hotp/ACME%20Co:john%40example.com?secret=${BASE_SECRET_BASE32}&issuer=ACME%20Co&counter=0`,
+        `otpauth://hotp/ACME%20Co:john%40example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=ACME%20Co&counter=0`,
       );
     });
 
@@ -219,7 +219,7 @@ describe("URI", () => {
       const uri = generateHOTP({
         issuer: "Service",
         label: "user",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         counter: 42,
       });
 
@@ -230,7 +230,7 @@ describe("URI", () => {
       const uri = generateHOTP({
         issuer: "Service",
         label: "user",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         counter: 10,
         algorithm: "sha256",
         digits: 8,
@@ -245,7 +245,7 @@ describe("URI", () => {
       const uri = generateHOTP({
         issuer: "Test Service",
         label: "user@example.com",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         counter: 0,
       });
 
@@ -259,7 +259,7 @@ describe("URI", () => {
       const options = {
         issuer: undefined as unknown as string,
         label: "user@example.com",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         counter: 0,
       };
 
@@ -268,7 +268,9 @@ describe("URI", () => {
       const uri = generateHOTP(options);
 
       // When issuer is falsy, the label should just be the account name (no issuer: prefix)
-      expect(uri).toBe(`otpauth://hotp/user%40example.com?secret=${BASE_SECRET_BASE32}&counter=0`);
+      expect(uri).toBe(
+        `otpauth://hotp/user%40example.com?secret=${TEST_SECRET_PARSE_BASE32}&counter=0`,
+      );
     });
 
     it("should use default values for optional parameters", () => {
@@ -276,7 +278,7 @@ describe("URI", () => {
       const uri = generateHOTP({
         issuer: "TestService",
         label: "user",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         // counter, algorithm, digits omitted - should use defaults
       });
 
@@ -289,17 +291,17 @@ describe("URI", () => {
 
   describe("parse", () => {
     it("should parse basic TOTP URI", () => {
-      const uri = `otpauth://totp/ACME%20Co:john%40example.com?secret=${BASE_SECRET_BASE32}&issuer=ACME%20Co`;
+      const uri = `otpauth://totp/ACME%20Co:john%40example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=ACME%20Co`;
       const parsed = parse(uri);
 
       expect(parsed.type).toBe("totp");
       expect(parsed.label).toBe("ACME Co:john@example.com");
-      expect(parsed.params.secret).toBe(BASE_SECRET_BASE32);
+      expect(parsed.params.secret).toBe(TEST_SECRET_PARSE_BASE32);
       expect(parsed.params.issuer).toBe("ACME Co");
     });
 
     it("should parse TOTP URI with custom parameters", () => {
-      const uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&issuer=Service&algorithm=sha256&digits=8&period=60`;
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&issuer=Service&algorithm=sha256&digits=8&period=60`;
       const parsed = parse(uri);
 
       expect(parsed.params.algorithm).toBe("sha256");
@@ -308,7 +310,7 @@ describe("URI", () => {
     });
 
     it("should parse HOTP URI", () => {
-      const uri = `otpauth://hotp/Service:user?secret=${BASE_SECRET_BASE32}&issuer=Service&counter=10`;
+      const uri = `otpauth://hotp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&issuer=Service&counter=10`;
       const parsed = parse(uri);
 
       expect(parsed.type).toBe("hotp");
@@ -316,15 +318,15 @@ describe("URI", () => {
     });
 
     it("should parse URI without issuer parameter", () => {
-      const uri = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}`;
+      const uri = `otpauth://totp/user?secret=${TEST_SECRET_PARSE_BASE32}`;
       const parsed = parse(uri);
 
       expect(parsed.label).toBe("user");
-      expect(parsed.params.secret).toBe(BASE_SECRET_BASE32);
+      expect(parsed.params.secret).toBe(TEST_SECRET_PARSE_BASE32);
     });
 
     it("should parse URI with special characters", () => {
-      const uri = `otpauth://totp/Test%20Service:user%2Btest%40example.com?secret=${BASE_SECRET_BASE32}&issuer=Test%20Service`;
+      const uri = `otpauth://totp/Test%20Service:user%2Btest%40example.com?secret=${TEST_SECRET_PARSE_BASE32}&issuer=Test%20Service`;
       const parsed = parse(uri);
 
       expect(parsed.label).toBe("Test Service:user+test@example.com");
@@ -332,7 +334,7 @@ describe("URI", () => {
     });
 
     it("should use default values when parameters are missing", () => {
-      const uri = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}`;
+      const uri = `otpauth://totp/user?secret=${TEST_SECRET_PARSE_BASE32}`;
       const parsed = parse(uri);
 
       expect(parsed.params.algorithm).toBeUndefined();
@@ -341,7 +343,7 @@ describe("URI", () => {
     });
 
     it("should throw on invalid URI type", () => {
-      const uri = `otpauth://invalid/user?secret=${BASE_SECRET_BASE32}`;
+      const uri = `otpauth://invalid/user?secret=${TEST_SECRET_PARSE_BASE32}`;
 
       expect(() => parse(uri)).toThrow("Invalid value for parameter 'type'");
     });
@@ -353,67 +355,67 @@ describe("URI", () => {
     });
 
     it("should handle URIs with extra parameters", () => {
-      const uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&unknown=value&issuer=Service`;
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&unknown=value&issuer=Service`;
       const parsed = parse(uri);
 
       // Should still parse successfully
-      expect(parsed.params.secret).toBe(BASE_SECRET_BASE32);
+      expect(parsed.params.secret).toBe(TEST_SECRET_PARSE_BASE32);
       expect(parsed.label).toBe("Service:user");
     });
 
     it("should skip query params without equals sign", () => {
-      const uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&malformed&issuer=Service`;
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&malformed&issuer=Service`;
       const parsed = parse(uri);
 
-      expect(parsed.params.secret).toBe(BASE_SECRET_BASE32);
+      expect(parsed.params.secret).toBe(TEST_SECRET_PARSE_BASE32);
       expect(parsed.params.issuer).toBe("Service");
     });
 
     it("should parse hyphenated algorithm names", () => {
-      const sha1Uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&algorithm=SHA-1`;
+      const sha1Uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA-1`;
       expect(parse(sha1Uri).params.algorithm).toBe("sha1");
 
-      const sha256Uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&algorithm=SHA-256`;
+      const sha256Uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA-256`;
       expect(parse(sha256Uri).params.algorithm).toBe("sha256");
 
-      const sha512Uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&algorithm=SHA-512`;
+      const sha512Uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA-512`;
       expect(parse(sha512Uri).params.algorithm).toBe("sha512");
     });
 
     it("should throw on invalid algorithm", () => {
-      const uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&algorithm=md5`;
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=md5`;
 
       expect(() => parse(uri)).toThrow("Invalid value for parameter 'algorithm'");
     });
 
     it("should throw on invalid digits value", () => {
-      const uri5 = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&digits=5`;
+      const uri5 = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&digits=5`;
       expect(() => parse(uri5)).toThrow("Invalid value for parameter 'digits'");
 
-      const uri9 = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&digits=9`;
+      const uri9 = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&digits=9`;
       expect(() => parse(uri9)).toThrow("Invalid value for parameter 'digits'");
     });
 
     it("should throw on non-numeric digits value", () => {
-      const uri = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&digits=abc`;
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&digits=abc`;
       expect(() => parse(uri)).toThrow("Invalid value for parameter 'digits'");
     });
 
     it("should parse valid digits values", () => {
-      const uri6 = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&digits=6`;
+      const uri6 = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&digits=6`;
       expect(parse(uri6).params.digits).toBe(6);
 
-      const uri7 = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&digits=7`;
+      const uri7 = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&digits=7`;
       expect(parse(uri7).params.digits).toBe(7);
 
-      const uri8 = `otpauth://totp/Service:user?secret=${BASE_SECRET_BASE32}&digits=8`;
+      const uri8 = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&digits=8`;
       expect(parse(uri8).params.digits).toBe(8);
     });
 
     it("should throw on URI exceeding max length", () => {
       // MAX_URI_LENGTH is 2048, create URI that exceeds this
       const longLabel = "a".repeat(2100);
-      const uri = `otpauth://totp/${longLabel}?secret=${BASE_SECRET_BASE32}`;
+      const uri = `otpauth://totp/${longLabel}?secret=${TEST_SECRET_PARSE_BASE32}`;
 
       expect(() => parse(uri)).toThrow("exceeds maximum length");
     });
@@ -435,18 +437,18 @@ describe("URI", () => {
     });
 
     it("should reject malformed numeric parameters", () => {
-      const malformedCounter = `otpauth://hotp/user?secret=${BASE_SECRET_BASE32}&counter=10abc`;
+      const malformedCounter = `otpauth://hotp/user?secret=${TEST_SECRET_PARSE_BASE32}&counter=10abc`;
       expect(() => parse(malformedCounter)).toThrow("Invalid value for parameter 'counter'");
 
-      const emptyPeriod = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}&period=`;
+      const emptyPeriod = `otpauth://totp/user?secret=${TEST_SECRET_PARSE_BASE32}&period=`;
       expect(() => parse(emptyPeriod)).toThrow("Invalid value for parameter 'period'");
 
-      const negativePeriod = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}&period=-1`;
+      const negativePeriod = `otpauth://totp/user?secret=${TEST_SECRET_PARSE_BASE32}&period=-1`;
       expect(() => parse(negativePeriod)).toThrow("Invalid value for parameter 'period'");
     });
 
     it("should reject integer parameters outside safe integer range", () => {
-      const hugeCounter = `otpauth://hotp/user?secret=${BASE_SECRET_BASE32}&counter=9007199254740992`;
+      const hugeCounter = `otpauth://hotp/user?secret=${TEST_SECRET_PARSE_BASE32}&counter=9007199254740992`;
       expect(() => parse(hugeCounter)).toThrow("Invalid value for parameter 'counter'");
     });
 
@@ -454,7 +456,7 @@ describe("URI", () => {
       // Create a label that is small when encoded but large when decoded
       // Using encoded characters that expand when decoded
       const longLabel = encodeURIComponent("a".repeat(600));
-      const uri = `otpauth://totp/${longLabel}?secret=${BASE_SECRET_BASE32}`;
+      const uri = `otpauth://totp/${longLabel}?secret=${TEST_SECRET_PARSE_BASE32}`;
 
       expect(() => parse(uri)).toThrow("exceeds maximum length");
     });
@@ -470,14 +472,14 @@ describe("URI", () => {
 
     it("should throw on invalid URI encoding in label", () => {
       // %ZZ is an invalid percent-encoding
-      const uri = `otpauth://totp/invalid%ZZlabel?secret=${BASE_SECRET_BASE32}`;
+      const uri = `otpauth://totp/invalid%ZZlabel?secret=${TEST_SECRET_PARSE_BASE32}`;
 
       expect(() => parse(uri)).toThrow("Invalid URI encoding");
     });
 
     it("should throw on invalid URI encoding in parameter", () => {
       // %ZZ is an invalid percent-encoding
-      const uri = `otpauth://totp/user?secret=${BASE_SECRET_BASE32}&issuer=bad%ZZvalue`;
+      const uri = `otpauth://totp/user?secret=${TEST_SECRET_PARSE_BASE32}&issuer=bad%ZZvalue`;
 
       expect(() => parse(uri)).toThrow("Invalid URI encoding");
     });
@@ -485,7 +487,7 @@ describe("URI", () => {
     it("should handle URIError with proper message formatting", () => {
       // This tests the error message formatting in safeDecodeURIComponent
       // % is incomplete percent-encoding, which triggers URIError
-      const uri = `otpauth://totp/user%?secret=${BASE_SECRET_BASE32}`;
+      const uri = `otpauth://totp/user%?secret=${TEST_SECRET_PARSE_BASE32}`;
 
       expect(() => parse(uri)).toThrow("Invalid URI encoding");
     });
@@ -496,7 +498,7 @@ describe("URI", () => {
       const original = {
         issuer: "Test Service",
         label: "user@example.com",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         algorithm: "sha256" as const,
         digits: 8 as const,
         period: 60,
@@ -518,7 +520,7 @@ describe("URI", () => {
       const original = {
         issuer: "Test Service",
         label: "user@example.com",
-        secret: BASE_SECRET_BASE32,
+        secret: TEST_SECRET_PARSE_BASE32,
         algorithm: "sha512" as const,
         digits: 8 as const,
         counter: 42,

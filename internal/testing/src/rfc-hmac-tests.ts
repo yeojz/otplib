@@ -1,4 +1,4 @@
-import { RFC4226_VECTORS, BASE_SECRET } from "./rfc-test-vectors.js";
+import { RFC4226_VECTORS, RFC_TEST_SECRET } from "./rfc-test-vectors.js";
 import { counterToBytes, hexToBytes, stringToBytes } from "./utils.js";
 
 import type { ExpectFn } from "./types.js";
@@ -34,7 +34,7 @@ interface CryptoPlugin {
  * ```
  */
 export async function testRFC4226HMAC(plugin: CryptoPlugin, expect: ExpectFn): Promise<void> {
-  const secret = stringToBytes(BASE_SECRET);
+  const secret = stringToBytes(RFC_TEST_SECRET);
 
   for (const vector of RFC4226_VECTORS) {
     const counter = counterToBytes(vector.counter);
