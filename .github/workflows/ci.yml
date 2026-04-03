@@ -109,7 +109,7 @@ jobs:
           {
             echo '### Bundle Size Report'
             echo ''
-            pnpm run size
+            pnpm run --silent size
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload coverage artifacts

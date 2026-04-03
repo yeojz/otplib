@@ -4,17 +4,35 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CONFIG="$REPO_ROOT/release.config.json"
 
+# ---------- preflight ----------
+
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    printf 'Error: required tool "%s" is not installed or not on PATH.\n' "$1" >&2
+    exit 1
+  fi
+}
+
+for cmd in jq gzip find wc awk mktemp; do
+  require_cmd "$cmd"
+done
+
+if ! command -v md5 >/dev/null 2>&1 && ! command -v md5sum >/dev/null 2>&1; then
+  printf 'Error: required hashing tool not found. Install either "md5" or "md5sum".\n' >&2
+  exit 1
+fi
+
 # ---------- helpers ----------
 
 parse_kb() {
-  # "6 KB" → 6144, "2.5 KB" → 2560
+  # "6 KB" → 6000, "2.5 KB" → 2500
   local num="${1%% *}"
-  awk -v n="$num" 'BEGIN { printf "%d", n * 1024 }'
+  awk -v n="$num" 'BEGIN { printf "%d", n * 1000 }'
 }
 
 format_kb() {
   # bytes → "5.2 KB"
-  awk -v b="$1" 'BEGIN { printf "%.1f KB", b / 1024 }'
+  awk -v b="$1" 'BEGIN { printf "%.1f KB", b / 1000 }'
 }
 
 # ---------- portable key-value store using temp files ----------
@@ -122,9 +140,9 @@ measure_size() {
   fi
 
   if [[ ! -d "$dist_dir" ]]; then
-    kv_set sizecache "$name" "0"
-    echo 0
-    return
+    printf 'Error: dist directory not found for "%s" at %s\n' "$name" "$dist_dir" >&2
+    printf 'Run "pnpm run build" first.\n' >&2
+    exit 1
   fi
 
   local files=()
