@@ -72,13 +72,10 @@ kv_has() {
 
 # ---------- build name → directory map ----------
 
-ALL_PKG_NAMES=()
-
 for pkg_json in "$REPO_ROOT"/packages/*/package.json; do
   dir="$(dirname "$pkg_json")"
   name="$(jq -r '.name' "$pkg_json")"
   kv_set namedir "$name" "$dir"
-  ALL_PKG_NAMES+=("$name")
 done
 
 # ---------- read bundleSize config ----------
@@ -162,6 +159,9 @@ measure_size() {
     done < <(find "$dist_dir" -maxdepth 1 -type f -name "*${ext}" -print0 2>/dev/null)
   done
 
+  # Sort for deterministic results across OS/filesystems
+  IFS=$'\n' files=($(printf '%s\n' "${files[@]}" | sort)); unset IFS
+
   local bytes=0
   if [[ ${#files[@]} -gt 0 ]]; then
     bytes="$(cat "${files[@]}" | gzip -c | wc -c | tr -d ' ')"
@@ -239,7 +239,7 @@ for name in "${BUNDLE_KEYS[@]}"; do
   ns_limit_str="$(kv_get cfgnslimit "$name")"
   ns_limit_bytes=""
 
-  status="pass"
+  status="PASS"
 
   if (( size > limit_bytes )); then
     status="FAIL"
