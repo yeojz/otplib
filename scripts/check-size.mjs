@@ -106,7 +106,18 @@ function inferRuntimeFromExtensions(extensions) {
 }
 
 function normalizeArtifactPath(packageDir, file) {
-  return path.resolve(packageDir, file);
+  const resolved = path.resolve(packageDir, file);
+  const relative = path.relative(packageDir, resolved);
+
+  if (
+    path.isAbsolute(relative) ||
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`)
+  ) {
+    throw new Error(`Artifact path "${file}" resolves outside the package directory.`);
+  }
+
+  return resolved;
 }
 
 function selectArtifacts(manifest, packageDir, extensions) {
