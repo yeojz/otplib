@@ -106,15 +106,11 @@ jobs:
 
       - name: Check bundle size
         run: |
-          pnpm run --silent size:check > /tmp/size-results.json; SIZE_EXIT=$?
           {
             echo '### Bundle Size Report'
             echo ''
-            echo '| Package | Size | Limit | Status |'
-            echo '|---------|------|-------|--------|'
-            jq -r '.[] | "| \(.name | gsub("[|<>\\[\\]\\\\]"; "")) | \((.size / 1000 * 100 | round) / 100) KB | \((.sizeLimit / 1000 * 100 | round) / 100) KB | \(if .passed then "Pass" else "FAIL" end) |"' /tmp/size-results.json
+            pnpm run --silent size
           } >> "$GITHUB_STEP_SUMMARY"
-          exit $SIZE_EXIT
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0

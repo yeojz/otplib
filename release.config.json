@@ -15,5 +15,20 @@
       "otplib",
       "otplib-cli"
     ]
+  },
+  "bundleSize": {
+    "@otplib/core": { "limit": "6 KB" },
+    "@otplib/hotp": { "limit": "2 KB", "nsLimit": "10 KB" },
+    "@otplib/totp": { "limit": "2.5 KB", "nsLimit": "12 KB" },
+    "@otplib/uri": { "limit": "2.5 KB", "nsLimit": "8 KB" },
+    "@otplib/plugin-crypto-node": { "limit": "1 KB", "nsLimit": "7 KB" },
+    "@otplib/plugin-crypto-noble": { "limit": "1 KB", "nsLimit": "7 KB" },
+    "@otplib/plugin-crypto-web": { "limit": "1.5 KB", "nsLimit": "7 KB" },
+    "@otplib/plugin-base32-scure": { "limit": "1 KB", "nsLimit": "6.5 KB" },
+    "@otplib/plugin-base32-alt": { "limit": "1 KB", "nsLimit": "6.5 KB" },
+    "otplib": { "limit": "2.5 KB", "nsLimit": "16 KB" },
+    "@otplib/preset-v11": { "limit": "2.5 KB", "nsLimit": "16 KB" },
+    "@otplib/v12-adapter": { "limit": "3.5 KB", "nsLimit": "17 KB" },
+    "otplib-cli": { "ext": [".cjs"], "limit": "13 KB", "nsLimit": "29 KB" }
   }
 }
