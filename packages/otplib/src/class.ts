@@ -16,7 +16,7 @@ import {
 } from "./functional.js";
 
 import type { OTPStrategy } from "./functional.js";
-import type { TOTPExtraArgs } from "./types.js";
+import type { TOTPExtraArgs, TOTPVerifyOptions } from "./types.js";
 import type {
   CryptoPlugin,
   Digits,
@@ -394,7 +394,7 @@ export class OTP {
    * @param options - Verification options
    * @returns Verification result with validity and optional delta
    */
-  async verify(options: OTPVerifyOptions & { format: "plain" }): Promise<boolean>;
+  async verify(options: TOTPVerifyOptions & { format: "plain" }): Promise<boolean>;
   async verify(options: OTPVerifyOptions): Promise<VerifyResult>;
   async verify(options: OTPVerifyOptions): Promise<boolean | VerifyResult> {
     return functionalVerify({
@@ -413,7 +413,7 @@ export class OTP {
    * @returns Verification result with validity and optional delta
    * @throws {HMACError} If the crypto plugin doesn't support sync operations
    */
-  verifySync(options: OTPVerifyOptions & { format: "plain" }): boolean;
+  verifySync(options: TOTPVerifyOptions & { format: "plain" }): boolean;
   verifySync(options: OTPVerifyOptions): VerifyResult;
   verifySync(options: OTPVerifyOptions): boolean | VerifyResult {
     return functionalVerifySync({
