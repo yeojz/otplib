@@ -196,16 +196,16 @@ if (result.valid) {
 }
 ```
 
-### Detailed Generate Results
+### Full Generate Results
 
-By default, `generate` returns a plain token string. Pass `format: "detailed"` to receive a structured result containing the token along with the time-step metadata used to produce it:
+By default, `generate` returns a plain token string. Pass `format: "full"` to receive a structured result containing the token along with the time-step metadata used to produce it:
 
 ```typescript
 import { generate } from "otplib";
 
 const result = await generate({
   secret,
-  format: "detailed",
+  format: "full",
 });
 
 result.token; // "123456" - the OTP code
@@ -228,7 +228,7 @@ import { generateSync } from "otplib";
 
 const result = generateSync({
   secret,
-  format: "detailed",
+  format: "full",
 });
 ```
 
@@ -340,15 +340,15 @@ await verify({ secret, token, afterTimeStep: 1.5 });
 await verify({ secret, token, afterTimeStep: 100 });
 ```
 
-#### Using Detailed Generate for Replay Protection
+#### Using Full Generate for Replay Protection
 
-You can also use `format: "detailed"` with `generate` to obtain the `timeStep` for server-initiated flows (e.g., sending an OTP via SMS) without an extra call:
+You can also use `format: "full"` with `generate` to obtain the `timeStep` for server-initiated flows (e.g., sending an OTP via SMS) without an extra call:
 
 ```typescript
 import { generate, verify } from "otplib";
 
 // Server generates and sends OTP
-const result = await generate({ secret, format: "detailed" });
+const result = await generate({ secret, format: "full" });
 await sendSMS(user.phone, result.token);
 await db.saveLastTimeStep(userId, result.timeStep);
 

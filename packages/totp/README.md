@@ -35,9 +35,9 @@ const token = await generate({
 });
 ```
 
-#### Detailed results
+#### Full results
 
-Pass `format: "detailed"` to receive the token along with time-step metadata. This is useful for replay protection without additional utility calls.
+Pass `format: "full"` to receive the token along with time-step metadata. This is useful for replay protection without additional utility calls.
 
 ```typescript
 import { generate } from "@otplib/totp";
@@ -46,7 +46,7 @@ import { crypto } from "@otplib/plugin-crypto-node";
 const result = await generate({
   secret,
   crypto,
-  format: "detailed",
+  format: "full",
 });
 
 // result.token    - the OTP string
@@ -175,8 +175,8 @@ const secret = new Uint8Array([
 const token = generateSync({ secret, crypto });
 const result = verifySync({ secret, token, crypto });
 
-// format: "detailed" works with generateSync too
-const detailed = generateSync({ secret, crypto, format: "detailed" });
+// format: "full" works with generateSync too
+const detailed = generateSync({ secret, crypto, format: "full" });
 // detailed.token, detailed.timeStep, detailed.epoch
 ```
 
