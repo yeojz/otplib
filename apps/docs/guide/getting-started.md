@@ -197,7 +197,7 @@ const result = await verify({
 });
 ```
 
-When `format` is `"full"`, `generate` returns a `TOTPGenerateResult` object instead of a plain string:
+When `format` is `"full"`, `generate` returns a `GenerateResult` object instead of a plain string:
 
 ```typescript
 const result = await generate({
