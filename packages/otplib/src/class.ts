@@ -359,7 +359,7 @@ export class OTP {
       crypto: this.crypto,
       base32: this.base32,
       guardrails: options.guardrails ?? this.guardrails,
-    } as Parameters<typeof functionalGenerate>[0]);
+    } as OTPGenerateOptions);
   }
 
   /**
@@ -385,7 +385,7 @@ export class OTP {
       crypto: this.crypto,
       base32: this.base32,
       guardrails: options.guardrails ?? this.guardrails,
-    } as Parameters<typeof functionalGenerateSync>[0]);
+    } as OTPGenerateOptions);
   }
 
   /**
@@ -403,7 +403,7 @@ export class OTP {
       crypto: this.crypto,
       base32: this.base32,
       guardrails: options.guardrails ?? this.guardrails,
-    } as Parameters<typeof functionalVerify>[0]);
+    } as OTPVerifyOptions);
   }
 
   /**
@@ -422,7 +422,7 @@ export class OTP {
       crypto: this.crypto,
       base32: this.base32,
       guardrails: options.guardrails ?? this.guardrails,
-    } as Parameters<typeof functionalVerifySync>[0]);
+    } as OTPVerifyOptions);
   }
 
   /**

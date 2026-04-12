@@ -18,7 +18,7 @@ import { generateTOTP as generateTOTPURI } from "@otplib/uri";
 
 import { generate as generateCode, verify as verifyCode } from "./index.js";
 
-import type { VerifyResult, TOTPOptions, TOTPVerifyOptions } from "./types.js";
+import type { VerifyResult, TOTPOptions, TOTPGenerateOptions, TOTPVerifyOptions } from "./types.js";
 import type { OTPGuardrails, OTPFormat, GenerateResult } from "@otplib/core";
 
 /**
@@ -112,7 +112,7 @@ export class TOTP {
       guardrails,
       hooks: mergedOptions.hooks,
       format,
-    } as Parameters<typeof generateCode>[0]);
+    } as TOTPGenerateOptions);
   }
 
   /**
@@ -170,7 +170,7 @@ export class TOTP {
       guardrails,
       hooks: mergedOptions.hooks,
       format,
-    } as Parameters<typeof verifyCode>[0]);
+    } as TOTPVerifyOptions);
   }
 
   /**
