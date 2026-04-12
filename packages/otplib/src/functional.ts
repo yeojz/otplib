@@ -234,6 +234,9 @@ export function generateURI(options: {
 export async function generate(
   options: TOTPGenerateOptions & { format: "full" },
 ): Promise<GenerateResult>;
+export async function generate(
+  options: TOTPGenerateOptions & { format?: "default" | "plain" },
+): Promise<string>;
 export async function generate(options: TOTPGenerateOptions): Promise<string>;
 export async function generate(options: HOTPGenerateOptions): Promise<string>;
 export async function generate(options: OTPGenerateOptions): Promise<string | GenerateResult> {
@@ -300,6 +303,9 @@ export async function generate(options: OTPGenerateOptions): Promise<string | Ge
  * ```
  */
 export function generateSync(options: TOTPGenerateOptions & { format: "full" }): GenerateResult;
+export function generateSync(
+  options: TOTPGenerateOptions & { format?: "default" | "plain" },
+): string;
 export function generateSync(options: TOTPGenerateOptions): string;
 export function generateSync(options: HOTPGenerateOptions): string;
 export function generateSync(options: OTPGenerateOptions): string | GenerateResult {
