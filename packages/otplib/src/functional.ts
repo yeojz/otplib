@@ -231,9 +231,11 @@ export function generateURI(options: {
  * });
  * ```
  */
+// Explicit: format: "full" returns structured result
 export async function generate(
   options: TOTPGenerateOptions & { format: "full" },
 ): Promise<GenerateResult>;
+// Explicit: format: "plain" or "default" returns string (matches class-layer API)
 export async function generate(
   options: TOTPGenerateOptions & { format?: "default" | "plain" },
 ): Promise<string>;
@@ -302,7 +304,9 @@ export async function generate(options: OTPGenerateOptions): Promise<string | Ge
  * });
  * ```
  */
+// Explicit: format: "full" returns structured result
 export function generateSync(options: TOTPGenerateOptions & { format: "full" }): GenerateResult;
+// Explicit: format: "plain" or "default" returns string (matches class-layer API)
 export function generateSync(
   options: TOTPGenerateOptions & { format?: "default" | "plain" },
 ): string;

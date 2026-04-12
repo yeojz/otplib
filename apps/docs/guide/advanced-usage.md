@@ -236,23 +236,6 @@ const result = generateSync({
 
 This is particularly useful for replay protection, as shown in the next section.
 
-The `format` option also applies to `verify`. By default, `verify` returns a `VerifyResult` object. Pass `format: "plain"` to receive a simple `boolean` instead:
-
-```typescript
-import { verify } from "otplib";
-
-// Default: returns VerifyResult { valid, delta?, epoch?, timeStep? }
-const result = await verify({ secret, token, crypto });
-if (result.valid) {
-  console.log(result.timeStep);
-}
-
-// With format: "plain" — returns boolean directly
-const isValid = await verify({ secret, token, crypto, format: "plain" });
-```
-
-> **Note:** `format: "plain"` on `verify` only applies to TOTP. HOTP verify always returns a `VerifyResult` object.
-
 ### Replay Protection (TOTP)
 
 By default, TOTP codes can be reused within their validity period (determined by `epochTolerance`). To prevent replay attacks, you can track the time step from each successful verification and use the `afterTimeStep` parameter to reject previously used time steps.
@@ -464,6 +447,25 @@ if (result.valid) {
   console.log(result.epoch); // 1234578900 (Unix timestamp)
 }
 ```
+
+### Verify Format
+
+The `format` option also applies to `verify`. By default, `verify` returns a `VerifyResult` object. Pass `format: "plain"` to receive a simple `boolean` instead:
+
+```typescript
+import { verify } from "otplib";
+
+// Default: returns VerifyResult { valid, epoch?, timeStep? }
+const result = await verify({ secret, token, crypto });
+if (result.valid) {
+  console.log(result.timeStep);
+}
+
+// With format: "plain" — returns boolean directly
+const isValid = await verify({ secret, token, crypto, format: "plain" });
+```
+
+> **Note:** `format: "plain"` on `verify` only applies to TOTP. HOTP verify always returns a `VerifyResult` object.
 
 ## Configuration & formats
 
