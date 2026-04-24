@@ -305,7 +305,7 @@ await verify({ secret, token, afterTimeStep: 100 });
 Here's a complete example showing how to implement replay protection in a real application:
 
 ```typescript
-import { verify, generate } from "otplib";
+import { verify } from "otplib";
 import { Database } from "your-database";
 
 const db = new Database();
