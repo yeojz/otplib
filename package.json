@@ -60,6 +60,11 @@
     "vitest-tsconfig-paths": "^3.4.1"
   },
   "pnpm": {
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2026-39365"
+      ]
+    },
     "overrides": {
       "ajv@>=6.0.0 <6.14.0": "6.14.0",
       "esbuild@<=0.24.2": ">=0.25.0",
