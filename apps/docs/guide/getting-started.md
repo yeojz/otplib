@@ -173,6 +173,10 @@ If you are permanently using passphrases or other non-Base32 strings, you can ei
 
 ### TOTP Options
 
+::: info Minimum secret length
+Secrets must be at least 16 bytes (128 bits) after decoding. If you need to work with shorter secrets (e.g. RFC test vectors or legacy authenticator secrets), see [Troubleshooting - SecretTooShortError](/guide/troubleshooting#secrettooshorterror).
+:::
+
 ```typescript
 const token = await generate({
   secret: "GEZDGNBVGY3TQOJQGEZDGNBVGY", // Base32-encoded secret (required)
