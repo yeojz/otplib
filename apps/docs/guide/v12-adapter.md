@@ -186,7 +186,7 @@ await generate({
 v13 enforces a minimum secret length of 16 bytes. Older deployments may have shorter secrets.
 
 ::: warning Legacy Secrets
-If your existing secrets are shorter than 16 bytes, you may need to override guardrails for backward compatibility. This is not done by default to preserve security. See [Danger Zone - Guardrails](/guide/danger-zone#guardrails) for details.
+Generate or verify calls with secrets shorter than 16 bytes (measured after Base32 decoding, where applicable) will now throw `SecretTooShortError`. The minimum is not relaxed by default, to preserve security. If you need to keep accepting shorter legacy secrets, override the `MIN_SECRET_BYTES` guardrail. See [Danger Zone - Guardrails](/guide/danger-zone#guardrails) for the override and [Troubleshooting - SecretTooShortError](/guide/troubleshooting#secrettooshorterror) for examples.
 :::
 
 ### 6. Class-Based API Changes

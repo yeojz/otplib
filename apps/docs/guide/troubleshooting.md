@@ -138,6 +138,21 @@ import { generateSecret } from "otplib";
 const secret = generateSecret(); // 20 bytes by default
 ```
 
+::: tip Working with shorter secrets
+RFC 4226 recommends a minimum of 128 bits (16 bytes), but many tutorials, RFC test vectors, and authenticator-app-issued secrets are shorter than this. If you need to interoperate with such secrets, you can override the `MIN_SECRET_BYTES` guardrail:
+
+```typescript
+import { generate, createGuardrails } from "otplib";
+
+const token = await generate({
+  secret: "JBSWY3DPEHPK3PXP", // 10 bytes after Base32 decoding (below default 16-byte minimum)
+  guardrails: createGuardrails({ MIN_SECRET_BYTES: 10 }),
+});
+```
+
+See [Danger Zone - Guardrails](/guide/danger-zone#guardrails) for the full list of overridable limits and the security implications.
+:::
+
 ### "SecretTooLongError"
 
 Secrets must not exceed 64 bytes (512 bits):
