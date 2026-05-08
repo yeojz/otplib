@@ -145,7 +145,7 @@ RFC 4226 recommends a minimum of 128 bits (16 bytes), but many tutorials, RFC te
 import { generate, createGuardrails } from "otplib";
 
 const token = await generate({
-  secret: "12345678901234567890", // shorter than 16 bytes after decoding
+  secret: "JBSWY3DPEHPK3PXP", // 10 bytes after Base32 decoding (below default 16-byte minimum)
   guardrails: createGuardrails({ MIN_SECRET_BYTES: 10 }),
 });
 ```
