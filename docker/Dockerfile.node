@@ -2,7 +2,7 @@ ARG IMAGE_TAG=24.14.1-alpine3.22
 FROM node:${IMAGE_TAG}
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
 WORKDIR /workspace
 
