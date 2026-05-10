@@ -290,6 +290,17 @@ const remainingCustom = getRemainingTime(
 
 ## Important Notes
 
+### Common usage location for each function
+
+The Quick Start snippets above show all functions inline so they're runnable end-to-end. In typical 2FA usage, they're commonly called from different places:
+
+| Function         | When                       | Common Location |
+| ---------------- | -------------------------- | --------------- |
+| `generateSecret` | Enrollment (once per user) | Server          |
+| `generateURI`    | Enrollment (once per user) | Server          |
+| `generate`       | Verification (every login) | 2FA device      |
+| `verify`         | Verification (every login) | Server          |
+
 ### Time Synchronization
 
 TOTP depends on accurate time synchronization between client and server:
