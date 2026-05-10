@@ -87,7 +87,7 @@
     "@repo/testing": "workspace:*",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.1"
+    "vitest": "^4.1.5"
   },
   "publishConfig": {
     "access": "public"
