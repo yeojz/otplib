@@ -1,9 +1,14 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 
 const data = ref(null);
 const loading = ref(true);
 const error = ref(null);
+
+const capturedAt = computed(() => {
+  if (!data.value?.timestamp) return "";
+  return `${new Date(data.value.timestamp).toISOString().replace("T", " ").slice(0, 19)} UTC`;
+});
 
 onMounted(async () => {
   try {
@@ -23,11 +28,11 @@ onMounted(async () => {
     <div v-if="loading">Loading benchmarks...</div>
     <div v-else-if="error">
       Failed to load benchmark data. Run
-      <code>pnpm --filter @repo/benchmarks generate-data</code> to generate it.
+      <code>pnpm --filter @repo/benchmarks docs:benchmarks</code> to generate it.
     </div>
     <div v-else>
       <p>
-        <strong>Captured:</strong> {{ new Date(data.timestamp).toLocaleString() }}<br />
+        <strong>Captured:</strong> {{ capturedAt }}<br />
         <strong>Environment:</strong> {{ data.platform }}, Node.js {{ data.nodeVersion }}
       </p>
 

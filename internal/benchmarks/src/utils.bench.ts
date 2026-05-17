@@ -84,10 +84,10 @@ console.log("\n=== Core Utilities Benchmark Results ===\n");
 console.table(
   bench.tasks.map((task) => ({
     Name: task.name,
-    "Ops/sec": task.result?.hz.toFixed(2),
-    "Avg (ms)": task.result?.mean.toFixed(6),
-    "Min (ms)": task.result?.min.toFixed(6),
-    "Max (ms)": task.result?.max.toFixed(6),
-    Samples: task.result?.samples.length,
+    "Ops/sec": task.result?.throughput.mean.toFixed(2),
+    "Avg (ms)": task.result?.latency.mean.toFixed(6),
+    "Min (ms)": task.result?.latency.min.toFixed(6),
+    "Max (ms)": task.result?.latency.max.toFixed(6),
+    Samples: task.result?.latency.samplesCount,
   })),
 );
