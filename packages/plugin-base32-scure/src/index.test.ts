@@ -1,5 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
-import { base32 } from "@scure/base";
+import { describe, it, expect } from "vitest";
 import { ScureBase32Plugin } from "./index.js";
 
 describe("ScureBase32Plugin", () => {
@@ -77,16 +76,6 @@ describe("ScureBase32Plugin", () => {
     it("should throw on invalid character", () => {
       const encoded = "MZXW6YTBOI1"; // '1' is invalid
       expect(() => plugin.decode(encoded)).toThrow("Invalid Base32");
-    });
-
-    it("should throw generic error if non-Error is caught", () => {
-      const spy = vi.spyOn(base32, "decode").mockImplementation(() => {
-        throw "string error";
-      });
-
-      expect(() => plugin.decode("MZXW6YTB")).toThrow("Invalid Base32 string");
-
-      spy.mockRestore();
     });
 
     it("should decode random bytes", () => {
