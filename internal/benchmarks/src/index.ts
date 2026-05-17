@@ -136,9 +136,9 @@ console.log("\n=== Summary Results ===\n");
 console.table(
   bench.tasks.map((task) => ({
     Operation: task.name,
-    "Ops/sec": Math.round(task.result?.hz ?? 0).toLocaleString(),
-    "Avg (μs)": ((task.result?.mean ?? 0) * 1000).toFixed(2),
-    Samples: task.result?.samples.length,
+    "Ops/sec": Math.round(task.result?.throughput.mean ?? 0).toLocaleString(),
+    "Avg (μs)": ((task.result?.latency.mean ?? 0) * 1000).toFixed(2),
+    Samples: task.result?.latency.samplesCount,
   })),
 );
 

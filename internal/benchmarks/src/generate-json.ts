@@ -71,9 +71,9 @@ async function runBenchmarks() {
 
   const results = bench.tasks.map((task) => ({
     name: task.name,
-    opsPerSec: Math.round(task.result?.hz ?? 0),
-    avgLatencyUs: (task.result?.mean ?? 0) * 1000,
-    samples: task.result?.samples.length ?? 0,
+    opsPerSec: Math.round(task.result?.throughput.mean ?? 0),
+    avgLatencyUs: (task.result?.latency.mean ?? 0) * 1000,
+    samples: task.result?.latency.samplesCount ?? 0,
   }));
 
   const data = {
