@@ -148,7 +148,20 @@ const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY";
 
 However, if you need to use secrets in other formats, you can either use the `plugin-base32-alt` plugin for raw strings or pass a byte array (using `stringToBytes` helper) for binary data.
 
-For more details and examples, see the [Secret Handling Guide](https://otplib.yeojz.dev/guide/secret-handling) and related plugin documentation in the guides directory.
+> [!IMPORTANT]
+>
+> Following RFC 4226's recommendation, secrets must be at least **16 bytes (128 bits)** after Base32 decoding — anything shorter throws `SecretTooShortError`. Many tutorials and RFC test vectors use shorter secrets that fall outside this minimum (for example, the canonical `JBSWY3DPEHPK3PXP` decodes to only 10 bytes). To interoperate with these, override the `MIN_SECRET_BYTES` guardrail:
+>
+> ```typescript
+> import { generate, createGuardrails } from "otplib";
+>
+> const token = await generate({
+>   secret: "JBSWY3DPEHPK3PXP",
+>   guardrails: createGuardrails({ MIN_SECRET_BYTES: 10 }),
+> });
+> ```
+>
+> See [Troubleshooting — SecretTooShortError](https://otplib.yeojz.dev/guide/troubleshooting#secrettooshorterror) and [Danger Zone — Guardrails](https://otplib.yeojz.dev/guide/danger-zone#guardrails) for the security trade-offs.
 
 ### Configuration Defaults
 
