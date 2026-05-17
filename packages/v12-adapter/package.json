@@ -62,7 +62,7 @@
     "@otplib/uri": "workspace:*",
     "@otplib/plugin-crypto-noble": "workspace:*",
     "@otplib/plugin-base32-scure": "workspace:*",
-    "@scure/base": "^2.0.0"
+    "@scure/base": "^2.2.0"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
