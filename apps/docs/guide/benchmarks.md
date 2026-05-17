@@ -24,6 +24,10 @@ pnpm --filter @repo/benchmarks docs:benchmarks
 
 ## Performance Results
 
-The table below is a curated subset of the full suite — generation (no verify) on the common SHA-1 path, a single Base32 length, and the core utilities — written by `docs:benchmarks` to `apps/docs/public/benchmarks.json`. The capture timestamp and host environment are shown above the results so you can judge how recent and how comparable the numbers are to your own machine. For the full sweep (SHA-256/512, verify with windows, more Base32 sizes, URI parse/generate), run `pnpm --filter @repo/benchmarks bench`.
+A few things to keep in mind when reading the table below:
+
+- **Curated subset.** It covers the common SHA-1 generate path, a single Base32 length, and the core utilities — no `verify`, no SHA-256/512, no URI rows.
+- **How it's produced.** `docs:benchmarks` writes the snapshot to `apps/docs/public/benchmarks.json`; the capture timestamp and host environment shown above the results help you judge how recent and how comparable the numbers are to your own machine.
+- **Full sweep.** For SHA-256/512, `verify` with windows, more Base32 sizes, and URI parse/generate, run `pnpm --filter @repo/benchmarks bench`.
 
 <BenchmarkTable />
