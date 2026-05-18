@@ -55,10 +55,8 @@ export class ScureBase32Plugin implements Base32Plugin {
       const padded = uppercased.padEnd(Math.ceil(uppercased.length / 8) * 8, "=");
       return scureBase32.decode(padded);
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Invalid Base32 string: ${error.message}`);
-      }
-      throw new Error("Invalid Base32 string");
+      // @scure/base always throws Error instances; cast keeps the catch branchless.
+      throw new Error(`Invalid Base32 string: ${(error as Error).message}`);
     }
   }
 }

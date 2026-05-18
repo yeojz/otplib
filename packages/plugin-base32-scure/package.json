@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@otplib/core": "workspace:*",
-    "@scure/base": "^2.0.0"
+    "@scure/base": "^2.2.0"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
