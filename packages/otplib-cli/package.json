@@ -1,6 +1,6 @@
 {
   "name": "otplib-cli",
-  "version": "13.4.0",
+  "version": "13.4.1",
   "description": "CLI tool for managing encrypted OTP vaults",
   "license": "MIT",
   "author": "Gerald Yeo <support@yeojz.dev>",
