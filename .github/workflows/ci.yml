@@ -282,8 +282,19 @@ jobs:
         run: pnpm audit --prod --audit-level=moderate
 
       - name: Audit all dependencies (informational)
-        run: pnpm audit --audit-level=moderate
         continue-on-error: true
+        run: |
+          if ! pnpm audit --audit-level=moderate > audit.txt 2>&1; then
+            {
+              echo "## Security Audit — full dependency tree (informational)"
+              echo ""
+              echo "⚠️ Advisories found in dev/transitive dependencies (non-blocking):"
+              echo '```'
+              cat audit.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Informational audit found advisories in the full dependency tree — see the job summary."
+          fi
 
   reporting:
     name: Reporting (Coverage and Bundle Analysis)
