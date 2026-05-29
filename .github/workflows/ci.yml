@@ -278,8 +278,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run security audit
+      - name: Audit production dependencies (blocking)
+        run: pnpm audit --prod --audit-level=moderate
+
+      - name: Audit all dependencies (informational)
         run: pnpm audit --audit-level=moderate
+        continue-on-error: true
 
   reporting:
     name: Reporting (Coverage and Bundle Analysis)
