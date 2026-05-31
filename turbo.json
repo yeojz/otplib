@@ -4,6 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": ["CI", "NODE_ENV"],
       "outputs": ["dist/**", ".tsbuildinfo", ".vitepress/dist/**"]
     },
     "test": {

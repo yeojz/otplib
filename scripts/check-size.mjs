@@ -167,7 +167,20 @@ async function listPackages(repoRoot) {
 
     const dir = path.join(packagesDir, entry.name);
     const manifestPath = path.join(dir, "package.json");
-    const manifest = await readJson(manifestPath);
+
+    let manifest;
+
+    try {
+      manifest = await readJson(manifestPath);
+    } catch (error) {
+      // Skip stray directories that aren't workspace packages (e.g. leftover
+      // build output with no package.json). pnpm ignores these too.
+      if (error.code === "ENOENT") {
+        continue;
+      }
+
+      throw error;
+    }
 
     packages.set(manifest.name, {
       dir,
