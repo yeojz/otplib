@@ -22,11 +22,11 @@ export default [
   {
     // Config files that don't need TypeScript project service
     files: [
-      "tsup.config.ts",
+      "tsdown.config.ts",
       "vitest.config.ts",
-      "packages/**/tsup.config.ts",
+      "packages/**/tsdown.config.ts",
       "packages/**/vitest.config.ts",
-      "apps/**/tsup.config.ts",
+      "apps/**/tsdown.config.ts",
       "apps/**/vitest.config.ts",
     ],
     languageOptions: {
@@ -39,11 +39,11 @@ export default [
     // All other TypeScript files with TypeScript project service
     files: ["**/*.ts", "**/*.tsx"],
     ignores: [
-      "tsup.config.ts",
+      "tsdown.config.ts",
       "vitest.config.ts",
-      "packages/**/tsup.config.ts",
+      "packages/**/tsdown.config.ts",
       "packages/**/vitest.config.ts",
-      "apps/**/tsup.config.ts",
+      "apps/**/tsdown.config.ts",
       "apps/**/vitest.config.ts",
       "**/*.test.ts",
       "**/*.spec.ts",
