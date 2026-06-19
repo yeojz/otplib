@@ -1,0 +1,104 @@
+name: Mutation Testing
+
+# Manual-only, non-gating indicator. Mutation testing complements the 100% coverage
+# gate in CI by proving assertions actually detect behaviour changes. It is intentionally
+# NOT part of ci.yml and NOT a required check: equivalent / defence-in-depth mutants put a
+# hard ceiling below 100%, so a pass/fail threshold would be arbitrary. Run it on demand to
+# get the current score and browse the HTML report. See MUTATION-TESTING.md for context.
+on:
+  workflow_dispatch:
+    inputs:
+      args:
+        description: "Extra args passed to `stryker run` (e.g. --mutate \"packages/core/src/**/*.ts\")"
+        required: false
+        default: ""
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION_TARGET: "24"
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  mutation:
+    name: Mutation Testing
+    runs-on: ubuntu-latest
+    environment: test
+    permissions:
+      contents: read # Required for actions/checkout
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION_TARGET }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Indicator only: never fail the run on mutation score. A human triggered this and
+      # reads the summary/report; genuine tooling errors are still visible in the logs.
+      - name: Run mutation testing
+        continue-on-error: true
+        run: pnpm run test:mutation ${{ github.event.inputs.args }}
+
+      - name: Write score to job summary
+        if: always()
+        run: |
+          node - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require("fs");
+          const path = "reports/mutation/mutation.json";
+          if (!fs.existsSync(path)) {
+            console.log("## Mutation Testing\n\nNo report produced — check the run logs.");
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync(path, "utf8"));
+          const detectedStatuses = new Set(["Killed", "Timeout"]);
+          const validStatuses = new Set(["Killed", "Timeout", "Survived", "NoCoverage"]);
+          let gKilled = 0, gTimeout = 0, gSurvived = 0, gNoCov = 0;
+          const rows = [];
+          for (const [file, data] of Object.entries(report.files)) {
+            let killed = 0, timeout = 0, survived = 0, noCov = 0;
+            for (const m of data.mutants) {
+              if (m.status === "Killed") killed++;
+              else if (m.status === "Timeout") timeout++;
+              else if (m.status === "Survived") survived++;
+              else if (m.status === "NoCoverage") noCov++;
+            }
+            const valid = killed + timeout + survived + noCov;
+            const score = valid ? (((killed + timeout) / valid) * 100).toFixed(2) : "n/a";
+            rows.push(`| \`${file}\` | ${score}% | ${killed + timeout} | ${survived} | ${noCov} |`);
+            gKilled += killed; gTimeout += timeout; gSurvived += survived; gNoCov += noCov;
+          }
+          const gValid = gKilled + gTimeout + gSurvived + gNoCov;
+          const gScore = gValid ? (((gKilled + gTimeout) / gValid) * 100).toFixed(2) : "n/a";
+          console.log("## Mutation Testing");
+          console.log("");
+          console.log(`**Overall score: ${gScore}%** (detected ${gKilled + gTimeout} / ${gValid} valid mutants)`);
+          console.log("");
+          console.log("Indicator only — not a gate. Surviving mutants may be equivalent / defence-in-depth; see MUTATION-TESTING.md.");
+          console.log("");
+          console.log("| File | Score | Detected | Survived | No coverage |");
+          console.log("| --- | --- | --- | --- | --- |");
+          for (const r of rows) console.log(r);
+          EOF
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mutation-report
+          path: reports/mutation/
+          if-no-files-found: warn
+          retention-days: 30
