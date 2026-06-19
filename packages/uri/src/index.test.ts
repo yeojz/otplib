@@ -100,6 +100,30 @@ describe("URI", () => {
       expect(uri).not.toContain("algorithm=");
       expect(uri).not.toContain("digits=");
       expect(uri).not.toContain("period=");
+      // TOTP URIs must never carry a counter parameter (HOTP-only)
+      expect(uri).not.toContain("counter");
+    });
+
+    it("should omit counter for TOTP even if a counter is present in params (type guard)", () => {
+      // The counter parameter is HOTP-only; the `type === "hotp"` guard must exclude it
+      // for TOTP regardless of whether params carries a counter value.
+      const uri = generate({
+        type: "totp",
+        label: "user",
+        params: { secret: TEST_SECRET_PARSE_BASE32, counter: 5 },
+      });
+      expect(uri).not.toContain("counter");
+    });
+
+    it("should omit period for HOTP even if a period is present in params (type guard)", () => {
+      // The period parameter is TOTP-only; the `type === "totp"` guard must exclude it
+      // for HOTP regardless of whether params carries a (non-default) period value.
+      const uri = generate({
+        type: "hotp",
+        label: "user",
+        params: { secret: TEST_SECRET_PARSE_BASE32, period: 60 },
+      });
+      expect(uri).not.toContain("period");
     });
 
     it("should handle falsy issuer at runtime (else branch coverage)", () => {
@@ -286,6 +310,8 @@ describe("URI", () => {
       // algorithm=SHA1 and digits=6 are defaults, so they're NOT included in the URI
       expect(uri).not.toContain("algorithm=");
       expect(uri).not.toContain("digits=");
+      // HOTP URIs must never carry a period parameter (TOTP-only)
+      expect(uri).not.toContain("period");
     });
   });
 
@@ -369,6 +395,26 @@ describe("URI", () => {
 
       expect(parsed.params.secret).toBe(TEST_SECRET_PARSE_BASE32);
       expect(parsed.params.issuer).toBe("Service");
+    });
+
+    it("should parse non-hyphenated algorithm names", () => {
+      const sha1Uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=sha1`;
+      expect(parse(sha1Uri).params.algorithm).toBe("sha1");
+
+      const sha1Upper = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA1`;
+      expect(parse(sha1Upper).params.algorithm).toBe("sha1");
+    });
+
+    it("should parse counter at lower boundary (0)", () => {
+      // Boundary: counter min is 0, so 0 must be accepted (check is `< min`, not `<= min`)
+      const uri = `otpauth://hotp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&counter=0`;
+      expect(parse(uri).params.counter).toBe(0);
+    });
+
+    it("should parse period at lower boundary (1)", () => {
+      // Boundary: period min is 1, so 1 must be accepted (check is `< min`, not `<= min`)
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&period=1`;
+      expect(parse(uri).params.period).toBe(1);
     });
 
     it("should parse hyphenated algorithm names", () => {

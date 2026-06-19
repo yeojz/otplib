@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { HOTP } from "./class.js";
+import { createGuardrails } from "@otplib/core";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { TEST_SECRET_HOTP_BASE32 } from "@repo/testing";
@@ -111,5 +112,28 @@ describe("HOTP Class", () => {
     // Call toURI without arguments to test default parameter
     const uri = hotp.toURI();
     expect(uri).toContain("counter=0");
+  });
+
+  describe("per-call guardrails override", () => {
+    // The instance is created with default guardrails. Passing `guardrails` per call
+    // must take precedence over the instance guardrails (`options?.guardrails ?? this.guardrails`).
+    const strict = createGuardrails({ MIN_SECRET_BYTES: 1, MAX_SECRET_BYTES: 1 });
+
+    it("should apply a per-call guardrails override in generate", async () => {
+      const hotp = new HOTP({ secret: TEST_SECRET_HOTP_BASE32, crypto, base32 });
+
+      // Without override: instance (default) guardrails accept the secret.
+      await expect(hotp.generate(0)).resolves.toBeTruthy();
+      // With override: the stricter per-call guardrails reject the (longer) secret.
+      await expect(hotp.generate(0, { guardrails: strict })).rejects.toThrow();
+    });
+
+    it("should apply a per-call guardrails override in verify", async () => {
+      const hotp = new HOTP({ secret: TEST_SECRET_HOTP_BASE32, crypto, base32 });
+      const token = await hotp.generate(0);
+
+      await expect(hotp.verify({ token, counter: 0 })).resolves.toMatchObject({ valid: true });
+      await expect(hotp.verify({ token, counter: 0 }, { guardrails: strict })).rejects.toThrow();
+    });
   });
 });

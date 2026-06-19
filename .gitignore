@@ -63,6 +63,9 @@ yarn-error.log*
 # Test Reports
 reports/
 
+# Mutation testing (Stryker)
+.stryker-tmp/
+
 # Misc
 /docs
 

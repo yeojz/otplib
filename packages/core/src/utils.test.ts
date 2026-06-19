@@ -181,6 +181,22 @@ describe("createGuardrails and hasGuardrailOverrides", () => {
     );
   });
 
+  it("should accept MIN_SECRET_BYTES equal to MAX_SECRET_BYTES", () => {
+    // Boundary: equal values are valid (the check is strictly greater-than, not >=)
+    expect(() => createGuardrails({ MIN_SECRET_BYTES: 20, MAX_SECRET_BYTES: 20 })).not.toThrow();
+    const guardrails = createGuardrails({ MIN_SECRET_BYTES: 20, MAX_SECRET_BYTES: 20 });
+    expect(guardrails.MIN_SECRET_BYTES).toBe(20);
+    expect(guardrails.MAX_SECRET_BYTES).toBe(20);
+  });
+
+  it("should accept MIN_PERIOD equal to MAX_PERIOD", () => {
+    // Boundary: equal values are valid (the check is strictly greater-than, not >=)
+    expect(() => createGuardrails({ MIN_PERIOD: 30, MAX_PERIOD: 30 })).not.toThrow();
+    const guardrails = createGuardrails({ MIN_PERIOD: 30, MAX_PERIOD: 30 });
+    expect(guardrails.MIN_PERIOD).toBe(30);
+    expect(guardrails.MAX_PERIOD).toBe(30);
+  });
+
   it("should throw when MIN_PERIOD exceeds MAX_PERIOD", () => {
     expect(() => createGuardrails({ MIN_PERIOD: 60, MAX_PERIOD: 30 })).toThrowError(
       ConfigurationError,
@@ -442,6 +458,9 @@ describe("validateCounterTolerance", () => {
     expect(() => validateCounterTolerance(NaN, createGuardrails())).toThrowError(
       CounterToleranceError,
     );
+    expect(() => validateCounterTolerance(1.5, createGuardrails())).toThrow(
+      "Counter tolerance values must be safe integers",
+    );
   });
 
   it("should throw CounterToleranceTooLargeError for tolerance exceeding max", () => {
@@ -523,6 +542,9 @@ describe("validateEpochTolerance", () => {
     expect(() => validateEpochTolerance(1.5)).toThrowError(EpochToleranceError);
     expect(() => validateEpochTolerance([30, 1.2])).toThrowError(EpochToleranceError);
     expect(() => validateEpochTolerance(NaN)).toThrowError(EpochToleranceError);
+    expect(() => validateEpochTolerance(1.5)).toThrow(
+      "Epoch tolerance values must be safe integers",
+    );
   });
 
   it("should throw EpochToleranceTooLargeError for tolerance exceeding max", () => {
