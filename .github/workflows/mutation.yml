@@ -4,7 +4,8 @@ name: Mutation Testing
 # gate in CI by proving assertions actually detect behaviour changes. It is intentionally
 # NOT part of ci.yml and NOT a required check: equivalent / defence-in-depth mutants put a
 # hard ceiling below 100%, so a pass/fail threshold would be arbitrary. Run it on demand to
-# get the current score and browse the HTML report. See MUTATION-TESTING.md for context.
+# get the current score and browse the HTML report. See the "Mutation Testing" section
+# in apps/docs/guide/testing.md for context.
 on:
   workflow_dispatch:
     inputs:
@@ -87,7 +88,7 @@ jobs:
           console.log("");
           console.log(`**Overall score: ${gScore}%** (detected ${gKilled + gTimeout} / ${gValid} valid mutants)`);
           console.log("");
-          console.log("Indicator only — not a gate. Surviving mutants may be equivalent / defence-in-depth; see MUTATION-TESTING.md.");
+          console.log("Indicator only — not a gate. Surviving mutants may be equivalent / defence-in-depth; see apps/docs/guide/testing.md.");
           console.log("");
           console.log("| File | Score | Detected | Survived | No coverage |");
           console.log("| --- | --- | --- | --- | --- |");

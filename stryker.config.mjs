@@ -14,7 +14,7 @@
  * - `coverageAnalysis: "all"` is used over "perTest" for reliability with the
  *   multi-project vitest workspace config; runs are still ~1 minute for this scope.
  * - Some surviving mutants are intentionally *equivalent* (no observable behaviour
- *   change) — see MUTATION-TESTING.md for the catalogue and rationale.
+ *   change) — see the "Mutation Testing" section in apps/docs/guide/testing.md.
  *
  * @type {import('@stryker-mutator/api/core').PartialStrykerOptions}
  */
