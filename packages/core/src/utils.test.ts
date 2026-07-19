@@ -37,8 +37,11 @@ import {
   requireBase32String,
   wrapResult,
   wrapResultAsync,
+  HASH_ALGORITHMS,
+  normalizeHashAlgorithm,
   type OTPGuardrails,
 } from "./utils.js";
+import type { HashAlgorithm } from "./types.js";
 import {
   OTPError,
   SecretTooShortError,
@@ -65,6 +68,7 @@ import {
   LabelMissingError,
   IssuerMissingError,
   SecretTypeError,
+  AlgorithmUnsupportedError,
 } from "./errors.js";
 
 describe("Constants", () => {
@@ -882,6 +886,97 @@ describe("getDigestSize", () => {
 
   it("should return correct size for SHA-512", () => {
     expect(getDigestSize("sha512")).toBe(64);
+  });
+
+  it("should throw for an unsupported algorithm", () => {
+    // Typed as HashAlgorithm, but untyped JS callers can still reach here.
+    expect(() => getDigestSize("md5" as HashAlgorithm)).toThrow(AlgorithmUnsupportedError);
+  });
+});
+
+describe("HASH_ALGORITHMS", () => {
+  it("should list the supported algorithms", () => {
+    expect(HASH_ALGORITHMS).toEqual(["sha1", "sha256", "sha512"]);
+  });
+});
+
+describe("normalizeHashAlgorithm", () => {
+  describe("canonical values", () => {
+    for (const algorithm of HASH_ALGORITHMS) {
+      it(`should pass through "${algorithm}"`, () => {
+        expect(normalizeHashAlgorithm(algorithm)).toBe(algorithm);
+      });
+    }
+  });
+
+  describe("case-insensitive matching", () => {
+    const variants = [
+      { input: "SHA1", expected: "sha1" },
+      { input: "Sha1", expected: "sha1" },
+      { input: "sHa1", expected: "sha1" },
+      { input: "SHA256", expected: "sha256" },
+      { input: "Sha256", expected: "sha256" },
+      { input: "SHA512", expected: "sha512" },
+      { input: "SHA512", expected: "sha512" },
+    ] as const;
+
+    for (const { input, expected } of variants) {
+      it(`should normalize "${input}" to "${expected}"`, () => {
+        expect(normalizeHashAlgorithm(input)).toBe(expected);
+      });
+    }
+  });
+
+  describe("rejected values", () => {
+    // Separator variants are rejected here on purpose. They are tolerated only
+    // when parsing third-party otpauth:// URIs (see @otplib/uri).
+    const rejected = [
+      "SHA-1",
+      "sha-1",
+      "sha-256",
+      "sha-512",
+      "sha_1",
+      "sha 1",
+      "md5",
+      "sha3-256",
+      "sha384",
+      "sha1 ",
+      " sha1",
+      "",
+      undefined,
+      null,
+      0,
+      1,
+      true,
+      {},
+      [],
+      ["sha1"],
+      Symbol("sha1"),
+    ];
+
+    for (const value of rejected) {
+      const label = typeof value === "string" ? `"${value}"` : String(value);
+
+      it(`should throw for ${label}`, () => {
+        expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
+      });
+    }
+  });
+
+  describe("narrowed support", () => {
+    it("should reject an algorithm outside the supported set", () => {
+      expect(() => normalizeHashAlgorithm("sha512", ["sha1", "sha256"])).toThrow(
+        AlgorithmUnsupportedError,
+      );
+    });
+
+    it("should still case-fold within the supported set", () => {
+      expect(normalizeHashAlgorithm("SHA256", ["sha1", "sha256"])).toBe("sha256");
+    });
+
+    it("should name the plugin in the error", () => {
+      expect(() => normalizeHashAlgorithm("md5", undefined, "noble")).toThrow("[plugin: noble]");
+    });
   });
 });
 

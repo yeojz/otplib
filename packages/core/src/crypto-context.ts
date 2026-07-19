@@ -1,4 +1,5 @@
 import { HMACError, RandomBytesError } from "./errors.js";
+import { normalizeHashAlgorithm } from "./utils.js";
 
 import type { CryptoPlugin, HashAlgorithm } from "./types.js";
 
@@ -28,11 +29,16 @@ export class CryptoContext {
    * @param key - The secret key as a byte array
    * @param data - The data to authenticate as a byte array
    * @returns HMAC digest as a byte array
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    * @throws {HMACError} If HMAC computation fails
    */
   async hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
+    // Normalized outside the try so the algorithm error surfaces as-is rather
+    // than being rewrapped as an HMACError.
+    const normalized = normalizeHashAlgorithm(algorithm, undefined, this.crypto.name);
+
     try {
-      const result = this.crypto.hmac(algorithm, key, data);
+      const result = this.crypto.hmac(normalized, key, data);
       return result instanceof Promise ? await result : result;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -47,11 +53,14 @@ export class CryptoContext {
    * @param key - The secret key as a byte array
    * @param data - The data to authenticate as a byte array
    * @returns HMAC digest as a byte array
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    * @throws {HMACError} If HMAC computation fails or if crypto plugin doesn't support sync operations
    */
   hmacSync(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
+    const normalized = normalizeHashAlgorithm(algorithm, undefined, this.crypto.name);
+
     try {
-      const result = this.crypto.hmac(algorithm, key, data);
+      const result = this.crypto.hmac(normalized, key, data);
       if (result instanceof Promise) {
         throw new HMACError("Crypto plugin does not support synchronous HMAC operations");
       }

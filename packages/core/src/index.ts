@@ -30,6 +30,8 @@ export {
   PeriodTooLargeError,
   DigitsError,
   AlgorithmError,
+  AlgorithmUnsupportedError,
+  type AlgorithmUnsupportedContext,
   TokenError,
   TokenLengthError,
   TokenFormatError,
@@ -63,6 +65,8 @@ export {
 export {
   createGuardrails,
   hasGuardrailOverrides,
+  HASH_ALGORITHMS,
+  normalizeHashAlgorithm,
   validateSecret,
   validateCounter,
   validateTime,

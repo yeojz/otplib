@@ -183,6 +183,75 @@ export class AlgorithmError extends OTPError {
 }
 
 /**
+ * Additional context for {@link AlgorithmUnsupportedError}
+ */
+export type AlgorithmUnsupportedContext = {
+  /**
+   * The algorithms accepted at the point of failure.
+   *
+   * Defaults to the full set. A crypto plugin backed by a restricted
+   * implementation may support fewer.
+   */
+  supported?: readonly string[];
+
+  /**
+   * Name of the crypto plugin that rejected the value, when applicable.
+   */
+  plugin?: string;
+};
+
+/**
+ * Error thrown when a hash algorithm is not recognised
+ *
+ * Algorithms are matched case-insensitively, so `'SHA1'` is accepted as
+ * `'sha1'`. Anything else - including separator variants such as `'SHA-1'` -
+ * is rejected rather than guessed at, because silently substituting a
+ * different algorithm produces tokens that never match other implementations.
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   crypto.hmac('SHA-1', key, data);
+ * } catch (error) {
+ *   if (error instanceof AlgorithmUnsupportedError) {
+ *     console.log(error.message);
+ *     // Unsupported hash algorithm: "SHA-1". Expected one of: sha1, sha256,
+ *     // sha512 (case-insensitive) - did you mean "sha1"?
+ *   }
+ * }
+ * ```
+ */
+export class AlgorithmUnsupportedError extends AlgorithmError {
+  constructor(value: unknown, context: AlgorithmUnsupportedContext = {}) {
+    const { supported = ["sha1", "sha256", "sha512"], plugin } = context;
+
+    const received = typeof value === "string" ? `"${value}"` : String(value);
+    const suggestion = typeof value === "string" ? findAlgorithmSuggestion(value, supported) : null;
+
+    super(
+      `Unsupported hash algorithm: ${received}. ` +
+        `Expected one of: ${supported.join(", ")} (case-insensitive)` +
+        (plugin ? ` [plugin: ${plugin}]` : "") +
+        (suggestion ? ` - did you mean "${suggestion}"?` : ""),
+    );
+    this.name = "AlgorithmUnsupportedError";
+  }
+}
+
+/**
+ * Find the supported algorithm a value was probably meant to be
+ *
+ * Only considers separator noise (`SHA-1`, `sha_1`, `sha 1`), so genuinely
+ * unrelated values such as `md5` produce no suggestion.
+ *
+ * @internal
+ */
+function findAlgorithmSuggestion(value: string, supported: readonly string[]): string | null {
+  const stripped = value.toLowerCase().replace(/[-_\s]/g, "");
+  return supported.find((algorithm) => algorithm === stripped) ?? null;
+}
+
+/**
  * Error thrown when token is invalid
  */
 export class TokenError extends OTPError {

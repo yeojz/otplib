@@ -24,6 +24,7 @@ import {
   LabelMissingError,
   IssuerMissingError,
   SecretTypeError,
+  AlgorithmUnsupportedError,
 } from "./errors.js";
 
 import type {
@@ -303,6 +304,53 @@ export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuar
  */
 export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
   return guardrails[OVERRIDE_SYMBOL] ?? false;
+}
+
+/**
+ * The hash algorithms supported for HMAC operations
+ */
+export const HASH_ALGORITHMS = ["sha1", "sha256", "sha512"] as const;
+
+/**
+ * Normalize and validate a hash algorithm
+ *
+ * Matching is case-insensitive, so `'SHA1'` and `'Sha1'` both resolve to
+ * `'sha1'`. Everything else is rejected - including separator variants such as
+ * `'SHA-1'`, which are only tolerated when parsing third-party `otpauth://`
+ * URIs (see `@otplib/uri`).
+ *
+ * Rejecting rather than guessing is deliberate: substituting a different
+ * algorithm produces self-consistent tokens that never match any other
+ * implementation, which fails silently at enrollment time.
+ *
+ * @param value - The algorithm to normalize
+ * @param supported - Accepted algorithms (defaults to all of {@link HASH_ALGORITHMS})
+ * @param plugin - Name of the calling crypto plugin, used to enrich the error message
+ * @returns The canonical lowercase algorithm
+ * @throws {AlgorithmUnsupportedError} If the value is not a supported algorithm
+ *
+ * @example
+ * ```typescript
+ * normalizeHashAlgorithm('SHA1');   // 'sha1'
+ * normalizeHashAlgorithm('SHA-1');  // throws AlgorithmUnsupportedError
+ * ```
+ */
+export function normalizeHashAlgorithm(
+  value: unknown,
+  supported: readonly HashAlgorithm[] = HASH_ALGORITHMS,
+  plugin?: string,
+): HashAlgorithm {
+  if (typeof value !== "string") {
+    throw new AlgorithmUnsupportedError(value, { supported, plugin });
+  }
+
+  const normalized = value.toLowerCase() as HashAlgorithm;
+
+  if (!supported.includes(normalized)) {
+    throw new AlgorithmUnsupportedError(value, { supported, plugin });
+  }
+
+  return normalized;
 }
 
 /**
@@ -618,6 +666,7 @@ export function constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array
  *
  * @param algorithm - The hash algorithm
  * @returns Digest size in bytes
+ * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
  */
 export function getDigestSize(algorithm: HashAlgorithm): number {
   switch (algorithm) {
@@ -627,6 +676,8 @@ export function getDigestSize(algorithm: HashAlgorithm): number {
       return 32;
     case "sha512":
       return 64;
+    default:
+      throw new AlgorithmUnsupportedError(algorithm);
   }
 }
 

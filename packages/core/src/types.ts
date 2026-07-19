@@ -88,10 +88,18 @@ export type CryptoPlugin = {
   /**
    * Compute HMAC using the specified hash algorithm
    *
+   * Implementations must match the algorithm case-insensitively and throw
+   * `AlgorithmUnsupportedError` for anything else, rather than falling back to
+   * a default. Use `normalizeHashAlgorithm` from this package to get that
+   * behaviour for free. If the underlying implementation spells algorithms
+   * differently (for example Web Crypto's `SHA-1`), map the canonical name
+   * inside the plugin.
+   *
    * @param algorithm - The hash algorithm to use
    * @param key - The secret key as a byte array
    * @param data - The data to authenticate as a byte array
    * @returns HMAC digest as a byte array
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
   hmac(
     algorithm: HashAlgorithm,
