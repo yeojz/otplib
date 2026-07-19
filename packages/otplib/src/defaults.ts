@@ -5,7 +5,7 @@
  * and reduce memory overhead. Uses pre-instantiated frozen singletons
  * from the plugin packages.
  */
-import { createGuardrails } from "@otplib/core";
+import { createGuardrails, normalizeHashAlgorithm } from "@otplib/core";
 import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
 import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 
@@ -26,7 +26,8 @@ export function normalizeGenerateOptions(
     strategy: options.strategy ?? "totp",
     crypto: options.crypto ?? defaultCrypto,
     base32: options.base32 ?? defaultBase32,
-    algorithm: options.algorithm ?? "sha1",
+    // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+    algorithm: normalizeHashAlgorithm(options.algorithm ?? "sha1"),
     digits: options.digits ?? 6,
     period: options.period ?? 30,
     epoch: options.epoch ?? Math.floor(Date.now() / 1000),

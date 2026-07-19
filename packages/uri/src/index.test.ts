@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { generateTOTP, generateHOTP, parse, generate } from "./index.js";
 import { formatErrorMessage } from "./parse.js";
+import { AlgorithmUnsupportedError } from "@otplib/core";
 import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
+
+import type { OTPAuthURI } from "./types.js";
+import type { HashAlgorithm } from "@otplib/core";
 
 describe("URI", () => {
   describe("generateTOTP", () => {
@@ -582,6 +586,54 @@ describe("URI", () => {
       expect(parsed.params.algorithm).toBe(original.algorithm);
       expect(parsed.params.digits).toBe(original.digits);
       expect(parsed.params.counter).toBe(original.counter);
+    });
+  });
+
+  describe("algorithm normalization", () => {
+    const baseURI = (algorithm: HashAlgorithm): OTPAuthURI => ({
+      type: "totp",
+      label: "Service:user",
+      params: { secret: TEST_SECRET_PARSE_BASE32, algorithm },
+    });
+
+    it("should emit uppercase non-dashed SHA256 token", () => {
+      expect(generate(baseURI("sha256"))).toContain("algorithm=SHA256");
+    });
+
+    it("should emit uppercase non-dashed SHA512 token", () => {
+      expect(generate(baseURI("sha512"))).toContain("algorithm=SHA512");
+    });
+
+    it("should omit algorithm param for sha1", () => {
+      expect(generate(baseURI("sha1"))).not.toContain("algorithm=");
+    });
+
+    it("should omit algorithm param for uppercase 'SHA1' from untyped callers", () => {
+      expect(generate(baseURI("SHA1" as HashAlgorithm))).not.toContain("algorithm=");
+    });
+
+    it("should case-fold uppercase 'SHA256' from untyped callers", () => {
+      expect(generate(baseURI("SHA256" as HashAlgorithm))).toContain("algorithm=SHA256");
+    });
+
+    it("should throw on an invalid algorithm", () => {
+      expect(() => generate(baseURI("md5" as HashAlgorithm))).toThrow(AlgorithmUnsupportedError);
+    });
+
+    it("should throw on a dashed algorithm at the generate boundary", () => {
+      expect(() => generate(baseURI("SHA-256" as HashAlgorithm))).toThrow(
+        AlgorithmUnsupportedError,
+      );
+    });
+
+    it("should round-trip to a canonical lowercase algorithm", () => {
+      const parsed = parse(generate(baseURI("SHA256" as HashAlgorithm)));
+      expect(parsed.params.algorithm).toBe("sha256");
+    });
+
+    it("should round-trip sha1 to an absent algorithm param", () => {
+      const parsed = parse(generate(baseURI("SHA1" as HashAlgorithm)));
+      expect(parsed.params.algorithm).toBeUndefined();
     });
   });
 

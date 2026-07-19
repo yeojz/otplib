@@ -18,7 +18,9 @@ import {
   verifySync,
 } from "./functional.ts";
 
-import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
+import { AlgorithmUnsupportedError } from "@otplib/core";
+
+import type { CryptoPlugin, Base32Plugin, HashAlgorithm } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
 import { TEST_SECRET_HOTP_BASE32, TEST_SECRET_BUG_REPORT } from "@repo/testing";
 
@@ -36,6 +38,9 @@ export type OtplibTestContext = TestContext<CryptoPlugin, Base32Plugin> & {
 };
 
 const TEST_SECRET = TEST_SECRET_HOTP_BASE32;
+
+/** RFC 6238 Appendix B test secret ("12345678901234567890") in Base32 */
+const RFC6238_SECRET = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
 
 /**
  * Creates the otplib test suite with injected dependencies
@@ -544,6 +549,34 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(() => generateSync({ secret: TEST_SECRET, strategy: "invalid" as never })).toThrow(
           "Unknown OTP strategy: invalid",
         );
+      });
+
+      // Regression: an untyped JS caller passing 'SHA1' used to fall through to a
+      // non-sha1 code path and produce a wrong token ('69342147') instead of the
+      // RFC 6238 vector value.
+      it("should case-fold an uppercase 'SHA1' algorithm (RFC 6238 vector)", () => {
+        const token = generateSync({
+          secret: RFC6238_SECRET,
+          algorithm: "SHA1" as HashAlgorithm,
+          digits: 8,
+          period: 30,
+          epoch: 59,
+        });
+
+        expect(token).toBe("94287082");
+        expect(token).not.toBe("69342147");
+      });
+
+      it("should throw AlgorithmUnsupportedError for a dashed 'SHA-1' algorithm", () => {
+        expect(() =>
+          generateSync({
+            secret: RFC6238_SECRET,
+            algorithm: "SHA-1" as HashAlgorithm,
+            digits: 8,
+            period: 30,
+            epoch: 59,
+          }),
+        ).toThrow(AlgorithmUnsupportedError);
       });
     });
 

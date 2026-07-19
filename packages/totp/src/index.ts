@@ -14,6 +14,7 @@ import {
   createGuardrails,
   normalizeSecret,
   normalizeEpochTolerance,
+  normalizeHashAlgorithm,
   validateEpochTolerance,
   validatePeriod,
   validateSecret,
@@ -60,7 +61,7 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     epoch = Math.floor(Date.now() / 1000),
     t0 = 0,
     period = 30,
-    algorithm = "sha1",
+    algorithm: rawAlgorithm = "sha1",
     digits = 6,
     crypto,
     base32,
@@ -75,6 +76,8 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
   validateSecret(secretBytes, guardrails);
   validateTime(epoch);
   validatePeriod(period, guardrails);
+  // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm);
 
   const counter = Math.floor((epoch - t0) / period);
 
@@ -238,7 +241,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     epoch = Math.floor(Date.now() / 1000),
     t0 = 0,
     period = 30,
-    algorithm = "sha1",
+    algorithm: rawAlgorithm = "sha1",
     digits = 6,
     crypto,
     base32,
@@ -255,6 +258,8 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   validateSecret(secretBytes, guardrails);
   validateTime(epoch);
   validatePeriod(period, guardrails);
+  // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm);
 
   // Use custom validator if provided, otherwise default digit-only check
   if (hooks?.validateToken) {

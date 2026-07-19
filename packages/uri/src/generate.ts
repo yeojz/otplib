@@ -1,3 +1,5 @@
+import { normalizeHashAlgorithm } from "@otplib/core";
+
 import type { OTPAuthURI } from "./types.js";
 import type { HashAlgorithm, Digits } from "@otplib/core";
 
@@ -106,8 +108,15 @@ export function generate(uri: OTPAuthURI): string {
     queryParams.push(`issuer=${encodeURIComponent(params.issuer)}`);
   }
 
-  if (params.algorithm && params.algorithm !== "sha1") {
-    queryParams.push(`algorithm=${params.algorithm.toUpperCase()}`);
+  if (params.algorithm) {
+    // Normalize first so untyped JS callers passing e.g. 'SHA1' are case-folded
+    // (and invalid values rejected) before the "omit when sha1" rule is applied.
+    const algorithm = normalizeHashAlgorithm(params.algorithm);
+
+    if (algorithm !== "sha1") {
+      // Key Uri Format requires the uppercase, non-dashed spelling (SHA256/SHA512).
+      queryParams.push(`algorithm=${algorithm.toUpperCase()}`);
+    }
   }
 
   if (params.digits && params.digits !== 6) {

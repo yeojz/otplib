@@ -190,6 +190,18 @@ function parseIntegerParameter(name: string, value: string, min: number): number
 
 /**
  * Parse algorithm string
+ *
+ * NOTE: this is deliberately MORE permissive than the core API. Core's
+ * `normalizeHashAlgorithm` only case-folds and accepts the canonical
+ * non-dashed spellings (sha1/sha256/sha512); here we also accept the dashed
+ * forms (sha-1/sha-256/sha-512) because otpauth:// URIs are produced by
+ * third-party issuers we do not control, and some of them emit dashed names.
+ *
+ * Its job is to hand core a canonical lowercase value, so the leniency stops
+ * at the parse boundary and never leaks into the OTP API surface.
+ *
+ * Do not "tighten" this to reuse normalizeHashAlgorithm - that would break
+ * parsing of real-world URIs.
  */
 function parseAlgorithm(value: string): HashAlgorithm {
   const normalized = value.toLowerCase();

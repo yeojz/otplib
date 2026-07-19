@@ -18,6 +18,7 @@ import {
   validateCounterTolerance,
   normalizeSecret,
   normalizeCounterTolerance,
+  normalizeHashAlgorithm,
   requireSecret,
   requireCryptoPlugin,
 } from "@otplib/core";
@@ -53,7 +54,7 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
   const {
     secret,
     counter,
-    algorithm = "sha1",
+    algorithm: rawAlgorithm = "sha1",
     digits = 6,
     crypto,
     base32,
@@ -67,6 +68,8 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
+  // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm);
 
   const ctx = createCryptoContext(crypto);
   const counterBytes = counterToBytes(counter);
@@ -179,7 +182,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
     secret,
     counter,
     token,
-    algorithm = "sha1",
+    algorithm: rawAlgorithm = "sha1",
     digits = 6,
     crypto,
     base32,
@@ -194,6 +197,8 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
+  // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm);
 
   // Use custom validator if provided, otherwise default digit-only check
   if (hooks?.validateToken) {
