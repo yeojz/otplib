@@ -1,6 +1,12 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
-import { stringToBytes, validateByteLengthEqual, type CryptoPlugin } from "@otplib/core";
+import {
+  normalizeHashAlgorithm,
+  stringToBytes,
+  validateByteLengthEqual,
+  type CryptoPlugin,
+  type HashAlgorithm,
+} from "@otplib/core";
 
 /**
  * Node.js crypto module implementation of CryptoPlugin
@@ -30,13 +36,20 @@ export class NodeCryptoPlugin implements CryptoPlugin {
    *
    * Synchronous implementation using createHmac.
    *
+   * The algorithm is matched case-insensitively (`'SHA1'` and `'Sha1'` both
+   * resolve to `'sha1'`). Anything else - including separator spellings such
+   * as `'SHA-1'` and other digests OpenSSL happens to support - throws
+   * `AlgorithmUnsupportedError`.
+   *
    * @param algorithm - Hash algorithm to use
    * @param key - Secret key
    * @param data - Data to authenticate
    * @returns HMAC digest
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
-  hmac(algorithm: "sha1" | "sha256" | "sha512", key: Uint8Array, data: Uint8Array): Uint8Array {
-    const hmac = createHmac(algorithm, key);
+  hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
+    const alg = normalizeHashAlgorithm(algorithm, undefined, this.name);
+    const hmac = createHmac(alg, key);
     hmac.update(data);
     return new Uint8Array(hmac.digest());
   }

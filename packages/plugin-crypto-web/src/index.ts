@@ -1,4 +1,4 @@
-import { constantTimeEqual as constantTimeEqualUtil } from "@otplib/core";
+import { constantTimeEqual as constantTimeEqualUtil, normalizeHashAlgorithm } from "@otplib/core";
 
 import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
 
@@ -54,23 +54,25 @@ export class WebCryptoPlugin implements CryptoPlugin {
    *
    * Async implementation using SubtleCrypto.
    *
+   * The algorithm is matched case-insensitively (`'SHA1'` and `'Sha1'` both
+   * resolve to `'sha1'`). Anything else - including the Web Crypto spelling
+   * `'SHA-1'` - throws `AlgorithmUnsupportedError`.
+   *
    * @param algorithm - Hash algorithm to use
    * @param key - Secret key
    * @param data - Data to authenticate
    * @returns HMAC digest
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
-  async hmac(
-    algorithm: "sha1" | "sha256" | "sha512",
-    key: Uint8Array,
-    data: Uint8Array,
-  ): Promise<Uint8Array> {
+  async hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
+    const alg = normalizeHashAlgorithm(algorithm, undefined, this.name);
     const webCrypto = globalThis.crypto;
 
     if (!webCrypto?.subtle) {
       throw new Error("Web Crypto API is not available in this environment");
     }
 
-    const hashAlgorithm = ALGORITHM_MAP[algorithm];
+    const hashAlgorithm = ALGORITHM_MAP[alg];
 
     const cryptoKey = await webCrypto.subtle.importKey(
       "raw",

@@ -2,9 +2,21 @@ import { hmac } from "@noble/hashes/hmac.js";
 import { sha1 } from "@noble/hashes/legacy.js";
 import { sha256, sha512 } from "@noble/hashes/sha2.js";
 import { randomBytes } from "@noble/hashes/utils.js";
-import { constantTimeEqual as constantTimeEqualUtil } from "@otplib/core";
+import { constantTimeEqual as constantTimeEqualUtil, normalizeHashAlgorithm } from "@otplib/core";
 
-import type { CryptoPlugin } from "@otplib/core";
+import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
+
+/**
+ * Hash function lookup keyed by canonical algorithm name
+ *
+ * Deliberately has no fallback branch: unsupported values are rejected by
+ * `normalizeHashAlgorithm` before they ever reach this map.
+ */
+const HASH_FNS = {
+  sha1,
+  sha256,
+  sha512,
+} as const;
 
 /**
  * Pure JavaScript implementation of CryptoPlugin
@@ -35,14 +47,19 @@ export class NobleCryptoPlugin implements CryptoPlugin {
    *
    * Synchronous implementation using pure JS.
    *
+   * The algorithm is matched case-insensitively (`'SHA1'` and `'Sha1'` both
+   * resolve to `'sha1'`). Anything else - including separator spellings such
+   * as `'SHA-1'` - throws `AlgorithmUnsupportedError`.
+   *
    * @param algorithm - Hash algorithm to use
    * @param key - Secret key
    * @param data - Data to authenticate
    * @returns HMAC digest
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
-  hmac(algorithm: "sha1" | "sha256" | "sha512", key: Uint8Array, data: Uint8Array): Uint8Array {
-    const hashFn = algorithm === "sha1" ? sha1 : algorithm === "sha256" ? sha256 : sha512;
-    return hmac(hashFn, key, data);
+  hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
+    const alg = normalizeHashAlgorithm(algorithm, undefined, this.name);
+    return hmac(HASH_FNS[alg], key, data);
   }
 
   /**
