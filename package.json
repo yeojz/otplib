@@ -31,12 +31,15 @@
     "test:dist-deno": "deno test --allow-read --no-check internal/distribution-tests/src/deno.test.ts",
     "test:dist-node": "vitest run --config internal/distribution-tests/vitest.config.ts",
     "test:docker": "sh scripts/test-docker.sh",
+    "test:mutation": "stryker run",
     "test": "vitest --run",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@codecov/bundle-analyzer": "^2.0.1",
     "@eslint/js": "^9.39.3",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^8.59.2",
     "@typescript-eslint/parser": "^8.59.2",

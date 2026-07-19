@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { TOTP } from "./class";
+import { createGuardrails } from "@otplib/core";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { TEST_SECRET_HOTP_BASE32 } from "@repo/testing";
@@ -107,5 +108,26 @@ describe("TOTP Class", () => {
     // Should use instance's secret and crypto, override digits
     const token = await totp.generate({ digits: 8 });
     expect(token.length).toBe(8);
+  });
+
+  describe("per-call guardrails override", () => {
+    // The instance is created with default guardrails. Passing `guardrails` per call
+    // must take precedence over the instance guardrails (`options?.guardrails ?? this.guardrails`).
+    const strict = createGuardrails({ MIN_SECRET_BYTES: 1, MAX_SECRET_BYTES: 1 });
+
+    it("should apply a per-call guardrails override in generate", async () => {
+      const totp = new TOTP({ secret: TEST_SECRET_HOTP_BASE32, crypto, base32 });
+
+      await expect(totp.generate()).resolves.toBeTruthy();
+      await expect(totp.generate({ guardrails: strict })).rejects.toThrow();
+    });
+
+    it("should apply a per-call guardrails override in verify", async () => {
+      const totp = new TOTP({ secret: TEST_SECRET_HOTP_BASE32, crypto, base32 });
+      const token = await totp.generate();
+
+      await expect(totp.verify(token)).resolves.toMatchObject({ valid: true });
+      await expect(totp.verify(token, { guardrails: strict })).rejects.toThrow();
+    });
   });
 });

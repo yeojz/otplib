@@ -111,6 +111,46 @@ For day-to-day development:
    pnpm test:dist-deno
    ```
 
+## Mutation Testing
+
+Coverage tells you which lines _ran_; it does not tell you whether your assertions would _notice_ if the behaviour changed. Mutation testing closes that gap: it introduces small faults ("mutants") into the source — flipping `<` to `<=`, replacing a condition with `true`, emptying a string literal — and re-runs the tests. A mutant that makes a test fail is "killed"; one that survives points to a weak or missing assertion.
+
+otplib uses [StrykerJS](https://stryker-mutator.io/) with the Vitest runner. It complements the 100% coverage target enforced by `pnpm test:ci`.
+
+### Running
+
+```bash
+# Run the default mutation suite
+pnpm test:mutation
+
+# Narrow the scope to specific files
+pnpm test:mutation --mutate "packages/core/src/**/*.ts"
+```
+
+Configuration lives in `stryker.config.mjs`. By default it targets the pure-logic, security-critical modules where mutation testing has the highest signal:
+
+| Module                                    | Covers                                      |
+| ----------------------------------------- | ------------------------------------------- |
+| `core/src/utils.ts`                       | guardrails, validation, RFC 4226 truncation |
+| `uri/src/parse.ts`, `uri/src/generate.ts` | `otpauth://` parsing and generation         |
+| `hotp/src/class.ts`, `totp/src/class.ts`  | public class wrappers                       |
+| `plugin-base32-{scure,alt}`               | Base32 / hex codecs                         |
+
+An HTML report is written to `reports/mutation/mutation.html` — open it to browse surviving mutants line-by-line.
+
+### Indicator, not a gate
+
+Mutation score is a **diagnostic, not a pass/fail gate**, and is deliberately kept out of the required CI checks. Not every surviving mutant is a bug in your tests:
+
+- **Equivalent mutants** change the code without changing observable behaviour (e.g. `BigInt(x)` where `x` is already a `bigint`), so no test can ever kill them.
+- **Defence-in-depth mutants** sit behind a later check that enforces the same invariant (e.g. a length pre-check backstopped by a post-decode length check), so removing them is undetectable.
+
+Both cap the achievable score below 100%, so a hard threshold would either be meaningless or fail on un-killable mutants. Treat a _drop_ in score on new code as a prompt to inspect the surviving mutant — decide whether it is a real gap (add an assertion) or equivalent (leave it) — rather than as a build failure.
+
+### On-demand CI
+
+A separate, manual-only GitHub Actions workflow (`.github/workflows/mutation.yml`) runs the same command via **workflow dispatch**. It uploads the HTML report as an artifact and writes the per-file score to the run summary. It is intentionally not part of `ci.yml` and never a required check, so it cannot block a merge.
+
 ## Docker Testing
 
 For testing in isolated containerized environments without installing runtimes locally, use the Docker test runner.
