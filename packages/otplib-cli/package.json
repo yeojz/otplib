@@ -36,6 +36,7 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "@otplib/core": "workspace:*",
     "commander": "^15.0.0",
     "otplib": "workspace:*"
   },

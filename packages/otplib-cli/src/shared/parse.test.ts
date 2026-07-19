@@ -155,6 +155,30 @@ describe("parseOtpauthUri", () => {
     expect(result.algorithm).toBe("SHA256");
   });
 
+  test("parses algorithm with hyphen (SHA-1)", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=SHA-1");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
+  test("parses algorithm with hyphen (SHA-512)", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=SHA-512");
+
+    expect(result.algorithm).toBe("SHA512");
+  });
+
+  test("throws on unsupported algorithm (md5)", () => {
+    expect(() => parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=md5")).toThrow(
+      "Invalid algorithm: md5, expected SHA1, SHA256, or SHA512",
+    );
+  });
+
+  test("defaults to SHA1 when algorithm is absent", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
   test("parses 7 digits", () => {
     const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&digits=7");
 
@@ -231,6 +255,33 @@ describe("parseJsonInput", () => {
       digits: 6,
       counter: 0,
     });
+  });
+
+  test("rejects dashed algorithm (SHA-1)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":"SHA-1"}')).toThrow(
+      "Invalid algorithm: SHA-1, expected SHA1, SHA256, or SHA512",
+    );
+  });
+
+  test("rejects dashed algorithm (sha-256)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":"sha-256"}')).toThrow(
+      "Invalid algorithm: sha-256, expected SHA1, SHA256, or SHA512",
+    );
+  });
+
+  test("accepts case variants of sha1", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":"sha1"}').algorithm).toBe("SHA1");
+    expect(parseJsonInput('{"secret":"ABC","algorithm":"SHA1"}').algorithm).toBe("SHA1");
+  });
+
+  test("defaults to SHA1 when algorithm is absent", () => {
+    expect(parseJsonInput('{"secret":"ABC"}').algorithm).toBe("SHA1");
+  });
+
+  test("throws on unsupported algorithm (md5)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":"md5"}')).toThrow(
+      "Invalid algorithm: md5, expected SHA1, SHA256, or SHA512",
+    );
   });
 
   test("throws on invalid JSON", () => {
