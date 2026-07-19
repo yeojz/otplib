@@ -288,12 +288,14 @@ If you need a custom crypto or Base32 implementation, use the `createCryptoPlugi
 ### Custom Crypto
 
 ```typescript
-import { createCryptoPlugin } from "@otplib/core";
+import { createCryptoPlugin, normalizeHashAlgorithm } from "@otplib/core";
 
 const customCrypto = createCryptoPlugin({
   name: "custom",
   hmac: async (algorithm, key, data) => {
-    // your HMAC implementation here
+    const alg = normalizeHashAlgorithm(algorithm, undefined, "custom");
+
+    // your HMAC implementation here, dispatching on `alg`
     return new Uint8Array();
   },
   randomBytes: (length) => {
@@ -306,6 +308,28 @@ const customCrypto = createCryptoPlugin({
   },
 });
 ```
+
+#### Handling the algorithm
+
+Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Two rules apply:
+
+1. **Never fall back to a default.** Pass the value through `normalizeHashAlgorithm`, which matches
+   case-insensitively (`SHA1` → `sha1`) and throws `AlgorithmUnsupportedError` for anything else. Silently
+   substituting a different algorithm produces tokens that are self-consistent but never match other
+   implementations - the failure only shows up against a real authenticator app.
+2. **Map spellings inside the plugin.** If the implementation you wrap names algorithms differently, translate
+   the canonical name locally rather than expecting callers to adapt. The Web Crypto plugin does exactly this:
+
+   ```typescript
+   const ALGORITHM_MAP = {
+     sha1: "SHA-1",
+     sha256: "SHA-256",
+     sha512: "SHA-512",
+   } as const;
+   ```
+
+`CryptoContext` also normalizes before delegating, so plugins used through the library are protected either
+way - but a plugin called directly should still validate its own input.
 
 ### Custom Base32
 
