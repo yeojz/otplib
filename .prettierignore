@@ -11,6 +11,9 @@ cache/
 coverage/
 .turbo/
 
+# Local tooling config (not part of the repo's source)
+.claude/
+
 # Package lock files
 pnpm-lock.yaml
 package-lock.json
