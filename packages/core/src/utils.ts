@@ -308,8 +308,13 @@ export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
 
 /**
  * The hash algorithms supported for HMAC operations
+ *
+ * Frozen because it is the runtime allowlist `normalizeHashAlgorithm` checks
+ * against, not merely a type-level constant - `as const` is erased at compile
+ * time and would leave the exported array mutable, letting any in-process code
+ * re-enable a weak digest globally.
  */
-export const HASH_ALGORITHMS = ["sha1", "sha256", "sha512"] as const;
+export const HASH_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as const);
 
 /**
  * Normalize and validate a hash algorithm

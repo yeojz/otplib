@@ -898,6 +898,18 @@ describe("HASH_ALGORITHMS", () => {
   it("should list the supported algorithms", () => {
     expect(HASH_ALGORITHMS).toEqual(["sha1", "sha256", "sha512"]);
   });
+
+  // This array is the runtime allowlist, not just a type-level constant, so a
+  // mutation here would re-enable a weak digest for every caller in the process.
+  it("should be frozen", () => {
+    expect(Object.isFrozen(HASH_ALGORITHMS)).toBe(true);
+  });
+
+  it("should not accept a pushed algorithm", () => {
+    expect(() => (HASH_ALGORITHMS as unknown as string[]).push("md5")).toThrow();
+    expect(HASH_ALGORITHMS).toEqual(["sha1", "sha256", "sha512"]);
+    expect(() => normalizeHashAlgorithm("md5")).toThrow(AlgorithmUnsupportedError);
+  });
 });
 
 describe("normalizeHashAlgorithm", () => {
@@ -961,6 +973,29 @@ describe("normalizeHashAlgorithm", () => {
         expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
       });
     }
+  });
+
+  describe("hostile values", () => {
+    // These must surface as AlgorithmUnsupportedError, not as a TypeError from
+    // stringifying the value. CryptoContext normalizes outside its try block,
+    // so a foreign error here escapes unwrapped to the caller.
+    it("should reject an object with no primitive conversion", () => {
+      expect(() => normalizeHashAlgorithm(Object.create(null))).toThrow(AlgorithmUnsupportedError);
+    });
+
+    it("should reject an object whose toString throws", () => {
+      const hostile = {
+        toString() {
+          throw new Error("boom");
+        },
+      };
+
+      expect(() => normalizeHashAlgorithm(hostile)).toThrow(AlgorithmUnsupportedError);
+    });
+
+    it("should reject a boxed string", () => {
+      expect(() => normalizeHashAlgorithm(new String("sha1"))).toThrow(AlgorithmUnsupportedError);
+    });
   });
 
   describe("narrowed support", () => {

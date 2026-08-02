@@ -42,26 +42,45 @@ const CASE_VARIANTS = [
  * Separator variants are included deliberately: they are only tolerated when
  * parsing third-party `otpauth://` URIs, never at the crypto layer.
  */
-const REJECTED_ALGORITHMS: readonly unknown[] = [
-  "SHA-1",
-  "sha-1",
-  "SHA-256",
-  "sha-512",
-  "sha_1",
-  "sha 1",
-  "md5",
-  "sha3-256",
-  "sha384",
-  "sha1 ",
-  " sha1",
-  "",
-  undefined,
-  null,
-  0,
-  1,
-  {},
-  [],
-  ["sha1"],
+const REJECTED_ALGORITHMS: readonly { label: string; value: unknown }[] = [
+  ...[
+    "SHA-1",
+    "sha-1",
+    "SHA-256",
+    "sha-512",
+    "sha_1",
+    "sha 1",
+    "md5",
+    "sha3-256",
+    "sha384",
+    "sha1 ",
+    " sha1",
+    "",
+  ].map((value) => ({ label: `"${value}"`, value })),
+  { label: "undefined", value: undefined },
+  { label: "null", value: null },
+  { label: "0", value: 0 },
+  { label: "1", value: 1 },
+  { label: "{}", value: {} },
+  { label: "[]", value: [] },
+  { label: '["sha1"]', value: ["sha1"] },
+
+  // Labels are written out rather than derived via String(), because these
+  // values are precisely the ones String() cannot handle - deriving the label
+  // would throw while collecting the suite.
+  { label: "a null-prototype object", value: Object.create(null) },
+  {
+    label: "an object whose toString throws",
+    value: {
+      toString() {
+        throw new Error("boom");
+      },
+    },
+  },
+  {
+    label: "a boxed string",
+    value: new String("sha1"),
+  },
 ];
 
 /**
@@ -154,9 +173,10 @@ export function createCryptoAlgorithmTests(ctx: CryptoAlgorithmTestContext): voi
     });
 
     describe("unsupported algorithms", () => {
-      for (const value of REJECTED_ALGORITHMS) {
-        const label = typeof value === "string" ? `"${value}"` : String(value);
-
+      for (const { label, value } of REJECTED_ALGORITHMS) {
+        // Asserts the exact error class, not merely "threw": a plugin that
+        // rejects by crashing on the value (rather than validating it) would
+        // pass a did-it-throw check while breaking the documented contract.
         it(`should throw AlgorithmUnsupportedError for ${label}`, async () => {
           const error = await captureError(() => crypto.hmac(value as string, key, data));
 

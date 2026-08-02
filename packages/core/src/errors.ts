@@ -225,7 +225,7 @@ export class AlgorithmUnsupportedError extends AlgorithmError {
   constructor(value: unknown, context: AlgorithmUnsupportedContext = {}) {
     const { supported = ["sha1", "sha256", "sha512"], plugin } = context;
 
-    const received = typeof value === "string" ? `"${value}"` : String(value);
+    const received = describeAlgorithmValue(value);
     const suggestion = typeof value === "string" ? findAlgorithmSuggestion(value, supported) : null;
 
     super(
@@ -239,6 +239,61 @@ export class AlgorithmUnsupportedError extends AlgorithmError {
 }
 
 /**
+ * Longest rejected value echoed back in an error message
+ *
+ * The value is caller-supplied and unbounded, while the message it lands in is
+ * typically logged. Six characters cover every supported spelling, so anything
+ * past this is noise.
+ *
+ * @internal
+ */
+const MAX_DESCRIBED_VALUE_LENGTH = 64;
+
+/**
+ * Render a rejected value for an error message
+ *
+ * Constructing an error must never itself throw, or the caller sees a foreign
+ * error instead of the `AlgorithmUnsupportedError` this module documents.
+ * `String(value)` is not safe for that: a null-prototype object throws
+ * `TypeError: Cannot convert object to primitive value`, and a hostile
+ * `toString`/`Symbol.toPrimitive` throws whatever it likes.
+ *
+ * Non-strings are tagged with their type so a boxed `new String('sha1')` does
+ * not produce the self-contradictory `Unsupported hash algorithm: sha1`.
+ *
+ * @internal
+ */
+function describeAlgorithmValue(value: unknown): string {
+  if (typeof value === "string") {
+    return `"${truncateForMessage(value)}"`;
+  }
+
+  if (value === null || value === undefined) {
+    return String(value);
+  }
+
+  try {
+    return `${typeof value} (${truncateForMessage(String(value))})`;
+  } catch {
+    // Unstringifiable - the type alone is all we can safely report.
+    return typeof value;
+  }
+}
+
+/**
+ * Clamp a value echoed into an error message
+ *
+ * @internal
+ */
+function truncateForMessage(value: string): string {
+  if (value.length <= MAX_DESCRIBED_VALUE_LENGTH) {
+    return value;
+  }
+
+  return `${value.slice(0, MAX_DESCRIBED_VALUE_LENGTH)}... (${value.length} characters)`;
+}
+
+/**
  * Find the supported algorithm a value was probably meant to be
  *
  * Only considers separator noise (`SHA-1`, `sha_1`, `sha 1`), so genuinely
@@ -247,6 +302,12 @@ export class AlgorithmUnsupportedError extends AlgorithmError {
  * @internal
  */
 function findAlgorithmSuggestion(value: string, supported: readonly string[]): string | null {
+  // No supported spelling survives stripping to more than this, so long values
+  // cannot match and are not worth scanning.
+  if (value.length > MAX_DESCRIBED_VALUE_LENGTH) {
+    return null;
+  }
+
   const stripped = value.toLowerCase().replace(/[-_\s]/g, "");
   return supported.find((algorithm) => algorithm === stripped) ?? null;
 }
