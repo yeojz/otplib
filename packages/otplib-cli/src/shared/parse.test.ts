@@ -284,6 +284,21 @@ describe("parseJsonInput", () => {
     );
   });
 
+  // Valid JSON that String() cannot convert: the algorithm object has a
+  // non-callable toString, so building the error message used to throw a raw
+  // TypeError over the CLI's own message.
+  test("throws the CLI's message for an algorithm with no primitive conversion", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":{"toString":null}}')).toThrow(
+      "expected SHA1, SHA256, or SHA512",
+    );
+  });
+
+  test("throws the CLI's message for a non-string algorithm", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":123}')).toThrow(
+      "Invalid algorithm: 123, expected SHA1, SHA256, or SHA512",
+    );
+  });
+
   test("throws on invalid JSON", () => {
     expect(() => parseJsonInput("not json")).toThrow("Invalid JSON input");
   });

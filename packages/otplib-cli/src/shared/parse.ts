@@ -22,7 +22,29 @@ export type ParsedEnv = {
 };
 
 function invalidAlgorithm(alg: unknown): Error {
-  return new Error(`Invalid algorithm: ${String(alg)}, expected SHA1, SHA256, or SHA512`);
+  return new Error(
+    `Invalid algorithm: ${describeAlgorithm(alg)}, expected SHA1, SHA256, or SHA512`,
+  );
+}
+
+/**
+ * Render a rejected algorithm for the CLI's error message.
+ *
+ * JSON input reaches here as `unknown`, and `String()` throws on a value with
+ * no usable primitive conversion - `{"algorithm":{"toString":null}}` is valid
+ * JSON that produces exactly that. Building the error must not itself throw,
+ * or the user gets a raw TypeError instead of the CLI's message.
+ */
+function describeAlgorithm(alg: unknown): string {
+  if (typeof alg === "string") {
+    return alg;
+  }
+
+  try {
+    return String(alg);
+  } catch {
+    return typeof alg;
+  }
 }
 
 /**
@@ -51,8 +73,9 @@ function normalizeInputAlgorithm(alg?: unknown): OtpAlgorithm {
   try {
     return normalizeHashAlgorithm(alg).toUpperCase() as OtpAlgorithm;
   } catch {
-    // normalizeHashAlgorithm only throws AlgorithmUnsupportedError, which is
-    // restated here in the CLI's own error style.
+    // Caught broadly rather than narrowed to AlgorithmUnsupportedError: the
+    // value is arbitrary parsed JSON, and every rejection should surface in the
+    // CLI's own error style regardless of how core reported it.
     throw invalidAlgorithm(alg);
   }
 }
