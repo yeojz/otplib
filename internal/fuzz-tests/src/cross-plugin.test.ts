@@ -516,11 +516,10 @@ describe("Cross-plugin consistency tests", () => {
     );
 
     it("should have every plugin reject unsupported algorithm names identically", async () => {
-      // Matches core's normalization: case and `-`/`_` are ignored, so a
-      // generated "SHA-1" is a *supported* spelling and must not be fed in here.
-      const canonical = ["sha1", "sha256", "sha512"];
-      const isSupportedSpelling = (s: string) =>
-        canonical.includes(s.toLowerCase().replace(/[-_]/g, ""));
+      // Matches core's normalization: case-insensitive with at most one `-`/`_`
+      // between "sha" and the digest size, so a generated "SHA-1" is a
+      // *supported* spelling and must not be fed in here.
+      const isSupportedSpelling = (s: string) => /^sha[-_]?(1|256|512)$/.test(s.toLowerCase());
 
       const unsupportedAlgorithm = fc.oneof(
         fc.constantFrom(

@@ -317,24 +317,26 @@ export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
 export const HASH_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as const);
 
 /**
- * Separator noise tolerated in an algorithm name (`SHA-1`, `sha_1`)
+ * Recognised spellings of a supported algorithm: at most one `-` or `_`
+ * between `sha` and the digest size (`SHA-1`, `sha_256`)
  *
- * Deliberately excludes whitespace: a dash is how NIST and Web Crypto spell
- * these algorithms, whereas a space is never part of an identifier and is
- * better reported than silently swallowed.
+ * A single dash is how NIST and Web Crypto spell these algorithms, so it is
+ * tolerated. Whitespace, stray or repeated separators (`'sha 1'`, `'-sha1'`,
+ * `'sha-2-5-6'`) are not spellings of any algorithm and are better reported
+ * than silently swallowed.
  *
  * @internal
  */
-const ALGORITHM_SEPARATORS = /[-_]/g;
+const ALGORITHM_SPELLING = /^sha[-_]?(1|256|512)$/;
 
 /**
  * Normalize and validate a hash algorithm
  *
- * Matching ignores case and `-`/`_` separators, so `'SHA1'`, `'Sha1'`,
- * `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`. This is safe to be forgiving
- * about: every accepted spelling names the *same* algorithm, and no other
- * digest collapses onto a supported one (`'sha3-256'` strips to `'sha3256'`,
- * not `'sha256'`).
+ * Matching ignores case and tolerates one `-` or `_` separator, so `'SHA1'`,
+ * `'Sha1'`, `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`. This is safe to
+ * be forgiving about: every accepted spelling names the *same* algorithm, and
+ * no other digest's spelling collapses onto a supported one (`'sha3-256'` and
+ * `'sha-384'` are rejected outright).
  *
  * Anything that is not a spelling of a supported algorithm is rejected rather
  * than guessed at, because substituting a *different* algorithm produces
@@ -363,16 +365,14 @@ export function normalizeHashAlgorithm(
     throw new AlgorithmUnsupportedError(value, { supported, plugin });
   }
 
-  // Scanned with `includes` rather than looked up in a map, so a value such as
-  // `'__proto__'` cannot resolve to anything inherited.
-  const lowered = value.toLowerCase() as HashAlgorithm;
-  if (supported.includes(lowered)) {
-    return lowered;
-  }
-
-  const stripped = lowered.replace(ALGORITHM_SEPARATORS, "") as HashAlgorithm;
-  if (supported.includes(stripped)) {
-    return stripped;
+  const match = ALGORITHM_SPELLING.exec(value.toLowerCase());
+  if (match) {
+    // Checked with `includes` rather than looked up in a map, so nothing can
+    // resolve through inherited properties.
+    const canonical = `sha${match[1]}` as HashAlgorithm;
+    if (supported.includes(canonical)) {
+      return canonical;
+    }
   }
 
   throw new AlgorithmUnsupportedError(value, { supported, plugin });

@@ -338,8 +338,7 @@ describe("URI fuzz tests", () => {
     });
 
     it("should reject algorithm values outside the accepted set", () => {
-      const accepted = new Set(["sha1", "sha256", "sha512"]);
-      const isAccepted = (s: string) => accepted.has(s.toLowerCase().replace(/[-_]/g, ""));
+      const isAccepted = (s: string) => /^sha[-_]?(1|256|512)$/.test(s.toLowerCase());
 
       const rejectedAlgorithm = fc
         .oneof(
@@ -370,10 +369,9 @@ describe("URI fuzz tests", () => {
     it("should reject invalid algorithm values", async () => {
       await fc.assert(
         fc.asyncProperty(
-          fc.string({ minLength: 1, maxLength: 20 }).filter((s) => {
-            const normalized = s.toLowerCase().replace(/[-_]/g, "");
-            return !["sha1", "sha256", "sha512"].includes(normalized);
-          }),
+          fc
+            .string({ minLength: 1, maxLength: 20 })
+            .filter((s) => !/^sha[-_]?(1|256|512)$/.test(s.toLowerCase())),
           async (invalidAlgo) => {
             const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${encodeURIComponent(invalidAlgo)}`;
 

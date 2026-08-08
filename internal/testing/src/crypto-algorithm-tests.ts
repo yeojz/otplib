@@ -51,9 +51,25 @@ const SPELLING_VARIANTS = [
  * `sha-384` must not collapse onto a supported algorithm.
  */
 const REJECTED_ALGORITHMS: readonly { label: string; value: unknown }[] = [
-  ...["md5", "sha3-256", "sha-384", "sha384", "sha-224", "sha 1", "sha1 ", " sha1", "", "----"].map(
-    (value) => ({ label: `"${value}"`, value }),
-  ),
+  ...[
+    "md5",
+    "sha3-256",
+    "sha-384",
+    "sha384",
+    "sha-224",
+    "sha 1",
+    "sha1 ",
+    " sha1",
+    "",
+    "----",
+    // Degenerate spellings: only a single separator between "sha" and the
+    // digest size names an algorithm, so these must not be reassembled.
+    "sha-2-5-6",
+    "s-h-a-1",
+    "-sha1",
+    "sha512-",
+    "sha__1",
+  ].map((value) => ({ label: `"${value}"`, value })),
   { label: "undefined", value: undefined },
   { label: "null", value: null },
   { label: "0", value: 0 },

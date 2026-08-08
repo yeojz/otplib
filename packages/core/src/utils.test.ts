@@ -929,7 +929,7 @@ describe("normalizeHashAlgorithm", () => {
       { input: "SHA256", expected: "sha256" },
       { input: "Sha256", expected: "sha256" },
       { input: "SHA512", expected: "sha512" },
-      { input: "SHA512", expected: "sha512" },
+      { input: "Sha512", expected: "sha512" },
     ] as const;
 
     for (const { input, expected } of variants) {
@@ -958,12 +958,23 @@ describe("normalizeHashAlgorithm", () => {
       });
     }
 
-    // The whole safety argument for stripping separators is that no other
+    // The whole safety argument for tolerating separators is that no other
     // digest collapses onto a supported one. Pin the near misses.
     const nearMisses = ["sha-3-256", "sha3-256", "sha-384", "sha-224", "sha-512-256", "sha-2"];
 
     for (const value of nearMisses) {
       it(`should still reject "${value}"`, () => {
+        expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
+      });
+    }
+
+    // Only a single separator between "sha" and the digest size is a real
+    // spelling. These name no algorithm at all, so they are reported rather
+    // than reassembled into one.
+    const degenerateSpellings = ["sha-2-5-6", "s-h-a-1", "-sha1", "sha1-", "sha512-", "sha__1"];
+
+    for (const value of degenerateSpellings) {
+      it(`should reject the degenerate spelling "${value}"`, () => {
         expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
       });
     }
