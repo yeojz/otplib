@@ -646,6 +646,24 @@ describe("URI", () => {
       const parsed = parse(generate(baseURI("SHA1" as HashAlgorithm)));
       expect(parsed.params.algorithm).toBeUndefined();
     });
+
+    // parse() wraps the rejection in this package's InvalidParameterError while
+    // generate() throws the core error directly; the cause is the bridge that
+    // keeps the underlying rejection reachable from the parse side.
+    it("should carry the core error as cause when parse rejects an algorithm", () => {
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=md5`;
+
+      let caught: unknown;
+      try {
+        parse(uri);
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).toBeInstanceOf(Error);
+      expect((caught as Error).name).toBe("InvalidParameterError");
+      expect((caught as Error).cause).toBeInstanceOf(AlgorithmUnsupportedError);
+    });
   });
 
   describe("error classes", () => {

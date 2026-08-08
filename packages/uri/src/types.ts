@@ -66,8 +66,8 @@ export type OTPAuthURI = {
  * Error thrown when URI parsing fails
  */
 export class URIParseError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
     this.name = "URIParseError";
   }
 }
@@ -96,8 +96,8 @@ export class MissingParameterError extends URIParseError {
  * Error thrown when URI has invalid parameter value
  */
 export class InvalidParameterError extends URIParseError {
-  constructor(param: string, value: string) {
-    super(`Invalid value for parameter '${param}': ${value}`);
+  constructor(param: string, value: string, options?: ErrorOptions) {
+    super(`Invalid value for parameter '${param}': ${value}`, options);
     this.name = "InvalidParameterError";
   }
 }

@@ -201,8 +201,11 @@ function parseIntegerParameter(name: string, value: string, min: number): number
 function parseAlgorithm(value: string): HashAlgorithm {
   try {
     return normalizeHashAlgorithm(value);
-  } catch {
-    throw new InvalidParameterError("algorithm", value);
+  } catch (error) {
+    // Carried as cause so the AlgorithmUnsupportedError stays reachable -
+    // generate() throws the core error directly, and without this bridge the
+    // two directions would be programmatically unrelatable.
+    throw new InvalidParameterError("algorithm", value, { cause: error });
   }
 }
 
