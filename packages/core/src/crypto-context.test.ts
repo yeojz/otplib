@@ -1,7 +1,28 @@
 import { describe, it, expect, vi } from "vitest";
-import { CryptoContext, createCryptoContext, stringToBytes } from "./index.js";
+import {
+  CryptoContext,
+  createCryptoContext,
+  normalizeHashAlgorithm,
+  stringToBytes,
+} from "./index.js";
 import type { CryptoPlugin, HashAlgorithm } from "./types.js";
-import { HMACError, RandomBytesError } from "./errors.js";
+import { AlgorithmUnsupportedError, HMACError, RandomBytesError } from "./errors.js";
+
+/**
+ * A plugin narrowed to sha1 only, the documented use of the `supported`
+ * parameter. Its rejection fires inside the context's try block, after the
+ * context's own full-set check has passed.
+ */
+function createSha1OnlyPlugin(): CryptoPlugin {
+  return {
+    name: "sha1-only",
+    hmac: (algorithm: HashAlgorithm) => {
+      normalizeHashAlgorithm(algorithm, ["sha1"], "sha1-only");
+      return stringToBytes("digest");
+    },
+    randomBytes: vi.fn(),
+  };
+}
 
 describe("CryptoContext", () => {
   describe("constructor", () => {
@@ -128,6 +149,20 @@ describe("CryptoContext", () => {
 
       await expect(context.hmac("sha1", key, data)).rejects.toThrow(HMACError);
     });
+
+    // The context validates against the full set before delegating, so a
+    // narrowed plugin's rejection happens inside the try block. It must escape
+    // as the algorithm error it is, not disguised as an HMAC failure.
+    it("should not rewrap a narrowed plugin's algorithm rejection", async () => {
+      const context = new CryptoContext(createSha1OnlyPlugin());
+
+      const key = stringToBytes("key");
+      const data = stringToBytes("data");
+
+      await expect(context.hmac("sha256", key, data)).rejects.toThrow(AlgorithmUnsupportedError);
+      await expect(context.hmac("sha256", key, data)).rejects.toThrow("[plugin: sha1-only]");
+      await expect(context.hmac("sha1", key, data)).resolves.toBeInstanceOf(Uint8Array);
+    });
   });
 
   describe("hmacSync", () => {
@@ -200,6 +235,17 @@ describe("CryptoContext", () => {
       const data = stringToBytes("data");
 
       expect(() => context.hmacSync("sha1", key, data)).toThrow(HMACError);
+    });
+
+    it("should not rewrap a narrowed plugin's algorithm rejection", () => {
+      const context = new CryptoContext(createSha1OnlyPlugin());
+
+      const key = stringToBytes("key");
+      const data = stringToBytes("data");
+
+      expect(() => context.hmacSync("sha256", key, data)).toThrow(AlgorithmUnsupportedError);
+      expect(() => context.hmacSync("sha256", key, data)).toThrow("[plugin: sha1-only]");
+      expect(context.hmacSync("sha1", key, data)).toBeInstanceOf(Uint8Array);
     });
   });
 

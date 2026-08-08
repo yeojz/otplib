@@ -1,4 +1,4 @@
-import { HMACError, RandomBytesError } from "./errors.js";
+import { AlgorithmError, HMACError, RandomBytesError } from "./errors.js";
 import { normalizeHashAlgorithm } from "./utils.js";
 
 import type { CryptoPlugin, HashAlgorithm } from "./types.js";
@@ -41,6 +41,12 @@ export class CryptoContext {
       const result = this.crypto.hmac(normalized, key, data);
       return result instanceof Promise ? await result : result;
     } catch (error) {
+      // A plugin supporting fewer algorithms than the full set rejects here,
+      // after the context's own check passed. That is still an algorithm
+      // rejection, not an HMAC failure - surface it as-is.
+      if (error instanceof AlgorithmError) {
+        throw error;
+      }
       const message = error instanceof Error ? error.message : String(error);
       throw new HMACError(message, { cause: error });
     }
@@ -66,7 +72,7 @@ export class CryptoContext {
       }
       return result;
     } catch (error) {
-      if (error instanceof HMACError) {
+      if (error instanceof HMACError || error instanceof AlgorithmError) {
         throw error;
       }
       const message = error instanceof Error ? error.message : String(error);
