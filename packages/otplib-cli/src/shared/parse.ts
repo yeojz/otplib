@@ -56,7 +56,9 @@ function describeAlgorithm(alg: unknown): string {
  * casing (`SHA1`) is applied on the way out.
  */
 function normalizeAlgorithm(alg?: unknown): OtpAlgorithm {
-  if (alg === undefined) return "SHA1";
+  // JSON spells "absent" as null, and an empty string carries no value either
+  // way - both take the default, as they did before validation moved to core.
+  if (alg === undefined || alg === null || alg === "") return "SHA1";
   try {
     return normalizeHashAlgorithm(alg).toUpperCase() as OtpAlgorithm;
   } catch {
@@ -110,9 +112,7 @@ export function parseOtpauthUri(uri: string): OtpData {
     account = label.slice(colonIndex + 1);
   }
 
-  // `|| undefined` not `??`: an empty `?algorithm=` falls back to the default
-  // rather than being reported as an invalid value.
-  const algorithm = normalizeAlgorithm(url.searchParams.get("algorithm") || undefined);
+  const algorithm = normalizeAlgorithm(url.searchParams.get("algorithm"));
   const digitsParam = url.searchParams.get("digits");
   const digits = normalizeDigits(digitsParam !== null ? parseInt(digitsParam, 10) : undefined);
 

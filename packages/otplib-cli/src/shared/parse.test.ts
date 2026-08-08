@@ -179,6 +179,12 @@ describe("parseOtpauthUri", () => {
     expect(result.algorithm).toBe("SHA1");
   });
 
+  test("defaults to SHA1 for an empty algorithm parameter", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
   test("parses 7 digits", () => {
     const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&digits=7");
 
@@ -280,6 +286,16 @@ describe("parseJsonInput", () => {
 
   test("defaults to SHA1 when algorithm is absent", () => {
     expect(parseJsonInput('{"secret":"ABC"}').algorithm).toBe("SHA1");
+  });
+
+  // JSON has no undefined: null is how its authors spell "absent", and both
+  // null and "" defaulted before validation moved to core.
+  test("defaults to SHA1 for a null algorithm", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":null}').algorithm).toBe("SHA1");
+  });
+
+  test("defaults to SHA1 for an empty-string algorithm", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":""}').algorithm).toBe("SHA1");
   });
 
   test("throws on unsupported algorithm (md5)", () => {
