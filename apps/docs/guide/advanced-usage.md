@@ -623,7 +623,8 @@ try {
 
 | Error Class                       | When Thrown                                      |
 | --------------------------------- | ------------------------------------------------ |
-| `AlgorithmError`                  | Invalid algorithm (not sha1/sha256/etc)          |
+| `AlgorithmError`                  | Base class for algorithm validation errors       |
+| `AlgorithmUnsupportedError`       | Algorithm is not sha1, sha256 or sha512          |
 | `AfterTimeStepRangeExceededError` | `afterTimeStep` exceeds max possible time step   |
 | `AfterTimeStepNegativeError`      | `afterTimeStep` is negative                      |
 | `AfterTimeStepNotIntegerError`    | `afterTimeStep` is not an integer (e.g., 1.5)    |
