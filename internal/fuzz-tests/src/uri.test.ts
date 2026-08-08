@@ -300,9 +300,9 @@ describe("URI fuzz tests", () => {
 
   describe("parameter validation", () => {
     it("should accept valid algorithm variations and map them to the exact canonical value", () => {
-      // URI parsing is deliberately more lenient than core: dashed spellings
-      // are accepted because third-party issuers emit them. Each input must
-      // resolve to its OWN canonical algorithm - never a silent substitution.
+      // Case and `-`/`_` separators are ignored, because third-party issuers
+      // emit dashed spellings. Each input must resolve to its OWN canonical
+      // algorithm - never a silent substitution.
       const acceptedAlgorithmCases: { input: string; expected: "sha1" | "sha256" | "sha512" }[] = [
         { input: "SHA1", expected: "sha1" },
         { input: "sha1", expected: "sha1" },
@@ -338,21 +338,25 @@ describe("URI fuzz tests", () => {
     });
 
     it("should reject algorithm values outside the accepted set", () => {
-      const acceptedNormalized = new Set([
-        "sha1",
-        "sha-1",
-        "sha256",
-        "sha-256",
-        "sha512",
-        "sha-512",
-      ]);
+      const accepted = new Set(["sha1", "sha256", "sha512"]);
+      const isAccepted = (s: string) => accepted.has(s.toLowerCase().replace(/[-_]/g, ""));
 
       const rejectedAlgorithm = fc
         .oneof(
-          fc.constantFrom("md5", "sha3-256", "sha_1", "sha384", "", "sha", "sha-", "sha1234"),
+          fc.constantFrom(
+            "md5",
+            "sha3-256",
+            "sha-384",
+            "sha384",
+            "",
+            "sha",
+            "sha-",
+            "----",
+            "sha1234",
+          ),
           fc.string({ maxLength: 20 }),
         )
-        .filter((s) => !acceptedNormalized.has(s.toLowerCase()));
+        .filter((s) => !isAccepted(s));
 
       fc.assert(
         fc.property(rejectedAlgorithm, (invalidAlgo) => {
@@ -367,7 +371,7 @@ describe("URI fuzz tests", () => {
       await fc.assert(
         fc.asyncProperty(
           fc.string({ minLength: 1, maxLength: 20 }).filter((s) => {
-            const normalized = s.toLowerCase().replace(/-/g, "");
+            const normalized = s.toLowerCase().replace(/[-_]/g, "");
             return !["sha1", "sha256", "sha512"].includes(normalized);
           }),
           async (invalidAlgo) => {

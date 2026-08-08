@@ -47,9 +47,9 @@ export class NobleCryptoPlugin implements CryptoPlugin {
    *
    * Synchronous implementation using pure JS.
    *
-   * The algorithm is matched case-insensitively (`'SHA1'` and `'Sha1'` both
-   * resolve to `'sha1'`). Anything else - including separator spellings such
-   * as `'SHA-1'` - throws `AlgorithmUnsupportedError`.
+   * The algorithm is matched ignoring case and separators, so `'SHA1'`,
+   * `'Sha1'` and `'SHA-1'` all resolve to `'sha1'`. Any other digest throws
+   * `AlgorithmUnsupportedError` rather than falling back to a default.
    *
    * @param algorithm - Hash algorithm to use
    * @param key - Secret key

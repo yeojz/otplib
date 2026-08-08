@@ -313,10 +313,10 @@ const customCrypto = createCryptoPlugin({
 
 Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Two rules apply:
 
-1. **Never fall back to a default.** Pass the value through `normalizeHashAlgorithm`, which matches
-   case-insensitively (`SHA1` → `sha1`) and throws `AlgorithmUnsupportedError` for anything else. Silently
-   substituting a different algorithm produces tokens that are self-consistent but never match other
-   implementations - the failure only shows up against a real authenticator app.
+1. **Never fall back to a default.** Pass the value through `normalizeHashAlgorithm`, which ignores case and
+   `-`/`_` separators (`SHA1`, `SHA-1` → `sha1`) and throws `AlgorithmUnsupportedError` for anything else.
+   Silently substituting a _different_ algorithm produces tokens that are self-consistent but never match
+   other implementations - the failure only shows up against a real authenticator app.
 2. **Map spellings inside the plugin.** If the implementation you wrap names algorithms differently, translate
    the canonical name locally rather than expecting callers to adapt. The Web Crypto plugin does exactly this:
 

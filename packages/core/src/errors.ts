@@ -203,20 +203,21 @@ export type AlgorithmUnsupportedContext = {
 /**
  * Error thrown when a hash algorithm is not recognised
  *
- * Algorithms are matched case-insensitively, so `'SHA1'` is accepted as
- * `'sha1'`. Anything else - including separator variants such as `'SHA-1'` -
- * is rejected rather than guessed at, because silently substituting a
- * different algorithm produces tokens that never match other implementations.
+ * Names are matched ignoring case and separators, so `'SHA1'`, `'SHA-1'` and
+ * `'sha_1'` are all accepted as `'sha1'`. A value that is not a spelling of a
+ * supported algorithm is rejected rather than guessed at, because silently
+ * substituting a different algorithm produces tokens that never match other
+ * implementations.
  *
  * @example
  * ```typescript
  * try {
- *   crypto.hmac('SHA-1', key, data);
+ *   crypto.hmac('md5', key, data);
  * } catch (error) {
  *   if (error instanceof AlgorithmUnsupportedError) {
  *     console.log(error.message);
- *     // Unsupported hash algorithm: "SHA-1". Expected one of: sha1, sha256,
- *     // sha512 (case-insensitive) - did you mean "sha1"?
+ *     // Unsupported hash algorithm: "md5". Expected one of: sha1, sha256,
+ *     // sha512 (case-insensitive, separators ignored)
  *   }
  * }
  * ```
@@ -225,14 +226,10 @@ export class AlgorithmUnsupportedError extends AlgorithmError {
   constructor(value: unknown, context: AlgorithmUnsupportedContext = {}) {
     const { supported = ["sha1", "sha256", "sha512"], plugin } = context;
 
-    const received = describeAlgorithmValue(value);
-    const suggestion = typeof value === "string" ? findAlgorithmSuggestion(value, supported) : null;
-
     super(
-      `Unsupported hash algorithm: ${received}. ` +
-        `Expected one of: ${supported.join(", ")} (case-insensitive)` +
-        (plugin ? ` [plugin: ${plugin}]` : "") +
-        (suggestion ? ` - did you mean "${suggestion}"?` : ""),
+      `Unsupported hash algorithm: ${describeAlgorithmValue(value)}. ` +
+        `Expected one of: ${supported.join(", ")} (case-insensitive, separators ignored)` +
+        (plugin ? ` [plugin: ${plugin}]` : ""),
     );
     this.name = "AlgorithmUnsupportedError";
   }
@@ -242,7 +239,7 @@ export class AlgorithmUnsupportedError extends AlgorithmError {
  * Longest rejected value echoed back in an error message
  *
  * The value is caller-supplied and unbounded, while the message it lands in is
- * typically logged. Six characters cover every supported spelling, so anything
+ * typically logged. No supported spelling exceeds seven characters, so anything
  * past this is noise.
  *
  * @internal
@@ -291,25 +288,6 @@ function truncateForMessage(value: string): string {
   }
 
   return `${value.slice(0, MAX_DESCRIBED_VALUE_LENGTH)}... (${value.length} characters)`;
-}
-
-/**
- * Find the supported algorithm a value was probably meant to be
- *
- * Only considers separator noise (`SHA-1`, `sha_1`, `sha 1`), so genuinely
- * unrelated values such as `md5` produce no suggestion.
- *
- * @internal
- */
-function findAlgorithmSuggestion(value: string, supported: readonly string[]): string | null {
-  // No supported spelling survives stripping to more than this, so long values
-  // cannot match and are not worth scanning.
-  if (value.length > MAX_DESCRIBED_VALUE_LENGTH) {
-    return null;
-  }
-
-  const stripped = value.toLowerCase().replace(/[-_\s]/g, "");
-  return supported.find((algorithm) => algorithm === stripped) ?? null;
 }
 
 /**

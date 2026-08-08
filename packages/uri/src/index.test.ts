@@ -620,10 +620,21 @@ describe("URI", () => {
       expect(() => generate(baseURI("md5" as HashAlgorithm))).toThrow(AlgorithmUnsupportedError);
     });
 
-    it("should throw on a dashed algorithm at the generate boundary", () => {
-      expect(() => generate(baseURI("SHA-256" as HashAlgorithm))).toThrow(
-        AlgorithmUnsupportedError,
-      );
+    // generate() and parse() accept the same spellings, so a URI that parses
+    // can be regenerated without the caller having to canonicalize first.
+    it("should emit the canonical spelling for a dashed algorithm", () => {
+      expect(generate(baseURI("SHA-256" as HashAlgorithm))).toContain("algorithm=SHA256");
+    });
+
+    it("should round-trip a dashed algorithm through parse and generate", () => {
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA-512`;
+      const regenerated = generate({
+        type: "totp",
+        label: "Service:user",
+        params: parse(uri).params,
+      });
+
+      expect(regenerated).toContain("algorithm=SHA512");
     });
 
     it("should round-trip to a canonical lowercase algorithm", () => {

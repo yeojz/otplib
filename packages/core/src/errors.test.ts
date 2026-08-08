@@ -186,16 +186,6 @@ describe("AlgorithmUnsupportedError", () => {
     expect(new AlgorithmUnsupportedError(0).message).toContain("0");
   });
 
-  it("should suggest the canonical form when only separators differ", () => {
-    expect(new AlgorithmUnsupportedError("SHA-1").message).toContain('did you mean "sha1"?');
-    expect(new AlgorithmUnsupportedError("sha_256").message).toContain('did you mean "sha256"?');
-  });
-
-  it("should not suggest anything for an unrelated algorithm", () => {
-    expect(new AlgorithmUnsupportedError("md5").message).not.toContain("did you mean");
-    expect(new AlgorithmUnsupportedError(undefined).message).not.toContain("did you mean");
-  });
-
   it("should name the plugin when given", () => {
     const error = new AlgorithmUnsupportedError("md5", { plugin: "noble" });
     expect(error.message).toContain("[plugin: noble]");
@@ -203,7 +193,9 @@ describe("AlgorithmUnsupportedError", () => {
 
   it("should list a narrowed supported set", () => {
     const error = new AlgorithmUnsupportedError("sha512", { supported: ["sha1", "sha256"] });
-    expect(error.message).toContain("Expected one of: sha1, sha256 (case-insensitive)");
+    expect(error.message).toContain(
+      "Expected one of: sha1, sha256 (case-insensitive, separators ignored)",
+    );
   });
 
   describe("hostile and awkward values", () => {
@@ -256,12 +248,6 @@ describe("AlgorithmUnsupportedError", () => {
 
       expect(error.message.length).toBeLessThan(300);
       expect(error.message).toContain("(5000 characters)");
-    });
-
-    it("should not suggest anything for an oversized value", () => {
-      const error = new AlgorithmUnsupportedError(`sha1${" ".repeat(5000)}`);
-
-      expect(error.message).not.toContain("did you mean");
     });
   });
 });

@@ -939,21 +939,47 @@ describe("normalizeHashAlgorithm", () => {
     }
   });
 
+  describe("separator-insensitive matching", () => {
+    // Every one of these names the same algorithm as its canonical spelling,
+    // so accepting them cannot silently substitute a different digest.
+    const variants = [
+      { input: "SHA-1", expected: "sha1" },
+      { input: "sha-1", expected: "sha1" },
+      { input: "sha_1", expected: "sha1" },
+      { input: "SHA-256", expected: "sha256" },
+      { input: "sha-256", expected: "sha256" },
+      { input: "SHA-512", expected: "sha512" },
+      { input: "sha-512", expected: "sha512" },
+    ] as const;
+
+    for (const { input, expected } of variants) {
+      it(`should normalize "${input}" to "${expected}"`, () => {
+        expect(normalizeHashAlgorithm(input)).toBe(expected);
+      });
+    }
+
+    // The whole safety argument for stripping separators is that no other
+    // digest collapses onto a supported one. Pin the near misses.
+    const nearMisses = ["sha-3-256", "sha3-256", "sha-384", "sha-224", "sha-512-256", "sha-2"];
+
+    for (const value of nearMisses) {
+      it(`should still reject "${value}"`, () => {
+        expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
+      });
+    }
+  });
+
   describe("rejected values", () => {
-    // Separator variants are rejected here on purpose. They are tolerated only
-    // when parsing third-party otpauth:// URIs (see @otplib/uri).
+    // Whitespace is not a separator: it is never part of an identifier, so it
+    // is reported rather than swallowed.
     const rejected = [
-      "SHA-1",
-      "sha-1",
-      "sha-256",
-      "sha-512",
-      "sha_1",
       "sha 1",
       "md5",
       "sha3-256",
       "sha384",
       "sha1 ",
       " sha1",
+      "----",
       "",
       undefined,
       null,
@@ -1007,6 +1033,16 @@ describe("normalizeHashAlgorithm", () => {
 
     it("should still case-fold within the supported set", () => {
       expect(normalizeHashAlgorithm("SHA256", ["sha1", "sha256"])).toBe("sha256");
+    });
+
+    it("should still strip separators within the supported set", () => {
+      expect(normalizeHashAlgorithm("SHA-256", ["sha1", "sha256"])).toBe("sha256");
+    });
+
+    it("should not let a separator spelling escape the supported set", () => {
+      expect(() => normalizeHashAlgorithm("SHA-512", ["sha1", "sha256"])).toThrow(
+        AlgorithmUnsupportedError,
+      );
     });
 
     it("should name the plugin in the error", () => {

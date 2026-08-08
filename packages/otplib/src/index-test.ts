@@ -567,11 +567,25 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(token).not.toBe("69342147");
       });
 
-      it("should throw AlgorithmUnsupportedError for a dashed 'SHA-1' algorithm", () => {
+      // Separators are stripped, so this must land on the same RFC 6238 vector
+      // as 'SHA1' rather than being rejected or routed to a different digest.
+      it("should accept a dashed 'SHA-1' algorithm (RFC 6238 vector)", () => {
+        const token = generateSync({
+          secret: RFC6238_SECRET,
+          algorithm: "SHA-1" as HashAlgorithm,
+          digits: 8,
+          period: 30,
+          epoch: 59,
+        });
+
+        expect(token).toBe("94287082");
+      });
+
+      it("should throw AlgorithmUnsupportedError for an unsupported digest", () => {
         expect(() =>
           generateSync({
             secret: RFC6238_SECRET,
-            algorithm: "SHA-1" as HashAlgorithm,
+            algorithm: "sha-384" as HashAlgorithm,
             digits: 8,
             period: 30,
             epoch: 59,

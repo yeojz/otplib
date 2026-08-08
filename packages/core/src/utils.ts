@@ -317,16 +317,29 @@ export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
 export const HASH_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as const);
 
 /**
+ * Separator noise tolerated in an algorithm name (`SHA-1`, `sha_1`)
+ *
+ * Deliberately excludes whitespace: a dash is how NIST and Web Crypto spell
+ * these algorithms, whereas a space is never part of an identifier and is
+ * better reported than silently swallowed.
+ *
+ * @internal
+ */
+const ALGORITHM_SEPARATORS = /[-_]/g;
+
+/**
  * Normalize and validate a hash algorithm
  *
- * Matching is case-insensitive, so `'SHA1'` and `'Sha1'` both resolve to
- * `'sha1'`. Everything else is rejected - including separator variants such as
- * `'SHA-1'`, which are only tolerated when parsing third-party `otpauth://`
- * URIs (see `@otplib/uri`).
+ * Matching ignores case and `-`/`_` separators, so `'SHA1'`, `'Sha1'`,
+ * `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`. This is safe to be forgiving
+ * about: every accepted spelling names the *same* algorithm, and no other
+ * digest collapses onto a supported one (`'sha3-256'` strips to `'sha3256'`,
+ * not `'sha256'`).
  *
- * Rejecting rather than guessing is deliberate: substituting a different
- * algorithm produces self-consistent tokens that never match any other
- * implementation, which fails silently at enrollment time.
+ * Anything that is not a spelling of a supported algorithm is rejected rather
+ * than guessed at, because substituting a *different* algorithm produces
+ * self-consistent tokens that never match any other implementation - a failure
+ * that only surfaces at enrollment time.
  *
  * @param value - The algorithm to normalize
  * @param supported - Accepted algorithms (defaults to all of {@link HASH_ALGORITHMS})
@@ -337,7 +350,8 @@ export const HASH_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as con
  * @example
  * ```typescript
  * normalizeHashAlgorithm('SHA1');   // 'sha1'
- * normalizeHashAlgorithm('SHA-1');  // throws AlgorithmUnsupportedError
+ * normalizeHashAlgorithm('SHA-1');  // 'sha1'
+ * normalizeHashAlgorithm('sha384'); // throws AlgorithmUnsupportedError
  * ```
  */
 export function normalizeHashAlgorithm(
@@ -349,13 +363,19 @@ export function normalizeHashAlgorithm(
     throw new AlgorithmUnsupportedError(value, { supported, plugin });
   }
 
-  const normalized = value.toLowerCase() as HashAlgorithm;
-
-  if (!supported.includes(normalized)) {
-    throw new AlgorithmUnsupportedError(value, { supported, plugin });
+  // Scanned with `includes` rather than looked up in a map, so a value such as
+  // `'__proto__'` cannot resolve to anything inherited.
+  const lowered = value.toLowerCase() as HashAlgorithm;
+  if (supported.includes(lowered)) {
+    return lowered;
   }
 
-  return normalized;
+  const stripped = lowered.replace(ALGORITHM_SEPARATORS, "") as HashAlgorithm;
+  if (supported.includes(stripped)) {
+    return stripped;
+  }
+
+  throw new AlgorithmUnsupportedError(value, { supported, plugin });
 }
 
 /**

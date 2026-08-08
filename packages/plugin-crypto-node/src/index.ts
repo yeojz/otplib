@@ -36,9 +36,9 @@ export class NodeCryptoPlugin implements CryptoPlugin {
    *
    * Synchronous implementation using createHmac.
    *
-   * The algorithm is matched case-insensitively (`'SHA1'` and `'Sha1'` both
-   * resolve to `'sha1'`). Anything else - including separator spellings such
-   * as `'SHA-1'` and other digests OpenSSL happens to support - throws
+   * The algorithm is matched ignoring case and separators, so `'SHA1'`,
+   * `'Sha1'` and `'SHA-1'` all resolve to `'sha1'`. Any other digest OpenSSL
+   * happens to support - `'md5'`, `'sha224'`, `'ripemd160'` - throws
    * `AlgorithmUnsupportedError`.
    *
    * @param algorithm - Hash algorithm to use

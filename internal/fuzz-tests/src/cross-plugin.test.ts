@@ -515,21 +515,22 @@ describe("Cross-plugin consistency tests", () => {
       },
     );
 
-    it("should have every plugin reject non-canonical algorithm names identically", async () => {
+    it("should have every plugin reject unsupported algorithm names identically", async () => {
+      // Matches core's normalization: case and `-`/`_` are ignored, so a
+      // generated "SHA-1" is a *supported* spelling and must not be fed in here.
       const canonical = ["sha1", "sha256", "sha512"];
-      const nonCanonicalAlgorithm = fc.oneof(
+      const isSupportedSpelling = (s: string) =>
+        canonical.includes(s.toLowerCase().replace(/[-_]/g, ""));
+
+      const unsupportedAlgorithm = fc.oneof(
         fc.constantFrom(
-          "SHA-1",
-          "sha-1",
-          "SHA-256",
-          "sha-256",
-          "SHA-512",
-          "sha-512",
           "md5",
           "sha384",
+          "sha-384",
           "sha3-256",
-          "sha_1",
+          "sha-224",
           "",
+          "----",
           " sha1",
           "sha1 ",
         ),
@@ -540,7 +541,7 @@ describe("Cross-plugin consistency tests", () => {
         fc.asyncProperty(
           fc.uint8Array({ minLength: 1, maxLength: 64 }),
           fc.uint8Array({ minLength: 0, maxLength: 256 }),
-          nonCanonicalAlgorithm.filter((s) => !canonical.includes(s.toLowerCase())),
+          unsupportedAlgorithm.filter((s) => !isSupportedSpelling(s)),
           async (key, data, algorithm) => {
             const outcomes = await Promise.all(
               cryptoPlugins.map((p) => captureHmac(p.plugin, algorithm, key, data)),

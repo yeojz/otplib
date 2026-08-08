@@ -48,27 +48,14 @@ function describeAlgorithm(alg: unknown): string {
 }
 
 /**
- * Lenient algorithm parsing for third-party `otpauth://` URIs.
+ * Parse an algorithm from either input format.
  *
- * Mirrors `parseAlgorithm` in `@otplib/uri` so the CLI accepts the same URIs
- * the library does, including the dashed forms (`SHA-1`, `sha-256`).
+ * Delegates to core's `normalizeHashAlgorithm` so `otpauth://` URIs and
+ * user-authored JSON accept exactly the same spellings - case and separators
+ * are ignored, so `SHA1`, `sha1` and `SHA-256` all resolve. The CLI's own
+ * casing (`SHA1`) is applied on the way out.
  */
-function normalizeUriAlgorithm(alg?: string): OtpAlgorithm {
-  if (!alg) return "SHA1";
-  const normalized = alg.toLowerCase();
-  if (normalized === "sha1" || normalized === "sha-1") return "SHA1";
-  if (normalized === "sha256" || normalized === "sha-256") return "SHA256";
-  if (normalized === "sha512" || normalized === "sha-512") return "SHA512";
-  throw invalidAlgorithm(alg);
-}
-
-/**
- * Strict algorithm parsing for user-authored JSON input.
- *
- * Delegates to core's `normalizeHashAlgorithm`, which case-folds only:
- * `sha1`/`SHA1` are accepted, dashed forms such as `SHA-1` are rejected.
- */
-function normalizeInputAlgorithm(alg?: unknown): OtpAlgorithm {
+function normalizeAlgorithm(alg?: unknown): OtpAlgorithm {
   if (alg === undefined) return "SHA1";
   try {
     return normalizeHashAlgorithm(alg).toUpperCase() as OtpAlgorithm;
@@ -123,7 +110,9 @@ export function parseOtpauthUri(uri: string): OtpData {
     account = label.slice(colonIndex + 1);
   }
 
-  const algorithm = normalizeUriAlgorithm(url.searchParams.get("algorithm") ?? undefined);
+  // `|| undefined` not `??`: an empty `?algorithm=` falls back to the default
+  // rather than being reported as an invalid value.
+  const algorithm = normalizeAlgorithm(url.searchParams.get("algorithm") || undefined);
   const digitsParam = url.searchParams.get("digits");
   const digits = normalizeDigits(digitsParam !== null ? parseInt(digitsParam, 10) : undefined);
 
@@ -163,7 +152,7 @@ export function parseJsonInput(raw: string): OtpData {
     throw new Error('Invalid type: expected "totp" or "hotp"');
   }
 
-  const algorithm = normalizeInputAlgorithm(input.algorithm);
+  const algorithm = normalizeAlgorithm(input.algorithm);
   const digits = normalizeDigits(input.digits);
 
   if (type === "totp") {

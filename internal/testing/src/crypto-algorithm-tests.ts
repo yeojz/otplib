@@ -24,9 +24,12 @@ const DIGEST_SIZES = [
 ] as const;
 
 /**
- * Case variants that must resolve to a canonical algorithm
+ * Alternate spellings that must resolve to a canonical algorithm
+ *
+ * Case and `-`/`_` separators are ignored, so every entry here names the same
+ * algorithm as its canonical form.
  */
-const CASE_VARIANTS = [
+const SPELLING_VARIANTS = [
   { input: "SHA1", canonical: "sha1" },
   { input: "Sha1", canonical: "sha1" },
   { input: "sHa1", canonical: "sha1" },
@@ -34,29 +37,23 @@ const CASE_VARIANTS = [
   { input: "Sha256", canonical: "sha256" },
   { input: "SHA512", canonical: "sha512" },
   { input: "Sha512", canonical: "sha512" },
+  { input: "SHA-1", canonical: "sha1" },
+  { input: "sha-1", canonical: "sha1" },
+  { input: "sha_1", canonical: "sha1" },
+  { input: "SHA-256", canonical: "sha256" },
+  { input: "sha-512", canonical: "sha512" },
 ] as const;
 
 /**
  * Values that must be rejected
  *
- * Separator variants are included deliberately: they are only tolerated when
- * parsing third-party `otpauth://` URIs, never at the crypto layer.
+ * Includes the near misses that make separator stripping safe: `sha3-256` and
+ * `sha-384` must not collapse onto a supported algorithm.
  */
 const REJECTED_ALGORITHMS: readonly { label: string; value: unknown }[] = [
-  ...[
-    "SHA-1",
-    "sha-1",
-    "SHA-256",
-    "sha-512",
-    "sha_1",
-    "sha 1",
-    "md5",
-    "sha3-256",
-    "sha384",
-    "sha1 ",
-    " sha1",
-    "",
-  ].map((value) => ({ label: `"${value}"`, value })),
+  ...["md5", "sha3-256", "sha-384", "sha384", "sha-224", "sha 1", "sha1 ", " sha1", "", "----"].map(
+    (value) => ({ label: `"${value}"`, value }),
+  ),
   { label: "undefined", value: undefined },
   { label: "null", value: null },
   { label: "0", value: 0 },
@@ -159,8 +156,8 @@ export function createCryptoAlgorithmTests(ctx: CryptoAlgorithmTestContext): voi
       });
     });
 
-    describe("case-insensitive matching", () => {
-      for (const { input, canonical } of CASE_VARIANTS) {
+    describe("case- and separator-insensitive matching", () => {
+      for (const { input, canonical } of SPELLING_VARIANTS) {
         // Compares bytes rather than just asserting "did not throw": a plugin
         // that accepted "SHA1" and quietly computed SHA-512 would pass a
         // does-not-throw check, which is the bug being guarded against.

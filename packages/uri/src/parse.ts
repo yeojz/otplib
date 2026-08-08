@@ -1,3 +1,5 @@
+import { normalizeHashAlgorithm } from "@otplib/core";
+
 import { InvalidURIError, InvalidParameterError, MissingParameterError } from "./types.js";
 
 import type { OTPAuthURI, OTPAuthParams } from "./types.js";
@@ -191,30 +193,17 @@ function parseIntegerParameter(name: string, value: string, min: number): number
 /**
  * Parse algorithm string
  *
- * NOTE: this is deliberately MORE permissive than the core API. Core's
- * `normalizeHashAlgorithm` only case-folds and accepts the canonical
- * non-dashed spellings (sha1/sha256/sha512); here we also accept the dashed
- * forms (sha-1/sha-256/sha-512) because otpauth:// URIs are produced by
- * third-party issuers we do not control, and some of them emit dashed names.
- *
- * Its job is to hand core a canonical lowercase value, so the leniency stops
- * at the parse boundary and never leaks into the OTP API surface.
- *
- * Do not "tighten" this to reuse normalizeHashAlgorithm - that would break
- * parsing of real-world URIs.
+ * `otpauth://` URIs come from third-party issuers, several of which emit the
+ * dashed spellings (`SHA-1`, `SHA-256`). Core's `normalizeHashAlgorithm`
+ * accepts those and returns the canonical lowercase name, so this only has to
+ * restate the rejection in this package's error type.
  */
 function parseAlgorithm(value: string): HashAlgorithm {
-  const normalized = value.toLowerCase();
-  if (normalized === "sha1" || normalized === "sha-1") {
-    return "sha1";
+  try {
+    return normalizeHashAlgorithm(value);
+  } catch {
+    throw new InvalidParameterError("algorithm", value);
   }
-  if (normalized === "sha256" || normalized === "sha-256") {
-    return "sha256";
-  }
-  if (normalized === "sha512" || normalized === "sha-512") {
-    return "sha512";
-  }
-  throw new InvalidParameterError("algorithm", value);
 }
 
 /**

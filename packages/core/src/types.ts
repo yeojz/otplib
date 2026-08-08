@@ -88,7 +88,8 @@ export type CryptoPlugin = {
   /**
    * Compute HMAC using the specified hash algorithm
    *
-   * Implementations must match the algorithm case-insensitively and throw
+   * Implementations must match the algorithm ignoring case and separators
+   * (`'SHA1'`, `'Sha1'` and `'SHA-1'` all mean `'sha1'`) and throw
    * `AlgorithmUnsupportedError` for anything else, rather than falling back to
    * a default. Use `normalizeHashAlgorithm` from this package to get that
    * behaviour for free. If the underlying implementation spells algorithms

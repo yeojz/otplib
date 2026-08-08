@@ -257,15 +257,19 @@ describe("parseJsonInput", () => {
     });
   });
 
-  test("rejects dashed algorithm (SHA-1)", () => {
-    expect(() => parseJsonInput('{"secret":"ABC","algorithm":"SHA-1"}')).toThrow(
-      "Invalid algorithm: SHA-1, expected SHA1, SHA256, or SHA512",
-    );
+  // JSON input and otpauth:// URIs accept the same spellings, so a value
+  // copied out of one and pasted into the other keeps working.
+  test("accepts dashed algorithm (SHA-1)", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":"SHA-1"}').algorithm).toBe("SHA1");
   });
 
-  test("rejects dashed algorithm (sha-256)", () => {
-    expect(() => parseJsonInput('{"secret":"ABC","algorithm":"sha-256"}')).toThrow(
-      "Invalid algorithm: sha-256, expected SHA1, SHA256, or SHA512",
+  test("accepts dashed algorithm (sha-256)", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":"sha-256"}').algorithm).toBe("SHA256");
+  });
+
+  test("rejects an unsupported dashed digest (sha-384)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":"sha-384"}')).toThrow(
+      "Invalid algorithm: sha-384, expected SHA1, SHA256, or SHA512",
     );
   });
 
