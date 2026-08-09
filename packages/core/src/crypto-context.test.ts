@@ -9,17 +9,31 @@ import type { CryptoPlugin, HashAlgorithm } from "./types.js";
 import { AlgorithmUnsupportedError, HMACError, RandomBytesError } from "./errors.js";
 
 /**
- * A plugin narrowed to sha1 only, the documented use of the `supported`
- * parameter. Its rejection fires inside the context's try block, after the
- * context's own full-set check has passed.
+ * A plugin narrowed to sha1 only that validates internally but does not declare
+ * `algorithms`, so its rejection fires inside the context's try block after the
+ * context's own check has passed.
  */
 function createSha1OnlyPlugin(): CryptoPlugin {
   return {
     name: "sha1-only",
     hmac: (algorithm: HashAlgorithm) => {
-      normalizeHashAlgorithm(algorithm, ["sha1"], "sha1-only");
+      normalizeHashAlgorithm(algorithm, { supported: ["sha1"], plugin: "sha1-only" });
       return stringToBytes("digest");
     },
+    randomBytes: vi.fn(),
+  };
+}
+
+/**
+ * A plugin that declares its narrowed set, so the context can reject an
+ * unsupported algorithm before delegating. `hmac` is a spy with no validation
+ * of its own, which is what lets the tests assert it was never reached.
+ */
+function createDeclaredSha1OnlyPlugin(): CryptoPlugin {
+  return {
+    name: "declared-sha1-only",
+    algorithms: ["sha1"],
+    hmac: vi.fn().mockReturnValue(stringToBytes("digest")),
     randomBytes: vi.fn(),
   };
 }
@@ -162,6 +176,45 @@ describe("CryptoContext", () => {
       await expect(context.hmac("sha256", key, data)).rejects.toThrow(AlgorithmUnsupportedError);
       await expect(context.hmac("sha256", key, data)).rejects.toThrow("[plugin: sha1-only]");
       await expect(context.hmac("sha1", key, data)).resolves.toBeInstanceOf(Uint8Array);
+    });
+
+    it("should reject an algorithm a plugin declares it cannot compute", async () => {
+      const plugin = createDeclaredSha1OnlyPlugin();
+      const context = new CryptoContext(plugin);
+
+      const key = stringToBytes("key");
+      const data = stringToBytes("data");
+
+      await expect(context.hmac("sha512", key, data)).rejects.toThrow(AlgorithmUnsupportedError);
+      // Rejected by the context, so the plugin is never asked.
+      expect(plugin.hmac).not.toHaveBeenCalled();
+
+      await expect(context.hmac("sha1", key, data)).resolves.toBeInstanceOf(Uint8Array);
+      expect(plugin.hmac).toHaveBeenCalledTimes(1);
+    });
+
+    it("should report only the plugin's own set when it declares one", async () => {
+      const context = new CryptoContext(createDeclaredSha1OnlyPlugin());
+
+      await expect(
+        context.hmac("sha512", stringToBytes("key"), stringToBytes("data")),
+      ).rejects.toThrow("Expected one of: sha1 ");
+    });
+
+    // A declaration must never re-enable a digest the library refuses.
+    it("should not let a plugin declaration widen the allowlist", async () => {
+      const plugin: CryptoPlugin = {
+        name: "widened",
+        algorithms: ["md5", "sha1"] as unknown as HashAlgorithm[],
+        hmac: vi.fn().mockReturnValue(stringToBytes("digest")),
+        randomBytes: vi.fn(),
+      };
+      const context = new CryptoContext(plugin);
+
+      await expect(
+        context.hmac("md5" as HashAlgorithm, stringToBytes("key"), stringToBytes("data")),
+      ).rejects.toThrow(AlgorithmUnsupportedError);
+      expect(plugin.hmac).not.toHaveBeenCalled();
     });
   });
 

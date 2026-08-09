@@ -86,6 +86,24 @@ export type CryptoPlugin = {
   readonly name: string;
 
   /**
+   * The algorithms this plugin can compute, when it supports fewer than all of
+   * `HASH_ALGORITHMS`
+   *
+   * Omit it unless the backing implementation is genuinely restricted - an
+   * absent value means the full set. `CryptoContext` reads this to reject an
+   * unsupported algorithm before delegating, rather than leaving the plugin to
+   * discover it.
+   *
+   * This can only narrow. The value is intersected with `HASH_ALGORITHMS`, so
+   * listing a digest outside that set does not enable it.
+   *
+   * Derive it from the plugin's own dispatch map (`Object.keys(HASH_FNS)`)
+   * rather than writing a parallel array, so the two cannot disagree about
+   * what the plugin actually handles.
+   */
+  readonly algorithms?: readonly HashAlgorithm[];
+
+  /**
    * Compute HMAC using the specified hash algorithm
    *
    * Implementations must match the algorithm ignoring case and separators

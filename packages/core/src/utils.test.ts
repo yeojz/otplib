@@ -968,13 +968,32 @@ describe("normalizeHashAlgorithm", () => {
       });
     }
 
-    // Only a single separator between "sha" and the digest size is a real
-    // spelling. These name no algorithm at all, so they are reported rather
-    // than reassembled into one.
+    // Only the exact spellings in the lookup table are accepted. These name no
+    // algorithm at all, so they are reported rather than reassembled into one.
     const degenerateSpellings = ["sha-2-5-6", "s-h-a-1", "-sha1", "sha1-", "sha512-", "sha__1"];
 
     for (const value of degenerateSpellings) {
       it(`should reject the degenerate spelling "${value}"`, () => {
+        expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
+      });
+    }
+  });
+
+  // The lookup is a Map precisely so these cannot resolve. An object literal
+  // would hand back inherited members - `normalizeHashAlgorithm('toString')`
+  // returning a Function rather than throwing.
+  describe("inherited property names", () => {
+    const inherited = [
+      "__proto__",
+      "constructor",
+      "prototype",
+      "toString",
+      "valueOf",
+      "hasOwnProperty",
+    ];
+
+    for (const value of inherited) {
+      it(`should reject "${value}"`, () => {
         expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
       });
     }
@@ -1037,27 +1056,51 @@ describe("normalizeHashAlgorithm", () => {
 
   describe("narrowed support", () => {
     it("should reject an algorithm outside the supported set", () => {
-      expect(() => normalizeHashAlgorithm("sha512", ["sha1", "sha256"])).toThrow(
+      expect(() => normalizeHashAlgorithm("sha512", { supported: ["sha1", "sha256"] })).toThrow(
         AlgorithmUnsupportedError,
       );
     });
 
     it("should still case-fold within the supported set", () => {
-      expect(normalizeHashAlgorithm("SHA256", ["sha1", "sha256"])).toBe("sha256");
+      expect(normalizeHashAlgorithm("SHA256", { supported: ["sha1", "sha256"] })).toBe("sha256");
     });
 
-    it("should still strip separators within the supported set", () => {
-      expect(normalizeHashAlgorithm("SHA-256", ["sha1", "sha256"])).toBe("sha256");
+    it("should still accept separator spellings within the supported set", () => {
+      expect(normalizeHashAlgorithm("SHA-256", { supported: ["sha1", "sha256"] })).toBe("sha256");
     });
 
     it("should not let a separator spelling escape the supported set", () => {
-      expect(() => normalizeHashAlgorithm("SHA-512", ["sha1", "sha256"])).toThrow(
+      expect(() => normalizeHashAlgorithm("SHA-512", { supported: ["sha1", "sha256"] })).toThrow(
         AlgorithmUnsupportedError,
       );
     });
 
     it("should name the plugin in the error", () => {
-      expect(() => normalizeHashAlgorithm("md5", undefined, "noble")).toThrow("[plugin: noble]");
+      expect(() => normalizeHashAlgorithm("md5", { plugin: "noble" })).toThrow("[plugin: noble]");
+    });
+
+    it("should list only the narrowed set in the error", () => {
+      expect(() => normalizeHashAlgorithm("sha512", { supported: ["sha1"] })).toThrow(
+        "Expected one of: sha1 ",
+      );
+    });
+
+    // `supported` arrives from crypto plugins, including untyped ones. It is
+    // intersected with HASH_ALGORITHMS so it can only ever narrow - otherwise a
+    // plugin could re-enable a weak digest for anything holding it.
+    it("should not let a plugin widen the allowlist", () => {
+      const widened = ["md5", "sha1"] as unknown as HashAlgorithm[];
+
+      expect(() => normalizeHashAlgorithm("md5", { supported: widened })).toThrow(
+        AlgorithmUnsupportedError,
+      );
+      expect(normalizeHashAlgorithm("sha1", { supported: widened })).toBe("sha1");
+    });
+
+    it("should treat an empty supported set as accepting nothing", () => {
+      expect(() => normalizeHashAlgorithm("sha1", { supported: [] })).toThrow(
+        AlgorithmUnsupportedError,
+      );
     });
   });
 });

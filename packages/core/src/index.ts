@@ -67,6 +67,7 @@ export {
   hasGuardrailOverrides,
   HASH_ALGORITHMS,
   normalizeHashAlgorithm,
+  type NormalizeHashAlgorithmOptions,
   validateSecret,
   validateCounter,
   validateTime,

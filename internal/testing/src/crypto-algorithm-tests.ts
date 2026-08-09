@@ -11,6 +11,7 @@ import type { TestContext } from "./types.js";
  */
 interface CryptoPluginUnderTest {
   name: string;
+  algorithms?: readonly string[];
   hmac(algorithm: string, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> | Uint8Array;
 }
 
@@ -62,13 +63,22 @@ const REJECTED_ALGORITHMS: readonly { label: string; value: unknown }[] = [
     " sha1",
     "",
     "----",
-    // Degenerate spellings: only a single separator between "sha" and the
-    // digest size names an algorithm, so these must not be reassembled.
+    // Degenerate spellings: only the exact spellings in core's lookup table
+    // name an algorithm, so these must not be reassembled into one.
     "sha-2-5-6",
     "s-h-a-1",
     "-sha1",
     "sha512-",
     "sha__1",
+    // Inherited property names. A plugin resolving these is looking the
+    // algorithm up in an object literal instead of a prototype-free container,
+    // which hands back a Function rather than throwing.
+    "__proto__",
+    "constructor",
+    "prototype",
+    "toString",
+    "valueOf",
+    "hasOwnProperty",
   ].map((value) => ({ label: `"${value}"`, value })),
   { label: "undefined", value: undefined },
   { label: "null", value: null },
@@ -169,6 +179,24 @@ export function createCryptoAlgorithmTests(ctx: CryptoAlgorithmTestContext): voi
       it('should never return a 64-byte digest for "sha1"', async () => {
         const digest = await crypto.hmac("sha1", key, data);
         expect(digest).toHaveLength(20);
+      });
+    });
+
+    describe("declared algorithms", () => {
+      // The declaration drives CryptoContext's pre-delegation check, so a
+      // plugin claiming an algorithm it cannot compute would surface as an
+      // HMAC failure rather than a clear rejection.
+      it("should compute every algorithm it declares", async () => {
+        for (const algorithm of crypto.algorithms ?? []) {
+          const digest = await crypto.hmac(algorithm, key, data);
+          expect(digest).toBeInstanceOf(Uint8Array);
+        }
+      });
+
+      it("should declare nothing outside the supported set", () => {
+        for (const algorithm of crypto.algorithms ?? []) {
+          expect(DIGEST_SIZES.map((entry) => entry.algorithm)).toContain(algorithm);
+        }
       });
     });
 

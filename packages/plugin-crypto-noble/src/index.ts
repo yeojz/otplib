@@ -11,12 +11,24 @@ import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
  *
  * Deliberately has no fallback branch: unsupported values are rejected by
  * `normalizeHashAlgorithm` before they ever reach this map.
+ *
+ * The `satisfies` constraint forbids a key outside `HashAlgorithm`, so this
+ * plugin cannot widen the allowlist, and requires every member of it, so a
+ * newly supported algorithm fails to compile until it is dispatched here.
  */
 const HASH_FNS = {
   sha1,
   sha256,
   sha512,
-} as const;
+} as const satisfies Record<HashAlgorithm, unknown>;
+
+/**
+ * Algorithms this plugin can compute
+ *
+ * Derived from the dispatch map rather than written out again, so the declared
+ * set cannot disagree with what `hmac` actually handles.
+ */
+const SUPPORTED_ALGORITHMS = Object.keys(HASH_FNS) as readonly HashAlgorithm[];
 
 /**
  * Pure JavaScript implementation of CryptoPlugin
@@ -43,6 +55,11 @@ export class NobleCryptoPlugin implements CryptoPlugin {
   readonly name = "noble";
 
   /**
+   * Algorithms this plugin can compute
+   */
+  readonly algorithms = SUPPORTED_ALGORITHMS;
+
+  /**
    * Compute HMAC using @noble/hashes
    *
    * Synchronous implementation using pure JS.
@@ -58,7 +75,7 @@ export class NobleCryptoPlugin implements CryptoPlugin {
    * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
   hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
-    const alg = normalizeHashAlgorithm(algorithm, undefined, this.name);
+    const alg = normalizeHashAlgorithm(algorithm, { plugin: this.name });
     return hmac(HASH_FNS[alg], key, data);
   }
 

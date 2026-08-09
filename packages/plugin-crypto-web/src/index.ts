@@ -5,13 +5,26 @@ import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
 /**
  * Web Crypto algorithm name mapping
  *
- * Maps our algorithm names to Web Crypto API algorithm identifiers.
+ * Maps our algorithm names to Web Crypto API algorithm identifiers. The
+ * `satisfies` constraint forbids a key outside `HashAlgorithm` and requires
+ * every member of it, so this plugin can neither widen the allowlist nor
+ * silently skip a newly supported algorithm.
  */
 const ALGORITHM_MAP = {
   sha1: "SHA-1",
   sha256: "SHA-256",
   sha512: "SHA-512",
 } as const satisfies Record<HashAlgorithm, string>;
+
+/**
+ * Algorithms this plugin can compute
+ *
+ * Derived from the algorithm map rather than written out again, so the
+ * declared set cannot disagree with what `hmac` actually handles. Note that
+ * SubtleCrypto also implements SHA-384; it is deliberately absent, because
+ * RFC 6238 does not include it and no authenticator would verify the result.
+ */
+const SUPPORTED_ALGORITHMS = Object.keys(ALGORITHM_MAP) as readonly HashAlgorithm[];
 
 /**
  * Get ArrayBuffer from Uint8Array, avoiding copy when possible
@@ -50,6 +63,11 @@ export class WebCryptoPlugin implements CryptoPlugin {
   readonly name = "web";
 
   /**
+   * Algorithms this plugin can compute
+   */
+  readonly algorithms = SUPPORTED_ALGORITHMS;
+
+  /**
    * Compute HMAC using Web Crypto API
    *
    * Async implementation using SubtleCrypto.
@@ -66,7 +84,7 @@ export class WebCryptoPlugin implements CryptoPlugin {
    * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
   async hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
-    const alg = normalizeHashAlgorithm(algorithm, undefined, this.name);
+    const alg = normalizeHashAlgorithm(algorithm, { plugin: this.name });
     const webCrypto = globalThis.crypto;
 
     if (!webCrypto?.subtle) {

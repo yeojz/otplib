@@ -317,26 +317,69 @@ export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
 export const HASH_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as const);
 
 /**
- * Recognised spellings of a supported algorithm: at most one `-` or `_`
- * between `sha` and the digest size (`SHA-1`, `sha_256`)
+ * Every accepted spelling of each supported algorithm, grouped by the canonical
+ * name it resolves to
  *
- * A single dash is how NIST and Web Crypto spell these algorithms, so it is
- * tolerated. Whitespace, stray or repeated separators (`'sha 1'`, `'-sha1'`,
- * `'sha-2-5-6'`) are not spellings of any algorithm and are better reported
- * than silently swallowed.
+ * Enumerated rather than derived from a pattern. A pattern is a compressed
+ * encoding of this list that can generalize past its intent - an earlier
+ * separator-stripping implementation accepted `'sha-2-5-6'` and `'s-h-a-1'`
+ * for exactly that reason. Nothing here can drift: the accepted set is the
+ * list.
+ *
+ * The `satisfies` constraint is load-bearing. It requires an entry for every
+ * member of {@link HashAlgorithm} and forbids keys outside it, so widening the
+ * union fails to compile until spellings are supplied here.
  *
  * @internal
  */
-const ALGORITHM_SPELLING = /^sha[-_]?(1|256|512)$/;
+const HASH_ALGORITHM_SPELLINGS = {
+  sha1: ["sha1", "sha-1", "sha_1"],
+  sha256: ["sha256", "sha-256", "sha_256"],
+  sha512: ["sha512", "sha-512", "sha_512"],
+} as const satisfies Record<HashAlgorithm, readonly string[]>;
+
+/**
+ * Lowercased spelling to canonical algorithm
+ *
+ * A `Map` rather than an object literal: `ALIAS_LOOKUP.get('__proto__')` is
+ * `undefined`, whereas an object would resolve `'__proto__'`, `'constructor'`
+ * and `'toString'` through the prototype chain and hand back inherited junk.
+ * That safety holds by construction, with no `Object.hasOwn` guard to forget.
+ *
+ * @internal
+ */
+const ALIAS_LOOKUP: ReadonlyMap<string, HashAlgorithm> = new Map(
+  Object.entries(HASH_ALGORITHM_SPELLINGS).flatMap(([canonical, spellings]) =>
+    spellings.map((spelling) => [spelling, canonical as HashAlgorithm] as const),
+  ),
+);
+
+/**
+ * Options for {@link normalizeHashAlgorithm}
+ */
+export type NormalizeHashAlgorithmOptions = {
+  /**
+   * Accepted algorithms, defaulting to all of {@link HASH_ALGORITHMS}
+   *
+   * Intersected with {@link HASH_ALGORITHMS}, so this can only ever narrow the
+   * allowlist - a crypto plugin cannot use it to re-enable a weak digest.
+   */
+  supported?: readonly HashAlgorithm[];
+
+  /**
+   * Name of the calling crypto plugin, used to enrich the error message
+   */
+  plugin?: string;
+};
 
 /**
  * Normalize and validate a hash algorithm
  *
- * Matching ignores case and tolerates one `-` or `_` separator, so `'SHA1'`,
- * `'Sha1'`, `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`. This is safe to
- * be forgiving about: every accepted spelling names the *same* algorithm, and
- * no other digest's spelling collapses onto a supported one (`'sha3-256'` and
- * `'sha-384'` are rejected outright).
+ * Matching ignores case and accepts the `-`/`_` separated spellings, so
+ * `'SHA1'`, `'Sha1'`, `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`. This is
+ * safe to be forgiving about: every accepted spelling names the *same*
+ * algorithm. No spelling of any other digest appears in the table, so
+ * `'sha3-256'` and `'sha-384'` are rejected outright.
  *
  * Anything that is not a spelling of a supported algorithm is rejected rather
  * than guessed at, because substituting a *different* algorithm produces
@@ -344,8 +387,7 @@ const ALGORITHM_SPELLING = /^sha[-_]?(1|256|512)$/;
  * that only surfaces at enrollment time.
  *
  * @param value - The algorithm to normalize
- * @param supported - Accepted algorithms (defaults to all of {@link HASH_ALGORITHMS})
- * @param plugin - Name of the calling crypto plugin, used to enrich the error message
+ * @param options - Narrowed algorithm set and calling plugin name
  * @returns The canonical lowercase algorithm
  * @throws {AlgorithmUnsupportedError} If the value is not a supported algorithm
  *
@@ -354,23 +396,25 @@ const ALGORITHM_SPELLING = /^sha[-_]?(1|256|512)$/;
  * normalizeHashAlgorithm('SHA1');   // 'sha1'
  * normalizeHashAlgorithm('SHA-1');  // 'sha1'
  * normalizeHashAlgorithm('sha384'); // throws AlgorithmUnsupportedError
+ *
+ * // A plugin backed by a restricted implementation
+ * normalizeHashAlgorithm('sha256', { supported: ['sha1'], plugin: 'custom' });
  * ```
  */
 export function normalizeHashAlgorithm(
   value: unknown,
-  supported: readonly HashAlgorithm[] = HASH_ALGORITHMS,
-  plugin?: string,
+  options: NormalizeHashAlgorithmOptions = {},
 ): HashAlgorithm {
-  if (typeof value !== "string") {
-    throw new AlgorithmUnsupportedError(value, { supported, plugin });
-  }
+  // Intersected rather than trusted: `supported` reaches here from crypto
+  // plugins, including untyped ones, and must only ever narrow.
+  const supported = options.supported
+    ? HASH_ALGORITHMS.filter((algorithm) => options.supported?.includes(algorithm))
+    : HASH_ALGORITHMS;
+  const plugin = options.plugin;
 
-  const match = ALGORITHM_SPELLING.exec(value.toLowerCase());
-  if (match) {
-    // Checked with `includes` rather than looked up in a map, so nothing can
-    // resolve through inherited properties.
-    const canonical = `sha${match[1]}` as HashAlgorithm;
-    if (supported.includes(canonical)) {
+  if (typeof value === "string") {
+    const canonical = ALIAS_LOOKUP.get(value.toLowerCase());
+    if (canonical !== undefined && supported.includes(canonical)) {
       return canonical;
     }
   }

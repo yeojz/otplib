@@ -293,7 +293,7 @@ import { createCryptoPlugin, normalizeHashAlgorithm } from "@otplib/core";
 const customCrypto = createCryptoPlugin({
   name: "custom",
   hmac: async (algorithm, key, data) => {
-    const alg = normalizeHashAlgorithm(algorithm, undefined, "custom");
+    const alg = normalizeHashAlgorithm(algorithm, { plugin: "custom" });
 
     // your HMAC implementation here, dispatching on `alg`
     return new Uint8Array();
@@ -311,7 +311,7 @@ const customCrypto = createCryptoPlugin({
 
 #### Handling the algorithm
 
-Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Two rules apply:
+Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Three rules apply:
 
 1. **Never fall back to a default.** Pass the value through `normalizeHashAlgorithm`, which ignores case and
    `-`/`_` separators (`SHA1`, `SHA-1` → `sha1`) and throws `AlgorithmUnsupportedError` for anything else.
@@ -325,8 +325,23 @@ Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Two rules apply:
      sha1: "SHA-1",
      sha256: "SHA-256",
      sha512: "SHA-512",
-   } as const;
+   } as const satisfies Record<HashAlgorithm, string>;
    ```
+
+   The `satisfies` clause is worth copying: it rejects a key outside `HashAlgorithm`, and requires every
+   member of it, so the map cannot drift from what the library supports.
+
+3. **Declare `algorithms` if you support fewer than all three.** Derive it from the map above rather than
+   writing a second list, so the declaration cannot disagree with what the plugin actually dispatches:
+
+   ```typescript
+   const SUPPORTED_ALGORITHMS = Object.keys(ALGORITHM_MAP) as readonly HashAlgorithm[];
+   ```
+
+   `CryptoContext` reads this and rejects an unsupported algorithm _before_ delegating, so callers get a
+   clear error rather than one raised from inside your plugin. Omit it to mean the full set. It can only
+   narrow - the value is intersected with `HASH_ALGORITHMS`, so listing a digest outside that set does not
+   enable it.
 
 `CryptoContext` also normalizes before delegating, so plugins used through the library are protected either
 way - but a plugin called directly should still validate its own input.

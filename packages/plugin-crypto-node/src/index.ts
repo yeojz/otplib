@@ -9,6 +9,31 @@ import {
 } from "@otplib/core";
 
 /**
+ * OpenSSL digest name keyed by canonical algorithm name
+ *
+ * An explicit map rather than forwarding the caller's string: passing it
+ * straight through is how this plugin used to inherit OpenSSL's whole digest
+ * catalogue, accepting `md5`, `sha224` and `ripemd160`. Routing through a
+ * closed map makes that structural rather than a matter of validating first.
+ *
+ * The `satisfies` constraint forbids a key outside `HashAlgorithm` and
+ * requires every member of it.
+ */
+const OPENSSL_DIGESTS = {
+  sha1: "sha1",
+  sha256: "sha256",
+  sha512: "sha512",
+} as const satisfies Record<HashAlgorithm, string>;
+
+/**
+ * Algorithms this plugin can compute
+ *
+ * Derived from the digest map rather than written out again, so the declared
+ * set cannot disagree with what `hmac` actually handles.
+ */
+const SUPPORTED_ALGORITHMS = Object.keys(OPENSSL_DIGESTS) as readonly HashAlgorithm[];
+
+/**
  * Node.js crypto module implementation of CryptoPlugin
  *
  * This plugin uses Node.js's built-in crypto module which provides:
@@ -32,6 +57,11 @@ export class NodeCryptoPlugin implements CryptoPlugin {
   readonly name = "node";
 
   /**
+   * Algorithms this plugin can compute
+   */
+  readonly algorithms = SUPPORTED_ALGORITHMS;
+
+  /**
    * Compute HMAC using Node.js crypto module
    *
    * Synchronous implementation using createHmac.
@@ -48,8 +78,8 @@ export class NodeCryptoPlugin implements CryptoPlugin {
    * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
   hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
-    const alg = normalizeHashAlgorithm(algorithm, undefined, this.name);
-    const hmac = createHmac(alg, key);
+    const alg = normalizeHashAlgorithm(algorithm, { plugin: this.name });
+    const hmac = createHmac(OPENSSL_DIGESTS[alg], key);
     hmac.update(data);
     return new Uint8Array(hmac.digest());
   }

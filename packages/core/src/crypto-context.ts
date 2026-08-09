@@ -23,6 +23,23 @@ export class CryptoContext {
   }
 
   /**
+   * Resolve an algorithm against the plugin's own supported set
+   *
+   * A plugin that declares `algorithms` is rejected here, before delegating,
+   * rather than being left to discover the value it cannot handle.
+   *
+   * @param algorithm - The hash algorithm to resolve
+   * @returns The canonical lowercase algorithm
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
+   */
+  private normalize(algorithm: HashAlgorithm): HashAlgorithm {
+    return normalizeHashAlgorithm(algorithm, {
+      supported: this.crypto.algorithms,
+      plugin: this.crypto.name,
+    });
+  }
+
+  /**
    * Compute HMAC using the configured crypto plugin
    *
    * @param algorithm - The hash algorithm to use
@@ -35,7 +52,7 @@ export class CryptoContext {
   async hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
     // Normalized outside the try so the algorithm error surfaces as-is rather
     // than being rewrapped as an HMACError.
-    const normalized = normalizeHashAlgorithm(algorithm, undefined, this.crypto.name);
+    const normalized = this.normalize(algorithm);
 
     try {
       const result = this.crypto.hmac(normalized, key, data);
@@ -63,7 +80,7 @@ export class CryptoContext {
    * @throws {HMACError} If HMAC computation fails or if crypto plugin doesn't support sync operations
    */
   hmacSync(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
-    const normalized = normalizeHashAlgorithm(algorithm, undefined, this.crypto.name);
+    const normalized = this.normalize(algorithm);
 
     try {
       const result = this.crypto.hmac(normalized, key, data);
