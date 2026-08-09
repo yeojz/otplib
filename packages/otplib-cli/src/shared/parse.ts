@@ -51,7 +51,7 @@ function describeAlgorithm(alg: unknown): string {
  * Parse an algorithm from either input format.
  *
  * Delegates to core's `normalizeHashAlgorithm` so `otpauth://` URIs and
- * user-authored JSON accept exactly the same spellings - case and separators
+ * user-authored JSON accept exactly the same aliases - case and separators
  * are ignored, so `SHA1`, `sha1` and `SHA-256` all resolve. The CLI's own
  * casing (`SHA1`) is applied on the way out.
  */

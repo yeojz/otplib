@@ -936,8 +936,8 @@ describe("normalizeHashAlgorithm", () => {
     }
   });
 
-  describe("case-insensitive matching", () => {
-    const variants = [
+  describe("case-insensitive aliases", () => {
+    const aliases = [
       { input: "SHA1", expected: "sha1" },
       { input: "Sha1", expected: "sha1" },
       { input: "sHa1", expected: "sha1" },
@@ -947,17 +947,17 @@ describe("normalizeHashAlgorithm", () => {
       { input: "Sha512", expected: "sha512" },
     ] as const;
 
-    for (const { input, expected } of variants) {
-      it(`should normalize "${input}" to "${expected}"`, () => {
+    for (const { input, expected } of aliases) {
+      it(`should map "${input}" to "${expected}"`, () => {
         expect(normalizeHashAlgorithm(input)).toBe(expected);
       });
     }
   });
 
-  describe("separator-insensitive matching", () => {
-    // Every one of these names the same algorithm as its canonical form,
-    // so accepting them cannot silently substitute a different digest.
-    const variants = [
+  describe("separator aliases", () => {
+    // Every one of these is an alias of the canonical name it maps to, so
+    // accepting them cannot silently substitute a different digest.
+    const aliases = [
       { input: "SHA-1", expected: "sha1" },
       { input: "sha-1", expected: "sha1" },
       { input: "sha_1", expected: "sha1" },
@@ -967,8 +967,8 @@ describe("normalizeHashAlgorithm", () => {
       { input: "sha-512", expected: "sha512" },
     ] as const;
 
-    for (const { input, expected } of variants) {
-      it(`should normalize "${input}" to "${expected}"`, () => {
+    for (const { input, expected } of aliases) {
+      it(`should map "${input}" to "${expected}"`, () => {
         expect(normalizeHashAlgorithm(input)).toBe(expected);
       });
     }
@@ -983,12 +983,12 @@ describe("normalizeHashAlgorithm", () => {
       });
     }
 
-    // Only the exact aliases in the lookup table are accepted. These name no
-    // algorithm at all, so they are reported rather than reassembled into one.
-    const degenerateAliases = ["sha-2-5-6", "s-h-a-1", "-sha1", "sha1-", "sha512-", "sha__1"];
+    // Only the exact aliases in the lookup table are accepted. These are not
+    // aliases of anything, so they are reported rather than assembled into one.
+    const notAliases = ["sha-2-5-6", "s-h-a-1", "-sha1", "sha1-", "sha512-", "sha__1"];
 
-    for (const value of degenerateAliases) {
-      it(`should reject the degenerate form "${value}"`, () => {
+    for (const value of notAliases) {
+      it(`should reject "${value}"`, () => {
         expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
       });
     }

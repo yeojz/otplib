@@ -114,7 +114,8 @@ export function generate(uri: OTPAuthURI): string {
     const algorithm = normalizeHashAlgorithm(params.algorithm);
 
     if (algorithm !== "sha1") {
-      // Key Uri Format requires the uppercase, non-dashed spelling (SHA256/SHA512).
+      // Mapped to the uppercase, non-dashed name the Key Uri Format requires
+      // (SHA256/SHA512).
       queryParams.push(`algorithm=${algorithm.toUpperCase()}`);
     }
   }

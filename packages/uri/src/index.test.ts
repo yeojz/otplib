@@ -620,9 +620,9 @@ describe("URI", () => {
       expect(() => generate(baseURI("md5" as HashAlgorithm))).toThrow(AlgorithmUnsupportedError);
     });
 
-    // generate() and parse() accept the same spellings, so a URI that parses
+    // generate() and parse() accept the same aliases, so a URI that parses
     // can be regenerated without the caller having to canonicalize first.
-    it("should emit the canonical spelling for a dashed algorithm", () => {
+    it("should emit the canonical name for a dashed alias", () => {
       expect(generate(baseURI("SHA-256" as HashAlgorithm))).toContain("algorithm=SHA256");
     });
 

@@ -263,7 +263,7 @@ describe("parseJsonInput", () => {
     });
   });
 
-  // JSON input and otpauth:// URIs accept the same spellings, so a value
+  // JSON input and otpauth:// URIs accept the same aliases, so a value
   // copied out of one and pasted into the other keeps working.
   test("accepts dashed algorithm (SHA-1)", () => {
     expect(parseJsonInput('{"secret":"ABC","algorithm":"SHA-1"}').algorithm).toBe("SHA1");
@@ -279,7 +279,7 @@ describe("parseJsonInput", () => {
     );
   });
 
-  test("accepts case variants of sha1", () => {
+  test("accepts case aliases of sha1", () => {
     expect(parseJsonInput('{"secret":"ABC","algorithm":"sha1"}').algorithm).toBe("SHA1");
     expect(parseJsonInput('{"secret":"ABC","algorithm":"SHA1"}').algorithm).toBe("SHA1");
   });

@@ -27,10 +27,10 @@ const DIGEST_SIZES = [
 /**
  * Aliases that must resolve to a canonical algorithm
  *
- * Case and `-`/`_` separators are ignored, so every entry here names the same
- * algorithm as its canonical form.
+ * Case and `-`/`_` separators are ignored, so every entry here maps to the
+ * canonical name of the same algorithm.
  */
-const ALIAS_VARIANTS = [
+const ALIASES = [
   { input: "SHA1", canonical: "sha1" },
   { input: "Sha1", canonical: "sha1" },
   { input: "sHa1", canonical: "sha1" },
@@ -48,8 +48,8 @@ const ALIAS_VARIANTS = [
 /**
  * Values that must be rejected
  *
- * Includes the near misses that make separator stripping safe: `sha3-256` and
- * `sha-384` must not collapse onto a supported algorithm.
+ * Includes the near misses that make the alias table safe: `sha3-256` and
+ * `sha-384` must not map onto a supported algorithm.
  */
 const REJECTED_ALGORITHMS: readonly { label: string; value: unknown }[] = [
   ...[
@@ -63,8 +63,8 @@ const REJECTED_ALGORITHMS: readonly { label: string; value: unknown }[] = [
     " sha1",
     "",
     "----",
-    // Degenerate forms: only the exact aliases in core's lookup table name an
-    // algorithm, so these must not be reassembled into one.
+    // Not aliases of anything: only the exact entries in core's lookup table
+    // map to an algorithm, so these must not be assembled into one.
     "sha-2-5-6",
     "s-h-a-1",
     "-sha1",
@@ -200,8 +200,8 @@ export function createCryptoAlgorithmTests(ctx: CryptoAlgorithmTestContext): voi
       });
     });
 
-    describe("case- and separator-insensitive matching", () => {
-      for (const { input, canonical } of ALIAS_VARIANTS) {
+    describe("alias resolution", () => {
+      for (const { input, canonical } of ALIASES) {
         // Compares bytes rather than just asserting "did not throw": a plugin
         // that accepted "SHA1" and quietly computed SHA-512 would pass a
         // does-not-throw check, which is the bug being guarded against.

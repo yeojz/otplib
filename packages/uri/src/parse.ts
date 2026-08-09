@@ -194,7 +194,7 @@ function parseIntegerParameter(name: string, value: string, min: number): number
  * Parse algorithm string
  *
  * `otpauth://` URIs come from third-party issuers, several of which emit the
- * dashed spellings (`SHA-1`, `SHA-256`). Core's `normalizeHashAlgorithm`
+ * dashed aliases (`SHA-1`, `SHA-256`). Core's `normalizeHashAlgorithm`
  * accepts those and returns the canonical lowercase name, so this only has to
  * restate the rejection in this package's error type.
  */
