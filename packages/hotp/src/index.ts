@@ -69,7 +69,12 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
   // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
-  const algorithm = normalizeHashAlgorithm(rawAlgorithm);
+  // Checked against the configured plugin's own set, so a plugin supporting
+  // fewer algorithms reports what it actually accepts rather than the full set.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm, {
+    supported: crypto.algorithms,
+    plugin: crypto.name,
+  });
 
   const ctx = createCryptoContext(crypto);
   const counterBytes = counterToBytes(counter);
@@ -198,7 +203,12 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
   // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
-  const algorithm = normalizeHashAlgorithm(rawAlgorithm);
+  // Checked against the configured plugin's own set, so a plugin supporting
+  // fewer algorithms reports what it actually accepts rather than the full set.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm, {
+    supported: crypto.algorithms,
+    plugin: crypto.name,
+  });
 
   // Use custom validator if provided, otherwise default digit-only check
   if (hooks?.validateToken) {

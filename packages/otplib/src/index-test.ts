@@ -592,6 +592,59 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
           }),
         ).toThrow(AlgorithmUnsupportedError);
       });
+
+      // Option resolution checks against the configured plugin's own set, so
+      // the error names what that plugin accepts rather than the full
+      // allowlist. Also covers the `crypto` local hoisted in defaults.ts.
+      describe("narrowed crypto plugin", () => {
+        const sha1OnlyCrypto: CryptoPlugin = {
+          name: "sha1-only",
+          algorithms: ["sha1"],
+          hmac: (algorithm, key, data) => crypto.hmac(algorithm, key, data),
+          randomBytes: (length) => crypto.randomBytes(length),
+        };
+
+        it("should reject an algorithm the plugin does not support", () => {
+          expect(() =>
+            generateSync({
+              secret: RFC6238_SECRET,
+              algorithm: "sha512",
+              crypto: sha1OnlyCrypto,
+            }),
+          ).toThrow(AlgorithmUnsupportedError);
+        });
+
+        it("should report the plugin's own set rather than the full allowlist", () => {
+          expect(() =>
+            generateSync({
+              secret: RFC6238_SECRET,
+              algorithm: "sha512",
+              crypto: sha1OnlyCrypto,
+            }),
+          ).toThrow("Expected one of: sha1 ");
+
+          expect(() =>
+            generateSync({
+              secret: RFC6238_SECRET,
+              algorithm: "sha512",
+              crypto: sha1OnlyCrypto,
+            }),
+          ).toThrow("[plugin: sha1-only]");
+        });
+
+        it("should still produce the RFC 6238 vector for a supported algorithm", () => {
+          const token = generateSync({
+            secret: RFC6238_SECRET,
+            algorithm: "sha1",
+            digits: 8,
+            period: 30,
+            epoch: 59,
+            crypto: sha1OnlyCrypto,
+          });
+
+          expect(token).toBe("94287082");
+        });
+      });
     });
 
     describe("verifySync", () => {

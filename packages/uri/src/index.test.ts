@@ -647,6 +647,18 @@ describe("URI", () => {
       expect(parsed.params.algorithm).toBeUndefined();
     });
 
+    // This package is a string layer with no crypto plugin, so it validates
+    // against the full allowlist. A narrowed plugin elsewhere in the app must
+    // not make a URI unparseable or ungeneratable.
+    it("should accept every supported algorithm regardless of any plugin", () => {
+      for (const algorithm of ["sha1", "sha256", "sha512"] as const) {
+        const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${algorithm.toUpperCase()}`;
+
+        expect(parse(uri).params.algorithm).toBe(algorithm);
+        expect(() => generate(baseURI(algorithm))).not.toThrow();
+      }
+    });
+
     // parse() wraps the rejection in this package's InvalidParameterError while
     // generate() throws the core error directly; the cause is the bridge that
     // keeps the underlying rejection reachable from the parse side.

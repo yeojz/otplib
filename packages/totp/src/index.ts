@@ -77,7 +77,12 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
   validateTime(epoch);
   validatePeriod(period, guardrails);
   // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
-  const algorithm = normalizeHashAlgorithm(rawAlgorithm);
+  // Checked against the configured plugin's own set, so a plugin supporting
+  // fewer algorithms reports what it actually accepts rather than the full set.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm, {
+    supported: crypto.algorithms,
+    plugin: crypto.name,
+  });
 
   const counter = Math.floor((epoch - t0) / period);
 
@@ -259,7 +264,12 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   validateTime(epoch);
   validatePeriod(period, guardrails);
   // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
-  const algorithm = normalizeHashAlgorithm(rawAlgorithm);
+  // Checked against the configured plugin's own set, so a plugin supporting
+  // fewer algorithms reports what it actually accepts rather than the full set.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm, {
+    supported: crypto.algorithms,
+    plugin: crypto.name,
+  });
 
   // Use custom validator if provided, otherwise default digit-only check
   if (hooks?.validateToken) {

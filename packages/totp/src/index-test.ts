@@ -8,6 +8,7 @@
 import {
   stringToBytes,
   createGuardrails,
+  AlgorithmUnsupportedError,
   SecretTooLongError,
   SecretTooShortError,
   PeriodTooLargeError,
@@ -2843,6 +2844,55 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
             expect(STEAM_CHARS).toContain(ch);
           }
         });
+      });
+    });
+
+    // A plugin may support fewer algorithms than the library. Options
+    // resolution checks against that plugin's own set, so the error names what
+    // the configured plugin actually accepts instead of the full allowlist.
+    describe("narrowed crypto plugin", () => {
+      const sha1OnlyCrypto: CryptoPlugin = {
+        name: "sha1-only",
+        algorithms: ["sha1"],
+        hmac: (algorithm, key, data) => crypto.hmac(algorithm, key, data),
+        randomBytes: (length) => crypto.randomBytes(length),
+      };
+
+      it("should reject an algorithm the plugin does not support", async () => {
+        await expect(
+          generate({ secret, algorithm: "sha512", crypto: sha1OnlyCrypto }),
+        ).rejects.toThrow(AlgorithmUnsupportedError);
+      });
+
+      it("should report the plugin's own set rather than the full allowlist", async () => {
+        await expect(
+          generate({ secret, algorithm: "sha512", crypto: sha1OnlyCrypto }),
+        ).rejects.toThrow("[plugin: sha1-only]");
+
+        await expect(
+          generate({ secret, algorithm: "sha512", crypto: sha1OnlyCrypto }),
+        ).rejects.toThrow("Expected one of: sha1 ");
+      });
+
+      it("should still accept an algorithm the plugin supports", async () => {
+        const token = await generate({
+          secret,
+          algorithm: "sha1",
+          crypto: sha1OnlyCrypto,
+        });
+
+        expect(token).toMatch(/^\d{6}$/);
+      });
+
+      it("should reject on verify as well", async () => {
+        await expect(
+          verify({
+            secret,
+            token: "000000",
+            algorithm: "sha512",
+            crypto: sha1OnlyCrypto,
+          }),
+        ).rejects.toThrow(AlgorithmUnsupportedError);
       });
     });
   });
