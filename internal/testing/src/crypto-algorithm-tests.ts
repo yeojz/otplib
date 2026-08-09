@@ -25,12 +25,12 @@ const DIGEST_SIZES = [
 ] as const;
 
 /**
- * Alternate spellings that must resolve to a canonical algorithm
+ * Aliases that must resolve to a canonical algorithm
  *
  * Case and `-`/`_` separators are ignored, so every entry here names the same
  * algorithm as its canonical form.
  */
-const SPELLING_VARIANTS = [
+const ALIAS_VARIANTS = [
   { input: "SHA1", canonical: "sha1" },
   { input: "Sha1", canonical: "sha1" },
   { input: "sHa1", canonical: "sha1" },
@@ -63,8 +63,8 @@ const REJECTED_ALGORITHMS: readonly { label: string; value: unknown }[] = [
     " sha1",
     "",
     "----",
-    // Degenerate spellings: only the exact spellings in core's lookup table
-    // name an algorithm, so these must not be reassembled into one.
+    // Degenerate forms: only the exact aliases in core's lookup table name an
+    // algorithm, so these must not be reassembled into one.
     "sha-2-5-6",
     "s-h-a-1",
     "-sha1",
@@ -201,7 +201,7 @@ export function createCryptoAlgorithmTests(ctx: CryptoAlgorithmTestContext): voi
     });
 
     describe("case- and separator-insensitive matching", () => {
-      for (const { input, canonical } of SPELLING_VARIANTS) {
+      for (const { input, canonical } of ALIAS_VARIANTS) {
         // Compares bytes rather than just asserting "did not throw": a plugin
         // that accepted "SHA1" and quietly computed SHA-512 would pass a
         // does-not-throw check, which is the bug being guarded against.

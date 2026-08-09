@@ -204,7 +204,7 @@ export type AlgorithmUnsupportedContext = {
  * Error thrown when a hash algorithm is not recognised
  *
  * Names are matched ignoring case and separators, so `'SHA1'`, `'SHA-1'` and
- * `'sha_1'` are all accepted as `'sha1'`. A value that is not a spelling of a
+ * `'sha_1'` are all accepted as `'sha1'`. A value that is not an alias of a
  * supported algorithm is rejected rather than guessed at, because silently
  * substituting a different algorithm produces tokens that never match other
  * implementations.
@@ -239,7 +239,7 @@ export class AlgorithmUnsupportedError extends AlgorithmError {
  * Longest rejected value echoed back in an error message
  *
  * The value is caller-supplied and unbounded, while the message it lands in is
- * typically logged. No supported spelling exceeds seven characters, so anything
+ * typically logged. No supported alias exceeds seven characters, so anything
  * past this is noise.
  *
  * @internal

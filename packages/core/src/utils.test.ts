@@ -910,6 +910,21 @@ describe("HASH_ALGORITHMS", () => {
     expect(HASH_ALGORITHMS).toEqual(["sha1", "sha256", "sha512"]);
     expect(() => normalizeHashAlgorithm("md5")).toThrow(AlgorithmUnsupportedError);
   });
+
+  // Derived from the alias table rather than written out again. This array is
+  // both the default `supported` set and the intersection base, so an algorithm
+  // present in the table but missing here would be rejected at runtime while
+  // type-checking everywhere.
+  it("should contain exactly the algorithms that have aliases", () => {
+    for (const algorithm of HASH_ALGORITHMS) {
+      expect(normalizeHashAlgorithm(algorithm)).toBe(algorithm);
+      expect(normalizeHashAlgorithm(algorithm.replace("sha", "sha-"))).toBe(algorithm);
+    }
+  });
+
+  it("should list each algorithm exactly once", () => {
+    expect(new Set(HASH_ALGORITHMS).size).toBe(HASH_ALGORITHMS.length);
+  });
 });
 
 describe("normalizeHashAlgorithm", () => {
@@ -940,7 +955,7 @@ describe("normalizeHashAlgorithm", () => {
   });
 
   describe("separator-insensitive matching", () => {
-    // Every one of these names the same algorithm as its canonical spelling,
+    // Every one of these names the same algorithm as its canonical form,
     // so accepting them cannot silently substitute a different digest.
     const variants = [
       { input: "SHA-1", expected: "sha1" },
@@ -968,12 +983,12 @@ describe("normalizeHashAlgorithm", () => {
       });
     }
 
-    // Only the exact spellings in the lookup table are accepted. These name no
+    // Only the exact aliases in the lookup table are accepted. These name no
     // algorithm at all, so they are reported rather than reassembled into one.
-    const degenerateSpellings = ["sha-2-5-6", "s-h-a-1", "-sha1", "sha1-", "sha512-", "sha__1"];
+    const degenerateAliases = ["sha-2-5-6", "s-h-a-1", "-sha1", "sha1-", "sha512-", "sha__1"];
 
-    for (const value of degenerateSpellings) {
-      it(`should reject the degenerate spelling "${value}"`, () => {
+    for (const value of degenerateAliases) {
+      it(`should reject the degenerate form "${value}"`, () => {
         expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
       });
     }
@@ -1065,11 +1080,11 @@ describe("normalizeHashAlgorithm", () => {
       expect(normalizeHashAlgorithm("SHA256", { supported: ["sha1", "sha256"] })).toBe("sha256");
     });
 
-    it("should still accept separator spellings within the supported set", () => {
+    it("should still accept separator aliases within the supported set", () => {
       expect(normalizeHashAlgorithm("SHA-256", { supported: ["sha1", "sha256"] })).toBe("sha256");
     });
 
-    it("should not let a separator spelling escape the supported set", () => {
+    it("should not let a separator alias escape the supported set", () => {
       expect(() => normalizeHashAlgorithm("SHA-512", { supported: ["sha1", "sha256"] })).toThrow(
         AlgorithmUnsupportedError,
       );

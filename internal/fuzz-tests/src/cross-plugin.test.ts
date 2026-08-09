@@ -518,8 +518,8 @@ describe("Cross-plugin consistency tests", () => {
     it("should have every plugin reject unsupported algorithm names identically", async () => {
       // Matches core's normalization: case-insensitive with at most one `-`/`_`
       // between "sha" and the digest size, so a generated "SHA-1" is a
-      // *supported* spelling and must not be fed in here.
-      const isSupportedSpelling = (s: string) => /^sha[-_]?(1|256|512)$/.test(s.toLowerCase());
+      // *supported* alias and must not be fed in here.
+      const isSupportedAlias = (s: string) => /^sha[-_]?(1|256|512)$/.test(s.toLowerCase());
 
       const unsupportedAlgorithm = fc.oneof(
         fc.constantFrom(
@@ -540,7 +540,7 @@ describe("Cross-plugin consistency tests", () => {
         fc.asyncProperty(
           fc.uint8Array({ minLength: 1, maxLength: 64 }),
           fc.uint8Array({ minLength: 0, maxLength: 256 }),
-          unsupportedAlgorithm.filter((s) => !isSupportedSpelling(s)),
+          unsupportedAlgorithm.filter((s) => !isSupportedAlias(s)),
           async (key, data, algorithm) => {
             const outcomes = await Promise.all(
               cryptoPlugins.map((p) => captureHmac(p.plugin, algorithm, key, data)),

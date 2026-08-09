@@ -307,18 +307,13 @@ export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
 }
 
 /**
- * The hash algorithms supported for HMAC operations
- *
- * Frozen because it is the runtime allowlist `normalizeHashAlgorithm` checks
- * against, not merely a type-level constant - `as const` is erased at compile
- * time and would leave the exported array mutable, letting any in-process code
- * re-enable a weak digest globally.
- */
-export const HASH_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as const);
-
-/**
- * Every accepted spelling of each supported algorithm, grouped by the canonical
+ * Every accepted name for each supported algorithm, grouped by the canonical
  * name it resolves to
+ *
+ * Each list includes the canonical name itself, so the lookup built from this
+ * needs no separate case for it. (Strictly, a registry such as IANA's lists the
+ * canonical `Name` apart from its `Alias` entries; folding them together here
+ * keeps the lookup a single branch.)
  *
  * Enumerated rather than derived from a pattern. A pattern is a compressed
  * encoding of this list that can generalize past its intent - an earlier
@@ -328,18 +323,35 @@ export const HASH_ALGORITHMS = Object.freeze(["sha1", "sha256", "sha512"] as con
  *
  * The `satisfies` constraint is load-bearing. It requires an entry for every
  * member of {@link HashAlgorithm} and forbids keys outside it, so widening the
- * union fails to compile until spellings are supplied here.
+ * union fails to compile until aliases are supplied here.
  *
  * @internal
  */
-const HASH_ALGORITHM_SPELLINGS = {
+const HASH_ALGORITHM_ALIASES = {
   sha1: ["sha1", "sha-1", "sha_1"],
   sha256: ["sha256", "sha-256", "sha_256"],
   sha512: ["sha512", "sha-512", "sha_512"],
 } as const satisfies Record<HashAlgorithm, readonly string[]>;
 
 /**
- * Lowercased spelling to canonical algorithm
+ * The hash algorithms supported for HMAC operations
+ *
+ * Derived from {@link HASH_ALGORITHM_ALIASES} rather than written out again, so
+ * the runtime allowlist cannot disagree with the names that resolve to it. That
+ * matters because this array is both the default `supported` set and the
+ * intersection base in `normalizeHashAlgorithm`: an algorithm missing here is
+ * rejected at runtime no matter what the types say.
+ *
+ * Frozen because it is a runtime allowlist, not merely a type-level constant -
+ * types are erased at compile time and would leave the exported array mutable,
+ * letting any in-process code re-enable a weak digest globally.
+ */
+export const HASH_ALGORITHMS = Object.freeze(
+  Object.keys(HASH_ALGORITHM_ALIASES) as (keyof typeof HASH_ALGORITHM_ALIASES)[],
+);
+
+/**
+ * Lowercased name to canonical algorithm
  *
  * A `Map` rather than an object literal: `ALIAS_LOOKUP.get('__proto__')` is
  * `undefined`, whereas an object would resolve `'__proto__'`, `'constructor'`
@@ -349,8 +361,8 @@ const HASH_ALGORITHM_SPELLINGS = {
  * @internal
  */
 const ALIAS_LOOKUP: ReadonlyMap<string, HashAlgorithm> = new Map(
-  Object.entries(HASH_ALGORITHM_SPELLINGS).flatMap(([canonical, spellings]) =>
-    spellings.map((spelling) => [spelling, canonical as HashAlgorithm] as const),
+  Object.entries(HASH_ALGORITHM_ALIASES).flatMap(([canonical, aliases]) =>
+    aliases.map((alias) => [alias, canonical as HashAlgorithm] as const),
   ),
 );
 
@@ -375,13 +387,13 @@ export type NormalizeHashAlgorithmOptions = {
 /**
  * Normalize and validate a hash algorithm
  *
- * Matching ignores case and accepts the `-`/`_` separated spellings, so
- * `'SHA1'`, `'Sha1'`, `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`. This is
- * safe to be forgiving about: every accepted spelling names the *same*
- * algorithm. No spelling of any other digest appears in the table, so
- * `'sha3-256'` and `'sha-384'` are rejected outright.
+ * Matching ignores case and accepts the `-`/`_` separated aliases, so `'SHA1'`,
+ * `'Sha1'`, `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`. This is safe to be
+ * forgiving about: every accepted alias names the *same* algorithm. No alias of
+ * any other digest appears in the table, so `'sha3-256'` and `'sha-384'` are
+ * rejected outright.
  *
- * Anything that is not a spelling of a supported algorithm is rejected rather
+ * Anything that is not an alias of a supported algorithm is rejected rather
  * than guessed at, because substituting a *different* algorithm produces
  * self-consistent tokens that never match any other implementation - a failure
  * that only surfaces at enrollment time.
