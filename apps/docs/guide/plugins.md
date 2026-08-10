@@ -35,7 +35,7 @@ const validCrypto = new NodeCryptoPlugin();
 ## Choosing a Crypto Plugin
 
 ::: info Other Runtimes
-This section focuses on package selection. for specific setup instructions for **Deno** (using `npm:` specifiers) or **Bun**, please refer to the [Runtime Compatibility](./runtime-compatibility) guide.
+This section focuses on package selection. For specific setup instructions for **Deno** (using `npm:` specifiers) or **Bun**, please refer to the [Runtime Compatibility](./runtime-compatibility) guide.
 :::
 
 ### Node.js Applications
@@ -293,8 +293,9 @@ import { createCryptoPlugin } from "@otplib/core";
 const customCrypto = createCryptoPlugin({
   name: "custom",
   hmac: async (algorithm, key, data) => {
-    // `algorithm` is already canonical and validated - the factory checks it
-    // before calling this. Dispatch on it directly; do not re-validate.
+    // `algorithm` is already canonical - `sha1`, `sha256` or `sha512` - and,
+    // if you declared `algorithms`, already one of those. The factory checks
+    // before calling this, so dispatch directly and do not re-validate.
     return new Uint8Array();
   },
   randomBytes: (length) => {
@@ -319,9 +320,12 @@ Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Three rules apply:
 
    Who performs that check depends on how you build the plugin:
 
-   - **`createCryptoPlugin`** does it for you. Your `hmac` receives a canonical, validated name; calling
-     `normalizeHashAlgorithm` again inside it is redundant.
-   - **A class implementing `CryptoPlugin`** must call `normalizeHashAlgorithm` itself, as shown below.
+   - **`createCryptoPlugin`** does it for you. Your `hmac` receives a canonical name that is already
+     within `algorithms` when you declare one; calling `normalizeHashAlgorithm` again inside it is
+     redundant.
+   - **A class implementing `CryptoPlugin`** must call `normalizeHashAlgorithm` itself, passing
+     `supported: this.algorithms` whenever it declares a restricted set. Nothing else enforces the
+     declaration when the class is called directly.
 
    Matching ignores case and accepts an optional `-` or `_` before the digest size (`SHA1`, `SHA-1`,
    `sha_1` → `sha1`).
@@ -337,19 +341,31 @@ Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Three rules apply:
    } as const satisfies Record<HashAlgorithm, string>;
    ```
 
-   The `satisfies` clause is worth copying: it rejects a key outside `HashAlgorithm`, and requires every
-   member of it, so the map cannot drift from what the library supports.
+   The `satisfies` clause is worth copying: it rejects a key outside `HashAlgorithm`, and — because
+   `Record` requires every member — fails to compile if an algorithm is ever added without a mapping. Use
+   it whenever your plugin covers all three.
 
-3. **Declare `algorithms` if you support fewer than all three.** Derive it from the map above rather than
-   writing a second list, so the declaration cannot disagree with what the plugin actually dispatches:
+   A plugin that covers only some of them wants `Partial` instead, which still forbids unknown keys while
+   allowing a subset:
+
+   ```typescript
+   const ALGORITHM_MAP = {
+     sha1: "SHA-1",
+   } as const satisfies Partial<Record<HashAlgorithm, string>>;
+   ```
+
+3. **Declare `algorithms` if you support fewer than all three.** Derive it from the `Partial` map above
+   rather than writing a second list, so the declaration cannot disagree with what the plugin actually
+   dispatches:
 
    ```typescript
    const SUPPORTED_ALGORITHMS = Object.freeze(Object.keys(ALGORITHM_MAP) as HashAlgorithm[]);
    ```
 
-   Freeze it. `readonly` is erased at compile time, so an unfrozen array exposed as `plugin.algorithms`
-   could be mutated in-process to broaden what your plugin claims to support. (`createCryptoPlugin` copies
-   and freezes whatever you pass, so this only applies to class-based plugins.)
+   Freeze it, and note that `Object.keys(...) as readonly HashAlgorithm[]` does **not** do this — the
+   annotation is erased at compile time, leaving a mutable array that could be pushed to in-process to
+   broaden what your plugin claims to support. `Object.freeze` is what makes it hold at runtime.
+   (`createCryptoPlugin` copies and freezes whatever you pass, so this applies to class-based plugins.)
 
    `CryptoContext` reads this and rejects an unsupported algorithm _before_ delegating, so callers get a
    clear error rather than one raised from inside your plugin. Omit it to mean the full set. It can only
@@ -408,14 +424,34 @@ const customBase32 = createBase32Plugin({
 
 For more advanced behavior (stateful configuration, shared helpers, or multiple methods), you can extend a class that implements the plugin interface instead of using the factories. This is useful when you need lifecycle setup or richer internal structure.
 
+Unlike `createCryptoPlugin`, a class is responsible for enforcing its own algorithm contract — nothing
+wraps `hmac` on your behalf when it is called directly.
+
 ```typescript
-import type { CryptoPlugin } from "@otplib/core";
+import { normalizeHashAlgorithm } from "@otplib/core";
+import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
+
+const DIGESTS = {
+  sha1: "SHA-1",
+  sha256: "SHA-256",
+} as const satisfies Partial<Record<HashAlgorithm, string>>;
 
 class CustomCryptoPlugin implements CryptoPlugin {
   name = "custom";
 
-  hmac(algorithm, key, data) {
-    // your HMAC implementation here
+  // Derived from the map, and frozen so it cannot be broadened at runtime
+  algorithms = Object.freeze(Object.keys(DIGESTS) as HashAlgorithm[]);
+
+  hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array) {
+    const alg = normalizeHashAlgorithm(algorithm, {
+      supported: this.algorithms,
+      plugin: this.name,
+    });
+
+    // `alg` is canonical and within `algorithms` - safe to dispatch on
+    const digest = DIGESTS[alg as keyof typeof DIGESTS];
+
+    // your HMAC implementation here, using `digest`
     return new Uint8Array();
   }
 
