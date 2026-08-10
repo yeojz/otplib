@@ -1,13 +1,39 @@
 import { describe, it, expect, vi } from "vitest";
+import { createRestrictedCryptoAlgorithmTests } from "@repo/testing";
 import {
   createBase32Plugin,
+  createCryptoContext,
   createCryptoPlugin,
   stringToBytes,
   bytesToString,
+  AlgorithmUnsupportedError,
   Base32DecodeError,
   Base32EncodeError,
 } from "./index.js";
 import type { Base32Plugin, CryptoPlugin, HashAlgorithm } from "./types.js";
+
+/**
+ * A plugin restricted to sha1, built through the documented factory.
+ *
+ * `hmac` deliberately performs no validation of its own: the factory is
+ * responsible for enforcing the declared capability, so any rejection proves
+ * the factory did it rather than the implementation.
+ */
+const sha1OnlyPlugin = createCryptoPlugin({
+  name: "sha1-only",
+  algorithms: ["sha1"],
+  hmac: () => new Uint8Array(20),
+  randomBytes: (length: number) => new Uint8Array(length),
+});
+
+createRestrictedCryptoAlgorithmTests({
+  describe,
+  it,
+  expect,
+  crypto: sha1OnlyPlugin,
+  errorClass: AlgorithmUnsupportedError,
+  createContext: (plugin) => createCryptoContext(plugin as CryptoPlugin),
+});
 
 describe("createBase32Plugin", () => {
   describe("basic functionality", () => {

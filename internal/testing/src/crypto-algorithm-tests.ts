@@ -227,3 +227,76 @@ export function createCryptoAlgorithmTests(ctx: CryptoAlgorithmTestContext): voi
     });
   });
 }
+
+/**
+ * Context for the restricted-plugin conformance suite
+ */
+export type RestrictedCryptoTestContext = CryptoAlgorithmTestContext & {
+  /**
+   * Wraps a plugin so its calls go through `CryptoContext`, injected by the
+   * caller so this package does not need to depend on `@otplib/core`.
+   */
+  createContext: (plugin: CryptoPluginUnderTest) => {
+    hmac(algorithm: string, key: Uint8Array, data: Uint8Array): Promise<Uint8Array>;
+  };
+};
+
+/**
+ * Conformance suite for a plugin that declares fewer algorithms than the full
+ * set
+ *
+ * `algorithms` is a capability contract rather than advisory metadata: a plugin
+ * declaring `['sha1']` must reject `sha256` whether it is called directly or
+ * through `CryptoContext`. Only the direct path is the plugin's own doing - the
+ * context path proves the declaration is read rather than ignored.
+ *
+ * @param ctx - Test context whose `crypto` declares only `['sha1']`
+ */
+export function createRestrictedCryptoAlgorithmTests(ctx: RestrictedCryptoTestContext): void {
+  const { describe, it, expect, crypto, errorClass, createContext } = ctx;
+
+  const key = stringToBytes(RFC_TEST_SECRET);
+  const data = counterToBytes(0);
+
+  describe(`${crypto.name} crypto plugin - declared capability enforcement`, () => {
+    it("should declare only sha1", () => {
+      expect(crypto.algorithms).toEqual(["sha1"]);
+    });
+
+    describe("the declared algorithm", () => {
+      // The canonical name and its aliases must all still work - narrowing the
+      // set must not also narrow which names resolve to what is left.
+      for (const input of ["sha1", "SHA1", "Sha1", "SHA-1", "sha_1"]) {
+        it(`should compute a 20-byte digest for "${input}" directly`, async () => {
+          expect(await crypto.hmac(input, key, data)).toHaveLength(20);
+        });
+
+        it(`should compute a 20-byte digest for "${input}" through CryptoContext`, async () => {
+          expect(await createContext(crypto).hmac(input, key, data)).toHaveLength(20);
+        });
+      }
+    });
+
+    describe("undeclared algorithms", () => {
+      for (const input of ["sha256", "sha512", "SHA-256", "sha_512"]) {
+        it(`should reject "${input}" when called directly`, async () => {
+          const error = await captureError(() => crypto.hmac(input, key, data));
+
+          expect(error).toBeInstanceOf(errorClass);
+        });
+
+        it(`should reject "${input}" through CryptoContext`, async () => {
+          const error = await captureError(() => createContext(crypto).hmac(input, key, data));
+
+          expect(error).toBeInstanceOf(errorClass);
+        });
+      }
+
+      it("should name only the declared set in the error", async () => {
+        const error = await captureError(() => crypto.hmac("sha256", key, data));
+
+        expect((error as Error).message).toContain("Expected one of: sha1 ");
+      });
+    });
+  });
+}
