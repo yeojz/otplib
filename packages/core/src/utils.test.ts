@@ -973,8 +973,8 @@ describe("normalizeHashAlgorithm", () => {
       });
     }
 
-    // The whole safety argument for tolerating separators is that no other
-    // digest collapses onto a supported one. Pin the near misses.
+    // The whole safety argument for accepting separator aliases is that no
+    // other digest has one. Pin the near misses.
     const nearMisses = ["sha-3-256", "sha3-256", "sha-384", "sha-224", "sha-512-256", "sha-2"];
 
     for (const value of nearMisses) {

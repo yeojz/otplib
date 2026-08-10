@@ -25,8 +25,8 @@ export class CryptoContext {
   /**
    * Resolve an algorithm against the plugin's own supported set
    *
-   * A plugin that declares `algorithms` is rejected here, before delegating,
-   * rather than being left to discover the value it cannot handle.
+   * When a plugin declares `algorithms`, an unsupported value is rejected here
+   * rather than the plugin being left to discover it after delegation.
    *
    * @param algorithm - The hash algorithm to resolve
    * @returns The canonical lowercase algorithm
@@ -58,9 +58,9 @@ export class CryptoContext {
       const result = this.crypto.hmac(normalized, key, data);
       return result instanceof Promise ? await result : result;
     } catch (error) {
-      // A plugin supporting fewer algorithms than the full set rejects here,
-      // after the context's own check passed. That is still an algorithm
-      // rejection, not an HMAC failure - surface it as-is.
+      // Reachable when a plugin narrows its own set without declaring
+      // `algorithms` - the check above passed, so the plugin rejects instead.
+      // That is still an algorithm rejection, not an HMAC failure.
       if (error instanceof AlgorithmError) {
         throw error;
       }

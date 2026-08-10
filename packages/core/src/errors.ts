@@ -203,7 +203,8 @@ export type AlgorithmUnsupportedContext = {
 /**
  * Error thrown when a hash algorithm is not recognised
  *
- * Names are matched ignoring case and separators, so `'SHA1'`, `'SHA-1'` and
+ * Names are matched ignoring case, with an optional `-` or `_` before the
+ * digest size, so `'SHA1'`, `'SHA-1'` and
  * `'sha_1'` are all accepted as `'sha1'`. A value that is not an alias of a
  * supported algorithm is rejected rather than guessed at, because silently
  * substituting a different algorithm produces tokens that never match other
@@ -217,7 +218,7 @@ export type AlgorithmUnsupportedContext = {
  *   if (error instanceof AlgorithmUnsupportedError) {
  *     console.log(error.message);
  *     // Unsupported hash algorithm: "md5". Expected one of: sha1, sha256,
- *     // sha512 (case-insensitive, separators ignored)
+ *     // sha512 (case-insensitive, optional '-' or '_')
  *   }
  * }
  * ```
@@ -228,7 +229,7 @@ export class AlgorithmUnsupportedError extends AlgorithmError {
 
     super(
       `Unsupported hash algorithm: ${describeAlgorithmValue(value)}. ` +
-        `Expected one of: ${supported.join(", ")} (case-insensitive, separators ignored)` +
+        `Expected one of: ${supported.join(", ")} (case-insensitive, optional '-' or '_')` +
         (plugin ? ` [plugin: ${plugin}]` : ""),
     );
     this.name = "AlgorithmUnsupportedError";

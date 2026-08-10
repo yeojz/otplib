@@ -194,7 +194,7 @@ describe("AlgorithmUnsupportedError", () => {
   it("should list a narrowed supported set", () => {
     const error = new AlgorithmUnsupportedError("sha512", { supported: ["sha1", "sha256"] });
     expect(error.message).toContain(
-      "Expected one of: sha1, sha256 (case-insensitive, separators ignored)",
+      "Expected one of: sha1, sha256 (case-insensitive, optional '-' or '_')",
     );
   });
 

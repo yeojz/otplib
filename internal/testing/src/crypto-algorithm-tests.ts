@@ -27,8 +27,8 @@ const DIGEST_SIZES = [
 /**
  * Aliases that must resolve to a canonical algorithm
  *
- * Case and `-`/`_` separators are ignored, so every entry here maps to the
- * canonical name of the same algorithm.
+ * Case is ignored and a single `-` or `_` before the digest size is accepted,
+ * so every entry here maps to the canonical name of the same algorithm.
  */
 const ALIASES = [
   { input: "SHA1", canonical: "sha1" },

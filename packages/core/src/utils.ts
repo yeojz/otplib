@@ -387,11 +387,11 @@ export type NormalizeHashAlgorithmOptions = {
 /**
  * Normalize and validate a hash algorithm
  *
- * Matching ignores case and accepts the `-`/`_` separated aliases, so `'SHA1'`,
- * `'Sha1'`, `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`. This is safe to be
- * forgiving about: every accepted alias names the *same* algorithm. No alias of
- * any other digest appears in the table, so `'sha3-256'` and `'sha-384'` are
- * rejected outright.
+ * Matching ignores case and accepts an optional `-` or `_` before the digest
+ * size, so `'SHA1'`, `'Sha1'`, `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`.
+ * This is safe to be forgiving about: every accepted alias names the *same*
+ * algorithm. No alias of any other digest appears in the table, so `'sha3-256'`
+ * and `'sha-384'` are rejected outright.
  *
  * Anything that is not an alias of a supported algorithm is rejected rather
  * than guessed at, because substituting a *different* algorithm produces

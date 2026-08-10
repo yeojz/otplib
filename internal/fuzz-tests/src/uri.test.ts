@@ -300,7 +300,7 @@ describe("URI fuzz tests", () => {
 
   describe("parameter validation", () => {
     it("should accept valid algorithm variations and map them to the exact canonical value", () => {
-      // Case and `-`/`_` separators are ignored, because third-party issuers
+      // Case is ignored and a single `-`/`_` is accepted, because issuers
       // emit dashed aliases. Each input must map to its OWN canonical
       // algorithm - never a silent substitution.
       const acceptedAlgorithmCases: { input: string; expected: "sha1" | "sha256" | "sha512" }[] = [

@@ -72,10 +72,10 @@ export class WebCryptoPlugin implements CryptoPlugin {
    *
    * Async implementation using SubtleCrypto.
    *
-   * The algorithm is matched ignoring case and separators, so `'SHA1'`,
-   * `'Sha1'` and Web Crypto's own `'SHA-1'` all resolve to `'sha1'`. Any other
-   * digest - including ones SubtleCrypto supports, such as `'SHA-384'` -
-   * throws `AlgorithmUnsupportedError`.
+   * The algorithm is matched ignoring case, with an optional `-` or `_` before
+   * the digest size, so `'SHA1'`, `'Sha1'` and Web Crypto's own `'SHA-1'` all
+   * resolve to `'sha1'`. Any other digest - including ones SubtleCrypto
+   * supports, such as `'SHA-384'` - throws `AlgorithmUnsupportedError`.
    *
    * @param algorithm - Hash algorithm to use
    * @param key - Secret key

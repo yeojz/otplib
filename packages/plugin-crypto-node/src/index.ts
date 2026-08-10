@@ -66,10 +66,10 @@ export class NodeCryptoPlugin implements CryptoPlugin {
    *
    * Synchronous implementation using createHmac.
    *
-   * The algorithm is matched ignoring case and separators, so `'SHA1'`,
-   * `'Sha1'` and `'SHA-1'` all resolve to `'sha1'`. Any other digest OpenSSL
-   * happens to support - `'md5'`, `'sha224'`, `'ripemd160'` - throws
-   * `AlgorithmUnsupportedError`.
+   * The algorithm is matched ignoring case, with an optional `-` or `_` before
+   * the digest size, so `'SHA1'`, `'Sha1'` and `'SHA-1'` all resolve to
+   * `'sha1'`. Any other digest OpenSSL happens to support - `'md5'`,
+   * `'sha224'`, `'ripemd160'` - throws `AlgorithmUnsupportedError`.
    *
    * @param algorithm - Hash algorithm to use
    * @param key - Secret key
