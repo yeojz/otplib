@@ -288,14 +288,13 @@ If you need a custom crypto or Base32 implementation, use the `createCryptoPlugi
 ### Custom Crypto
 
 ```typescript
-import { createCryptoPlugin, normalizeHashAlgorithm } from "@otplib/core";
+import { createCryptoPlugin } from "@otplib/core";
 
 const customCrypto = createCryptoPlugin({
   name: "custom",
   hmac: async (algorithm, key, data) => {
-    const alg = normalizeHashAlgorithm(algorithm, { plugin: "custom" });
-
-    // your HMAC implementation here, dispatching on `alg`
+    // `algorithm` is already canonical and validated - the factory checks it
+    // before calling this. Dispatch on it directly; do not re-validate.
     return new Uint8Array();
   },
   randomBytes: (length) => {
@@ -313,11 +312,20 @@ const customCrypto = createCryptoPlugin({
 
 Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Three rules apply:
 
-1. **Never fall back to a default.** Pass the value through `normalizeHashAlgorithm`, which ignores case and
-   accepts an optional `-` or `_` before the digest size (`SHA1`, `SHA-1`, `sha_1` → `sha1`), throwing
-   `AlgorithmUnsupportedError` for anything else.
-   Silently substituting a _different_ algorithm produces tokens that are self-consistent but never match
-   other implementations - the failure only shows up against a real authenticator app.
+1. **Never fall back to a default.** An unrecognised name must throw `AlgorithmUnsupportedError`, never
+   resolve to some other digest — silently substituting a _different_ algorithm produces tokens that are
+   self-consistent but never match other implementations, and the failure only shows up against a real
+   authenticator app.
+
+   Who performs that check depends on how you build the plugin:
+
+   - **`createCryptoPlugin`** does it for you. Your `hmac` receives a canonical, validated name; calling
+     `normalizeHashAlgorithm` again inside it is redundant.
+   - **A class implementing `CryptoPlugin`** must call `normalizeHashAlgorithm` itself, as shown below.
+
+   Matching ignores case and accepts an optional `-` or `_` before the digest size (`SHA1`, `SHA-1`,
+   `sha_1` → `sha1`).
+
 2. **Map inside the plugin.** If the implementation you wrap names algorithms differently, translate
    the canonical name locally rather than expecting callers to adapt. The Web Crypto plugin does exactly this:
 
@@ -336,8 +344,12 @@ Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Three rules apply:
    writing a second list, so the declaration cannot disagree with what the plugin actually dispatches:
 
    ```typescript
-   const SUPPORTED_ALGORITHMS = Object.keys(ALGORITHM_MAP) as readonly HashAlgorithm[];
+   const SUPPORTED_ALGORITHMS = Object.freeze(Object.keys(ALGORITHM_MAP) as HashAlgorithm[]);
    ```
+
+   Freeze it. `readonly` is erased at compile time, so an unfrozen array exposed as `plugin.algorithms`
+   could be mutated in-process to broaden what your plugin claims to support. (`createCryptoPlugin` copies
+   and freezes whatever you pass, so this only applies to class-based plugins.)
 
    `CryptoContext` reads this and rejects an unsupported algorithm _before_ delegating, so callers get a
    clear error rather than one raised from inside your plugin. Omit it to mean the full set. It can only
@@ -370,8 +382,9 @@ Omitting `supported` here would leave the plugin accepting an algorithm it adver
 whenever it is called directly.
 :::
 
-`CryptoContext` also normalizes before delegating, so plugins used through the library are protected either
-way - but a plugin called directly should still validate its own input.
+`CryptoContext` normalizes before delegating too, so a plugin reached through the library is covered
+regardless. That is a backstop, not a substitute: a class-based plugin is a public entry point in its own
+right and must hold its contract when called directly.
 
 ### Custom Base32
 
