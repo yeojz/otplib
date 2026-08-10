@@ -158,11 +158,22 @@ export function createBase32Plugin(options: CreateBase32PluginOptions): Base32Pl
 export function createCryptoPlugin(options: CreateCryptoPluginOptions): CryptoPlugin {
   const { name = "custom", algorithms, hmac, randomBytes, constantTimeEqual: cte } = options;
 
+  // Copied and frozen, never held by reference. `readonly` is erased at compile
+  // time, so retaining the caller's array would let them push to it after
+  // construction and broaden a restricted plugin's capability - and the copy is
+  // what both the declaration and the check below read, so the two cannot
+  // diverge.
+  const supportedAlgorithms = algorithms ? Object.freeze([...algorithms]) : undefined;
+
   return Object.freeze({
     name,
-    ...(algorithms ? { algorithms } : {}),
+    ...(supportedAlgorithms ? { algorithms: supportedAlgorithms } : {}),
     hmac: (algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array) =>
-      hmac(normalizeHashAlgorithm(algorithm, { supported: algorithms, plugin: name }), key, data),
+      hmac(
+        normalizeHashAlgorithm(algorithm, { supported: supportedAlgorithms, plugin: name }),
+        key,
+        data,
+      ),
     randomBytes,
     constantTimeEqual: cte ?? constantTimeEqual,
   });

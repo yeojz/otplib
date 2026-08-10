@@ -26,9 +26,11 @@ const HASH_FNS = {
  * Algorithms this plugin can compute
  *
  * Derived from the dispatch map rather than written out again, so the declared
- * set cannot disagree with what `hmac` actually handles.
+ * set cannot disagree with what `hmac` actually handles. Frozen because
+ * `readonly` is erased at compile time, so an unfrozen array exposed as
+ * `plugin.algorithms` could be mutated in-process to broaden it.
  */
-const SUPPORTED_ALGORITHMS = Object.keys(HASH_FNS) as readonly HashAlgorithm[];
+const SUPPORTED_ALGORITHMS = Object.freeze(Object.keys(HASH_FNS) as HashAlgorithm[]);
 
 /**
  * Pure JavaScript implementation of CryptoPlugin

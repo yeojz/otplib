@@ -263,6 +263,35 @@ export function createRestrictedCryptoAlgorithmTests(ctx: RestrictedCryptoTestCo
       expect(crypto.algorithms).toEqual(["sha1"]);
     });
 
+    // `readonly` is erased at compile time, so the declaration has to be frozen
+    // to actually hold. An unfrozen array could be pushed to in-process to
+    // broaden what the plugin accepts.
+    describe("immutability of the declaration", () => {
+      it("should expose a frozen array", () => {
+        expect(Object.isFrozen(crypto.algorithms)).toBe(true);
+      });
+
+      it("should not accept a pushed algorithm", () => {
+        expect(() => (crypto.algorithms as unknown as string[]).push("sha256")).toThrow();
+        expect(crypto.algorithms).toEqual(["sha1"]);
+      });
+
+      it("should still reject sha256 after an attempted mutation", async () => {
+        try {
+          (crypto.algorithms as unknown as string[]).push("sha256");
+        } catch {
+          // Frozen, as asserted above - the point is what happens next.
+        }
+
+        expect(await captureError(() => crypto.hmac("sha256", key, data))).toBeInstanceOf(
+          errorClass,
+        );
+        expect(
+          await captureError(() => createContext(crypto).hmac("sha256", key, data)),
+        ).toBeInstanceOf(errorClass);
+      });
+    });
+
     describe("the declared algorithm", () => {
       // The canonical name and its aliases must all still work - narrowing the
       // set must not also narrow which names resolve to what is left.
