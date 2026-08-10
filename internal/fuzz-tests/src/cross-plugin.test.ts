@@ -460,7 +460,12 @@ describe("Cross-plugin consistency tests", () => {
     });
   });
 
-  describe("Algorithm handling agreement across all plugins", () => {
+  // Canonical-algorithm byte equality is already covered by the pairwise
+  // "HMAC output consistency" suite above, which now includes Web Crypto. What
+  // is not covered anywhere else is that all plugins reject the *same*
+  // arbitrary inputs with the *same* error class - the divergence this change
+  // exists to fix.
+  describe("Algorithm rejection agreement across all plugins", () => {
     // Captures either a synchronous throw or a rejected promise, so plugins
     // with sync-capable hmac() and async-only hmac() are compared uniformly.
     async function captureHmac(
@@ -476,44 +481,6 @@ describe("Cross-plugin consistency tests", () => {
         return { ok: false, error };
       }
     }
-
-    it.each(["sha1", "sha256", "sha512"] as const)(
-      "should have every plugin return identical bytes for %s",
-      async (algorithm) => {
-        await fc.assert(
-          fc.asyncProperty(
-            fc.uint8Array({ minLength: 1, maxLength: 64 }),
-            fc.uint8Array({ minLength: 0, maxLength: 256 }),
-            async (key, data) => {
-              const outcomes = await Promise.all(
-                cryptoPlugins.map((p) => captureHmac(p.plugin, algorithm, key, data)),
-              );
-
-              for (let i = 0; i < outcomes.length; i++) {
-                const outcome = outcomes[i];
-                if (!outcome.ok) {
-                  throw new Error(
-                    `${cryptoPlugins[i].name} threw for canonical algorithm "${algorithm}": ${String(outcome.error)}`,
-                  );
-                }
-              }
-
-              const first = outcomes[0] as { ok: true; value: Uint8Array };
-              for (let i = 1; i < outcomes.length; i++) {
-                const current = outcomes[i] as { ok: true; value: Uint8Array };
-                expect({
-                  plugin: cryptoPlugins[i].name,
-                  bytes: Array.from(current.value),
-                }).toEqual({
-                  plugin: cryptoPlugins[i].name,
-                  bytes: Array.from(first.value),
-                });
-              }
-            },
-          ),
-        );
-      },
-    );
 
     it("should have every plugin reject unsupported algorithm names identically", async () => {
       // Matches core's normalization: case-insensitive with at most one `-`/`_`
