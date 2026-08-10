@@ -153,7 +153,13 @@ function parseQueryString(queryString: string): MutableOTPAuthParams {
         params.issuer = value;
         break;
       case "algorithm":
-        params.algorithm = parseAlgorithm(value);
+        // `?algorithm=` carries no value. The Key Uri Format makes this
+        // parameter optional with a SHA-1 default, so an empty one is treated
+        // as omitted rather than as an invalid value - which is also what the
+        // CLI parser does with the same URI. Any non-empty value stays strict.
+        if (value !== "") {
+          params.algorithm = parseAlgorithm(value);
+        }
         break;
       case "digits":
         params.digits = parseDigits(value);

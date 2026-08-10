@@ -4,6 +4,8 @@ import { formatErrorMessage } from "./parse.js";
 import { AlgorithmUnsupportedError } from "@otplib/core";
 import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 
+import { InvalidParameterError } from "./types.js";
+
 import type { OTPAuthURI } from "./types.js";
 import type { HashAlgorithm } from "@otplib/core";
 
@@ -656,6 +658,33 @@ describe("URI", () => {
 
         expect(parse(uri).params.algorithm).toBe(algorithm);
         expect(() => generate(baseURI(algorithm))).not.toThrow();
+      }
+    });
+
+    // The Key Uri Format makes `algorithm` optional with a SHA-1 default, so
+    // `?algorithm=` carries no value and is treated as omitted - the same URI
+    // the CLI parser already accepts.
+    describe("empty algorithm parameter", () => {
+      const emptyParam = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=`;
+      const noParam = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}`;
+
+      it("should parse successfully", () => {
+        expect(() => parse(emptyParam)).not.toThrow();
+      });
+
+      it("should leave the algorithm undefined, matching an absent parameter", () => {
+        expect(parse(emptyParam).params.algorithm).toBeUndefined();
+        expect(parse(emptyParam).params.algorithm).toBe(parse(noParam).params.algorithm);
+      });
+
+      // Only the empty case is forgiving. Anything actually present is still
+      // held to the alias table.
+      for (const value of ["md5", "sha-384", "sha3-256", "%20", "sha%201", "not-an-algorithm"]) {
+        it(`should still throw InvalidParameterError for "?algorithm=${value}"`, () => {
+          expect(() =>
+            parse(`otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${value}`),
+          ).toThrow(InvalidParameterError);
+        });
       }
     });
 
