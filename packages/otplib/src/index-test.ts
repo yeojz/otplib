@@ -593,9 +593,9 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         ).toThrow(AlgorithmUnsupportedError);
       });
 
-      // Option resolution checks against the configured plugin's own set, so
-      // the error names what that plugin accepts rather than the full
-      // allowlist. Also covers the `crypto` local hoisted in defaults.ts.
+      // The facade delegates to HOTP/TOTP, which check against the configured
+      // plugin's own set - so the error names what that plugin accepts rather
+      // than the full allowlist, without the facade normalizing again itself.
       describe("narrowed crypto plugin", () => {
         const sha1OnlyCrypto: CryptoPlugin = {
           name: "sha1-only",
