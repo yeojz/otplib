@@ -344,6 +344,32 @@ Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Three rules apply:
    narrow - the value is intersected with `HASH_ALGORITHMS`, so listing a digest outside that set does not
    enable it.
 
+::: warning A declaration is a contract, not a hint
+`algorithms` must hold whether the plugin is reached through `CryptoContext` or called directly as
+`plugin.hmac(...)`. `createCryptoPlugin` enforces it for you — it validates before invoking your `hmac`,
+so the implementation only ever sees a canonical name it declared.
+
+A **class-based plugin enforces its own declaration**. Pass the declared set through when you normalize:
+
+```typescript
+class RestrictedCryptoPlugin implements CryptoPlugin {
+  readonly name = "restricted";
+  readonly algorithms = ["sha1"] as const;
+
+  hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
+    const alg = normalizeHashAlgorithm(algorithm, {
+      supported: this.algorithms,
+      plugin: this.name,
+    });
+    // ...
+  }
+}
+```
+
+Omitting `supported` here would leave the plugin accepting an algorithm it advertises it cannot compute
+whenever it is called directly.
+:::
+
 `CryptoContext` also normalizes before delegating, so plugins used through the library are protected either
 way - but a plugin called directly should still validate its own input.
 

@@ -84,7 +84,10 @@ export class WebCryptoPlugin implements CryptoPlugin {
    * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
   async hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
-    const alg = normalizeHashAlgorithm(algorithm, { plugin: this.name });
+    const alg = normalizeHashAlgorithm(algorithm, {
+      supported: this.algorithms,
+      plugin: this.name,
+    });
     const webCrypto = globalThis.crypto;
 
     if (!webCrypto?.subtle) {

@@ -76,7 +76,10 @@ export class NobleCryptoPlugin implements CryptoPlugin {
    * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
   hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
-    const alg = normalizeHashAlgorithm(algorithm, { plugin: this.name });
+    const alg = normalizeHashAlgorithm(algorithm, {
+      supported: this.algorithms,
+      plugin: this.name,
+    });
     return hmac(HASH_FNS[alg], key, data);
   }
 

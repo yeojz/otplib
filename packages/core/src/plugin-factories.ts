@@ -1,5 +1,5 @@
 import { Base32DecodeError, Base32EncodeError } from "./errors.js";
-import { constantTimeEqual } from "./utils.js";
+import { constantTimeEqual, normalizeHashAlgorithm } from "./utils.js";
 
 import type { Base32EncodeOptions, Base32Plugin, CryptoPlugin, HashAlgorithm } from "./types.js";
 
@@ -33,7 +33,24 @@ export type CreateCryptoPluginOptions = {
   name?: string;
 
   /**
+   * The algorithms this plugin can compute, when it supports fewer than all of
+   * {@link HASH_ALGORITHMS}
+   *
+   * Omit it unless the backing implementation is genuinely restricted - an
+   * absent value means the full set. Declaring it is enforced, not advisory:
+   * the factory rejects an undeclared algorithm before `hmac` is called, so the
+   * implementation below never sees a value it cannot handle.
+   *
+   * This can only narrow. The value is intersected with `HASH_ALGORITHMS`, so
+   * listing a digest outside that set does not enable it.
+   */
+  algorithms?: readonly HashAlgorithm[];
+
+  /**
    * Compute HMAC using the specified hash algorithm
+   *
+   * Receives the canonical lowercase name, already checked against
+   * `algorithms` - no validation is needed here.
    */
   hmac: (
     algorithm: HashAlgorithm,
@@ -107,6 +124,12 @@ export function createBase32Plugin(options: CreateBase32PluginOptions): Base32Pl
  * Use this factory when you need a custom cryptographic implementation
  * that doesn't fit the existing plugins (node, web, noble).
  *
+ * The returned plugin validates the algorithm before delegating, so `hmac`
+ * receives the canonical lowercase name and never has to guess at an
+ * unrecognised one. A plugin declaring `algorithms` is held to that
+ * declaration: anything outside it throws `AlgorithmUnsupportedError`, whether
+ * the plugin is called directly or through `CryptoContext`.
+ *
  * @example
  * ```ts
  * import { createCryptoPlugin } from '@otplib/core';
@@ -114,20 +137,32 @@ export function createBase32Plugin(options: CreateBase32PluginOptions): Base32Pl
  * const customCrypto = createCryptoPlugin({
  *   name: 'my-crypto',
  *   hmac: async (algorithm, key, data) => {
- *     // Custom HMAC implementation
+ *     // Custom HMAC implementation - `algorithm` is already validated
  *   },
  *   randomBytes: (length) => {
  *     // Custom random bytes implementation
  *   },
  * });
+ *
+ * // A plugin backed by a restricted implementation
+ * const sha1Only = createCryptoPlugin({
+ *   name: 'sha1-only',
+ *   algorithms: ['sha1'],
+ *   hmac: (algorithm, key, data) => computeSha1Hmac(key, data),
+ *   randomBytes: (length) => crypto.getRandomValues(new Uint8Array(length)),
+ * });
+ *
+ * sha1Only.hmac('sha256', key, data); // throws AlgorithmUnsupportedError
  * ```
  */
 export function createCryptoPlugin(options: CreateCryptoPluginOptions): CryptoPlugin {
-  const { name = "custom", hmac, randomBytes, constantTimeEqual: cte } = options;
+  const { name = "custom", algorithms, hmac, randomBytes, constantTimeEqual: cte } = options;
 
   return Object.freeze({
     name,
-    hmac,
+    ...(algorithms ? { algorithms } : {}),
+    hmac: (algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array) =>
+      hmac(normalizeHashAlgorithm(algorithm, { supported: algorithms, plugin: name }), key, data),
     randomBytes,
     constantTimeEqual: cte ?? constantTimeEqual,
   });

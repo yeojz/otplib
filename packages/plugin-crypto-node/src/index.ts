@@ -78,7 +78,10 @@ export class NodeCryptoPlugin implements CryptoPlugin {
    * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
   hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
-    const alg = normalizeHashAlgorithm(algorithm, { plugin: this.name });
+    const alg = normalizeHashAlgorithm(algorithm, {
+      supported: this.algorithms,
+      plugin: this.name,
+    });
     const hmac = createHmac(OPENSSL_DIGESTS[alg], key);
     hmac.update(data);
     return new Uint8Array(hmac.digest());
