@@ -568,7 +568,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(token).not.toBe("69342147");
       });
 
-      // Separators are stripped, so this must land on the same RFC 6238 vector
+      // The explicit dashed SHA-1 alias must land on the same RFC 6238 vector
       // as 'SHA1' rather than being rejected or routed to a different digest.
       it("should accept a dashed 'SHA-1' algorithm (RFC 6238 vector)", () => {
         const token = generateSync({
