@@ -1096,7 +1096,7 @@ describe("normalizeHashAlgorithm", () => {
 
     it("should list only the narrowed set in the error", () => {
       expect(() => normalizeHashAlgorithm("sha512", { supported: ["sha1"] })).toThrow(
-        "Expected one of: sha1 ",
+        "Expected one of: sha1",
       );
     });
 

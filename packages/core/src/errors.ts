@@ -206,12 +206,10 @@ export type AlgorithmUnsupportedContext = {
 /**
  * Error thrown when a hash algorithm is not recognised
  *
- * Names are matched ignoring case, with an optional `-` or `_` before the
- * digest size, so `'SHA1'`, `'SHA-1'` and
- * `'sha_1'` are all accepted as `'sha1'`. A value that is not an alias of a
- * supported algorithm is rejected rather than guessed at, because silently
- * substituting a different algorithm produces tokens that never match other
- * implementations.
+ * The message identifies the declared supported algorithms and, when
+ * applicable, the plugin that rejected the request. It deliberately does not
+ * render the caller-supplied value; callers should retain that input in their
+ * own error context.
  *
  * @example
  * ```typescript
@@ -220,80 +218,22 @@ export type AlgorithmUnsupportedContext = {
  * } catch (error) {
  *   if (error instanceof AlgorithmUnsupportedError) {
  *     console.log(error.message);
- *     // Unsupported hash algorithm: "md5". Expected one of: sha1, sha256,
- *     // sha512 (case-insensitive, optional '-' or '_')
+ *     // Unsupported hash algorithm. Expected one of: sha1, sha256, sha512
  *   }
  * }
  * ```
  */
 export class AlgorithmUnsupportedError extends AlgorithmError {
-  constructor(value: unknown, context: AlgorithmUnsupportedContext = {}) {
+  constructor(_value: unknown, context: AlgorithmUnsupportedContext = {}) {
     const { supported, plugin } = context;
 
     super(
-      `Unsupported hash algorithm: ${describeAlgorithmValue(value)}.` +
-        (supported
-          ? ` Expected one of: ${supported.join(", ") || "(none)"} (case-insensitive, optional '-' or '_')`
-          : "") +
+      "Unsupported hash algorithm." +
+        (supported ? ` Expected one of: ${supported.join(", ") || "(none)"}` : "") +
         (plugin ? ` [plugin: ${plugin}]` : ""),
     );
     this.name = "AlgorithmUnsupportedError";
   }
-}
-
-/**
- * Longest rejected value echoed back in an error message
- *
- * The value is caller-supplied and unbounded, while the message it lands in is
- * typically logged. No supported alias exceeds seven characters, so anything
- * past this is noise.
- *
- * @internal
- */
-const MAX_DESCRIBED_VALUE_LENGTH = 64;
-
-/**
- * Render a rejected value for an error message
- *
- * Constructing an error must never itself throw, or the caller sees a foreign
- * error instead of the `AlgorithmUnsupportedError` this module documents.
- * `String(value)` is not safe for that: a null-prototype object throws
- * `TypeError: Cannot convert object to primitive value`, and a hostile
- * `toString`/`Symbol.toPrimitive` throws whatever it likes.
- *
- * Non-strings are tagged with their type so a boxed `new String('sha1')` does
- * not produce the self-contradictory `Unsupported hash algorithm: sha1`.
- *
- * @internal
- */
-function describeAlgorithmValue(value: unknown): string {
-  if (typeof value === "string") {
-    return `"${truncateForMessage(value)}"`;
-  }
-
-  if (value === null || value === undefined) {
-    return String(value);
-  }
-
-  try {
-    return `${typeof value} (${truncateForMessage(String(value))})`;
-  } catch {
-    // Unstringifiable - the type alone is all we can safely report.
-    return typeof value;
-  }
-}
-
-/**
- * Clamp a value echoed into an error message
- *
- * @internal
- */
-function truncateForMessage(value: string): string {
-  if (value.length <= MAX_DESCRIBED_VALUE_LENGTH) {
-    return value;
-  }
-
-  return `${value.slice(0, MAX_DESCRIBED_VALUE_LENGTH)}... (${value.length} characters)`;
 }
 
 /**
