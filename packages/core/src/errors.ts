@@ -189,8 +189,11 @@ export type AlgorithmUnsupportedContext = {
   /**
    * The algorithms accepted at the point of failure.
    *
-   * Defaults to the full set. A crypto plugin backed by a restricted
-   * implementation may support fewer.
+   * Supplied by the caller rather than defaulted here: this module has no
+   * business restating the allowlist, and `errors.ts` cannot import it from
+   * `utils.ts` without an import cycle. Every thrower inside the library
+   * passes it. Omitting it drops the "Expected one of" clause rather than
+   * guessing, so the message never names a set the caller did not vouch for.
    */
   supported?: readonly string[];
 
@@ -225,11 +228,13 @@ export type AlgorithmUnsupportedContext = {
  */
 export class AlgorithmUnsupportedError extends AlgorithmError {
   constructor(value: unknown, context: AlgorithmUnsupportedContext = {}) {
-    const { supported = ["sha1", "sha256", "sha512"], plugin } = context;
+    const { supported, plugin } = context;
 
     super(
-      `Unsupported hash algorithm: ${describeAlgorithmValue(value)}. ` +
-        `Expected one of: ${supported.join(", ")} (case-insensitive, optional '-' or '_')` +
+      `Unsupported hash algorithm: ${describeAlgorithmValue(value)}.` +
+        (supported
+          ? ` Expected one of: ${supported.join(", ") || "(none)"} (case-insensitive, optional '-' or '_')`
+          : "") +
         (plugin ? ` [plugin: ${plugin}]` : ""),
     );
     this.name = "AlgorithmUnsupportedError";

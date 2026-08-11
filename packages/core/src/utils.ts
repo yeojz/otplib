@@ -371,7 +371,14 @@ const ALIAS_LOOKUP: ReadonlyMap<string, HashAlgorithm> = new Map(
  */
 export type NormalizeHashAlgorithmOptions = {
   /**
-   * Accepted algorithms, defaulting to all of {@link HASH_ALGORITHMS}
+   * Accepted algorithms
+   *
+   * **Omitted and empty mean different things, deliberately.** Omitting it (or
+   * passing `undefined`) accepts all of {@link HASH_ALGORITHMS} - the
+   * backward-compatible reading for a `CryptoPlugin` written before
+   * `algorithms` existed, which supports the full set by definition. An
+   * explicit `[]` declares support for nothing and rejects every algorithm; it
+   * must never fall back to the full set, or a plugin could not express that.
    *
    * Intersected with {@link HASH_ALGORITHMS}, so this can only ever narrow the
    * allowlist - a crypto plugin cannot use it to re-enable a weak digest.
@@ -417,12 +424,20 @@ export function normalizeHashAlgorithm(
   value: unknown,
   options: NormalizeHashAlgorithmOptions = {},
 ): HashAlgorithm {
-  // Intersected rather than trusted: `supported` reaches here from crypto
-  // plugins, including untyped ones, and must only ever narrow.
-  const supported = options.supported
-    ? HASH_ALGORITHMS.filter((algorithm) => options.supported?.includes(algorithm))
-    : HASH_ALGORITHMS;
-  const plugin = options.plugin;
+  // Tested against `undefined` rather than truthiness, because `[]` must not
+  // take the same branch as an omitted value: omitted means "the full set"
+  // (a plugin predating `algorithms` supports all of them), while `[]` means
+  // "none" and has to reject everything. Simplifying this to a `.length` check
+  // would silently turn an empty declaration back into the full set.
+  //
+  // The intersection is applied rather than trusting the input: `supported`
+  // reaches here from crypto plugins, including untyped ones, so it may only
+  // ever narrow.
+  const { supported: declared, plugin } = options;
+  const supported =
+    declared === undefined
+      ? HASH_ALGORITHMS
+      : HASH_ALGORITHMS.filter((algorithm) => declared.includes(algorithm));
 
   if (typeof value === "string") {
     const canonical = ALIAS_LOOKUP.get(value.toLowerCase());
@@ -758,7 +773,7 @@ export function getDigestSize(algorithm: HashAlgorithm): number {
     case "sha512":
       return 64;
     default:
-      throw new AlgorithmUnsupportedError(algorithm);
+      throw new AlgorithmUnsupportedError(algorithm, { supported: HASH_ALGORITHMS });
   }
 }
 

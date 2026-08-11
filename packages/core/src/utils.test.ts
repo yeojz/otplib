@@ -1112,10 +1112,41 @@ describe("normalizeHashAlgorithm", () => {
       expect(normalizeHashAlgorithm("sha1", { supported: widened })).toBe("sha1");
     });
 
-    it("should treat an empty supported set as accepting nothing", () => {
-      expect(() => normalizeHashAlgorithm("sha1", { supported: [] })).toThrow(
-        AlgorithmUnsupportedError,
-      );
+    // Omitted and empty are different declarations and must stay that way.
+    // Omitted is the backward-compatible reading for a plugin written before
+    // `algorithms` existed; empty is a plugin declaring it supports nothing.
+    describe("omitted versus explicitly empty", () => {
+      for (const algorithm of HASH_ALGORITHMS) {
+        it(`should accept "${algorithm}" when supported is omitted`, () => {
+          expect(normalizeHashAlgorithm(algorithm)).toBe(algorithm);
+          expect(normalizeHashAlgorithm(algorithm, {})).toBe(algorithm);
+          expect(normalizeHashAlgorithm(algorithm, { supported: undefined })).toBe(algorithm);
+        });
+
+        it(`should reject "${algorithm}" when supported is empty`, () => {
+          expect(() => normalizeHashAlgorithm(algorithm, { supported: [] })).toThrow(
+            AlgorithmUnsupportedError,
+          );
+        });
+
+        it(`should reject "${algorithm}" unless a restricted set names it`, () => {
+          const restricted: HashAlgorithm[] = ["sha256"];
+
+          if (algorithm === "sha256") {
+            expect(normalizeHashAlgorithm(algorithm, { supported: restricted })).toBe(algorithm);
+          } else {
+            expect(() => normalizeHashAlgorithm(algorithm, { supported: restricted })).toThrow(
+              AlgorithmUnsupportedError,
+            );
+          }
+        });
+      }
+
+      // An empty set has nothing to list, so the message must not read
+      // "Expected one of: " with nothing after it.
+      it("should render an empty supported set legibly", () => {
+        expect(() => normalizeHashAlgorithm("sha1", { supported: [] })).toThrow("(none)");
+      });
     });
   });
 });

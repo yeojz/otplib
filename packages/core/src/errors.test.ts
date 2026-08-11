@@ -175,9 +175,28 @@ describe("AlgorithmUnsupportedError", () => {
   });
 
   it("should quote a string value and list the supported algorithms", () => {
-    const error = new AlgorithmUnsupportedError("md5");
+    const error = new AlgorithmUnsupportedError("md5", {
+      supported: ["sha1", "sha256", "sha512"],
+    });
     expect(error.message).toContain('"md5"');
     expect(error.message).toContain("sha1, sha256, sha512");
+  });
+
+  // The allowlist lives in utils.ts, which this module cannot import without a
+  // cycle. Rather than restate it here and risk the two drifting, the clause is
+  // dropped when the thrower does not supply one - every thrower in the library
+  // does.
+  it("should omit the expected-set clause when no supported set is given", () => {
+    const error = new AlgorithmUnsupportedError("md5");
+
+    expect(error.message).toBe('Unsupported hash algorithm: "md5".');
+    expect(error.message).not.toContain("Expected one of");
+  });
+
+  it("should render an empty supported set legibly", () => {
+    const error = new AlgorithmUnsupportedError("sha1", { supported: [] });
+
+    expect(error.message).toContain("Expected one of: (none)");
   });
 
   it("should render non-string values without quotes", () => {

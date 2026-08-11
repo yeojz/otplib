@@ -22,7 +22,11 @@ import { AlgorithmUnsupportedError } from "@otplib/core";
 
 import type { CryptoPlugin, Base32Plugin, HashAlgorithm } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
-import { TEST_SECRET_HOTP_BASE32, TEST_SECRET_BUG_REPORT } from "@repo/testing";
+import {
+  TEST_SECRET_HOTP_BASE32,
+  TEST_SECRET_BUG_REPORT,
+  RFC_TEST_SECRET_BASE32,
+} from "@repo/testing";
 
 export type OtplibTestContext = TestContext<CryptoPlugin, Base32Plugin> & {
   otplib: {
@@ -38,9 +42,6 @@ export type OtplibTestContext = TestContext<CryptoPlugin, Base32Plugin> & {
 };
 
 const TEST_SECRET = TEST_SECRET_HOTP_BASE32;
-
-/** RFC 6238 Appendix B test secret ("12345678901234567890") in Base32 */
-const RFC6238_SECRET = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
 
 /**
  * Creates the otplib test suite with injected dependencies
@@ -556,7 +557,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
       // RFC 6238 vector value.
       it("should case-fold an uppercase 'SHA1' algorithm (RFC 6238 vector)", () => {
         const token = generateSync({
-          secret: RFC6238_SECRET,
+          secret: RFC_TEST_SECRET_BASE32,
           algorithm: "SHA1" as HashAlgorithm,
           digits: 8,
           period: 30,
@@ -571,7 +572,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
       // as 'SHA1' rather than being rejected or routed to a different digest.
       it("should accept a dashed 'SHA-1' algorithm (RFC 6238 vector)", () => {
         const token = generateSync({
-          secret: RFC6238_SECRET,
+          secret: RFC_TEST_SECRET_BASE32,
           algorithm: "SHA-1" as HashAlgorithm,
           digits: 8,
           period: 30,
@@ -584,7 +585,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
       it("should throw AlgorithmUnsupportedError for an unsupported digest", () => {
         expect(() =>
           generateSync({
-            secret: RFC6238_SECRET,
+            secret: RFC_TEST_SECRET_BASE32,
             algorithm: "sha-384" as HashAlgorithm,
             digits: 8,
             period: 30,
@@ -607,7 +608,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         it("should reject an algorithm the plugin does not support", () => {
           expect(() =>
             generateSync({
-              secret: RFC6238_SECRET,
+              secret: RFC_TEST_SECRET_BASE32,
               algorithm: "sha512",
               crypto: sha1OnlyCrypto,
             }),
@@ -617,7 +618,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         it("should report the plugin's own set rather than the full allowlist", () => {
           expect(() =>
             generateSync({
-              secret: RFC6238_SECRET,
+              secret: RFC_TEST_SECRET_BASE32,
               algorithm: "sha512",
               crypto: sha1OnlyCrypto,
             }),
@@ -625,7 +626,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
 
           expect(() =>
             generateSync({
-              secret: RFC6238_SECRET,
+              secret: RFC_TEST_SECRET_BASE32,
               algorithm: "sha512",
               crypto: sha1OnlyCrypto,
             }),
@@ -634,7 +635,7 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
 
         it("should still produce the RFC 6238 vector for a supported algorithm", () => {
           const token = generateSync({
-            secret: RFC6238_SECRET,
+            secret: RFC_TEST_SECRET_BASE32,
             algorithm: "sha1",
             digits: 8,
             period: 30,
