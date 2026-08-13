@@ -416,13 +416,21 @@ For strict RFC Compliance, enable padding.
 Google Authenticator and most standard apps use **SHA-1**.
 
 ```typescript
-import { generate } from "otplib";
+import { AlgorithmUnsupportedError, generate } from "otplib";
 
-// Using SHA-256
-const token = await generate({
-  secret,
-  algorithm: "sha256",
-});
+try {
+  // Using SHA-256
+  const token = await generate({
+    secret,
+    algorithm: "sha256",
+  });
+} catch (error) {
+  if (error instanceof AlgorithmUnsupportedError) {
+    console.error("The selected algorithm is not supported");
+  } else {
+    throw error;
+  }
+}
 ```
 
 Only `sha1`, `sha256` and `sha512` are supported. The name is matched ignoring case, with an optional
@@ -477,7 +485,8 @@ These utilities return an `OTPResult` object which discriminates on the `ok` pro
 Wrap synchronous functions like `otp.generateSync` or `otp.verifySync` (when used with synchronous plugins):
 
 ```typescript
-import { wrapResult, generateSync, OTPError } from "otplib";
+import { generateSync, wrapResult } from "otplib";
+import { OTPError } from "@otplib/core";
 
 // 1. Create your wrapped function
 // Note: Types are automatically inferred
@@ -549,6 +558,8 @@ OTPError (base class)
 ├── TokenError
 │   ├── TokenLengthError
 │   └── TokenFormatError
+├── AlgorithmError
+│   └── AlgorithmUnsupportedError
 ├── CryptoError
 │   ├── HMACError
 │   └── RandomBytesError
@@ -579,19 +590,20 @@ OTPError (base class)
 You can catch specific error types to handle different failure modes:
 
 ```typescript
-import {
-  generate,
-  SecretTooShortError,
-  TokenFormatError,
-  CryptoPluginMissingError,
-  OTPError,
-} from "otplib";
+import { AlgorithmError, AlgorithmUnsupportedError, HMACError, generate } from "otplib";
+import { SecretTooShortError, CryptoPluginMissingError, OTPError } from "@otplib/core";
 
 try {
   const token = await generate({ secret, crypto });
 } catch (error) {
   if (error instanceof SecretTooShortError) {
     console.error("Secret must be at least 16 bytes");
+  } else if (error instanceof AlgorithmUnsupportedError) {
+    console.error("The selected algorithm is not supported");
+  } else if (error instanceof AlgorithmError) {
+    console.error("The algorithm configuration is invalid");
+  } else if (error instanceof HMACError) {
+    console.error("The crypto plugin could not compute the HMAC");
   } else if (error instanceof CryptoPluginMissingError) {
     console.error("Please provide a crypto plugin");
   } else if (error instanceof OTPError) {
@@ -608,7 +620,7 @@ try {
 When errors originate from underlying plugins (crypto or Base32), otplib wraps them while preserving the original error via the `cause` property. This enables powerful debugging capabilities:
 
 ```typescript
-import { Base32DecodeError, HMACError } from "@otplib/core";
+import { Base32DecodeError } from "@otplib/core";
 
 try {
   const decoded = base32Context.decode("invalid!@#");
@@ -627,10 +639,13 @@ try {
 
 ### Error Types Reference
 
+`otplib` re-exports `AlgorithmError`, `AlgorithmUnsupportedError`, and `HMACError`. Import the
+remaining core-only error classes from `@otplib/core`.
+
 | Error Class                       | When Thrown                                      |
 | --------------------------------- | ------------------------------------------------ |
 | `AlgorithmError`                  | Base class for algorithm validation errors       |
-| `AlgorithmUnsupportedError`       | Algorithm is not sha1, sha256 or sha512          |
+| `AlgorithmUnsupportedError`       | Algorithm is invalid or unsupported by plugin    |
 | `AfterTimeStepRangeExceededError` | `afterTimeStep` exceeds max possible time step   |
 | `AfterTimeStepNegativeError`      | `afterTimeStep` is negative                      |
 | `AfterTimeStepNotIntegerError`    | `afterTimeStep` is not an integer (e.g., 1.5)    |
