@@ -403,6 +403,14 @@ describe("URI", () => {
       expect(parsed.params.issuer).toBe("Service");
     });
 
+    it("should skip malformed percent-encoding in a bare unknown parameter", () => {
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&malformed%ZZ&issuer=Service`;
+      const parsed = parse(uri);
+
+      expect(parsed.params.secret).toBe(TEST_SECRET_PARSE_BASE32);
+      expect(parsed.params.issuer).toBe("Service");
+    });
+
     it("should parse non-hyphenated algorithm names", () => {
       const sha1Uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=sha1`;
       expect(parse(sha1Uri).params.algorithm).toBe("sha1");
