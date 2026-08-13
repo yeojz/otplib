@@ -402,6 +402,25 @@ whenever it is called directly.
 regardless. That is a backstop, not a substitute: a class-based plugin is a public entry point in its own
 right and must hold its contract when called directly.
 
+#### Error boundaries
+
+Validation belongs at each public entry point, but not inside an already-protected implementation
+callback:
+
+- `createCryptoPlugin` is the public boundary for a factory plugin. It normalizes and checks the declared
+  `algorithms` before invoking your `hmac` callback, so the callback should dispatch directly without
+  repeating that validation.
+- A class-based plugin is its own public boundary. Its `hmac` method must normalize and enforce its
+  declaration because callers can invoke it without a `CryptoContext`.
+- `CryptoContext` is another public boundary. It checks a plugin's declared `algorithms` before delegation;
+  that pre-delegation failure is an `AlgorithmUnsupportedError` and the plugin is not called. After
+  delegation, any plugin failure is wrapped as `HMACError`, with the original value preserved as `cause`.
+  This includes an `AlgorithmUnsupportedError` raised by a class-based plugin whose narrower restriction
+  was not declared. Calling that plugin directly still exposes its original `AlgorithmUnsupportedError`.
+
+This layering avoids duplicate checks in factory callbacks while keeping every independently callable API
+safe and giving `CryptoContext` one consistent boundary for plugin failures.
+
 ### Custom Base32
 
 ```typescript

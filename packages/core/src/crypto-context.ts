@@ -1,4 +1,4 @@
-import { AlgorithmError, HMACError, RandomBytesError } from "./errors.js";
+import { HMACError, RandomBytesError } from "./errors.js";
 import { normalizeHashAlgorithm } from "./utils.js";
 
 import type { CryptoPlugin, HashAlgorithm } from "./types.js";
@@ -58,12 +58,6 @@ export class CryptoContext {
       const result = this.crypto.hmac(normalized, key, data);
       return result instanceof Promise ? await result : result;
     } catch (error) {
-      // Reachable when a plugin narrows its own set without declaring
-      // `algorithms` - the check above passed, so the plugin rejects instead.
-      // That is still an algorithm rejection, not an HMAC failure.
-      if (error instanceof AlgorithmError) {
-        throw error;
-      }
       const message = error instanceof Error ? error.message : String(error);
       throw new HMACError(message, { cause: error });
     }
@@ -82,19 +76,18 @@ export class CryptoContext {
   hmacSync(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
     const normalized = this.normalize(algorithm);
 
+    let result: Uint8Array | Promise<Uint8Array>;
     try {
-      const result = this.crypto.hmac(normalized, key, data);
-      if (result instanceof Promise) {
-        throw new HMACError("Crypto plugin does not support synchronous HMAC operations");
-      }
-      return result;
+      result = this.crypto.hmac(normalized, key, data);
     } catch (error) {
-      if (error instanceof HMACError || error instanceof AlgorithmError) {
-        throw error;
-      }
       const message = error instanceof Error ? error.message : String(error);
       throw new HMACError(message, { cause: error });
     }
+
+    if (result instanceof Promise) {
+      throw new HMACError("Crypto plugin does not support synchronous HMAC operations");
+    }
+    return result;
   }
 
   /**
