@@ -185,6 +185,27 @@ describe("parseOtpauthUri", () => {
     expect(result.algorithm).toBe("SHA1");
   });
 
+  test("defaults to SHA1 for a bare algorithm parameter", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
+  test.each([
+    "algorithm=SHA1&algorithm=SHA512",
+    "algorithm=SHA512&algorithm=SHA512",
+    "algorithm=&algorithm=SHA512",
+    "algorithm=SHA512&algorithm=",
+    "algorithm=&algorithm=",
+    "algorithm&algorithm=SHA512",
+    "algorithm=SHA512&algorithm",
+    "algorithm&algorithm",
+  ])("rejects duplicate algorithm parameters: %s", (query) => {
+    expect(() => parseOtpauthUri(`otpauth://totp/Test?secret=ABC&${query}`)).toThrow(
+      "Duplicate parameter: algorithm",
+    );
+  });
+
   test("parses 7 digits", () => {
     const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&digits=7");
 

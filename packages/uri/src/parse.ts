@@ -126,6 +126,7 @@ export function parse(uri: string): OTPAuthURI {
  */
 function parseQueryString(queryString: string): MutableOTPAuthParams {
   const params: MutableOTPAuthParams = {};
+  let algorithmSeen = false;
 
   if (!queryString) {
     return params;
@@ -135,6 +136,21 @@ function parseQueryString(queryString: string): MutableOTPAuthParams {
   for (const pair of pairs) {
     const equalIndex = pair.indexOf("=");
     if (equalIndex === -1) {
+      let key: string;
+      try {
+        key = decodeURIComponent(pair);
+      } catch {
+        // Preserve the existing behavior for malformed bare parameters: only
+        // key/value pairs participate in strict URI decoding.
+        continue;
+      }
+
+      if (key === "algorithm") {
+        if (algorithmSeen) {
+          throw new InvalidParameterError("algorithm", "duplicate parameter");
+        }
+        algorithmSeen = true;
+      }
       continue;
     }
 
@@ -153,6 +169,10 @@ function parseQueryString(queryString: string): MutableOTPAuthParams {
         params.issuer = value;
         break;
       case "algorithm":
+        if (algorithmSeen) {
+          throw new InvalidParameterError("algorithm", "duplicate parameter");
+        }
+        algorithmSeen = true;
         // `?algorithm=` carries no value. The Key Uri Format makes this
         // parameter optional with a SHA-1 default, so an empty one is treated
         // as omitted rather than as an invalid value - which is also what the

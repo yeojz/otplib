@@ -666,6 +666,7 @@ describe("URI", () => {
     // the CLI parser already accepts.
     describe("empty algorithm parameter", () => {
       const emptyParam = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=`;
+      const bareParam = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm`;
       const noParam = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}`;
 
       it("should parse successfully", () => {
@@ -677,12 +678,38 @@ describe("URI", () => {
         expect(parse(emptyParam).params.algorithm).toBe(parse(noParam).params.algorithm);
       });
 
+      it("should treat one bare algorithm parameter as omitted", () => {
+        expect(parse(bareParam).params.algorithm).toBeUndefined();
+        expect(parse(bareParam).params.algorithm).toBe(parse(noParam).params.algorithm);
+      });
+
       // Only the empty case is forgiving. Anything actually present is still
       // held to the alias table.
       for (const value of ["md5", "sha-384", "sha3-256", "%20", "sha%201", "not-an-algorithm"]) {
         it(`should still throw InvalidParameterError for "?algorithm=${value}"`, () => {
           expect(() =>
             parse(`otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${value}`),
+          ).toThrow(InvalidParameterError);
+        });
+      }
+    });
+
+    describe("duplicate algorithm parameters", () => {
+      const duplicateAlgorithms = [
+        "algorithm=SHA1&algorithm=SHA512",
+        "algorithm=SHA512&algorithm=SHA512",
+        "algorithm=&algorithm=SHA512",
+        "algorithm=SHA512&algorithm=",
+        "algorithm=&algorithm=",
+        "algorithm&algorithm=SHA512",
+        "algorithm=SHA512&algorithm",
+        "algorithm&algorithm",
+      ];
+
+      for (const query of duplicateAlgorithms) {
+        it(`should reject ${query}`, () => {
+          expect(() =>
+            parse(`otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&${query}`),
           ).toThrow(InvalidParameterError);
         });
       }
