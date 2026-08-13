@@ -1,3 +1,4 @@
+import { runInNewContext } from "node:vm";
 import { describe, it, expect, vi } from "vitest";
 import {
   CryptoContext,
@@ -7,6 +8,14 @@ import {
 } from "./index.js";
 import type { CryptoPlugin, HashAlgorithm } from "./types.js";
 import { AlgorithmUnsupportedError, HMACError, RandomBytesError } from "./errors.js";
+
+const foreignPromises = runInNewContext(`({
+  resolve: (value) => Promise.resolve(value),
+  reject: (reason) => Promise.reject(reason),
+})`) as {
+  resolve<T>(value: T): Promise<T>;
+  reject<T = never>(reason: unknown): Promise<T>;
+};
 
 /**
  * A plugin narrowed to sha1 only that validates internally but does not declare
@@ -36,6 +45,14 @@ function createDeclaredSha1OnlyPlugin(): CryptoPlugin {
     hmac: vi.fn().mockReturnValue(stringToBytes("digest")),
     randomBytes: vi.fn(),
   };
+}
+
+function createContextReturning(result: Uint8Array | Promise<Uint8Array>): CryptoContext {
+  return new CryptoContext({
+    name: "async-result",
+    hmac: vi.fn().mockReturnValue(result),
+    randomBytes: vi.fn(),
+  });
 }
 
 describe("CryptoContext", () => {
@@ -86,6 +103,57 @@ describe("CryptoContext", () => {
 
       expect(result).toEqual(mockResult);
       expect(mockPlugin.hmac).toHaveBeenCalledWith("sha256", key, data);
+    });
+
+    it.each([
+      [
+        "thenable",
+        (value: Uint8Array) =>
+          ({
+            then: (resolve: (resolved: Uint8Array) => void) => resolve(value),
+          }) as unknown as Promise<Uint8Array>,
+      ],
+      ["foreign Promise", (value: Uint8Array) => foreignPromises.resolve(value)],
+    ])("should await a resolving %s", async (_name, createResult) => {
+      const mockResult = stringToBytes("test");
+      const asyncResult = createResult(mockResult);
+      expect(asyncResult).not.toBeInstanceOf(Promise);
+
+      await expect(
+        createContextReturning(asyncResult).hmac(
+          "sha1",
+          stringToBytes("key"),
+          stringToBytes("data"),
+        ),
+      ).resolves.toEqual(mockResult);
+    });
+
+    it.each([
+      [
+        "thenable",
+        (reason: unknown) =>
+          ({
+            then: (_resolve: (value: Uint8Array) => void, reject: (rejected: unknown) => void) =>
+              reject(reason),
+          }) as unknown as Promise<Uint8Array>,
+      ],
+      ["foreign Promise", (reason: unknown) => foreignPromises.reject<Uint8Array>(reason)],
+    ])("should wrap a rejecting %s", async (_name, createResult) => {
+      const originalError = new Error("Async rejection");
+      const asyncResult = createResult(originalError);
+      expect(asyncResult).not.toBeInstanceOf(Promise);
+
+      try {
+        await createContextReturning(asyncResult).hmac(
+          "sha1",
+          stringToBytes("key"),
+          stringToBytes("data"),
+        );
+        expect.unreachable("expected HMAC computation to fail");
+      } catch (error) {
+        expect(error).toBeInstanceOf(HMACError);
+        expect((error as HMACError).cause).toBe(originalError);
+      }
     });
 
     it("should support all hash algorithms", async () => {
@@ -290,6 +358,35 @@ describe("CryptoContext", () => {
         expect((error as HMACError).cause).toBeUndefined();
       }
       expect(mockPlugin.hmac).toHaveBeenCalledTimes(1);
+    });
+
+    it("should reject a resolving foreign Promise", () => {
+      const foreignPromise = foreignPromises.resolve(stringToBytes("test"));
+      expect(foreignPromise).not.toBeInstanceOf(Promise);
+      const context = createContextReturning(foreignPromise);
+
+      expect(() => context.hmacSync("sha1", stringToBytes("key"), stringToBytes("data"))).toThrow(
+        "Crypto plugin does not support synchronous HMAC operations",
+      );
+    });
+
+    it("should observe and reject a rejecting thenable", async () => {
+      const originalError = new Error("Thenable rejection");
+      let observed = false;
+      const thenable = {
+        then: (_resolve: (value: Uint8Array) => void, reject: (reason: unknown) => void) => {
+          observed = true;
+          reject(originalError);
+        },
+      } as unknown as Promise<Uint8Array>;
+      const context = createContextReturning(thenable);
+
+      expect(() => context.hmacSync("sha1", stringToBytes("key"), stringToBytes("data"))).toThrow(
+        "Crypto plugin does not support synchronous HMAC operations",
+      );
+
+      await Promise.resolve();
+      expect(observed).toBe(true);
     });
 
     it("should throw HMACError on plugin error", () => {

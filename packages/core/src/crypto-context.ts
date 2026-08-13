@@ -3,6 +3,10 @@ import { normalizeHashAlgorithm } from "./utils.js";
 
 import type { CryptoPlugin, HashAlgorithm } from "./types.js";
 
+function isPromiseLike(value: Uint8Array | Promise<Uint8Array>): boolean {
+  return typeof (value as { then?: unknown }).then === "function";
+}
+
 /**
  * CryptoContext provides a unified interface for crypto operations
  * using a pluggable crypto backend
@@ -55,8 +59,7 @@ export class CryptoContext {
     const normalized = this.normalize(algorithm);
 
     try {
-      const result = this.crypto.hmac(normalized, key, data);
-      return result instanceof Promise ? await result : result;
+      return await this.crypto.hmac(normalized, key, data);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HMACError(message, { cause: error });
@@ -77,17 +80,22 @@ export class CryptoContext {
     const normalized = this.normalize(algorithm);
 
     let result: Uint8Array | Promise<Uint8Array>;
+    let asyncResult: PromiseLike<unknown> | undefined;
     try {
       result = this.crypto.hmac(normalized, key, data);
+      asyncResult = isPromiseLike(result) ? (result as PromiseLike<unknown>) : undefined;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HMACError(message, { cause: error });
     }
 
-    if (result instanceof Promise) {
+    if (asyncResult) {
+      // Attach a rejection handler before throwing the synchronous guard.
+      // Promise.resolve assimilates cross-realm promises and generic thenables.
+      void Promise.resolve(asyncResult).catch(() => undefined);
       throw new HMACError("Crypto plugin does not support synchronous HMAC operations");
     }
-    return result;
+    return result as Uint8Array;
   }
 
   /**
