@@ -148,6 +148,25 @@ describe("CryptoContext", () => {
       );
     });
 
+    it("should wrap a rejected plugin HMACError with cause preserved", async () => {
+      const originalError = new HMACError("Plugin failure");
+      const mockPlugin: CryptoPlugin = {
+        name: "mock",
+        hmac: vi.fn().mockRejectedValue(originalError),
+        randomBytes: vi.fn(),
+      };
+      const context = new CryptoContext(mockPlugin);
+
+      try {
+        await context.hmac("sha1", stringToBytes("key"), stringToBytes("data"));
+        expect.unreachable("expected HMAC computation to fail");
+      } catch (error) {
+        expect(error).toBeInstanceOf(HMACError);
+        expect(error).not.toBe(originalError);
+        expect((error as HMACError).cause).toBe(originalError);
+      }
+    });
+
     it("should throw HMACError with string error message", async () => {
       const mockPlugin: CryptoPlugin = {
         name: "mock",
@@ -260,10 +279,17 @@ describe("CryptoContext", () => {
       const key = stringToBytes("key");
       const data = stringToBytes("data");
 
-      expect(() => context.hmacSync("sha1", key, data)).toThrow(HMACError);
-      expect(() => context.hmacSync("sha1", key, data)).toThrow(
-        "HMAC computation failed: Crypto plugin does not support synchronous HMAC operations",
-      );
+      try {
+        context.hmacSync("sha1", key, data);
+        expect.unreachable("expected synchronous HMAC computation to fail");
+      } catch (error) {
+        expect(error).toBeInstanceOf(HMACError);
+        expect((error as HMACError).message).toBe(
+          "HMAC computation failed: Crypto plugin does not support synchronous HMAC operations",
+        );
+        expect((error as HMACError).cause).toBeUndefined();
+      }
+      expect(mockPlugin.hmac).toHaveBeenCalledTimes(1);
     });
 
     it("should throw HMACError on plugin error", () => {
