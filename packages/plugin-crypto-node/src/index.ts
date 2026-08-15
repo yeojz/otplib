@@ -31,7 +31,8 @@ const OPENSSL_DIGESTS = {
  * Derived from the digest map rather than written out again, so the declared
  * set cannot disagree with what `hmac` actually handles. Frozen because
  * `readonly` is erased at compile time, so an unfrozen array exposed as
- * `plugin.algorithms` could be mutated in-process to broaden it.
+ * `plugin.algorithms` could be mutated in-process and make the capability
+ * metadata unstable.
  */
 const SUPPORTED_ALGORITHMS = Object.freeze(Object.keys(OPENSSL_DIGESTS) as HashAlgorithm[]);
 

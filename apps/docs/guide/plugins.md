@@ -315,8 +315,8 @@ Crypto plugins receive one of `sha1`, `sha256` or `sha512`. Three rules apply:
 
 1. **Never fall back to a default.** An unrecognised name must throw `AlgorithmUnsupportedError`, never
    resolve to some other digest — silently substituting a _different_ algorithm produces tokens that are
-   self-consistent but never match other implementations, and the failure only shows up against a real
-   authenticator app.
+   self-consistent but do not match implementations using the requested algorithm, and the failure only
+   shows up against a real authenticator app.
 
    Who performs that check depends on how you build the plugin:
 
@@ -380,17 +380,20 @@ so the implementation only ever sees a canonical name it declared.
 A **class-based plugin enforces its own declaration**. Pass the declared set through when you normalize:
 
 ```typescript
-class RestrictedCryptoPlugin implements CryptoPlugin {
+class RestrictedCryptoPlugin {
   readonly name = "restricted";
-  readonly algorithms = ["sha1"] as const;
+  readonly algorithms = Object.freeze(["sha1"] as const);
 
   hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
     const alg = normalizeHashAlgorithm(algorithm, {
       supported: this.algorithms,
       plugin: this.name,
     });
-    // ...
+    // Compute HMAC-SHA-1 using `key` and `data`.
+    return new Uint8Array();
   }
+
+  // `randomBytes` and `constantTimeEqual` omitted here for brevity.
 }
 ```
 
@@ -447,7 +450,7 @@ Unlike `createCryptoPlugin`, a class is responsible for enforcing its own algori
 wraps `hmac` on your behalf when it is called directly.
 
 ```typescript
-import { normalizeHashAlgorithm } from "@otplib/core";
+import { constantTimeEqual as coreConstantTimeEqual, normalizeHashAlgorithm } from "@otplib/core";
 import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
 
 const DIGESTS = {
@@ -456,10 +459,10 @@ const DIGESTS = {
 } as const satisfies Partial<Record<HashAlgorithm, string>>;
 
 class CustomCryptoPlugin implements CryptoPlugin {
-  name = "custom";
+  readonly name = "custom";
 
-  // Derived from the map, and frozen so it cannot be broadened at runtime
-  algorithms = Object.freeze(Object.keys(DIGESTS) as HashAlgorithm[]);
+  // Derived from the map and frozen so its contents cannot be mutated
+  readonly algorithms = Object.freeze(Object.keys(DIGESTS) as HashAlgorithm[]);
 
   hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array) {
     const alg = normalizeHashAlgorithm(algorithm, {
@@ -474,14 +477,12 @@ class CustomCryptoPlugin implements CryptoPlugin {
     return new Uint8Array();
   }
 
-  randomBytes(length) {
-    // your random bytes implementation here
-    return new Uint8Array(length);
+  randomBytes(length: number): Uint8Array {
+    return globalThis.crypto.getRandomValues(new Uint8Array(length));
   }
 
-  constantTimeEqual(a, b) {
-    // your constant time implementation here
-    return true;
+  constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array): boolean {
+    return coreConstantTimeEqual(a, b);
   }
 }
 ```

@@ -138,7 +138,8 @@ async function captureError(fn: () => unknown): Promise<unknown> {
  * Every crypto plugin must behave identically here. The three plugins
  * previously hand-rolled their own algorithm dispatch and silently diverged -
  * `@otplib/plugin-crypto-noble` computed HMAC-SHA512 for any unrecognised
- * value, producing tokens that never matched other implementations.
+ * value, producing tokens that did not match implementations using the
+ * requested algorithm.
  *
  * @param ctx - Test context including the plugin and the expected error class
  *

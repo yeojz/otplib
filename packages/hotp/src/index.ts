@@ -88,7 +88,8 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
  * Implements the HOTP algorithm as specified in RFC 4226 Section 5.3:
  *
  * 1. Convert counter to 8-byte big-endian array (RFC 4226 Section 5.1)
- * 2. Compute HMAC-SHA-1 using the secret key and counter (RFC 4226 Section 5.2)
+ * 2. Compute HMAC using the selected algorithm. SHA-1 is the default specified
+ *    by RFC 4226; SHA-256 and SHA-512 are supported extensions.
  * 3. Apply dynamic truncation to extract 4-byte code (RFC 4226 Section 5.3)
  * 4. Reduce modulo 10^digits to get final OTP (RFC 4226 Section 5.3)
  *
@@ -96,6 +97,8 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
  *
  * @param options - HOTP generation options
  * @returns The HOTP code as a string
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example
  * ```ts
@@ -132,7 +135,8 @@ export async function generate(options: HOTPGenerateOptions): Promise<string> {
  *
  * @param options - HOTP generation options
  * @returns The HOTP code as a string
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts
@@ -265,6 +269,8 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
  *
  * @param options - HOTP verification options
  * @returns Verification result with validity and optional delta
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example Basic verification
  * ```ts
@@ -336,7 +342,8 @@ export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> 
  *
  * @param options - HOTP verification options
  * @returns Verification result with validity and optional delta
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts

@@ -70,6 +70,8 @@ export class TOTP {
    *
    * @param options - Optional overrides
    * @returns The TOTP code
+   * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+   * @throws {HMACError} If HMAC computation fails in the crypto plugin
    */
   async generate(options?: Partial<TOTPOptions>): Promise<string> {
     const mergedOptions = { ...this.options, ...options };
@@ -110,6 +112,8 @@ export class TOTP {
    * @param token - The token to verify
    * @param options - Optional verification options
    * @returns Verification result with validity and optional delta
+   * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+   * @throws {HMACError} If HMAC computation fails in the crypto plugin
    */
   async verify(
     token: string,
@@ -161,6 +165,7 @@ export class TOTP {
    *
    * @param options - Optional overrides for label, issuer, and secret
    * @returns The otpauth:// URI
+   * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
    *
    * @example Without parameters (uses instance settings)
    * ```typescript

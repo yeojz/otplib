@@ -161,12 +161,15 @@ If you are permanently using passphrases or other non-Base32 strings, you can ei
 
 ::: info Note on Google Authenticator vs RFC4648 (TOTP)
 
-**Google Authenticator** requires specific settings for compatibility:
+For the widest **Google Authenticator** compatibility, use:
 
 - Algorithm: `sha1` (default)
 - Digits: `6` (default)
 - Period: `30` seconds (default)
 - Secret: Base32 encoded, **unpadded**
+
+Some authenticator versions ignore algorithm, digits, or period overrides, so
+non-default values may not be honored.
 
 **RFC 4648** specifies that Base32 should be padded. However, Google Authenticator and many other apps expect unpadded secrets. `otplib` defaults to `padding: false` in `generateSecret` and `generateURI` to ensure compatibility out of the box.
 :::

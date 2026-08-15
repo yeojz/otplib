@@ -900,7 +900,7 @@ describe("HASH_ALGORITHMS", () => {
   });
 
   // This array is the runtime allowlist, not just a type-level constant, so a
-  // mutation here would re-enable a weak digest for every caller in the process.
+  // mutation here would corrupt validation policy for every caller in the process.
   it("should be frozen", () => {
     expect(Object.isFrozen(HASH_ALGORITHMS)).toBe(true);
   });
@@ -1102,7 +1102,7 @@ describe("normalizeHashAlgorithm", () => {
 
     // `supported` arrives from crypto plugins, including untyped ones. It is
     // intersected with HASH_ALGORITHMS so it can only ever narrow - otherwise a
-    // plugin could re-enable a weak digest for anything holding it.
+    // plugin could widen the library allowlist for anything holding it.
     it("should not let a plugin widen the allowlist", () => {
       const widened = ["md5", "sha1"] as unknown as HashAlgorithm[];
 

@@ -204,7 +204,8 @@ export type AlgorithmUnsupportedContext = {
 };
 
 /**
- * Error thrown when a hash algorithm is not recognised
+ * Error thrown when a hash algorithm is not recognised or is outside a
+ * plugin's declared supported set
  *
  * The message identifies the declared supported algorithms and, when
  * applicable, the plugin that rejected the request. It deliberately does not

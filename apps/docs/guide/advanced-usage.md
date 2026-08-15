@@ -437,7 +437,7 @@ Only `sha1`, `sha256` and `sha512` are supported. The name is matched ignoring c
 `-` or `_` before the digest size, so `SHA256`, `SHA-256` and `sha_256` are all accepted as `sha256` —
 useful when the value comes from an `otpauth://` URI, since issuers spell it either way. Anything else
 throws `AlgorithmUnsupportedError` rather than falling back to a default, because a substituted
-algorithm produces tokens that no authenticator app can verify.
+algorithm produces tokens that do not match clients using the requested algorithm.
 
 ### Custom Secret Lengths
 

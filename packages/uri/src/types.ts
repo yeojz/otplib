@@ -20,24 +20,30 @@ export type OTPAuthParams = {
   readonly issuer?: string;
 
   /**
-   * Hash algorithm (default: sha1)
-   * Note: Google Authenticator only supports sha1
+   * Hash algorithm. Parsing preserves absence; OTP consumers default to sha1.
+   * Some authenticator apps ignore this parameter; sha1 has the widest
+   * interoperability.
    */
   readonly algorithm?: HashAlgorithm;
 
   /**
-   * Number of digits (default: 6)
-   * Google Authenticator supports 6 or 8
+   * Number of digits. Parsing preserves absence; OTP consumers default to 6.
+   * The Key URI format defines 6 or 8; some authenticator apps ignore this
+   * parameter.
    */
   readonly digits?: Digits;
 
   /**
-   * Initial counter value for HOTP (default: 0)
+   * Initial counter value for HOTP. Required by the Key URI format; parsing
+   * preserves absence, while HOTP generation helpers default to 0.
    */
   readonly counter?: number;
 
   /**
-   * Time step in seconds for TOTP (default: 30)
+   * Time step in seconds for TOTP. Parsing preserves absence; OTP consumers
+   * default to 30.
+   * Some authenticator apps ignore this parameter, so 30 has the widest
+   * interoperability.
    */
   readonly period?: number;
 };

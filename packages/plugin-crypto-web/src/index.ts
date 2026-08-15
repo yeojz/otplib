@@ -22,9 +22,10 @@ const ALGORITHM_MAP = {
  * Derived from the algorithm map rather than written out again, so the
  * declared set cannot disagree with what `hmac` actually handles. Frozen
  * because `readonly` is erased at compile time, so an unfrozen array exposed as
- * `plugin.algorithms` could be mutated in-process to broaden it. Note that
+ * `plugin.algorithms` could be mutated in-process and make the capability
+ * metadata unstable. Note that
  * SubtleCrypto also implements SHA-384; it is deliberately absent, because
- * RFC 6238 does not include it and no authenticator would verify the result.
+ * RFC 6238 does not include it and using it would reduce interoperability.
  */
 const SUPPORTED_ALGORITHMS = Object.freeze(Object.keys(ALGORITHM_MAP) as HashAlgorithm[]);
 

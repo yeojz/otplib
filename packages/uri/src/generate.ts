@@ -24,7 +24,8 @@ export type URIOptions = {
 
   /**
    * Hash algorithm (default: 'sha1')
-   * Note: Google Authenticator only supports sha1
+   * Note: Some authenticator apps ignore this parameter; sha1 has the widest
+   * interoperability.
    */
   algorithm?: HashAlgorithm;
 
@@ -66,6 +67,7 @@ export type HOTPURIOptions = URIOptions & {
  *
  * @param uri - The URI components
  * @returns The otpauth:// URI string
+ * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  *
  * @example
  * ```ts
@@ -142,6 +144,7 @@ export function generate(uri: OTPAuthURI): string {
  *
  * @param options - TOTP URI generation options
  * @returns The otpauth:// URI string
+ * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  */
 export function generateTOTP(options: TOTPURIOptions & { issuer: string; label: string }): string {
   const { issuer, label: account, secret, algorithm = "sha1", digits = 6, period = 30 } = options;
@@ -166,6 +169,7 @@ export function generateTOTP(options: TOTPURIOptions & { issuer: string; label: 
  *
  * @param options - HOTP URI generation options
  * @returns The otpauth:// URI string
+ * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  */
 export function generateHOTP(options: HOTPURIOptions & { issuer: string; label: string }): string {
   const { issuer, label: account, secret, counter = 0, algorithm = "sha1", digits = 6 } = options;

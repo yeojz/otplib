@@ -51,9 +51,10 @@ function describeAlgorithm(alg: unknown): string {
  * Parse an algorithm from either input format.
  *
  * Delegates to core's `normalizeHashAlgorithm` so `otpauth://` URIs and
- * user-authored JSON accept exactly the same aliases - case and separators
- * are ignored, so `SHA1`, `sha1` and `SHA-256` all resolve. The CLI's own
- * casing (`SHA1`) is applied on the way out.
+ * user-authored JSON accept exactly the same aliases. Case is ignored, and one
+ * optional `-` or `_` is accepted before the digest size, so `SHA1`, `sha1`
+ * and `SHA-256` all resolve. The CLI's own casing (`SHA1`) is applied on the
+ * way out.
  */
 function normalizeAlgorithm(alg?: unknown): OtpAlgorithm {
   // JSON spells "absent" as null, and an empty string carries no value either

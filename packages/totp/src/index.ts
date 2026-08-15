@@ -117,6 +117,8 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
  *
  * @param options - TOTP generation options
  * @returns The TOTP code as a string
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example
  * ```ts
@@ -150,7 +152,8 @@ export async function generate(options: TOTPGenerateOptions): Promise<string> {
  *
  * @param options - TOTP generation options
  * @returns The TOTP code as a string
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts
@@ -329,6 +332,8 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
  *
  * @param options - TOTP verification options
  * @returns Verification result with validity and optional delta
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example Using epochTolerance
  * ```ts
@@ -392,7 +397,8 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
  *
  * @param options - TOTP verification options
  * @returns Verification result with validity and optional delta
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts

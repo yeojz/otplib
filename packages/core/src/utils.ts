@@ -336,7 +336,7 @@ const HASH_ALGORITHM_ALIASES = {
 /**
  * The hash algorithms supported for HMAC operations
  *
- * Derived from {@link HASH_ALGORITHM_ALIASES} rather than written out again, so
+ * Derived from `HASH_ALGORITHM_ALIASES` rather than written out again, so
  * the runtime allowlist cannot disagree with the names that resolve to it. That
  * matters because this array is both the default `supported` set and the
  * intersection base in `normalizeHashAlgorithm`: an algorithm missing here is
@@ -344,7 +344,8 @@ const HASH_ALGORITHM_ALIASES = {
  *
  * Frozen because it is a runtime allowlist, not merely a type-level constant -
  * types are erased at compile time and would leave the exported array mutable,
- * letting any in-process code re-enable a weak digest globally.
+ * allowing in-process code to corrupt the validation policy and its reported
+ * supported set globally.
  */
 export const HASH_ALGORITHMS = Object.freeze(
   Object.keys(HASH_ALGORITHM_ALIASES) as (keyof typeof HASH_ALGORITHM_ALIASES)[],
@@ -381,7 +382,7 @@ export type NormalizeHashAlgorithmOptions = {
    * must never fall back to the full set, or a plugin could not express that.
    *
    * Intersected with {@link HASH_ALGORITHMS}, so this can only ever narrow the
-   * allowlist - a crypto plugin cannot use it to re-enable a weak digest.
+   * allowlist - a crypto plugin cannot widen the library's supported set.
    */
   supported?: readonly HashAlgorithm[];
 
@@ -402,8 +403,9 @@ export type NormalizeHashAlgorithmOptions = {
  *
  * Anything that is not an alias of a supported algorithm is rejected rather
  * than guessed at, because substituting a *different* algorithm produces
- * self-consistent tokens that never match any other implementation - a failure
- * that only surfaces at enrollment time.
+ * self-consistent tokens that do not match conforming implementations using the
+ * requested algorithm - a failure that can remain hidden until interoperability
+ * is tested.
  *
  * @param value - The algorithm to normalize
  * @param options - Narrowed algorithm set and calling plugin name
