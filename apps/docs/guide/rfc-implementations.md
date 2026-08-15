@@ -151,6 +151,12 @@ otpauth://TYPE/LABEL?PARAMETERS
 | counter   | No (HOTP only) | number | Initial counter       | 0       |
 | period    | No (TOTP only) | number | Time step in seconds  | 30      |
 
+The OTPAuth URI format does not define how duplicate query parameters are
+resolved. Otplib consistently uses the first occurrence of every decoded key,
+matching `URLSearchParams.get()`: the first value is parsed and validated, while
+later values are ignored without being decoded. A bare parameter counts as an
+empty first value. Avoid duplicate parameters when interoperability matters.
+
 ### URI Generation
 
 ```typescript

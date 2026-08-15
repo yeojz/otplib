@@ -192,18 +192,40 @@ describe("parseOtpauthUri", () => {
   });
 
   test.each([
-    "algorithm=SHA1&algorithm=SHA512",
-    "algorithm=SHA512&algorithm=SHA512",
-    "algorithm=&algorithm=SHA512",
-    "algorithm=SHA512&algorithm=",
-    "algorithm=&algorithm=",
-    "algorithm&algorithm=SHA512",
-    "algorithm=SHA512&algorithm",
-    "algorithm&algorithm",
-  ])("rejects duplicate algorithm parameters: %s", (query) => {
-    expect(() => parseOtpauthUri(`otpauth://totp/Test?secret=ABC&${query}`)).toThrow(
-      "Duplicate parameter: algorithm",
+    ["secret", "otpauth://totp/Test?secret=FIRST&secret=SECOND", "secret", "FIRST"],
+    ["issuer", "otpauth://totp/Test?secret=ABC&issuer=First&issuer=Second", "issuer", "First"],
+    [
+      "algorithm",
+      "otpauth://totp/Test?secret=ABC&algorithm=SHA256&algorithm=SHA512",
+      "algorithm",
+      "SHA256",
+    ],
+    ["digits", "otpauth://totp/Test?secret=ABC&digits=6&digits=8", "digits", 6],
+    ["period", "otpauth://totp/Test?secret=ABC&period=30&period=60", "period", 30],
+  ])("uses only the first %s occurrence", (_name, uri, property, expected) => {
+    const result = parseOtpauthUri(uri);
+
+    expect(result[property as keyof typeof result]).toBe(expected);
+  });
+
+  test("uses only the first counter occurrence", () => {
+    const result = parseOtpauthUri("otpauth://hotp/Test?secret=ABC&counter=1&counter=2");
+
+    expect(result.counter).toBe(1);
+  });
+
+  test("does not validate a later algorithm value", () => {
+    const result = parseOtpauthUri(
+      "otpauth://totp/Test?secret=ABC&algorithm=SHA256&algorithm=INVALID",
     );
+
+    expect(result.algorithm).toBe("SHA256");
+  });
+
+  test("lets a bare first algorithm select the SHA1 default", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm&algorithm=SHA512");
+
+    expect(result.algorithm).toBe("SHA1");
   });
 
   test("parses 7 digits", () => {

@@ -75,14 +75,6 @@ function normalizeDigits(digits?: number): OtpDigits {
   throw new Error(`Invalid digits: ${digits}, expected 6, 7, or 8`);
 }
 
-function getSingleUriParameter(searchParams: URLSearchParams, name: string): string | null {
-  const values = searchParams.getAll(name);
-  if (values.length > 1) {
-    throw new Error(`Duplicate parameter: ${name}`);
-  }
-  return values[0] ?? null;
-}
-
 export function parseOtpauthUri(uri: string): OtpData {
   let url: URL;
   try {
@@ -120,7 +112,7 @@ export function parseOtpauthUri(uri: string): OtpData {
     account = label.slice(colonIndex + 1);
   }
 
-  const algorithm = normalizeAlgorithm(getSingleUriParameter(url.searchParams, "algorithm"));
+  const algorithm = normalizeAlgorithm(url.searchParams.get("algorithm"));
   const digitsParam = url.searchParams.get("digits");
   const digits = normalizeDigits(digitsParam !== null ? parseInt(digitsParam, 10) : undefined);
 

@@ -55,6 +55,12 @@ console.log(result);
 // }
 ```
 
+When a query parameter is repeated, otplib parses and validates only its first
+occurrence, matching `URLSearchParams.get()`. Later occurrences are ignored
+without decoding their values. A bare parameter such as `algorithm` counts as
+the first occurrence with an empty value. The OTPAuth URI format does not define
+duplicate-parameter behavior, so avoid duplicates when interoperability matters.
+
 ### Extracting Account Details
 
 ```typescript

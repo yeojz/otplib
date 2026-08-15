@@ -702,22 +702,116 @@ describe("URI", () => {
       }
     });
 
-    describe("duplicate algorithm parameters", () => {
-      const duplicateAlgorithms = [
-        "algorithm=SHA1&algorithm=SHA512",
-        "algorithm=SHA512&algorithm=SHA512",
-        "algorithm=&algorithm=SHA512",
-        "algorithm=SHA512&algorithm=",
-        "algorithm=&algorithm=",
-        "algorithm&algorithm=SHA512",
-        "algorithm=SHA512&algorithm",
-        "algorithm&algorithm",
+    describe("repeated query parameters", () => {
+      const firstWinsCases = [
+        {
+          name: "secret",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&secret=SECONDSECRET`,
+          read: (parsed: OTPAuthURI) => parsed.params.secret,
+          expected: TEST_SECRET_PARSE_BASE32,
+        },
+        {
+          name: "issuer",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&issuer=First&issuer=Second`,
+          read: (parsed: OTPAuthURI) => parsed.params.issuer,
+          expected: "First",
+        },
+        {
+          name: "algorithm",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA256&algorithm=SHA512`,
+          read: (parsed: OTPAuthURI) => parsed.params.algorithm,
+          expected: "sha256",
+        },
+        {
+          name: "digits",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&digits=6&digits=8`,
+          read: (parsed: OTPAuthURI) => parsed.params.digits,
+          expected: 6,
+        },
+        {
+          name: "period",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&period=30&period=60`,
+          read: (parsed: OTPAuthURI) => parsed.params.period,
+          expected: 30,
+        },
+        {
+          name: "counter",
+          uri: `otpauth://hotp/Test?secret=${TEST_SECRET_PARSE_BASE32}&counter=1&counter=2`,
+          read: (parsed: OTPAuthURI) => parsed.params.counter,
+          expected: 1,
+        },
       ];
 
-      for (const query of duplicateAlgorithms) {
-        it(`should reject ${query}`, () => {
+      for (const { name, uri, read, expected } of firstWinsCases) {
+        it(`should use only the first ${name} occurrence`, () => {
+          expect(read(parse(uri))).toBe(expected);
+        });
+      }
+
+      const ignoredMalformedValues = [
+        `secret=${TEST_SECRET_PARSE_BASE32}&secret=%`,
+        "issuer=First&issuer=%",
+        "algorithm=SHA256&algorithm=%",
+        "digits=6&digits=%",
+        "period=30&period=%",
+        "counter=1&counter=%",
+      ];
+
+      for (const query of ignoredMalformedValues) {
+        it(`should not decode the later value in "${query}"`, () => {
+          const type = query.startsWith("counter=") ? "hotp" : "totp";
+          const secret = query.startsWith("secret=") ? "" : `secret=${TEST_SECRET_PARSE_BASE32}&`;
+
+          expect(() => parse(`otpauth://${type}/Test?${secret}${query}`)).not.toThrow();
+        });
+      }
+
+      it("should identify repeated keys after decoding them", () => {
+        const parsed = parse(
+          `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA256&%61lgorithm=%`,
+        );
+
+        expect(parsed.params.algorithm).toBe("sha256");
+      });
+
+      it("should validate the first value even when a later value is valid", () => {
+        expect(() =>
+          parse(
+            `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=INVALID&algorithm=SHA256`,
+          ),
+        ).toThrow(InvalidParameterError);
+      });
+
+      it("should let a bare first algorithm select the SHA-1 default", () => {
+        const parsed = parse(
+          `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm&algorithm=SHA512`,
+        );
+
+        expect(parsed.params.algorithm).toBeUndefined();
+      });
+
+      it("should let a bare first issuer select the empty value", () => {
+        const parsed = parse(
+          `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&issuer&issuer=Second`,
+        );
+
+        expect(parsed.params.issuer).toBe("");
+      });
+
+      it("should let a bare first secret block a later secret", () => {
+        expect(() =>
+          parse(`otpauth://totp/Test?secret&secret=${TEST_SECRET_PARSE_BASE32}`),
+        ).toThrow("Missing required parameter: secret");
+      });
+
+      for (const parameter of ["digits", "period", "counter"]) {
+        it(`should validate a bare first ${parameter} as an empty value`, () => {
+          const type = parameter === "counter" ? "hotp" : "totp";
+
           expect(() =>
-            parse(`otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&${query}`),
+            parse(
+              `otpauth://${type}/Test?secret=${TEST_SECRET_PARSE_BASE32}&${parameter}&${parameter}=1`,
+            ),
           ).toThrow(InvalidParameterError);
         });
       }

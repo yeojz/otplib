@@ -126,7 +126,7 @@ export function parse(uri: string): OTPAuthURI {
  */
 function parseQueryString(queryString: string): MutableOTPAuthParams {
   const params: MutableOTPAuthParams = {};
-  let algorithmSeen = false;
+  const seenParameters = new Set<string>();
 
   if (!queryString) {
     return params;
@@ -135,8 +135,10 @@ function parseQueryString(queryString: string): MutableOTPAuthParams {
   const pairs = queryString.split("&");
   for (const pair of pairs) {
     const equalIndex = pair.indexOf("=");
-    if (equalIndex === -1) {
-      let key: string;
+    const isBare = equalIndex === -1;
+
+    let key: string;
+    if (isBare) {
       try {
         key = decodeURIComponent(pair);
       } catch {
@@ -144,22 +146,24 @@ function parseQueryString(queryString: string): MutableOTPAuthParams {
         // key/value pairs participate in strict URI decoding.
         continue;
       }
-
-      if (key === "algorithm") {
-        if (algorithmSeen) {
-          throw new InvalidParameterError("algorithm", "duplicate parameter");
-        }
-        algorithmSeen = true;
-      }
-      continue;
+    } else {
+      key = safeDecodeURIComponent(pair.slice(0, equalIndex), 64, "parameter key");
     }
 
-    const key = safeDecodeURIComponent(pair.slice(0, equalIndex), 64, "parameter key");
-    const value = safeDecodeURIComponent(
-      pair.slice(equalIndex + 1),
-      MAX_PARAM_VALUE_LENGTH,
-      `parameter '${key}'`,
-    );
+    // Match URLSearchParams.get(): the first decoded occurrence determines the
+    // parameter. Later values are ignored without decoding or validating them.
+    if (seenParameters.has(key)) {
+      continue;
+    }
+    seenParameters.add(key);
+
+    const value = isBare
+      ? ""
+      : safeDecodeURIComponent(
+          pair.slice(equalIndex + 1),
+          MAX_PARAM_VALUE_LENGTH,
+          `parameter '${key}'`,
+        );
 
     switch (key) {
       case "secret":
@@ -169,10 +173,6 @@ function parseQueryString(queryString: string): MutableOTPAuthParams {
         params.issuer = value;
         break;
       case "algorithm":
-        if (algorithmSeen) {
-          throw new InvalidParameterError("algorithm", "duplicate parameter");
-        }
-        algorithmSeen = true;
         // `?algorithm=` carries no value. The Key Uri Format makes this
         // parameter optional with a SHA-1 default, so an empty one is treated
         // as omitted rather than as an invalid value - which is also what the
