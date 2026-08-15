@@ -79,23 +79,22 @@ export class CryptoContext {
   hmacSync(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
     const normalized = this.normalize(algorithm);
 
-    let result: Uint8Array | Promise<Uint8Array>;
-    let asyncResult: PromiseLike<unknown> | undefined;
     try {
-      result = this.crypto.hmac(normalized, key, data);
-      asyncResult = isPromiseLike(result) ? (result as PromiseLike<unknown>) : undefined;
+      const result = this.crypto.hmac(normalized, key, data);
+
+      if (!isPromiseLike(result)) {
+        return result as Uint8Array;
+      }
+
+      // Attach a rejection handler before throwing the synchronous guard.
+      // Promise.resolve assimilates cross-realm promises and generic thenables.
+      void Promise.resolve(result).catch(() => undefined);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new HMACError(message, { cause: error });
     }
 
-    if (asyncResult) {
-      // Attach a rejection handler before throwing the synchronous guard.
-      // Promise.resolve assimilates cross-realm promises and generic thenables.
-      void Promise.resolve(asyncResult).catch(() => undefined);
-      throw new HMACError("Crypto plugin does not support synchronous HMAC operations");
-    }
-    return result as Uint8Array;
+    throw new HMACError("Crypto plugin does not support synchronous HMAC operations");
   }
 
   /**

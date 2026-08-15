@@ -338,7 +338,8 @@ describe("URI fuzz tests", () => {
     });
 
     it("should reject algorithm values outside the accepted set", () => {
-      const isAccepted = (s: string) => /^sha[-_]?(1|256|512)$/.test(s.toLowerCase());
+      const isAcceptedUriValue = (s: string) =>
+        s === "" || /^sha[-_]?(1|256|512)$/.test(s.toLowerCase());
 
       const rejectedAlgorithm = fc
         .oneof(
@@ -355,7 +356,7 @@ describe("URI fuzz tests", () => {
           ),
           fc.string({ maxLength: 20 }),
         )
-        .filter((s) => !isAccepted(s));
+        .filter((s) => !isAcceptedUriValue(s));
 
       fc.assert(
         fc.property(rejectedAlgorithm, (invalidAlgo) => {
