@@ -8,6 +8,14 @@ import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { TOTP } from "@otplib/totp";
 import {
+  AlgorithmError as CoreAlgorithmError,
+  AlgorithmUnsupportedError as CoreAlgorithmUnsupportedError,
+  HMACError as CoreHMACError,
+} from "@otplib/core";
+import {
+  AlgorithmError,
+  AlgorithmUnsupportedError,
+  HMACError,
   generateSecret,
   generateURI,
   generate,
@@ -19,6 +27,14 @@ import {
 } from "./index.js";
 import { TEST_SECRET_GUARDRAILS } from "@repo/testing";
 import { createOtplibTests } from "./index-test.ts";
+
+describe("error exports", () => {
+  it("re-exports the relevant @otplib/core error constructors", () => {
+    expect(AlgorithmError).toBe(CoreAlgorithmError);
+    expect(AlgorithmUnsupportedError).toBe(CoreAlgorithmUnsupportedError);
+    expect(HMACError).toBe(CoreHMACError);
+  });
+});
 
 createOtplibTests({
   describe,

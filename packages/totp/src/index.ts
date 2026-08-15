@@ -14,6 +14,7 @@ import {
   createGuardrails,
   normalizeSecret,
   normalizeEpochTolerance,
+  normalizeHashAlgorithm,
   validateEpochTolerance,
   validatePeriod,
   validateSecret,
@@ -60,7 +61,7 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
     epoch = Math.floor(Date.now() / 1000),
     t0 = 0,
     period = 30,
-    algorithm = "sha1",
+    algorithm: rawAlgorithm = "sha1",
     digits = 6,
     crypto,
     base32,
@@ -75,6 +76,13 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
   validateSecret(secretBytes, guardrails);
   validateTime(epoch);
   validatePeriod(period, guardrails);
+  // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+  // Checked against the configured plugin's own set, so a plugin supporting
+  // fewer algorithms reports what it actually accepts rather than the full set.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm, {
+    supported: crypto.algorithms,
+    plugin: crypto.name,
+  });
 
   const counter = Math.floor((epoch - t0) / period);
 
@@ -109,6 +117,8 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
  *
  * @param options - TOTP generation options
  * @returns The TOTP code as a string
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example
  * ```ts
@@ -142,7 +152,8 @@ export async function generate(options: TOTPGenerateOptions): Promise<string> {
  *
  * @param options - TOTP generation options
  * @returns The TOTP code as a string
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts
@@ -238,7 +249,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
     epoch = Math.floor(Date.now() / 1000),
     t0 = 0,
     period = 30,
-    algorithm = "sha1",
+    algorithm: rawAlgorithm = "sha1",
     digits = 6,
     crypto,
     base32,
@@ -255,6 +266,13 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   validateSecret(secretBytes, guardrails);
   validateTime(epoch);
   validatePeriod(period, guardrails);
+  // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+  // Checked against the configured plugin's own set, so a plugin supporting
+  // fewer algorithms reports what it actually accepts rather than the full set.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm, {
+    supported: crypto.algorithms,
+    plugin: crypto.name,
+  });
 
   // Use custom validator if provided, otherwise default digit-only check
   if (hooks?.validateToken) {
@@ -314,6 +332,8 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
  *
  * @param options - TOTP verification options
  * @returns Verification result with validity and optional delta
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example Using epochTolerance
  * ```ts
@@ -377,7 +397,8 @@ export async function verify(options: TOTPVerifyOptions): Promise<VerifyResult> 
  *
  * @param options - TOTP verification options
  * @returns Verification result with validity and optional delta
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts

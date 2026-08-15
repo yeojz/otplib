@@ -4,9 +4,12 @@ import { generate as generateHOTP, verify as verifyHOTP } from "@otplib/hotp";
 import { generate as generateTOTP, verify as verifyTOTP } from "@otplib/totp";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
+import { WebCryptoPlugin } from "@otplib/plugin-crypto-web";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 
-import type { CryptoPlugin } from "@otplib/core";
+import { AlgorithmUnsupportedError } from "@otplib/core";
+
+import type { CryptoPlugin, HashAlgorithm } from "@otplib/core";
 
 type NamedCryptoPlugin = {
   name: string;
@@ -17,6 +20,7 @@ type NamedCryptoPlugin = {
 const cryptoPlugins: NamedCryptoPlugin[] = [
   { name: "Node.js", plugin: new NodeCryptoPlugin() },
   { name: "Noble", plugin: new NobleCryptoPlugin() },
+  { name: "Web", plugin: new WebCryptoPlugin() },
 ];
 
 const base32 = new ScureBase32Plugin();
@@ -449,6 +453,82 @@ describe("Cross-plugin consistency tests", () => {
             const first = tokens[0];
             for (let i = 1; i < tokens.length; i++) {
               expect(tokens[i]).toBe(first);
+            }
+          },
+        ),
+      );
+    });
+  });
+
+  // Canonical-algorithm byte equality is already covered by the pairwise
+  // "HMAC output consistency" suite above, which now includes Web Crypto. What
+  // is not covered anywhere else is that all plugins reject the *same*
+  // arbitrary inputs with the *same* error class - the divergence this change
+  // exists to fix.
+  describe("Algorithm rejection agreement across all plugins", () => {
+    // Captures either a synchronous throw or a rejected promise, so plugins
+    // with sync-capable hmac() and async-only hmac() are compared uniformly.
+    async function captureHmac(
+      plugin: CryptoPlugin,
+      algorithm: string,
+      key: Uint8Array,
+      data: Uint8Array,
+    ): Promise<{ ok: true; value: Uint8Array } | { ok: false; error: unknown }> {
+      try {
+        const value = await plugin.hmac(algorithm as HashAlgorithm, key, data);
+        return { ok: true, value };
+      } catch (error) {
+        return { ok: false, error };
+      }
+    }
+
+    it("should have every plugin reject unsupported algorithm names identically", async () => {
+      // Matches core's normalization: case-insensitive with at most one `-`/`_`
+      // between "sha" and the digest size, so a generated "SHA-1" is a
+      // *supported* alias and must not be fed in here.
+      const isSupportedAlias = (s: string) => /^sha[-_]?(1|256|512)$/.test(s.toLowerCase());
+
+      const unsupportedAlgorithm = fc.oneof(
+        fc.constantFrom(
+          "md5",
+          "sha384",
+          "sha-384",
+          "sha3-256",
+          "sha-224",
+          "",
+          "----",
+          " sha1",
+          "sha1 ",
+        ),
+        fc.string({ maxLength: 20 }),
+      );
+
+      await fc.assert(
+        fc.asyncProperty(
+          fc.uint8Array({ minLength: 1, maxLength: 64 }),
+          fc.uint8Array({ minLength: 0, maxLength: 256 }),
+          unsupportedAlgorithm.filter((s) => !isSupportedAlias(s)),
+          async (key, data, algorithm) => {
+            const outcomes = await Promise.all(
+              cryptoPlugins.map((p) => captureHmac(p.plugin, algorithm, key, data)),
+            );
+
+            // No plugin may be the odd one out: all must reject.
+            const threw = outcomes.map((o) => !o.ok);
+            expect(threw).toEqual(cryptoPlugins.map(() => true));
+
+            for (let i = 0; i < outcomes.length; i++) {
+              const outcome = outcomes[i];
+              if (outcome.ok) {
+                continue;
+              }
+              expect({
+                plugin: cryptoPlugins[i].name,
+                isAlgorithmUnsupported: outcome.error instanceof AlgorithmUnsupportedError,
+              }).toEqual({
+                plugin: cryptoPlugins[i].name,
+                isAlgorithmUnsupported: true,
+              });
             }
           },
         ),

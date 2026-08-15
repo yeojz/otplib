@@ -1,3 +1,4 @@
+export * from "./crypto-algorithm-tests.js";
 export * from "./hooks.js";
 export * from "./rfc-hmac-tests.js";
 export * from "./rfc-test-vectors.js";

@@ -47,13 +47,20 @@ console.log(result);
 //   label: 'GitHub:user@example.com',
 //   params: {
 //     secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY',
-//     issuer: 'GitHub',
-//     algorithm: 'sha1',
-//     digits: 6,
-//     period: 30
+//     issuer: 'GitHub'
 //   }
 // }
 ```
+
+When a query parameter is repeated, otplib parses and validates only its first
+occurrence, matching `URLSearchParams.get()`. Later occurrences are ignored
+without decoding their values. A bare parameter such as `algorithm` counts as
+the first occurrence with an empty value. The OTPAuth URI format does not define
+duplicate-parameter behavior, so avoid duplicates when interoperability matters.
+
+Parsing preserves optionality rather than materializing defaults: an absent,
+bare, or empty `algorithm` parameter leaves `params.algorithm` undefined. OTP
+consumers apply the SHA-1 default when they use the parsed result.
 
 ### Extracting Account Details
 
@@ -109,7 +116,7 @@ const uri = generateTOTP({
 });
 
 console.log(uri);
-// 'otpauth://totp/ACME%20Corp:john@example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY&issuer=ACME%20Corp'
+// 'otpauth://totp/ACME%20Corp:john%40example.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY&issuer=ACME%20Corp'
 ```
 
 ### TOTP with Custom Options
@@ -166,19 +173,22 @@ const uri = generate({
 ## Google Authenticator Compatibility
 
 > [!WARNING]
-> Google Authenticator has specific requirements:
+> For the widest Google Authenticator interoperability, use the standard defaults:
 >
-> - Only supports `sha1` algorithm
-> - Only supports `6` or `8` digits
-> - Only supports `30` second period for TOTP
+> - `sha1` algorithm
+> - `6` digits
+> - `30` second period for TOTP
 > - Issuer should be included in both label and parameter
+>
+> Some authenticator versions ignore the algorithm, digits, or period parameter,
+> so non-default values may not be honored.
 
 ### Compatible URI
 
 ```typescript
 import { generateTOTP } from "@otplib/uri";
 
-// This URI is fully compatible with Google Authenticator
+// This URI uses the widely interoperable defaults
 const uri = generateTOTP({
   issuer: "MyService",
   label: "user@example.com",

@@ -80,7 +80,7 @@ describe("HOTP fuzz tests", () => {
   });
 
   describe("counter tolerance", () => {
-    it("should verify tokens within counter tolerance", async () => {
+    it("should verify tokens within symmetric counter tolerance", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.uint8Array({ minLength: 16, maxLength: 64 }),
@@ -99,7 +99,7 @@ describe("HOTP fuzz tests", () => {
                 token,
                 crypto,
                 base32,
-                counterTolerance: tolerance,
+                counterTolerance: [tolerance, tolerance],
               });
 
               expect(result.valid).toBe(true);

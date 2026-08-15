@@ -195,6 +195,9 @@ importers:
       '@otplib/plugin-crypto-node':
         specifier: workspace:*
         version: link:../../packages/plugin-crypto-node
+      '@otplib/plugin-crypto-web':
+        specifier: workspace:*
+        version: link:../../packages/plugin-crypto-web
       '@otplib/totp':
         specifier: workspace:*
         version: link:../../packages/totp
@@ -308,6 +311,9 @@ importers:
 
   packages/otplib-cli:
     dependencies:
+      '@otplib/core':
+        specifier: workspace:*
+        version: link:../core
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -378,6 +384,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@repo/testing':
+        specifier: workspace:*
+        version: link:../../internal/testing
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.23)(tsx@4.23.1)(typescript@5.9.3)(yaml@2.8.4)
@@ -394,6 +403,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@repo/testing':
+        specifier: workspace:*
+        version: link:../../internal/testing
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.23)(tsx@4.23.1)(typescript@5.9.3)(yaml@2.8.4)
@@ -410,6 +422,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@repo/testing':
+        specifier: workspace:*
+        version: link:../../internal/testing
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.23)(tsx@4.23.1)(typescript@5.9.3)(yaml@2.8.4)

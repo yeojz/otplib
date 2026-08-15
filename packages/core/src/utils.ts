@@ -24,6 +24,7 @@ import {
   LabelMissingError,
   IssuerMissingError,
   SecretTypeError,
+  AlgorithmUnsupportedError,
 } from "./errors.js";
 
 import type {
@@ -303,6 +304,151 @@ export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuar
  */
 export function hasGuardrailOverrides(guardrails: OTPGuardrails): boolean {
   return guardrails[OVERRIDE_SYMBOL] ?? false;
+}
+
+/**
+ * Every accepted name for each supported algorithm, grouped by the canonical
+ * name it resolves to
+ *
+ * Each list includes the canonical name itself, so the lookup built from this
+ * needs no separate case for it. (Strictly, a registry such as IANA's lists the
+ * canonical `Name` apart from its `Alias` entries; folding them together here
+ * keeps the lookup a single branch.)
+ *
+ * Enumerated rather than derived from a pattern. A pattern is a compressed
+ * encoding of this list that can generalize past its intent - an earlier
+ * separator-stripping implementation accepted `'sha-2-5-6'` and `'s-h-a-1'`
+ * for exactly that reason. Nothing here can drift: the accepted set is the
+ * list.
+ *
+ * The `satisfies` constraint is load-bearing. It requires an entry for every
+ * member of {@link HashAlgorithm} and forbids keys outside it, so widening the
+ * union fails to compile until aliases are supplied here.
+ *
+ * @internal
+ */
+const HASH_ALGORITHM_ALIASES = {
+  sha1: ["sha1", "sha-1", "sha_1"],
+  sha256: ["sha256", "sha-256", "sha_256"],
+  sha512: ["sha512", "sha-512", "sha_512"],
+} as const satisfies Record<HashAlgorithm, readonly string[]>;
+
+/**
+ * The hash algorithms supported for HMAC operations
+ *
+ * Derived from `HASH_ALGORITHM_ALIASES` rather than written out again, so
+ * the runtime allowlist cannot disagree with the names that resolve to it. That
+ * matters because this array is both the default `supported` set and the
+ * intersection base in `normalizeHashAlgorithm`: an algorithm missing here is
+ * rejected at runtime no matter what the types say.
+ *
+ * Frozen because it is a runtime allowlist, not merely a type-level constant -
+ * types are erased at compile time and would leave the exported array mutable,
+ * allowing in-process code to corrupt the validation policy and its reported
+ * supported set globally.
+ */
+export const HASH_ALGORITHMS = Object.freeze(
+  Object.keys(HASH_ALGORITHM_ALIASES) as (keyof typeof HASH_ALGORITHM_ALIASES)[],
+);
+
+/**
+ * Lowercased name to canonical algorithm
+ *
+ * A `Map` rather than an object literal: `ALIAS_LOOKUP.get('__proto__')` is
+ * `undefined`, whereas an object would resolve `'__proto__'`, `'constructor'`
+ * and `'toString'` through the prototype chain and hand back inherited junk.
+ * That safety holds by construction, with no `Object.hasOwn` guard to forget.
+ *
+ * @internal
+ */
+const ALIAS_LOOKUP: ReadonlyMap<string, HashAlgorithm> = new Map(
+  Object.entries(HASH_ALGORITHM_ALIASES).flatMap(([canonical, aliases]) =>
+    aliases.map((alias) => [alias, canonical as HashAlgorithm] as const),
+  ),
+);
+
+/**
+ * Options for {@link normalizeHashAlgorithm}
+ */
+export type NormalizeHashAlgorithmOptions = {
+  /**
+   * Accepted algorithms
+   *
+   * **Omitted and empty mean different things, deliberately.** Omitting it (or
+   * passing `undefined`) accepts all of {@link HASH_ALGORITHMS} - the
+   * backward-compatible reading for a `CryptoPlugin` written before
+   * `algorithms` existed, which supports the full set by definition. An
+   * explicit `[]` declares support for nothing and rejects every algorithm; it
+   * must never fall back to the full set, or a plugin could not express that.
+   *
+   * Intersected with {@link HASH_ALGORITHMS}, so this can only ever narrow the
+   * allowlist - a crypto plugin cannot widen the library's supported set.
+   */
+  supported?: readonly HashAlgorithm[];
+
+  /**
+   * Name of the calling crypto plugin, used to enrich the error message
+   */
+  plugin?: string;
+};
+
+/**
+ * Normalize and validate a hash algorithm
+ *
+ * Matching ignores case and accepts an optional `-` or `_` before the digest
+ * size, so `'SHA1'`, `'Sha1'`, `'SHA-1'` and `'sha_1'` all resolve to `'sha1'`.
+ * This is safe to be forgiving about: every accepted alias names the *same*
+ * algorithm. No alias of any other digest appears in the table, so `'sha3-256'`
+ * and `'sha-384'` are rejected outright.
+ *
+ * Anything that is not an alias of a supported algorithm is rejected rather
+ * than guessed at, because substituting a *different* algorithm produces
+ * self-consistent tokens that do not match conforming implementations using the
+ * requested algorithm - a failure that can remain hidden until interoperability
+ * is tested.
+ *
+ * @param value - The algorithm to normalize
+ * @param options - Narrowed algorithm set and calling plugin name
+ * @returns The canonical lowercase algorithm
+ * @throws {AlgorithmUnsupportedError} If the value is not a supported algorithm
+ *
+ * @example
+ * ```typescript
+ * normalizeHashAlgorithm('SHA1');   // 'sha1'
+ * normalizeHashAlgorithm('SHA-1');  // 'sha1'
+ * normalizeHashAlgorithm('sha384'); // throws AlgorithmUnsupportedError
+ *
+ * // A plugin backed by a restricted implementation
+ * normalizeHashAlgorithm('sha256', { supported: ['sha1'], plugin: 'custom' });
+ * ```
+ */
+export function normalizeHashAlgorithm(
+  value: unknown,
+  options: NormalizeHashAlgorithmOptions = {},
+): HashAlgorithm {
+  // Tested against `undefined` rather than truthiness, because `[]` must not
+  // take the same branch as an omitted value: omitted means "the full set"
+  // (a plugin predating `algorithms` supports all of them), while `[]` means
+  // "none" and has to reject everything. Simplifying this to a `.length` check
+  // would silently turn an empty declaration back into the full set.
+  //
+  // The intersection is applied rather than trusting the input: `supported`
+  // reaches here from crypto plugins, including untyped ones, so it may only
+  // ever narrow.
+  const { supported: declared, plugin } = options;
+  const supported =
+    declared === undefined
+      ? HASH_ALGORITHMS
+      : HASH_ALGORITHMS.filter((algorithm) => declared.includes(algorithm));
+
+  if (typeof value === "string") {
+    const canonical = ALIAS_LOOKUP.get(value.toLowerCase());
+    if (canonical !== undefined && supported.includes(canonical)) {
+      return canonical;
+    }
+  }
+
+  throw new AlgorithmUnsupportedError(value, { supported, plugin });
 }
 
 /**
@@ -618,6 +764,7 @@ export function constantTimeEqual(a: string | Uint8Array, b: string | Uint8Array
  *
  * @param algorithm - The hash algorithm
  * @returns Digest size in bytes
+ * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
  */
 export function getDigestSize(algorithm: HashAlgorithm): number {
   switch (algorithm) {
@@ -627,6 +774,8 @@ export function getDigestSize(algorithm: HashAlgorithm): number {
       return 32;
     case "sha512":
       return 64;
+    default:
+      throw new AlgorithmUnsupportedError(algorithm, { supported: HASH_ALGORITHMS });
   }
 }
 

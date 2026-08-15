@@ -155,6 +155,79 @@ describe("parseOtpauthUri", () => {
     expect(result.algorithm).toBe("SHA256");
   });
 
+  test("parses algorithm with hyphen (SHA-1)", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=SHA-1");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
+  test("parses algorithm with hyphen (SHA-512)", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=SHA-512");
+
+    expect(result.algorithm).toBe("SHA512");
+  });
+
+  test("throws on unsupported algorithm (md5)", () => {
+    expect(() => parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=md5")).toThrow(
+      "Invalid algorithm: md5, expected SHA1, SHA256, or SHA512",
+    );
+  });
+
+  test("defaults to SHA1 when algorithm is absent", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
+  test("defaults to SHA1 for an empty algorithm parameter", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm=");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
+  test("defaults to SHA1 for a bare algorithm parameter", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
+  test.each([
+    ["secret", "otpauth://totp/Test?secret=FIRST&secret=SECOND", "secret", "FIRST"],
+    ["issuer", "otpauth://totp/Test?secret=ABC&issuer=First&issuer=Second", "issuer", "First"],
+    [
+      "algorithm",
+      "otpauth://totp/Test?secret=ABC&algorithm=SHA256&algorithm=SHA512",
+      "algorithm",
+      "SHA256",
+    ],
+    ["digits", "otpauth://totp/Test?secret=ABC&digits=6&digits=8", "digits", 6],
+    ["period", "otpauth://totp/Test?secret=ABC&period=30&period=60", "period", 30],
+  ])("uses only the first %s occurrence", (_name, uri, property, expected) => {
+    const result = parseOtpauthUri(uri);
+
+    expect(result[property as keyof typeof result]).toBe(expected);
+  });
+
+  test("uses only the first counter occurrence", () => {
+    const result = parseOtpauthUri("otpauth://hotp/Test?secret=ABC&counter=1&counter=2");
+
+    expect(result.counter).toBe(1);
+  });
+
+  test("does not validate a later algorithm value", () => {
+    const result = parseOtpauthUri(
+      "otpauth://totp/Test?secret=ABC&algorithm=SHA256&algorithm=INVALID",
+    );
+
+    expect(result.algorithm).toBe("SHA256");
+  });
+
+  test("lets a bare first algorithm select the SHA1 default", () => {
+    const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&algorithm&algorithm=SHA512");
+
+    expect(result.algorithm).toBe("SHA1");
+  });
+
   test("parses 7 digits", () => {
     const result = parseOtpauthUri("otpauth://totp/Test?secret=ABC&digits=7");
 
@@ -231,6 +304,62 @@ describe("parseJsonInput", () => {
       digits: 6,
       counter: 0,
     });
+  });
+
+  // JSON input and otpauth:// URIs accept the same aliases, so a value
+  // copied out of one and pasted into the other keeps working.
+  test("accepts dashed algorithm (SHA-1)", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":"SHA-1"}').algorithm).toBe("SHA1");
+  });
+
+  test("accepts dashed algorithm (sha-256)", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":"sha-256"}').algorithm).toBe("SHA256");
+  });
+
+  test("rejects an unsupported dashed digest (sha-384)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":"sha-384"}')).toThrow(
+      "Invalid algorithm: sha-384, expected SHA1, SHA256, or SHA512",
+    );
+  });
+
+  test("accepts case aliases of sha1", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":"sha1"}').algorithm).toBe("SHA1");
+    expect(parseJsonInput('{"secret":"ABC","algorithm":"SHA1"}').algorithm).toBe("SHA1");
+  });
+
+  test("defaults to SHA1 when algorithm is absent", () => {
+    expect(parseJsonInput('{"secret":"ABC"}').algorithm).toBe("SHA1");
+  });
+
+  // JSON has no undefined: null is how its authors spell "absent", and both
+  // null and "" defaulted before validation moved to core.
+  test("defaults to SHA1 for a null algorithm", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":null}').algorithm).toBe("SHA1");
+  });
+
+  test("defaults to SHA1 for an empty-string algorithm", () => {
+    expect(parseJsonInput('{"secret":"ABC","algorithm":""}').algorithm).toBe("SHA1");
+  });
+
+  test("throws on unsupported algorithm (md5)", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":"md5"}')).toThrow(
+      "Invalid algorithm: md5, expected SHA1, SHA256, or SHA512",
+    );
+  });
+
+  // Valid JSON that String() cannot convert: the algorithm object has a
+  // non-callable toString, so building the error message used to throw a raw
+  // TypeError over the CLI's own message.
+  test("throws the CLI's message for an algorithm with no primitive conversion", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":{"toString":null}}')).toThrow(
+      "expected SHA1, SHA256, or SHA512",
+    );
+  });
+
+  test("throws the CLI's message for a non-string algorithm", () => {
+    expect(() => parseJsonInput('{"secret":"ABC","algorithm":123}')).toThrow(
+      "Invalid algorithm: 123, expected SHA1, SHA256, or SHA512",
+    );
   });
 
   test("throws on invalid JSON", () => {

@@ -1,13 +1,88 @@
 import { describe, it, expect, vi } from "vitest";
+import { createRestrictedCryptoAlgorithmTests } from "@repo/testing";
 import {
   createBase32Plugin,
+  createCryptoContext,
   createCryptoPlugin,
   stringToBytes,
   bytesToString,
+  AlgorithmUnsupportedError,
   Base32DecodeError,
   Base32EncodeError,
 } from "./index.js";
 import type { Base32Plugin, CryptoPlugin, HashAlgorithm } from "./types.js";
+
+/**
+ * A plugin restricted to sha1, built through the documented factory.
+ *
+ * `hmac` deliberately performs no validation of its own: the factory is
+ * responsible for enforcing the declared capability, so any rejection proves
+ * the factory did it rather than the implementation.
+ */
+const sha1OnlyPlugin = createCryptoPlugin({
+  name: "sha1-only",
+  algorithms: ["sha1"],
+  hmac: () => new Uint8Array(20),
+  randomBytes: (length: number) => new Uint8Array(length),
+});
+
+createRestrictedCryptoAlgorithmTests({
+  describe,
+  it,
+  expect,
+  crypto: sha1OnlyPlugin,
+  errorClass: AlgorithmUnsupportedError,
+  createContext: (plugin) => createCryptoContext(plugin as CryptoPlugin),
+});
+
+describe("createCryptoPlugin capability immutability", () => {
+  // The factory must not retain the caller's array. Holding it by reference
+  // would let the caller push to their own copy after construction and broaden
+  // a restricted plugin, since `readonly` is erased at compile time.
+  it("should not let the caller broaden capability by mutating the input array", async () => {
+    const callerOwned: HashAlgorithm[] = ["sha1"];
+    const plugin = createCryptoPlugin({
+      name: "sha1-only",
+      algorithms: callerOwned,
+      hmac: () => new Uint8Array(20),
+      randomBytes: (length: number) => new Uint8Array(length),
+    });
+
+    callerOwned.push("sha256");
+
+    expect(plugin.algorithms).toEqual(["sha1"]);
+    expect(() => plugin.hmac("sha256", new Uint8Array(8), new Uint8Array(8))).toThrow(
+      AlgorithmUnsupportedError,
+    );
+    await expect(
+      createCryptoContext(plugin).hmac("sha256", new Uint8Array(8), new Uint8Array(8)),
+    ).rejects.toThrow(AlgorithmUnsupportedError);
+  });
+
+  it("should expose a frozen copy rather than the caller's array", () => {
+    const callerOwned: HashAlgorithm[] = ["sha1"];
+    const plugin = createCryptoPlugin({
+      name: "sha1-only",
+      algorithms: callerOwned,
+      hmac: () => new Uint8Array(20),
+      randomBytes: (length: number) => new Uint8Array(length),
+    });
+
+    expect(plugin.algorithms).not.toBe(callerOwned);
+    expect(Object.isFrozen(plugin.algorithms)).toBe(true);
+  });
+
+  it("should leave an undeclared plugin at the full set", () => {
+    const plugin = createCryptoPlugin({
+      name: "unrestricted",
+      hmac: () => new Uint8Array(20),
+      randomBytes: (length: number) => new Uint8Array(length),
+    });
+
+    expect(plugin.algorithms).toBeUndefined();
+    expect(() => plugin.hmac("sha512", new Uint8Array(8), new Uint8Array(8))).not.toThrow();
+  });
+});
 
 describe("createBase32Plugin", () => {
   describe("basic functionality", () => {

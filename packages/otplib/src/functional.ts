@@ -111,6 +111,7 @@ export function generateSecret(options?: {
  *
  * @param options - URI generation options
  * @returns otpauth:// URI string
+ * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  *
  * @example TOTP
  * ```ts
@@ -183,6 +184,8 @@ export function generateURI(options: {
  *
  * @param options - OTP generation options
  * @returns OTP code
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example TOTP
  * ```ts
@@ -246,7 +249,8 @@ export async function generate(options: OTPGenerateOptions): Promise<string> {
  *
  * @param options - OTP generation options
  * @returns OTP code
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts
@@ -291,6 +295,8 @@ export function generateSync(options: OTPGenerateOptions): string {
  *
  * @param options - OTP verification options
  * @returns Verification result with validity and optional delta
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example TOTP
  * ```ts
@@ -361,7 +367,8 @@ export async function verify(options: OTPVerifyOptions): Promise<VerifyResult> {
  *
  * @param options - OTP verification options
  * @returns Verification result with validity and optional delta
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts

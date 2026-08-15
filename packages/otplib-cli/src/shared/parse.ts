@@ -1,3 +1,5 @@
+import { normalizeHashAlgorithm } from "@otplib/core";
+
 import { decodePayload } from "./types.js";
 
 import type { HotpData, OtpAlgorithm, OtpData, OtpDigits, ParsedEntry } from "./types.js";
@@ -19,13 +21,53 @@ export type ParsedEnv = {
   guardrails?: Partial<OTPGuardrailsConfig>;
 };
 
-function normalizeAlgorithm(alg?: string): OtpAlgorithm {
-  if (!alg) return "SHA1";
-  const upper = alg.toUpperCase().replace("-", "");
-  if (upper === "SHA1") return "SHA1";
-  if (upper === "SHA256") return "SHA256";
-  if (upper === "SHA512") return "SHA512";
-  throw new Error(`Invalid algorithm: ${alg}, expected SHA1, SHA256, or SHA512`);
+function invalidAlgorithm(alg: unknown): Error {
+  return new Error(
+    `Invalid algorithm: ${describeAlgorithm(alg)}, expected SHA1, SHA256, or SHA512`,
+  );
+}
+
+/**
+ * Render a rejected algorithm for the CLI's error message.
+ *
+ * JSON input reaches here as `unknown`, and `String()` throws on a value with
+ * no usable primitive conversion - `{"algorithm":{"toString":null}}` is valid
+ * JSON that produces exactly that. Building the error must not itself throw,
+ * or the user gets a raw TypeError instead of the CLI's message.
+ */
+function describeAlgorithm(alg: unknown): string {
+  if (typeof alg === "string") {
+    return alg;
+  }
+
+  try {
+    return String(alg);
+  } catch {
+    return typeof alg;
+  }
+}
+
+/**
+ * Parse an algorithm from either input format.
+ *
+ * Delegates to core's `normalizeHashAlgorithm` so `otpauth://` URIs and
+ * user-authored JSON accept exactly the same aliases. Case is ignored, and one
+ * optional `-` or `_` is accepted before the digest size, so `SHA1`, `sha1`
+ * and `SHA-256` all resolve. The CLI's own casing (`SHA1`) is applied on the
+ * way out.
+ */
+function normalizeAlgorithm(alg?: unknown): OtpAlgorithm {
+  // JSON spells "absent" as null, and an empty string carries no value either
+  // way - both take the default, as they did before validation moved to core.
+  if (alg === undefined || alg === null || alg === "") return "SHA1";
+  try {
+    return normalizeHashAlgorithm(alg).toUpperCase() as OtpAlgorithm;
+  } catch {
+    // Caught broadly rather than narrowed to AlgorithmUnsupportedError: the
+    // value is arbitrary parsed JSON, and every rejection should surface in the
+    // CLI's own error style regardless of how core reported it.
+    throw invalidAlgorithm(alg);
+  }
 }
 
 function normalizeDigits(digits?: number): OtpDigits {
@@ -71,7 +113,7 @@ export function parseOtpauthUri(uri: string): OtpData {
     account = label.slice(colonIndex + 1);
   }
 
-  const algorithm = normalizeAlgorithm(url.searchParams.get("algorithm") ?? undefined);
+  const algorithm = normalizeAlgorithm(url.searchParams.get("algorithm"));
   const digitsParam = url.searchParams.get("digits");
   const digits = normalizeDigits(digitsParam !== null ? parseInt(digitsParam, 10) : undefined);
 

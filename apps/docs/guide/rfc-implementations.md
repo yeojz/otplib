@@ -134,7 +134,8 @@ const secret = base32.encode(randomBytes(20), { padding: false });
 
 ### otpauth:// URI Format
 
-otplib fully implements the otpauth:// URI format used by Google Authenticator:
+otplib generates interoperable otpauth:// URIs and permissively parses the
+format used by Google Authenticator:
 
 ```
 otpauth://TYPE/LABEL?PARAMETERS
@@ -142,21 +143,33 @@ otpauth://TYPE/LABEL?PARAMETERS
 
 **Supported Parameters:**
 
-| Parameter | Required       | Type   | Description           | Default |
-| --------- | -------------- | ------ | --------------------- | ------- |
-| secret    | Yes            | string | Base32-encoded secret | -       |
-| issuer    | Recommended    | string | Provider name         | -       |
-| algorithm | No             | string | Hash algorithm        | SHA1    |
-| digits    | No             | number | OTP length            | 6       |
-| counter   | No (HOTP only) | number | Initial counter       | 0       |
-| period    | No (TOTP only) | number | Time step in seconds  | 30      |
+| Parameter | Required        | Type   | Description           | Default |
+| --------- | --------------- | ------ | --------------------- | ------- |
+| secret    | Yes             | string | Base32-encoded secret | -       |
+| issuer    | Recommended     | string | Provider name         | -       |
+| algorithm | No              | string | Hash algorithm        | SHA1    |
+| digits    | No              | number | OTP length            | 6       |
+| counter   | Yes (HOTP only) | number | Initial counter       | -       |
+| period    | No (TOTP only)  | number | Time step in seconds  | 30      |
+
+The Key URI format requires `counter` for HOTP. Otplib's HOTP generation helpers
+default it to `0` and always emit it; parsing also accepts an absent counter for
+backward compatibility.
+
+The OTPAuth URI format does not define how duplicate query parameters are
+resolved. Otplib consistently uses the first occurrence of every decoded key,
+matching `URLSearchParams.get()`: the first value is parsed and validated, while
+later values are ignored without being decoded. A bare parameter counts as an
+empty first value. Avoid duplicate parameters when interoperability matters.
+
+Parsing preserves optionality: an absent, bare, or empty `algorithm` parameter
+leaves the parsed algorithm undefined. OTP generation and verification apply
+the SHA-1 default when consuming that result.
 
 ### URI Generation
 
 ```typescript
 import { generateURI } from "otplib";
-import { crypto } from "@otplib/plugin-crypto-node";
-import { base32 } from "@otplib/plugin-base32-scure";
 
 const uri = generateURI({
   issuer: "MyService",
@@ -165,10 +178,8 @@ const uri = generateURI({
   algorithm: "sha1",
   digits: 6,
   period: 30,
-  crypto,
-  base32,
 });
-// otpauth://totp/MyService:user@example.com?secret=...&issuer=MyService&algorithm=SHA1&digits=6&period=30
+// otpauth://totp/MyService:user%40example.com?secret=...&issuer=MyService
 ```
 
 ### Test Integration

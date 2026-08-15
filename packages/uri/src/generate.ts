@@ -1,3 +1,5 @@
+import { normalizeHashAlgorithm } from "@otplib/core";
+
 import type { OTPAuthURI } from "./types.js";
 import type { HashAlgorithm, Digits } from "@otplib/core";
 
@@ -22,7 +24,8 @@ export type URIOptions = {
 
   /**
    * Hash algorithm (default: 'sha1')
-   * Note: Google Authenticator only supports sha1
+   * Note: Some authenticator apps ignore this parameter; sha1 has the widest
+   * interoperability.
    */
   algorithm?: HashAlgorithm;
 
@@ -64,6 +67,7 @@ export type HOTPURIOptions = URIOptions & {
  *
  * @param uri - The URI components
  * @returns The otpauth:// URI string
+ * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  *
  * @example
  * ```ts
@@ -106,8 +110,16 @@ export function generate(uri: OTPAuthURI): string {
     queryParams.push(`issuer=${encodeURIComponent(params.issuer)}`);
   }
 
-  if (params.algorithm && params.algorithm !== "sha1") {
-    queryParams.push(`algorithm=${params.algorithm.toUpperCase()}`);
+  if (params.algorithm) {
+    // Normalize first so untyped JS callers passing e.g. 'SHA1' are case-folded
+    // (and invalid values rejected) before the "omit when sha1" rule is applied.
+    const algorithm = normalizeHashAlgorithm(params.algorithm);
+
+    if (algorithm !== "sha1") {
+      // Mapped to the uppercase, non-dashed name the Key Uri Format requires
+      // (SHA256/SHA512).
+      queryParams.push(`algorithm=${algorithm.toUpperCase()}`);
+    }
   }
 
   if (params.digits && params.digits !== 6) {
@@ -132,6 +144,7 @@ export function generate(uri: OTPAuthURI): string {
  *
  * @param options - TOTP URI generation options
  * @returns The otpauth:// URI string
+ * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  */
 export function generateTOTP(options: TOTPURIOptions & { issuer: string; label: string }): string {
   const { issuer, label: account, secret, algorithm = "sha1", digits = 6, period = 30 } = options;
@@ -156,6 +169,7 @@ export function generateTOTP(options: TOTPURIOptions & { issuer: string; label: 
  *
  * @param options - HOTP URI generation options
  * @returns The otpauth:// URI string
+ * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  */
 export function generateHOTP(options: HOTPURIOptions & { issuer: string; label: string }): string {
   const { issuer, label: account, secret, counter = 0, algorithm = "sha1", digits = 6 } = options;

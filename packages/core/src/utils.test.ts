@@ -37,8 +37,11 @@ import {
   requireBase32String,
   wrapResult,
   wrapResultAsync,
+  HASH_ALGORITHMS,
+  normalizeHashAlgorithm,
   type OTPGuardrails,
 } from "./utils.js";
+import type { HashAlgorithm } from "./types.js";
 import {
   OTPError,
   SecretTooShortError,
@@ -65,6 +68,7 @@ import {
   LabelMissingError,
   IssuerMissingError,
   SecretTypeError,
+  AlgorithmUnsupportedError,
 } from "./errors.js";
 
 describe("Constants", () => {
@@ -882,6 +886,268 @@ describe("getDigestSize", () => {
 
   it("should return correct size for SHA-512", () => {
     expect(getDigestSize("sha512")).toBe(64);
+  });
+
+  it("should throw for an unsupported algorithm", () => {
+    // Typed as HashAlgorithm, but untyped JS callers can still reach here.
+    expect(() => getDigestSize("md5" as HashAlgorithm)).toThrow(AlgorithmUnsupportedError);
+  });
+});
+
+describe("HASH_ALGORITHMS", () => {
+  it("should list the supported algorithms", () => {
+    expect(HASH_ALGORITHMS).toEqual(["sha1", "sha256", "sha512"]);
+  });
+
+  // This array is the runtime allowlist, not just a type-level constant, so a
+  // mutation here would corrupt validation policy for every caller in the process.
+  it("should be frozen", () => {
+    expect(Object.isFrozen(HASH_ALGORITHMS)).toBe(true);
+  });
+
+  it("should not accept a pushed algorithm", () => {
+    expect(() => (HASH_ALGORITHMS as unknown as string[]).push("md5")).toThrow();
+    expect(HASH_ALGORITHMS).toEqual(["sha1", "sha256", "sha512"]);
+    expect(() => normalizeHashAlgorithm("md5")).toThrow(AlgorithmUnsupportedError);
+  });
+
+  // Derived from the alias table rather than written out again. This array is
+  // both the default `supported` set and the intersection base, so an algorithm
+  // present in the table but missing here would be rejected at runtime while
+  // type-checking everywhere.
+  it("should contain exactly the algorithms that have aliases", () => {
+    for (const algorithm of HASH_ALGORITHMS) {
+      expect(normalizeHashAlgorithm(algorithm)).toBe(algorithm);
+      expect(normalizeHashAlgorithm(algorithm.replace("sha", "sha-"))).toBe(algorithm);
+    }
+  });
+
+  it("should list each algorithm exactly once", () => {
+    expect(new Set(HASH_ALGORITHMS).size).toBe(HASH_ALGORITHMS.length);
+  });
+});
+
+describe("normalizeHashAlgorithm", () => {
+  describe("canonical values", () => {
+    for (const algorithm of HASH_ALGORITHMS) {
+      it(`should pass through "${algorithm}"`, () => {
+        expect(normalizeHashAlgorithm(algorithm)).toBe(algorithm);
+      });
+    }
+  });
+
+  describe("case-insensitive aliases", () => {
+    const aliases = [
+      { input: "SHA1", expected: "sha1" },
+      { input: "Sha1", expected: "sha1" },
+      { input: "sHa1", expected: "sha1" },
+      { input: "SHA256", expected: "sha256" },
+      { input: "Sha256", expected: "sha256" },
+      { input: "SHA512", expected: "sha512" },
+      { input: "Sha512", expected: "sha512" },
+    ] as const;
+
+    for (const { input, expected } of aliases) {
+      it(`should map "${input}" to "${expected}"`, () => {
+        expect(normalizeHashAlgorithm(input)).toBe(expected);
+      });
+    }
+  });
+
+  describe("separator aliases", () => {
+    // Every one of these is an alias of the canonical name it maps to, so
+    // accepting them cannot silently substitute a different digest.
+    const aliases = [
+      { input: "SHA-1", expected: "sha1" },
+      { input: "sha-1", expected: "sha1" },
+      { input: "sha_1", expected: "sha1" },
+      { input: "SHA-256", expected: "sha256" },
+      { input: "sha-256", expected: "sha256" },
+      { input: "SHA-512", expected: "sha512" },
+      { input: "sha-512", expected: "sha512" },
+    ] as const;
+
+    for (const { input, expected } of aliases) {
+      it(`should map "${input}" to "${expected}"`, () => {
+        expect(normalizeHashAlgorithm(input)).toBe(expected);
+      });
+    }
+
+    // The whole safety argument for accepting separator aliases is that no
+    // other digest has one. Pin the near misses.
+    const nearMisses = ["sha-3-256", "sha3-256", "sha-384", "sha-224", "sha-512-256", "sha-2"];
+
+    for (const value of nearMisses) {
+      it(`should still reject "${value}"`, () => {
+        expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
+      });
+    }
+
+    // Only the exact aliases in the lookup table are accepted. These are not
+    // aliases of anything, so they are reported rather than assembled into one.
+    const notAliases = ["sha-2-5-6", "s-h-a-1", "-sha1", "sha1-", "sha512-", "sha__1"];
+
+    for (const value of notAliases) {
+      it(`should reject "${value}"`, () => {
+        expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
+      });
+    }
+  });
+
+  // The lookup is a Map precisely so these cannot resolve. An object literal
+  // would hand back inherited members - `normalizeHashAlgorithm('toString')`
+  // returning a Function rather than throwing.
+  describe("inherited property names", () => {
+    const inherited = [
+      "__proto__",
+      "constructor",
+      "prototype",
+      "toString",
+      "valueOf",
+      "hasOwnProperty",
+    ];
+
+    for (const value of inherited) {
+      it(`should reject "${value}"`, () => {
+        expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
+      });
+    }
+  });
+
+  describe("rejected values", () => {
+    // Whitespace is not a separator: it is never part of an identifier, so it
+    // is reported rather than swallowed.
+    const rejected = [
+      "sha 1",
+      "md5",
+      "sha3-256",
+      "sha384",
+      "sha1 ",
+      " sha1",
+      "----",
+      "",
+      undefined,
+      null,
+      0,
+      1,
+      true,
+      {},
+      [],
+      ["sha1"],
+      Symbol("sha1"),
+    ];
+
+    for (const value of rejected) {
+      const label = typeof value === "string" ? `"${value}"` : String(value);
+
+      it(`should throw for ${label}`, () => {
+        expect(() => normalizeHashAlgorithm(value)).toThrow(AlgorithmUnsupportedError);
+      });
+    }
+  });
+
+  describe("hostile values", () => {
+    // These must surface as AlgorithmUnsupportedError, not as a TypeError from
+    // stringifying the value. CryptoContext normalizes outside its try block,
+    // so a foreign error here escapes unwrapped to the caller.
+    it("should reject an object with no primitive conversion", () => {
+      expect(() => normalizeHashAlgorithm(Object.create(null))).toThrow(AlgorithmUnsupportedError);
+    });
+
+    it("should reject an object whose toString throws", () => {
+      const hostile = {
+        toString() {
+          throw new Error("boom");
+        },
+      };
+
+      expect(() => normalizeHashAlgorithm(hostile)).toThrow(AlgorithmUnsupportedError);
+    });
+
+    it("should reject a boxed string", () => {
+      expect(() => normalizeHashAlgorithm(new String("sha1"))).toThrow(AlgorithmUnsupportedError);
+    });
+  });
+
+  describe("narrowed support", () => {
+    it("should reject an algorithm outside the supported set", () => {
+      expect(() => normalizeHashAlgorithm("sha512", { supported: ["sha1", "sha256"] })).toThrow(
+        AlgorithmUnsupportedError,
+      );
+    });
+
+    it("should still case-fold within the supported set", () => {
+      expect(normalizeHashAlgorithm("SHA256", { supported: ["sha1", "sha256"] })).toBe("sha256");
+    });
+
+    it("should still accept separator aliases within the supported set", () => {
+      expect(normalizeHashAlgorithm("SHA-256", { supported: ["sha1", "sha256"] })).toBe("sha256");
+    });
+
+    it("should not let a separator alias escape the supported set", () => {
+      expect(() => normalizeHashAlgorithm("SHA-512", { supported: ["sha1", "sha256"] })).toThrow(
+        AlgorithmUnsupportedError,
+      );
+    });
+
+    it("should name the plugin in the error", () => {
+      expect(() => normalizeHashAlgorithm("md5", { plugin: "noble" })).toThrow("[plugin: noble]");
+    });
+
+    it("should list only the narrowed set in the error", () => {
+      expect(() => normalizeHashAlgorithm("sha512", { supported: ["sha1"] })).toThrow(
+        "Expected one of: sha1",
+      );
+    });
+
+    // `supported` arrives from crypto plugins, including untyped ones. It is
+    // intersected with HASH_ALGORITHMS so it can only ever narrow - otherwise a
+    // plugin could widen the library allowlist for anything holding it.
+    it("should not let a plugin widen the allowlist", () => {
+      const widened = ["md5", "sha1"] as unknown as HashAlgorithm[];
+
+      expect(() => normalizeHashAlgorithm("md5", { supported: widened })).toThrow(
+        AlgorithmUnsupportedError,
+      );
+      expect(normalizeHashAlgorithm("sha1", { supported: widened })).toBe("sha1");
+    });
+
+    // Omitted and empty are different declarations and must stay that way.
+    // Omitted is the backward-compatible reading for a plugin written before
+    // `algorithms` existed; empty is a plugin declaring it supports nothing.
+    describe("omitted versus explicitly empty", () => {
+      for (const algorithm of HASH_ALGORITHMS) {
+        it(`should accept "${algorithm}" when supported is omitted`, () => {
+          expect(normalizeHashAlgorithm(algorithm)).toBe(algorithm);
+          expect(normalizeHashAlgorithm(algorithm, {})).toBe(algorithm);
+          expect(normalizeHashAlgorithm(algorithm, { supported: undefined })).toBe(algorithm);
+        });
+
+        it(`should reject "${algorithm}" when supported is empty`, () => {
+          expect(() => normalizeHashAlgorithm(algorithm, { supported: [] })).toThrow(
+            AlgorithmUnsupportedError,
+          );
+        });
+
+        it(`should reject "${algorithm}" unless a restricted set names it`, () => {
+          const restricted: HashAlgorithm[] = ["sha256"];
+
+          if (algorithm === "sha256") {
+            expect(normalizeHashAlgorithm(algorithm, { supported: restricted })).toBe(algorithm);
+          } else {
+            expect(() => normalizeHashAlgorithm(algorithm, { supported: restricted })).toThrow(
+              AlgorithmUnsupportedError,
+            );
+          }
+        });
+      }
+
+      // An empty set has nothing to list, so the message must not read
+      // "Expected one of: " with nothing after it.
+      it("should render an empty supported set legibly", () => {
+        expect(() => normalizeHashAlgorithm("sha1", { supported: [] })).toThrow("(none)");
+      });
+    });
   });
 });
 

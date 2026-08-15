@@ -26,6 +26,9 @@ export function normalizeGenerateOptions(
     strategy: options.strategy ?? "totp",
     crypto: options.crypto ?? defaultCrypto,
     base32: options.base32 ?? defaultBase32,
+    // Not normalized here. Every caller of this function delegates to HOTP or
+    // TOTP, which normalize against the same plugin and raise the same error -
+    // doing it twice only changes which frame reports it.
     algorithm: options.algorithm ?? "sha1",
     digits: options.digits ?? 6,
     period: options.period ?? 30,

@@ -1,3 +1,5 @@
+import { normalizeHashAlgorithm } from "@otplib/core";
+
 import { InvalidURIError, InvalidParameterError, MissingParameterError } from "./types.js";
 
 import type { OTPAuthURI, OTPAuthParams } from "./types.js";
@@ -124,6 +126,7 @@ export function parse(uri: string): OTPAuthURI {
  */
 function parseQueryString(queryString: string): MutableOTPAuthParams {
   const params: MutableOTPAuthParams = {};
+  const seenParameters = new Set<string>();
 
   if (!queryString) {
     return params;
@@ -132,16 +135,35 @@ function parseQueryString(queryString: string): MutableOTPAuthParams {
   const pairs = queryString.split("&");
   for (const pair of pairs) {
     const equalIndex = pair.indexOf("=");
-    if (equalIndex === -1) {
-      continue;
+    const isBare = equalIndex === -1;
+
+    let key: string;
+    if (isBare) {
+      try {
+        key = decodeURIComponent(pair);
+      } catch {
+        // Preserve the existing behavior for malformed bare parameters: only
+        // key/value pairs participate in strict URI decoding.
+        continue;
+      }
+    } else {
+      key = safeDecodeURIComponent(pair.slice(0, equalIndex), 64, "parameter key");
     }
 
-    const key = safeDecodeURIComponent(pair.slice(0, equalIndex), 64, "parameter key");
-    const value = safeDecodeURIComponent(
-      pair.slice(equalIndex + 1),
-      MAX_PARAM_VALUE_LENGTH,
-      `parameter '${key}'`,
-    );
+    // Match URLSearchParams.get(): the first decoded occurrence determines the
+    // parameter. Later values are ignored without decoding or validating them.
+    if (seenParameters.has(key)) {
+      continue;
+    }
+    seenParameters.add(key);
+
+    const value = isBare
+      ? ""
+      : safeDecodeURIComponent(
+          pair.slice(equalIndex + 1),
+          MAX_PARAM_VALUE_LENGTH,
+          `parameter '${key}'`,
+        );
 
     switch (key) {
       case "secret":
@@ -151,7 +173,13 @@ function parseQueryString(queryString: string): MutableOTPAuthParams {
         params.issuer = value;
         break;
       case "algorithm":
-        params.algorithm = parseAlgorithm(value);
+        // `?algorithm=` carries no value. The Key Uri Format makes this
+        // parameter optional with a SHA-1 default, so an empty one is treated
+        // as omitted rather than as an invalid value - which is also what the
+        // CLI parser does with the same URI. Any non-empty value stays strict.
+        if (value !== "") {
+          params.algorithm = parseAlgorithm(value);
+        }
         break;
       case "digits":
         params.digits = parseDigits(value);
@@ -190,19 +218,21 @@ function parseIntegerParameter(name: string, value: string, min: number): number
 
 /**
  * Parse algorithm string
+ *
+ * `otpauth://` URIs come from third-party issuers, several of which emit the
+ * dashed aliases (`SHA-1`, `SHA-256`). Core's `normalizeHashAlgorithm`
+ * accepts those and returns the canonical lowercase name, so this only has to
+ * restate the rejection in this package's error type.
  */
 function parseAlgorithm(value: string): HashAlgorithm {
-  const normalized = value.toLowerCase();
-  if (normalized === "sha1" || normalized === "sha-1") {
-    return "sha1";
+  try {
+    return normalizeHashAlgorithm(value);
+  } catch (error) {
+    // Carried as cause so the AlgorithmUnsupportedError stays reachable -
+    // generate() throws the core error directly, and without this bridge the
+    // two directions would be programmatically unrelatable.
+    throw new InvalidParameterError("algorithm", value, { cause: error });
   }
-  if (normalized === "sha256" || normalized === "sha-256") {
-    return "sha256";
-  }
-  if (normalized === "sha512" || normalized === "sha-512") {
-    return "sha512";
-  }
-  throw new InvalidParameterError("algorithm", value);
 }
 
 /**

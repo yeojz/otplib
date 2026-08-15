@@ -183,6 +183,61 @@ export class AlgorithmError extends OTPError {
 }
 
 /**
+ * Additional context for {@link AlgorithmUnsupportedError}
+ */
+export type AlgorithmUnsupportedContext = {
+  /**
+   * The algorithms accepted at the point of failure.
+   *
+   * Supplied by the caller rather than defaulted here: this module has no
+   * business restating the allowlist, and `errors.ts` cannot import it from
+   * `utils.ts` without an import cycle. Every thrower inside the library
+   * passes it. Omitting it drops the "Expected one of" clause rather than
+   * guessing, so the message never names a set the caller did not vouch for.
+   */
+  supported?: readonly string[];
+
+  /**
+   * Name of the crypto plugin that rejected the value, when applicable.
+   */
+  plugin?: string;
+};
+
+/**
+ * Error thrown when a hash algorithm is not recognised or is outside a
+ * plugin's declared supported set
+ *
+ * The message identifies the declared supported algorithms and, when
+ * applicable, the plugin that rejected the request. It deliberately does not
+ * render the caller-supplied value; callers should retain that input in their
+ * own error context.
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   crypto.hmac('md5', key, data);
+ * } catch (error) {
+ *   if (error instanceof AlgorithmUnsupportedError) {
+ *     console.log(error.message);
+ *     // Unsupported hash algorithm. Expected one of: sha1, sha256, sha512
+ *   }
+ * }
+ * ```
+ */
+export class AlgorithmUnsupportedError extends AlgorithmError {
+  constructor(_value: unknown, context: AlgorithmUnsupportedContext = {}) {
+    const { supported, plugin } = context;
+
+    super(
+      "Unsupported hash algorithm." +
+        (supported ? ` Expected one of: ${supported.join(", ") || "(none)"}` : "") +
+        (plugin ? ` [plugin: ${plugin}]` : ""),
+    );
+    this.name = "AlgorithmUnsupportedError";
+  }
+}
+
+/**
  * Error thrown when token is invalid
  */
 export class TokenError extends OTPError {

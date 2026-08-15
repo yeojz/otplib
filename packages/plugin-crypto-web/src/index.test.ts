@@ -1,7 +1,15 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { WebCryptoPlugin } from "./index.js";
-import { stringToBytes } from "@otplib/core";
-import { testRFC4226HMAC } from "@repo/testing";
+import { AlgorithmUnsupportedError, stringToBytes } from "@otplib/core";
+import { createCryptoAlgorithmTests, testRFC4226HMAC } from "@repo/testing";
+
+createCryptoAlgorithmTests({
+  describe,
+  it,
+  expect,
+  crypto: new WebCryptoPlugin(),
+  errorClass: AlgorithmUnsupportedError,
+});
 
 describe("WebCryptoPlugin", () => {
   let plugin: WebCryptoPlugin;
@@ -51,36 +59,6 @@ describe("WebCryptoPlugin", () => {
   });
 
   describe("hmac", () => {
-    it("should compute HMAC-SHA1 correctly", async () => {
-      const secret = stringToBytes("abcde");
-      const message = stringToBytes("fghij");
-
-      const result = await plugin.hmac("sha1", secret, message);
-
-      expect(result).toBeInstanceOf(Uint8Array);
-      expect(result.length).toBe(20); // SHA1 outputs 20 bytes
-    });
-
-    it("should compute HMAC-SHA256 correctly", async () => {
-      const secret = stringToBytes("abcde");
-      const message = stringToBytes("fghij");
-
-      const result = await plugin.hmac("sha256", secret, message);
-
-      expect(result).toBeInstanceOf(Uint8Array);
-      expect(result.length).toBe(32); // SHA256 outputs 32 bytes
-    });
-
-    it("should compute HMAC-SHA512 correctly", async () => {
-      const secret = stringToBytes("abcde");
-      const message = stringToBytes("fghij");
-
-      const result = await plugin.hmac("sha512", secret, message);
-
-      expect(result).toBeInstanceOf(Uint8Array);
-      expect(result.length).toBe(64); // SHA512 outputs 64 bytes
-    });
-
     it("should produce consistent HMAC for same inputs", async () => {
       const secret = stringToBytes("abcde");
       const message = stringToBytes("fghij");

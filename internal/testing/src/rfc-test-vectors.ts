@@ -33,6 +33,16 @@ export const RFC_TEST_SECRET = "12345678901234567890";
 export const RFC_TEST_SECRET_HEX = "3132333435363738393031323334353637383930";
 
 /**
+ * Base32 (RFC 4648) encoding of the RFC base secret
+ *
+ * The encoding every public API here accepts by default, so this is the form
+ * needed to drive RFC 6238 vectors through `otplib` rather than through the
+ * lower-level packages. Sits alongside the ASCII and hex forms above because
+ * they are the same 20 bytes in three encodings.
+ */
+export const RFC_TEST_SECRET_BASE32 = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+
+/**
  * RFC 4226 Appendix D - HOTP Test Vectors
  * Secret: "12345678901234567890" in ASCII (20 bytes)
  *

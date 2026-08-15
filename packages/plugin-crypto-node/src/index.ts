@@ -1,6 +1,40 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
-import { stringToBytes, validateByteLengthEqual, type CryptoPlugin } from "@otplib/core";
+import {
+  normalizeHashAlgorithm,
+  stringToBytes,
+  validateByteLengthEqual,
+  type CryptoPlugin,
+  type HashAlgorithm,
+} from "@otplib/core";
+
+/**
+ * OpenSSL digest name keyed by canonical algorithm name
+ *
+ * An explicit map rather than forwarding the caller's string: passing it
+ * straight through is how this plugin used to inherit OpenSSL's whole digest
+ * catalogue, accepting `md5`, `sha224` and `ripemd160`. Routing through a
+ * closed map makes that structural rather than a matter of validating first.
+ *
+ * The `satisfies` constraint forbids a key outside `HashAlgorithm` and
+ * requires every member of it.
+ */
+const OPENSSL_DIGESTS = {
+  sha1: "sha1",
+  sha256: "sha256",
+  sha512: "sha512",
+} as const satisfies Record<HashAlgorithm, string>;
+
+/**
+ * Algorithms this plugin can compute
+ *
+ * Derived from the digest map rather than written out again, so the declared
+ * set cannot disagree with what `hmac` actually handles. Frozen because
+ * `readonly` is erased at compile time, so an unfrozen array exposed as
+ * `plugin.algorithms` could be mutated in-process and make the capability
+ * metadata unstable.
+ */
+const SUPPORTED_ALGORITHMS = Object.freeze(Object.keys(OPENSSL_DIGESTS) as HashAlgorithm[]);
 
 /**
  * Node.js crypto module implementation of CryptoPlugin
@@ -26,17 +60,32 @@ export class NodeCryptoPlugin implements CryptoPlugin {
   readonly name = "node";
 
   /**
+   * Algorithms this plugin can compute
+   */
+  readonly algorithms = SUPPORTED_ALGORITHMS;
+
+  /**
    * Compute HMAC using Node.js crypto module
    *
    * Synchronous implementation using createHmac.
+   *
+   * The algorithm is matched ignoring case, with an optional `-` or `_` before
+   * the digest size, so `'SHA1'`, `'Sha1'` and `'SHA-1'` all resolve to
+   * `'sha1'`. Any other digest OpenSSL happens to support - `'md5'`,
+   * `'sha224'`, `'ripemd160'` - throws `AlgorithmUnsupportedError`.
    *
    * @param algorithm - Hash algorithm to use
    * @param key - Secret key
    * @param data - Data to authenticate
    * @returns HMAC digest
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
-  hmac(algorithm: "sha1" | "sha256" | "sha512", key: Uint8Array, data: Uint8Array): Uint8Array {
-    const hmac = createHmac(algorithm, key);
+  hmac(algorithm: HashAlgorithm, key: Uint8Array, data: Uint8Array): Uint8Array {
+    const alg = normalizeHashAlgorithm(algorithm, {
+      supported: this.algorithms,
+      plugin: this.name,
+    });
+    const hmac = createHmac(OPENSSL_DIGESTS[alg], key);
     hmac.update(data);
     return new Uint8Array(hmac.digest());
   }

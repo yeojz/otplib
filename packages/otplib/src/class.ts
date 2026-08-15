@@ -326,6 +326,8 @@ export class OTP {
    *
    * @param options - Generation options
    * @returns OTP code
+   * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+   * @throws {HMACError} If HMAC computation fails in the crypto plugin
    */
   async generate(options: OTPGenerateOptions): Promise<string> {
     return functionalGenerate({
@@ -342,7 +344,8 @@ export class OTP {
    *
    * @param options - Generation options
    * @returns OTP code
-   * @throws {HMACError} If the crypto plugin doesn't support sync operations
+   * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+   * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
    */
   generateSync(options: OTPGenerateOptions): string {
     return functionalGenerateSync({
@@ -359,6 +362,8 @@ export class OTP {
    *
    * @param options - Verification options
    * @returns Verification result with validity and optional delta
+   * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+   * @throws {HMACError} If HMAC computation fails in the crypto plugin
    */
   async verify(options: OTPVerifyOptions): Promise<VerifyResult> {
     return functionalVerify({
@@ -375,7 +380,8 @@ export class OTP {
    *
    * @param options - Verification options
    * @returns Verification result with validity and optional delta
-   * @throws {HMACError} If the crypto plugin doesn't support sync operations
+   * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+   * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
    */
   verifySync(options: OTPVerifyOptions): VerifyResult {
     return functionalVerifySync({
@@ -394,6 +400,7 @@ export class OTP {
    *
    * @param options - URI generation options
    * @returns otpauth:// URI string
+   * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
    */
   generateURI(options: OTPURIGenerateOptions): string {
     return functionalGenerateURI({

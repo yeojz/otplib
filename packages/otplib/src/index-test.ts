@@ -18,9 +18,15 @@ import {
   verifySync,
 } from "./functional.ts";
 
-import type { CryptoPlugin, Base32Plugin } from "@otplib/core";
+import { AlgorithmUnsupportedError } from "@otplib/core";
+
+import type { CryptoPlugin, Base32Plugin, HashAlgorithm } from "@otplib/core";
 import type { TestContext } from "@repo/testing";
-import { TEST_SECRET_HOTP_BASE32, TEST_SECRET_BUG_REPORT } from "@repo/testing";
+import {
+  TEST_SECRET_HOTP_BASE32,
+  TEST_SECRET_BUG_REPORT,
+  RFC_TEST_SECRET_BASE32,
+} from "@repo/testing";
 
 export type OtplibTestContext = TestContext<CryptoPlugin, Base32Plugin> & {
   otplib: {
@@ -544,6 +550,101 @@ export function createOtplibTests(ctx: OtplibTestContext): void {
         expect(() => generateSync({ secret: TEST_SECRET, strategy: "invalid" as never })).toThrow(
           "Unknown OTP strategy: invalid",
         );
+      });
+
+      // Regression: an untyped JS caller passing 'SHA1' used to fall through to a
+      // non-sha1 code path and produce a wrong token ('69342147') instead of the
+      // RFC 6238 vector value.
+      it("should case-fold an uppercase 'SHA1' algorithm (RFC 6238 vector)", () => {
+        const token = generateSync({
+          secret: RFC_TEST_SECRET_BASE32,
+          algorithm: "SHA1" as HashAlgorithm,
+          digits: 8,
+          period: 30,
+          epoch: 59,
+        });
+
+        expect(token).toBe("94287082");
+        expect(token).not.toBe("69342147");
+      });
+
+      // The explicit dashed SHA-1 alias must land on the same RFC 6238 vector
+      // as 'SHA1' rather than being rejected or routed to a different digest.
+      it("should accept a dashed 'SHA-1' algorithm (RFC 6238 vector)", () => {
+        const token = generateSync({
+          secret: RFC_TEST_SECRET_BASE32,
+          algorithm: "SHA-1" as HashAlgorithm,
+          digits: 8,
+          period: 30,
+          epoch: 59,
+        });
+
+        expect(token).toBe("94287082");
+      });
+
+      it("should throw AlgorithmUnsupportedError for an unsupported digest", () => {
+        expect(() =>
+          generateSync({
+            secret: RFC_TEST_SECRET_BASE32,
+            algorithm: "sha-384" as HashAlgorithm,
+            digits: 8,
+            period: 30,
+            epoch: 59,
+          }),
+        ).toThrow(AlgorithmUnsupportedError);
+      });
+
+      // The facade delegates to HOTP/TOTP, which check against the configured
+      // plugin's own set - so the error names what that plugin accepts rather
+      // than the full allowlist, without the facade normalizing again itself.
+      describe("narrowed crypto plugin", () => {
+        const sha1OnlyCrypto: CryptoPlugin = {
+          name: "sha1-only",
+          algorithms: ["sha1"],
+          hmac: (algorithm, key, data) => crypto.hmac(algorithm, key, data),
+          randomBytes: (length) => crypto.randomBytes(length),
+        };
+
+        it("should reject an algorithm the plugin does not support", () => {
+          expect(() =>
+            generateSync({
+              secret: RFC_TEST_SECRET_BASE32,
+              algorithm: "sha512",
+              crypto: sha1OnlyCrypto,
+            }),
+          ).toThrow(AlgorithmUnsupportedError);
+        });
+
+        it("should report the plugin's own set rather than the full allowlist", () => {
+          expect(() =>
+            generateSync({
+              secret: RFC_TEST_SECRET_BASE32,
+              algorithm: "sha512",
+              crypto: sha1OnlyCrypto,
+            }),
+          ).toThrow("Expected one of: sha1 ");
+
+          expect(() =>
+            generateSync({
+              secret: RFC_TEST_SECRET_BASE32,
+              algorithm: "sha512",
+              crypto: sha1OnlyCrypto,
+            }),
+          ).toThrow("[plugin: sha1-only]");
+        });
+
+        it("should still produce the RFC 6238 vector for a supported algorithm", () => {
+          const token = generateSync({
+            secret: RFC_TEST_SECRET_BASE32,
+            algorithm: "sha1",
+            digits: 8,
+            period: 30,
+            epoch: 59,
+            crypto: sha1OnlyCrypto,
+          });
+
+          expect(token).toBe("94287082");
+        });
       });
     });
 

@@ -14,6 +14,7 @@ import {
   PeriodTooLargeError,
   DigitsError,
   AlgorithmError,
+  AlgorithmUnsupportedError,
   TokenError,
   TokenLengthError,
   TokenFormatError,
@@ -162,6 +163,50 @@ describe("AlgorithmError", () => {
     expect(error.message).toBe("Invalid algorithm");
     expect(error.name).toBe("AlgorithmError");
     expect(error).toBeInstanceOf(OTPError);
+  });
+});
+
+describe("AlgorithmUnsupportedError", () => {
+  it("should extend AlgorithmError and OTPError", () => {
+    const error = new AlgorithmUnsupportedError("md5");
+    expect(error.name).toBe("AlgorithmUnsupportedError");
+    expect(error).toBeInstanceOf(AlgorithmError);
+    expect(error).toBeInstanceOf(OTPError);
+  });
+
+  it("should describe the supported algorithms without echoing the rejected value", () => {
+    const error = new AlgorithmUnsupportedError("md5", {
+      supported: ["sha1", "sha256", "sha512"],
+    });
+
+    expect(error.message).toBe("Unsupported hash algorithm. Expected one of: sha1, sha256, sha512");
+  });
+
+  // The allowlist lives in utils.ts, which this module cannot import without a
+  // cycle. Rather than restate it here and risk the two drifting, the clause is
+  // dropped when the thrower does not supply one - every thrower in the library
+  // does.
+  it("should omit the expected-set clause when no supported set is given", () => {
+    const error = new AlgorithmUnsupportedError("md5");
+
+    expect(error.message).toBe("Unsupported hash algorithm.");
+    expect(error.message).not.toContain("Expected one of");
+  });
+
+  it("should render an empty supported set legibly", () => {
+    const error = new AlgorithmUnsupportedError("sha1", { supported: [] });
+
+    expect(error.message).toContain("Expected one of: (none)");
+  });
+
+  it("should name the plugin when given", () => {
+    const error = new AlgorithmUnsupportedError("md5", { plugin: "noble" });
+    expect(error.message).toBe("Unsupported hash algorithm. [plugin: noble]");
+  });
+
+  it("should list a narrowed supported set", () => {
+    const error = new AlgorithmUnsupportedError("sha512", { supported: ["sha1", "sha256"] });
+    expect(error.message).toBe("Unsupported hash algorithm. Expected one of: sha1, sha256");
   });
 });
 

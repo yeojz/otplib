@@ -91,6 +91,30 @@ const result = await verify({
 });
 ```
 
+### "Existing enrollments stopped verifying after an upgrade"
+
+**Affects `@otplib/plugin-crypto-noble` 13.0.0 – 13.4.1**, the default crypto plugin. In that range it fell
+back to SHA-512 for any algorithm name it did not recognise. A caller passing `'SHA1'` or `'SHA256'` —
+aliases TypeScript rejects, but plain JavaScript does not — silently got HMAC-SHA-512 with no error. Those
+tokens were self-consistent, so they verified against the same fallback but not clients computing the
+algorithm the caller requested.
+
+Later versions remove the fallback: an unrecognised name throws `AlgorithmUnsupportedError`, and a recognised
+one computes the algorithm it actually names. If secrets enrolled on 13.4.1 or earlier stop verifying after
+you upgrade, they were almost certainly created through that path.
+
+Two ways out:
+
+```typescript
+// 1. Keep the old tokens working - they really were SHA-512
+const result = await verify({ secret, token, algorithm: "sha512" });
+
+// 2. Or re-enroll the user against the algorithm you intended
+```
+
+Newly generated tokens are unaffected. Only stored secrets whose recorded algorithm disagrees with the digest
+they were actually enrolled with are at risk.
+
 ### "Tolerance validation failed"
 
 The tolerance parameters have maximum values to prevent DoS attacks:

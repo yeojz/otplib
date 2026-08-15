@@ -18,6 +18,7 @@ import {
   validateCounterTolerance,
   normalizeSecret,
   normalizeCounterTolerance,
+  normalizeHashAlgorithm,
   requireSecret,
   requireCryptoPlugin,
 } from "@otplib/core";
@@ -53,7 +54,7 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
   const {
     secret,
     counter,
-    algorithm = "sha1",
+    algorithm: rawAlgorithm = "sha1",
     digits = 6,
     crypto,
     base32,
@@ -67,6 +68,13 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
+  // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+  // Checked against the configured plugin's own set, so a plugin supporting
+  // fewer algorithms reports what it actually accepts rather than the full set.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm, {
+    supported: crypto.algorithms,
+    plugin: crypto.name,
+  });
 
   const ctx = createCryptoContext(crypto);
   const counterBytes = counterToBytes(counter);
@@ -80,7 +88,8 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
  * Implements the HOTP algorithm as specified in RFC 4226 Section 5.3:
  *
  * 1. Convert counter to 8-byte big-endian array (RFC 4226 Section 5.1)
- * 2. Compute HMAC-SHA-1 using the secret key and counter (RFC 4226 Section 5.2)
+ * 2. Compute HMAC using the selected algorithm. SHA-1 is the default specified
+ *    by RFC 4226; SHA-256 and SHA-512 are supported extensions.
  * 3. Apply dynamic truncation to extract 4-byte code (RFC 4226 Section 5.3)
  * 4. Reduce modulo 10^digits to get final OTP (RFC 4226 Section 5.3)
  *
@@ -88,6 +97,8 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
  *
  * @param options - HOTP generation options
  * @returns The HOTP code as a string
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example
  * ```ts
@@ -124,7 +135,8 @@ export async function generate(options: HOTPGenerateOptions): Promise<string> {
  *
  * @param options - HOTP generation options
  * @returns The HOTP code as a string
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts
@@ -179,7 +191,7 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
     secret,
     counter,
     token,
-    algorithm = "sha1",
+    algorithm: rawAlgorithm = "sha1",
     digits = 6,
     crypto,
     base32,
@@ -194,6 +206,13 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
+  // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
+  // Checked against the configured plugin's own set, so a plugin supporting
+  // fewer algorithms reports what it actually accepts rather than the full set.
+  const algorithm = normalizeHashAlgorithm(rawAlgorithm, {
+    supported: crypto.algorithms,
+    plugin: crypto.name,
+  });
 
   // Use custom validator if provided, otherwise default digit-only check
   if (hooks?.validateToken) {
@@ -250,6 +269,8 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
  *
  * @param options - HOTP verification options
  * @returns Verification result with validity and optional delta
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails in the crypto plugin
  *
  * @example Basic verification
  * ```ts
@@ -321,7 +342,8 @@ export async function verify(options: HOTPVerifyOptions): Promise<VerifyResult> 
  *
  * @param options - HOTP verification options
  * @returns Verification result with validity and optional delta
- * @throws {HMACError} If the crypto plugin doesn't support sync operations
+ * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+ * @throws {HMACError} If HMAC computation fails or the plugin does not support sync operations
  *
  * @example
  * ```ts

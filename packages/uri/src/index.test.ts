@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { generateTOTP, generateHOTP, parse, generate } from "./index.js";
 import { formatErrorMessage } from "./parse.js";
+import { AlgorithmUnsupportedError } from "@otplib/core";
 import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
+
+import { InvalidParameterError } from "./types.js";
+
+import type { OTPAuthURI } from "./types.js";
+import type { HashAlgorithm } from "@otplib/core";
 
 describe("URI", () => {
   describe("generateTOTP", () => {
@@ -397,6 +403,14 @@ describe("URI", () => {
       expect(parsed.params.issuer).toBe("Service");
     });
 
+    it("should skip malformed percent-encoding in a bare unknown parameter", () => {
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&malformed%ZZ&issuer=Service`;
+      const parsed = parse(uri);
+
+      expect(parsed.params.secret).toBe(TEST_SECRET_PARSE_BASE32);
+      expect(parsed.params.issuer).toBe("Service");
+    });
+
     it("should parse non-hyphenated algorithm names", () => {
       const sha1Uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=sha1`;
       expect(parse(sha1Uri).params.algorithm).toBe("sha1");
@@ -582,6 +596,243 @@ describe("URI", () => {
       expect(parsed.params.algorithm).toBe(original.algorithm);
       expect(parsed.params.digits).toBe(original.digits);
       expect(parsed.params.counter).toBe(original.counter);
+    });
+  });
+
+  describe("algorithm normalization", () => {
+    const baseURI = (algorithm: HashAlgorithm): OTPAuthURI => ({
+      type: "totp",
+      label: "Service:user",
+      params: { secret: TEST_SECRET_PARSE_BASE32, algorithm },
+    });
+
+    it("should emit uppercase non-dashed SHA256 token", () => {
+      expect(generate(baseURI("sha256"))).toContain("algorithm=SHA256");
+    });
+
+    it("should emit uppercase non-dashed SHA512 token", () => {
+      expect(generate(baseURI("sha512"))).toContain("algorithm=SHA512");
+    });
+
+    it("should omit algorithm param for sha1", () => {
+      expect(generate(baseURI("sha1"))).not.toContain("algorithm=");
+    });
+
+    it("should omit algorithm param for uppercase 'SHA1' from untyped callers", () => {
+      expect(generate(baseURI("SHA1" as HashAlgorithm))).not.toContain("algorithm=");
+    });
+
+    it("should case-fold uppercase 'SHA256' from untyped callers", () => {
+      expect(generate(baseURI("SHA256" as HashAlgorithm))).toContain("algorithm=SHA256");
+    });
+
+    it("should throw on an invalid algorithm", () => {
+      expect(() => generate(baseURI("md5" as HashAlgorithm))).toThrow(AlgorithmUnsupportedError);
+    });
+
+    // generate() and parse() accept the same aliases, so a URI that parses
+    // can be regenerated without the caller having to canonicalize first.
+    it("should emit the canonical name for a dashed alias", () => {
+      expect(generate(baseURI("SHA-256" as HashAlgorithm))).toContain("algorithm=SHA256");
+    });
+
+    it("should round-trip a dashed algorithm through parse and generate", () => {
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA-512`;
+      const regenerated = generate({
+        type: "totp",
+        label: "Service:user",
+        params: parse(uri).params,
+      });
+
+      expect(regenerated).toContain("algorithm=SHA512");
+    });
+
+    it("should round-trip to a canonical lowercase algorithm", () => {
+      const parsed = parse(generate(baseURI("SHA256" as HashAlgorithm)));
+      expect(parsed.params.algorithm).toBe("sha256");
+    });
+
+    it("should round-trip sha1 to an absent algorithm param", () => {
+      const parsed = parse(generate(baseURI("SHA1" as HashAlgorithm)));
+      expect(parsed.params.algorithm).toBeUndefined();
+    });
+
+    // This package is a string layer with no crypto plugin, so it validates
+    // against the full allowlist. A narrowed plugin elsewhere in the app must
+    // not make a URI unparseable or ungeneratable.
+    it("should accept every supported algorithm regardless of any plugin", () => {
+      for (const algorithm of ["sha1", "sha256", "sha512"] as const) {
+        const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${algorithm.toUpperCase()}`;
+
+        expect(parse(uri).params.algorithm).toBe(algorithm);
+        expect(() => generate(baseURI(algorithm))).not.toThrow();
+      }
+    });
+
+    // The Key Uri Format makes `algorithm` optional with a SHA-1 default, so
+    // `?algorithm=` carries no value and is treated as omitted - the same URI
+    // the CLI parser already accepts.
+    describe("empty algorithm parameter", () => {
+      const emptyParam = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=`;
+      const bareParam = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm`;
+      const noParam = `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}`;
+
+      it("should parse successfully", () => {
+        expect(() => parse(emptyParam)).not.toThrow();
+      });
+
+      it("should leave the algorithm undefined, matching an absent parameter", () => {
+        expect(parse(emptyParam).params.algorithm).toBeUndefined();
+        expect(parse(emptyParam).params.algorithm).toBe(parse(noParam).params.algorithm);
+      });
+
+      it("should treat one bare algorithm parameter as omitted", () => {
+        expect(parse(bareParam).params.algorithm).toBeUndefined();
+        expect(parse(bareParam).params.algorithm).toBe(parse(noParam).params.algorithm);
+      });
+
+      // Only the empty case is forgiving. Anything actually present is still
+      // held to the alias table.
+      for (const value of ["md5", "sha-384", "sha3-256", "%20", "sha%201", "not-an-algorithm"]) {
+        it(`should still throw InvalidParameterError for "?algorithm=${value}"`, () => {
+          expect(() =>
+            parse(`otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${value}`),
+          ).toThrow(InvalidParameterError);
+        });
+      }
+    });
+
+    describe("repeated query parameters", () => {
+      const firstWinsCases = [
+        {
+          name: "secret",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&secret=SECONDSECRET`,
+          read: (parsed: OTPAuthURI) => parsed.params.secret,
+          expected: TEST_SECRET_PARSE_BASE32,
+        },
+        {
+          name: "issuer",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&issuer=First&issuer=Second`,
+          read: (parsed: OTPAuthURI) => parsed.params.issuer,
+          expected: "First",
+        },
+        {
+          name: "algorithm",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA256&algorithm=SHA512`,
+          read: (parsed: OTPAuthURI) => parsed.params.algorithm,
+          expected: "sha256",
+        },
+        {
+          name: "digits",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&digits=6&digits=8`,
+          read: (parsed: OTPAuthURI) => parsed.params.digits,
+          expected: 6,
+        },
+        {
+          name: "period",
+          uri: `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&period=30&period=60`,
+          read: (parsed: OTPAuthURI) => parsed.params.period,
+          expected: 30,
+        },
+        {
+          name: "counter",
+          uri: `otpauth://hotp/Test?secret=${TEST_SECRET_PARSE_BASE32}&counter=1&counter=2`,
+          read: (parsed: OTPAuthURI) => parsed.params.counter,
+          expected: 1,
+        },
+      ];
+
+      for (const { name, uri, read, expected } of firstWinsCases) {
+        it(`should use only the first ${name} occurrence`, () => {
+          expect(read(parse(uri))).toBe(expected);
+        });
+      }
+
+      const ignoredMalformedValues = [
+        `secret=${TEST_SECRET_PARSE_BASE32}&secret=%`,
+        "issuer=First&issuer=%",
+        "algorithm=SHA256&algorithm=%",
+        "digits=6&digits=%",
+        "period=30&period=%",
+        "counter=1&counter=%",
+      ];
+
+      for (const query of ignoredMalformedValues) {
+        it(`should not decode the later value in "${query}"`, () => {
+          const type = query.startsWith("counter=") ? "hotp" : "totp";
+          const secret = query.startsWith("secret=") ? "" : `secret=${TEST_SECRET_PARSE_BASE32}&`;
+
+          expect(() => parse(`otpauth://${type}/Test?${secret}${query}`)).not.toThrow();
+        });
+      }
+
+      it("should identify repeated keys after decoding them", () => {
+        const parsed = parse(
+          `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=SHA256&%61lgorithm=%`,
+        );
+
+        expect(parsed.params.algorithm).toBe("sha256");
+      });
+
+      it("should validate the first value even when a later value is valid", () => {
+        expect(() =>
+          parse(
+            `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=INVALID&algorithm=SHA256`,
+          ),
+        ).toThrow(InvalidParameterError);
+      });
+
+      it("should let a bare first algorithm select the SHA-1 default", () => {
+        const parsed = parse(
+          `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm&algorithm=SHA512`,
+        );
+
+        expect(parsed.params.algorithm).toBeUndefined();
+      });
+
+      it("should let a bare first issuer select the empty value", () => {
+        const parsed = parse(
+          `otpauth://totp/Test?secret=${TEST_SECRET_PARSE_BASE32}&issuer&issuer=Second`,
+        );
+
+        expect(parsed.params.issuer).toBe("");
+      });
+
+      it("should let a bare first secret block a later secret", () => {
+        expect(() =>
+          parse(`otpauth://totp/Test?secret&secret=${TEST_SECRET_PARSE_BASE32}`),
+        ).toThrow("Missing required parameter: secret");
+      });
+
+      for (const parameter of ["digits", "period", "counter"]) {
+        it(`should validate a bare first ${parameter} as an empty value`, () => {
+          const type = parameter === "counter" ? "hotp" : "totp";
+
+          expect(() =>
+            parse(
+              `otpauth://${type}/Test?secret=${TEST_SECRET_PARSE_BASE32}&${parameter}&${parameter}=1`,
+            ),
+          ).toThrow(InvalidParameterError);
+        });
+      }
+    });
+
+    // parse() wraps the rejection in this package's InvalidParameterError while
+    // generate() throws the core error directly; the cause is the bridge that
+    // keeps the underlying rejection reachable from the parse side.
+    it("should carry the core error as cause when parse rejects an algorithm", () => {
+      const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=md5`;
+
+      let caught: unknown;
+      try {
+        parse(uri);
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).toBeInstanceOf(Error);
+      expect((caught as Error).name).toBe("InvalidParameterError");
+      expect((caught as Error).cause).toBeInstanceOf(AlgorithmUnsupportedError);
     });
   });
 

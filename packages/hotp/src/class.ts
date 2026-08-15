@@ -72,6 +72,8 @@ export class HOTP {
    * @param counter - The counter value
    * @param options - Optional overrides
    * @returns The HOTP code
+   * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+   * @throws {HMACError} If HMAC computation fails in the crypto plugin
    */
   async generate(counter: number, options?: Partial<HOTPOptions>): Promise<string> {
     const mergedOptions = { ...this.options, ...options };
@@ -101,6 +103,8 @@ export class HOTP {
    * @param params - Verification parameters
    * @param options - Optional verification options
    * @returns Verification result with validity and optional delta
+   * @throws {AlgorithmUnsupportedError} If the algorithm is invalid or unsupported by the plugin
+   * @throws {HMACError} If HMAC computation fails in the crypto plugin
    */
   async verify(
     params: { token: string; counter: number },
@@ -141,6 +145,7 @@ export class HOTP {
    *
    * @param counter - The counter value
    * @returns The otpauth:// URI
+   * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
    */
   toURI(counter: number = 0): string {
     const { issuer, label, secret, algorithm = "sha1", digits = 6 } = this.options;

@@ -86,12 +86,40 @@ export type CryptoPlugin = {
   readonly name: string;
 
   /**
+   * The algorithms this plugin can compute, when it supports fewer than all of
+   * `HASH_ALGORITHMS`
+   *
+   * Omit it unless the backing implementation is genuinely restricted - an
+   * absent value means the full set. `CryptoContext` reads this to reject an
+   * unsupported algorithm before delegating, rather than leaving the plugin to
+   * discover it.
+   *
+   * This can only narrow. The value is intersected with `HASH_ALGORITHMS`, so
+   * listing a digest outside that set does not enable it.
+   *
+   * Derive it from the plugin's own dispatch map (`Object.keys(HASH_FNS)`)
+   * rather than writing a parallel array, so the two cannot disagree about
+   * what the plugin actually handles.
+   */
+  readonly algorithms?: readonly HashAlgorithm[];
+
+  /**
    * Compute HMAC using the specified hash algorithm
+   *
+   * Implementations must match the algorithm ignoring case, with an optional
+   * `-` or `_` before the digest size (`'SHA1'`, `'Sha1'` and `'SHA-1'` all
+   * mean `'sha1'`), and throw
+   * `AlgorithmUnsupportedError` for anything else, rather than falling back to
+   * a default. Use `normalizeHashAlgorithm` from this package to get that
+   * behaviour for free. If the underlying implementation spells algorithms
+   * differently (for example Web Crypto's `SHA-1`), map the canonical name
+   * inside the plugin.
    *
    * @param algorithm - The hash algorithm to use
    * @param key - The secret key as a byte array
    * @param data - The data to authenticate as a byte array
    * @returns HMAC digest as a byte array
+   * @throws {AlgorithmUnsupportedError} If the algorithm is not supported
    */
   hmac(
     algorithm: HashAlgorithm,

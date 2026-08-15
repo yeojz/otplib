@@ -14,6 +14,7 @@
     "@otplib/uri": "workspace:*",
     "@otplib/plugin-crypto-node": "workspace:*",
     "@otplib/plugin-crypto-noble": "workspace:*",
+    "@otplib/plugin-crypto-web": "workspace:*",
     "@otplib/plugin-base32-scure": "workspace:*",
     "@repo/testing": "workspace:*"
   },

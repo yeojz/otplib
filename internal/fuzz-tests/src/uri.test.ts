@@ -299,32 +299,80 @@ describe("URI fuzz tests", () => {
   });
 
   describe("parameter validation", () => {
-    it("should accept valid algorithm variations", async () => {
-      await fc.assert(
-        fc.asyncProperty(
-          fc.constantFrom("SHA1", "sha1", "SHA-1", "sha-1", "SHA256", "sha256", "SHA-256"),
-          async (algo) => {
-            const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${algo}`;
+    it("should accept valid algorithm variations and map them to the exact canonical value", () => {
+      // Case is ignored and a single `-`/`_` is accepted, because issuers
+      // emit dashed aliases. Each input must map to its OWN canonical
+      // algorithm - never a silent substitution.
+      const acceptedAlgorithmCases: { input: string; expected: "sha1" | "sha256" | "sha512" }[] = [
+        { input: "SHA1", expected: "sha1" },
+        { input: "sha1", expected: "sha1" },
+        { input: "Sha1", expected: "sha1" },
+        { input: "sHa1", expected: "sha1" },
+        { input: "SHA-1", expected: "sha1" },
+        { input: "sha-1", expected: "sha1" },
+        { input: "Sha-1", expected: "sha1" },
+        { input: "SHA256", expected: "sha256" },
+        { input: "sha256", expected: "sha256" },
+        { input: "Sha256", expected: "sha256" },
+        { input: "SHA-256", expected: "sha256" },
+        { input: "sha-256", expected: "sha256" },
+        { input: "Sha-256", expected: "sha256" },
+        { input: "SHA512", expected: "sha512" },
+        { input: "sha512", expected: "sha512" },
+        { input: "Sha512", expected: "sha512" },
+        { input: "SHA-512", expected: "sha512" },
+        { input: "sha-512", expected: "sha512" },
+        { input: "Sha-512", expected: "sha512" },
+      ];
 
-            try {
-              const result = parse(uri);
-              expect(result.params.algorithm).toMatch(/^sha(1|256|512)$/);
-            } catch (err) {
-              // Invalid algorithm format throws
-              expect(err).toBeInstanceOf(InvalidParameterError);
-            }
-          },
-        ),
+      fc.assert(
+        fc.property(fc.constantFrom(...acceptedAlgorithmCases), ({ input, expected }) => {
+          const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${input}`;
+
+          const result = parse(uri);
+
+          expect(result.params.algorithm).toBe(expected);
+        }),
+        { numRuns: 200 },
+      );
+    });
+
+    it("should reject algorithm values outside the accepted set", () => {
+      const isAcceptedUriValue = (s: string) =>
+        s === "" || /^sha[-_]?(1|256|512)$/.test(s.toLowerCase());
+
+      const rejectedAlgorithm = fc
+        .oneof(
+          fc.constantFrom(
+            "md5",
+            "sha3-256",
+            "sha-384",
+            "sha384",
+            "",
+            "sha",
+            "sha-",
+            "----",
+            "sha1234",
+          ),
+          fc.string({ maxLength: 20 }),
+        )
+        .filter((s) => !isAcceptedUriValue(s));
+
+      fc.assert(
+        fc.property(rejectedAlgorithm, (invalidAlgo) => {
+          const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${encodeURIComponent(invalidAlgo)}`;
+
+          expect(() => parse(uri)).toThrow(InvalidParameterError);
+        }),
       );
     });
 
     it("should reject invalid algorithm values", async () => {
       await fc.assert(
         fc.asyncProperty(
-          fc.string({ minLength: 1, maxLength: 20 }).filter((s) => {
-            const normalized = s.toLowerCase().replace(/-/g, "");
-            return !["sha1", "sha256", "sha512"].includes(normalized);
-          }),
+          fc
+            .string({ minLength: 1, maxLength: 20 })
+            .filter((s) => !/^sha[-_]?(1|256|512)$/.test(s.toLowerCase())),
           async (invalidAlgo) => {
             const uri = `otpauth://totp/test?secret=${TEST_SECRET_PARSE_BASE32}&algorithm=${encodeURIComponent(invalidAlgo)}`;
 
