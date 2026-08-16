@@ -6,7 +6,7 @@ settings:
 
 overrides:
   ajv@>=6.0.0 <6.14.0: 6.14.0
-  esbuild@<=0.24.2: '>=0.25.0'
+  esbuild@<=0.24.2: '>=0.25.0 <0.28.0'
   markdown-it@>=13.0.0 <14.1.1: '>=14.1.1'
   minimatch: '>=10.2.3'
   preact@>=10.28.0 <10.28.2: '>=10.28.2'
@@ -90,10 +90,10 @@ importers:
         version: 8.65.0(eslint@9.39.2)(typescript@5.9.3)
       vite:
         specifier: ^8.2.0
-        version: 8.2.1(@types/node@25.6.0)(esbuild@0.28.1)(tsx@4.23.1)(yaml@2.8.4)
+        version: 8.2.1(@types/node@25.6.0)(esbuild@0.27.2)(tsx@4.23.1)(yaml@2.8.4)
       vitest:
         specifier: ^4.1.5
-        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(vite@8.2.1(@types/node@25.6.0)(esbuild@0.28.1)(tsx@4.23.1)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(vite@8.2.1(@types/node@25.6.0)(esbuild@0.27.2)(tsx@4.23.1)(yaml@2.8.4))
       vitest-tsconfig-paths:
         specifier: ^3.4.1
         version: 3.4.1
@@ -245,7 +245,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^4.1.5
-        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(vite@8.2.1(@types/node@25.6.0)(esbuild@0.27.2)(tsx@4.23.1)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(vite@8.2.1(@types/node@25.6.0)(esbuild@0.28.1)(tsx@4.23.1)(yaml@2.8.4))
 
   packages/hotp:
     dependencies:
@@ -2151,7 +2151,7 @@ packages:
     resolution: {integrity: sha512-3WrrOuZiyaaZPWiEt4G3+IffISVC9HYlWueJEBWED4ZH4aIAC2PnkdnuRrR94M+w6yGWn4AglWtJtBI8YqvgoA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     peerDependencies:
-      esbuild: '>=0.25.0'
+      esbuild: '>=0.25.0 <0.28.0'
 
   cac@6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
@@ -5162,7 +5162,7 @@ snapshots:
       '@stryker-mutator/util': 9.6.1
       semver: 7.7.4
       tslib: 2.8.1
-      vitest: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(vite@8.2.1(@types/node@25.6.0)(esbuild@0.28.1)(tsx@4.23.1)(yaml@2.8.4))
+      vitest: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(vite@8.2.1(@types/node@25.6.0)(esbuild@0.27.2)(tsx@4.23.1)(yaml@2.8.4))
 
   '@turbo/darwin-64@2.10.7':
     optional: true
@@ -5330,7 +5330,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(vite@8.2.1(@types/node@25.6.0)(esbuild@0.28.1)(tsx@4.23.1)(yaml@2.8.4))
+      vitest: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(vite@8.2.1(@types/node@25.6.0)(esbuild@0.27.2)(tsx@4.23.1)(yaml@2.8.4))
 
   '@vitest/expect@4.1.5':
     dependencies:
@@ -7420,7 +7420,7 @@ snapshots:
 
   vite@5.4.21(@types/node@25.6.0)(lightningcss@1.33.0):
     dependencies:
-      esbuild: 0.28.1
+      esbuild: 0.27.2
       postcss: 8.5.26
       rollup: 4.59.0
     optionalDependencies:
