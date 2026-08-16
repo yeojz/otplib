@@ -37,6 +37,7 @@ internal/typedoc/api/
 
 # Git worktrees
 .worktrees/
+.*/worktrees/
 
 # Testing
 coverage/

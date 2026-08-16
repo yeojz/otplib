@@ -90,7 +90,7 @@ export default defineConfig({
       },
       {
         text: "API Reference",
-        collapsed: false,
+        collapsed: true,
         items: typedocSidebar,
       },
     ],
