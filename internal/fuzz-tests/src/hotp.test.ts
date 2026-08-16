@@ -118,6 +118,46 @@ describe("HOTP fuzz tests", () => {
         ),
       );
     });
+
+    it("should treat scalar counter tolerance as look-ahead only", async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.uint8Array({ minLength: 16, maxLength: 64 }),
+          fc.integer({ min: 10, max: 1000000 }),
+          fc.integer({ min: 1, max: 10 }),
+          async (secret, counter, tolerance) => {
+            const token = await generate({ secret, counter, crypto, base32, digits: 10 });
+            const futureTokens = await Promise.all(
+              Array.from({ length: tolerance * 2 }, (_, index) =>
+                generate({
+                  secret,
+                  counter: counter + index + 1,
+                  crypto,
+                  base32,
+                  digits: 10,
+                }),
+              ),
+            );
+
+            fc.pre(futureTokens.every((futureToken) => futureToken !== token));
+
+            for (let offset = -tolerance; offset <= tolerance; offset++) {
+              const result = await verify({
+                secret,
+                counter: counter + offset,
+                token,
+                crypto,
+                base32,
+                counterTolerance: tolerance,
+                digits: 10,
+              });
+
+              expect(result.valid).toBe(offset <= 0);
+            }
+          },
+        ),
+      );
+    });
   });
 
   describe("algorithm variations", () => {
