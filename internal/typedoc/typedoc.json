@@ -15,7 +15,9 @@
   "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
   "entryPointStrategy": "packages",
   "packageOptions": {
-    "readme": "README.md"
+    "readme": "README.md",
+    "tsconfig": "tsconfig.docs.json",
+    "skipErrorChecking": true
   },
   "out": "api",
   "name": "otplib API Documentation",

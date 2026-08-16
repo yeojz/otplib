@@ -10,6 +10,8 @@
     "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "types": ["node"],
+    "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
