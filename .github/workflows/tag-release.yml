@@ -1,0 +1,107 @@
+name: Tag Release
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions: {}
+
+concurrency:
+  group: "tag-release"
+  cancel-in-progress: false
+
+jobs:
+  tag-release:
+    # Only merged release PRs, identified by the label applied by prepare-release.
+    if: >-
+      ${{ github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'ci-release') }}
+    environment: general
+    name: Tag Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push the release tag
+    steps:
+      - name: Checkout merge commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          persist-credentials: false
+
+      - name: Resolve version
+        id: version
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          # prepare-release names the branch release/<group>-v<version>
+          if [[ ! "$HEAD_REF" =~ ^release/(.+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+            echo "::error::Unexpected release branch name: $HEAD_REF"
+            exit 1
+          fi
+
+          GROUP="${BASH_REMATCH[1]}"
+          VERSION="${BASH_REMATCH[2]}"
+
+          # The v<version> tag format is only unambiguous while "packages" is the
+          # sole release group. A second group needs its own tag namespace first.
+          if [ "$GROUP" != "packages" ]; then
+            echo "::error::No tag format defined for release group '$GROUP'"
+            exit 1
+          fi
+
+          PKG_VERSION=$(jq -r '.version' packages/otplib/package.json)
+          if [ "$PKG_VERSION" != "$VERSION" ]; then
+            echo "::error::Branch says v$VERSION but packages/otplib/package.json says v$PKG_VERSION"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create release tag
+        id: tag
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = `v${process.env.VERSION}`;
+            const sha = process.env.SHA;
+
+            try {
+              const { data } = await github.rest.git.getRef({
+                ...context.repo,
+                ref: `tags/${tag}`,
+              });
+
+              if (data.object.sha === sha) {
+                core.info(`Tag ${tag} already points at ${sha}`);
+                return;
+              }
+
+              core.setFailed(
+                `Tag ${tag} already exists at ${data.object.sha}, refusing to move it to ${sha}`
+              );
+              return;
+            } catch (err) {
+              if (err.status !== 404) throw err;
+            }
+
+            await github.rest.git.createRef({
+              ...context.repo,
+              ref: `refs/tags/${tag}`,
+              sha,
+            });
+
+            core.info(`Created tag ${tag} at ${sha}`);
+
+      - name: Summary
+        run: |
+          echo "## Release Tagged" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.event.pull_request.merge_commit_sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Run **Publish Packages** with tag \`v${{ steps.version.outputs.version }}\` to release." >> $GITHUB_STEP_SUMMARY
