@@ -34,6 +34,16 @@
   "browser": "./dist/index.global.js",
   "unpkg": "./dist/index.global.js",
   "jsdelivr": "./dist/index.global.js",
+  "typesVersions": {
+    "*": {
+      "functional": [
+        "./dist/functional.d.ts"
+      ],
+      "class": [
+        "./dist/class.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "import": {
