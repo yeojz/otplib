@@ -12,9 +12,13 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # prepare-release opens the PR with the default GITHUB_TOKEN, which
-  # authors it as github-actions[bot]. Change this if that token changes.
-  RELEASE_PR_AUTHOR: "github-actions[bot]"
+  # Numeric account id of github-actions[bot], the identity the default
+  # GITHUB_TOKEN acts as. Ids are immutable across renames, unlike logins.
+  RELEASE_BOT_ID: "41898282"
+  # Commit identity hardcoded by .github/actions/version-release-pr.
+  # Not an identity proof (commit metadata is unsigned and forgeable) --
+  # a canary for that constant drifting out of sync with this workflow.
+  RELEASE_BOT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
 
 jobs:
   tag-release:
@@ -32,12 +36,15 @@ jobs:
     steps:
       - name: Verify PR author
         env:
+          PR_AUTHOR_ID: ${{ github.event.pull_request.user.id }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           # The ci-release label alone is not enough: anyone with triage
-          # access can apply it to a hand-written PR.
-          if [ "$PR_AUTHOR" != "$RELEASE_PR_AUTHOR" ]; then
-            echo "::error::Release PR must be opened by $RELEASE_PR_AUTHOR (got $PR_AUTHOR)"
+          # access can apply it to a hand-written PR. The account id comes
+          # from the event payload, so it reflects the token that opened the
+          # PR and cannot be set by the PR itself.
+          if [ "$PR_AUTHOR_ID" != "$RELEASE_BOT_ID" ]; then
+            echo "::error::Release PR must be opened by account $RELEASE_BOT_ID (got $PR_AUTHOR_ID, $PR_AUTHOR)"
             exit 1
           fi
 
@@ -46,6 +53,18 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
           persist-credentials: false
+
+      - name: Verify release commit identity
+        run: |
+          # Weaker than the id check above: git author metadata is unsigned
+          # and anyone who can push may set it. This exists to catch the
+          # release action's hardcoded identity drifting, not to prove who
+          # ran it.
+          COMMIT_EMAIL=$(git log -1 --format='%ae' HEAD)
+          if [ "$COMMIT_EMAIL" != "$RELEASE_BOT_EMAIL" ]; then
+            echo "::error::Release commit authored by $COMMIT_EMAIL, expected $RELEASE_BOT_EMAIL"
+            exit 1
+          fi
 
       - name: Resolve version
         id: version
