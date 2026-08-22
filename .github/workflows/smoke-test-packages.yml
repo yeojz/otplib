@@ -43,7 +43,30 @@ jobs:
           cache-dependency-path: package.json
 
       - name: Wait for npm to propagate
-        run: sleep 60
+        run: |
+          set -euo pipefail
+          packages=(
+            otplib
+            @otplib/core
+            @otplib/totp
+            @otplib/hotp
+            @otplib/uri
+            @otplib/plugin-base32-scure
+            @otplib/plugin-crypto-noble
+            @otplib/plugin-crypto-node
+          )
+          deadline=$((SECONDS + 900))
+          for pkg in "${packages[@]}"; do
+            until npm view "${pkg}@${OTPLIB_VERSION}" version > /dev/null 2>&1; do
+              if (( SECONDS >= deadline )); then
+                echo "::error::Timed out waiting for ${pkg}@${OTPLIB_VERSION} to appear on npm"
+                exit 1
+              fi
+              echo "Waiting for ${pkg}@${OTPLIB_VERSION}..."
+              sleep 30
+            done
+            echo "Found ${pkg}@${OTPLIB_VERSION}"
+          done
 
       - name: Install dependencies
         run: npm install
