@@ -48,6 +48,23 @@ jobs:
             exit 1
           fi
 
+      - name: Verify PR base branch
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          # A PR can be retargeted after creation, and retargeting preserves the
+          # label, author, head branch and version bump -- so every other guard
+          # here still passes. Without this, merging a retargeted release PR
+          # would tag that branch's tree under a release version.
+          #
+          # Only the default branch is a release line today. A maintenance branch
+          # flow (hotfix backports) has to widen this deliberately.
+          if [ "$BASE_REF" != "$DEFAULT_BRANCH" ]; then
+            echo "::error::Release PR must target $DEFAULT_BRANCH (got $BASE_REF)"
+            exit 1
+          fi
+
       - name: Checkout merge commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
