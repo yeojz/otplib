@@ -9,6 +9,7 @@
     "otplib": "./dist/index.cjs",
     "otplibx": "./dist/otplibx.cjs"
   },
+  "main": "./dist/index.cjs",
   "files": [
     "dist"
   ],
