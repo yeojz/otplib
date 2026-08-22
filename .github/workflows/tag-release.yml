@@ -141,4 +141,4 @@ jobs:
           echo "**Tag:** v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.event.pull_request.merge_commit_sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Run **Publish Packages** with tag \`v${{ steps.version.outputs.version }}\` to release." >> $GITHUB_STEP_SUMMARY
+          echo "To release, run **Publish Packages** against the \`v${{ steps.version.outputs.version }}\` tag (select it in the ref dropdown, not a branch)." >> $GITHUB_STEP_SUMMARY
