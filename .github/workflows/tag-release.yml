@@ -22,7 +22,9 @@ jobs:
     if: >-
       ${{ github.event.pull_request.merged == true &&
       contains(github.event.pull_request.labels.*.name, 'ci-release') }}
-    environment: general
+    # No environment: this runs on a pull_request ref (refs/pull/N/merge),
+    # which no deployment branch policy would match. It needs no secrets
+    # beyond GITHUB_TOKEN.
     name: Tag Release
     runs-on: ubuntu-latest
     permissions:

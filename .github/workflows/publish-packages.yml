@@ -1,12 +1,9 @@
 name: Publish Packages
 
 on:
+  # Dispatch against the release tag, not a branch. The ref selects both
+  # the source that gets published and the workflow that publishes it.
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release tag to publish (e.g. v13.5.0)"
-        required: true
-        type: string
 
 permissions: {}
 
@@ -29,16 +26,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.tag }}
           persist-credentials: false
 
-      - name: Verify tag matches package version
+      - name: Verify dispatched from a release tag
         env:
-          INPUT_TAG: ${{ inputs.tag }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
+          # The dispatch dropdown pre-selects the default branch, so reject
+          # anything that is not a vX.Y.Z tag rather than publishing main.
+          if [ "$REF_TYPE" != "tag" ]; then
+            echo "::error::Publish must be dispatched against a release tag, got $REF_TYPE '$REF_NAME'"
+            exit 1
+          fi
+
+          if [[ ! "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "::error::Not a release tag: $REF_NAME"
+            exit 1
+          fi
+
           PKG_VERSION="v$(jq -r '.version' packages/otplib/package.json)"
-          if [ "$PKG_VERSION" != "$INPUT_TAG" ]; then
-            echo "::error::Tag $INPUT_TAG does not match packages/otplib/package.json ($PKG_VERSION)"
+          if [ "$PKG_VERSION" != "$REF_NAME" ]; then
+            echo "::error::Tag $REF_NAME does not match packages/otplib/package.json ($PKG_VERSION)"
             exit 1
           fi
 
@@ -73,20 +82,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.tag }}
           persist-credentials: false
 
-      - name: Verify tag matches package version
+      - name: Verify dispatched from a release tag
         id: version
         env:
-          INPUT_TAG: ${{ inputs.tag }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          VERSION=$(jq -r '.version' packages/otplib/package.json)
-          if [ "v$VERSION" != "$INPUT_TAG" ]; then
-            echo "::error::Tag $INPUT_TAG does not match packages/otplib/package.json (v$VERSION)"
+          # The dispatch dropdown pre-selects the default branch, so reject
+          # anything that is not a vX.Y.Z tag rather than publishing main.
+          if [ "$REF_TYPE" != "tag" ]; then
+            echo "::error::Publish must be dispatched against a release tag, got $REF_TYPE '$REF_NAME'"
             exit 1
           fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          if [[ ! "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "::error::Not a release tag: $REF_NAME"
+            exit 1
+          fi
+
+          PKG_VERSION="v$(jq -r '.version' packages/otplib/package.json)"
+          if [ "$PKG_VERSION" != "$REF_NAME" ]; then
+            echo "::error::Tag $REF_NAME does not match packages/otplib/package.json ($PKG_VERSION)"
+            exit 1
+          fi
+
+          echo "version=${REF_NAME#v}" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
