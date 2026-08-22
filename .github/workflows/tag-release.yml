@@ -11,6 +11,11 @@ concurrency:
   group: "tag-release"
   cancel-in-progress: false
 
+env:
+  # prepare-release opens the PR with the default GITHUB_TOKEN, which
+  # authors it as github-actions[bot]. Change this if that token changes.
+  RELEASE_PR_AUTHOR: "github-actions[bot]"
+
 jobs:
   tag-release:
     # Only merged release PRs, identified by the label applied by prepare-release.
@@ -23,6 +28,17 @@ jobs:
     permissions:
       contents: write # Required to push the release tag
     steps:
+      - name: Verify PR author
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          # The ci-release label alone is not enough: anyone with triage
+          # access can apply it to a hand-written PR.
+          if [ "$PR_AUTHOR" != "$RELEASE_PR_AUTHOR" ]; then
+            echo "::error::Release PR must be opened by $RELEASE_PR_AUTHOR (got $PR_AUTHOR)"
+            exit 1
+          fi
+
       - name: Checkout merge commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
