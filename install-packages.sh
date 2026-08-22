@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Install otplib packages for smoke testing
 # Version can be configured via OTPLIB_VERSION environment variable
