@@ -7,9 +7,9 @@
     "docs:api": "typedoc && node move-docs.js"
   },
   "devDependencies": {
-    "typedoc": "^0.28.19",
+    "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.12.0",
-    "typedoc-vitepress-theme": "^1.1.2",
+    "typedoc-vitepress-theme": "^1.1.3",
     "typescript": "^6.0.3"
   }
 }
