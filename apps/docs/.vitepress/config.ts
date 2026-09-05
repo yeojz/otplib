@@ -1,6 +1,6 @@
 import { defineConfig } from "vitepress";
 import { resolve } from "path";
-import typedocSidebar from "../api/typedoc-sidebar.json";
+import typedocSidebar from "../api/typedoc-sidebar.json" with { type: "json" };
 
 export default defineConfig({
   title: "otplib",
@@ -13,18 +13,18 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        "@otplib/core": resolve(__dirname, "../../../packages/core/dist/index.js"),
-        "@otplib/hotp": resolve(__dirname, "../../../packages/hotp/dist/index.js"),
+        "@otplib/core": resolve(import.meta.dirname, "../../../packages/core/dist/index.js"),
+        "@otplib/hotp": resolve(import.meta.dirname, "../../../packages/hotp/dist/index.js"),
         "@otplib/plugin-crypto-web": resolve(
-          __dirname,
+          import.meta.dirname,
           "../../../packages/plugin-crypto-web/dist/index.js",
         ),
         "@otplib/plugin-base32-scure": resolve(
-          __dirname,
+          import.meta.dirname,
           "../../../packages/plugin-base32-scure/dist/index.js",
         ),
-        "@otplib/totp": resolve(__dirname, "../../../packages/totp/dist/index.js"),
-        "@otplib/uri": resolve(__dirname, "../../../packages/uri/dist/index.js"),
+        "@otplib/totp": resolve(import.meta.dirname, "../../../packages/totp/dist/index.js"),
+        "@otplib/uri": resolve(import.meta.dirname, "../../../packages/uri/dist/index.js"),
       },
     },
   },
