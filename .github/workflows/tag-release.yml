@@ -1,0 +1,161 @@
+name: Tag Release
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions: {}
+
+concurrency:
+  group: "tag-release"
+  cancel-in-progress: false
+
+env:
+  # Numeric account id of github-actions[bot], the identity the default
+  # GITHUB_TOKEN acts as. Ids are immutable across renames, unlike logins.
+  RELEASE_BOT_ID: "41898282"
+  # Commit identity hardcoded by .github/actions/version-release-pr.
+  # Not an identity proof (commit metadata is unsigned and forgeable) --
+  # a canary for that constant drifting out of sync with this workflow.
+  RELEASE_BOT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  tag-release:
+    # Only merged release PRs, identified by the label applied by prepare-release.
+    if: >-
+      ${{ github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'ci-release') }}
+    # No environment: this runs on a pull_request ref (refs/pull/N/merge),
+    # which no deployment branch policy would match. It needs no secrets
+    # beyond GITHUB_TOKEN.
+    name: Tag Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push the release tag
+    steps:
+      - name: Verify PR author
+        env:
+          PR_AUTHOR_ID: ${{ github.event.pull_request.user.id }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          # The ci-release label alone is not enough: anyone with triage
+          # access can apply it to a hand-written PR. The account id comes
+          # from the event payload, so it reflects the token that opened the
+          # PR and cannot be set by the PR itself.
+          if [ "$PR_AUTHOR_ID" != "$RELEASE_BOT_ID" ]; then
+            echo "::error::Release PR must be opened by account $RELEASE_BOT_ID (got $PR_AUTHOR_ID, $PR_AUTHOR)"
+            exit 1
+          fi
+
+      - name: Verify PR base branch
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          # A PR can be retargeted after creation, and retargeting preserves the
+          # label, author, head branch and version bump -- so every other guard
+          # here still passes. Without this, merging a retargeted release PR
+          # would tag that branch's tree under a release version.
+          #
+          # Only the default branch is a release line today. A maintenance branch
+          # flow (hotfix backports) has to widen this deliberately.
+          if [ "$BASE_REF" != "$DEFAULT_BRANCH" ]; then
+            echo "::error::Release PR must target $DEFAULT_BRANCH (got $BASE_REF)"
+            exit 1
+          fi
+
+      - name: Checkout merge commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          persist-credentials: false
+
+      - name: Verify release commit identity
+        run: |
+          # Weaker than the id check above: git author metadata is unsigned
+          # and anyone who can push may set it. This exists to catch the
+          # release action's hardcoded identity drifting, not to prove who
+          # ran it.
+          COMMIT_EMAIL=$(git log -1 --format='%ae' HEAD)
+          if [ "$COMMIT_EMAIL" != "$RELEASE_BOT_EMAIL" ]; then
+            echo "::error::Release commit authored by $COMMIT_EMAIL, expected $RELEASE_BOT_EMAIL"
+            exit 1
+          fi
+
+      - name: Resolve version
+        id: version
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          # prepare-release names the branch release/<group>-v<version>
+          if [[ ! "$HEAD_REF" =~ ^release/(.+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+            echo "::error::Unexpected release branch name: $HEAD_REF"
+            exit 1
+          fi
+
+          GROUP="${BASH_REMATCH[1]}"
+          VERSION="${BASH_REMATCH[2]}"
+
+          # The v<version> tag format is only unambiguous while "packages" is the
+          # sole release group. A second group needs its own tag namespace first.
+          if [ "$GROUP" != "packages" ]; then
+            echo "::error::No tag format defined for release group '$GROUP'"
+            exit 1
+          fi
+
+          PKG_VERSION=$(jq -r '.version' packages/otplib/package.json)
+          if [ "$PKG_VERSION" != "$VERSION" ]; then
+            echo "::error::Branch says v$VERSION but packages/otplib/package.json says v$PKG_VERSION"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create release tag
+        id: tag
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = `v${process.env.VERSION}`;
+            const sha = process.env.SHA;
+
+            try {
+              const { data } = await github.rest.git.getRef({
+                ...context.repo,
+                ref: `tags/${tag}`,
+              });
+
+              if (data.object.sha === sha) {
+                core.info(`Tag ${tag} already points at ${sha}`);
+                return;
+              }
+
+              core.setFailed(
+                `Tag ${tag} already exists at ${data.object.sha}, refusing to move it to ${sha}`
+              );
+              return;
+            } catch (err) {
+              if (err.status !== 404) throw err;
+            }
+
+            await github.rest.git.createRef({
+              ...context.repo,
+              ref: `refs/tags/${tag}`,
+              sha,
+            });
+
+            core.info(`Created tag ${tag} at ${sha}`);
+
+      - name: Summary
+        run: |
+          echo "## Release Tagged" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.event.pull_request.merge_commit_sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To release, run **Publish Packages** against the \`v${{ steps.version.outputs.version }}\` tag (select it in the ref dropdown, not a branch)." >> $GITHUB_STEP_SUMMARY

@@ -1,6 +1,8 @@
 name: Publish Packages
 
 on:
+  # Dispatch against the release tag, not a branch. The ref selects both
+  # the source that gets published and the workflow that publishes it.
   workflow_dispatch:
 
 permissions: {}
@@ -15,7 +17,6 @@ env:
 
 jobs:
   dry-run:
-    if: "${{ github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') }}"
     environment: general
     name: Dry Run (Packages)
     runs-on: ubuntu-latest
@@ -26,6 +27,29 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Verify dispatched from a release tag
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          # The dispatch dropdown pre-selects the default branch, so reject
+          # anything that is not a vX.Y.Z tag rather than publishing main.
+          if [ "$REF_TYPE" != "tag" ]; then
+            echo "::error::Publish must be dispatched against a release tag, got $REF_TYPE '$REF_NAME'"
+            exit 1
+          fi
+
+          if [[ ! "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "::error::Not a release tag: $REF_NAME"
+            exit 1
+          fi
+
+          PKG_VERSION="v$(jq -r '.version' packages/otplib/package.json)"
+          if [ "$PKG_VERSION" != "$REF_NAME" ]; then
+            echo "::error::Tag $REF_NAME does not match packages/otplib/package.json ($PKG_VERSION)"
+            exit 1
+          fi
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
@@ -60,6 +84,32 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Verify dispatched from a release tag
+        id: version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          # The dispatch dropdown pre-selects the default branch, so reject
+          # anything that is not a vX.Y.Z tag rather than publishing main.
+          if [ "$REF_TYPE" != "tag" ]; then
+            echo "::error::Publish must be dispatched against a release tag, got $REF_TYPE '$REF_NAME'"
+            exit 1
+          fi
+
+          if [[ ! "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "::error::Not a release tag: $REF_NAME"
+            exit 1
+          fi
+
+          PKG_VERSION="v$(jq -r '.version' packages/otplib/package.json)"
+          if [ "$PKG_VERSION" != "$REF_NAME" ]; then
+            echo "::error::Tag $REF_NAME does not match packages/otplib/package.json ($PKG_VERSION)"
+            exit 1
+          fi
+
+          echo "version=${REF_NAME#v}" >> $GITHUB_OUTPUT
+
       - name: Setup pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 
@@ -81,10 +131,6 @@ jobs:
         run: pnpm run release:packages
         env:
           NPM_CONFIG_PROVENANCE: true
-
-      - name: Get published version
-        id: version
-        run: echo "version=$(jq -r '.version' packages/otplib/package.json)" >> $GITHUB_OUTPUT
 
       - name: Trigger smoke tests
         if: success()
@@ -124,26 +170,26 @@ jobs:
           # Find the previous latest tag:
           # 1. List all tags matching vX.X.X
           # 2. Sort by version descending (v14 > v13 > v2)
-          # 3. Filter out the current version (if tag already exists)
+          # 3. Filter out the current version (tagged when the release PR merged)
           # 4. Take the first result
           PREV_TAG=$(git tag -l "v*.*.*" --sort=-v:refname | grep -v "^${VERSION}$" | head -n 1)
 
           echo "Current Version: $VERSION"
           echo "Previous Version: $PREV_TAG"
 
+          # The tag already exists (created by tag-release.yml), so gh attaches
+          # the release to it rather than creating it at main's current HEAD.
           if [ -n "$PREV_TAG" ]; then
             echo "Creating release with notes from $PREV_TAG..."
             gh release create "$VERSION" \
               --title "v${{ steps.version.outputs.version }}" \
               --generate-notes \
               --notes-start-tag "$PREV_TAG" \
-              --target main \
               release-artifacts/*.tgz
           else
             echo "No previous tag found. Creating initial release..."
             gh release create "$VERSION" \
               --title "v${{ steps.version.outputs.version }}" \
               --generate-notes \
-              --target main \
               release-artifacts/*.tgz
           fi
