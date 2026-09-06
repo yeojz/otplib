@@ -62,7 +62,7 @@
     "@otplib/plugin-crypto-noble": "workspace:*",
     "@otplib/totp": "workspace:*",
     "@otplib/uri": "workspace:*",
-    "@scure/base": "^2.2.0"
+    "@scure/base": "^2.4.0"
   },
   "devDependencies": {
     "@repo/testing": "workspace:*",
