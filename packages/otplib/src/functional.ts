@@ -263,8 +263,8 @@ export async function generate(options: OTPGenerateOptions): Promise<string> {
  */
 export function generateSync(options: OTPGenerateOptions): string {
   const opts = normalizeGenerateOptions(options);
-  const { secret, crypto, base32, algorithm, digits } = opts;
-  const commonOptions = { secret, crypto, base32, algorithm, digits };
+  const { secret, crypto, base32, algorithm, digits, hooks } = opts;
+  const commonOptions = { secret, crypto, base32, algorithm, digits, hooks };
 
   return executeByStrategy(opts.strategy, opts.counter, {
     totp: () =>
