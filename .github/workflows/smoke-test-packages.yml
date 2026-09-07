@@ -27,7 +27,9 @@ jobs:
       checks: write # Required for uploading test results
     steps:
       - name: Set version
-        run: echo "OTPLIB_VERSION=${{ github.event.inputs.version || 'latest' }}" >> $GITHUB_ENV
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: echo "OTPLIB_VERSION=${INPUT_VERSION:-latest}" >> $GITHUB_ENV
 
       - name: Checkout smoke tests
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

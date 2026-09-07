@@ -115,8 +115,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         with:
           node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
@@ -127,6 +125,9 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
+      # Auth is via npm trusted publishing (OIDC): id-token: write above plus
+      # NPM_CONFIG_PROVENANCE lets npm exchange the workflow's OIDC token for
+      # a short-lived publish token, so no NPM_TOKEN secret is required.
       - name: Publish to npm
         run: pnpm run release:packages
         env:
