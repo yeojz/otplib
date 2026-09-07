@@ -307,6 +307,39 @@ aws secretsmanager get-secret-value --secret-id otp-secrets \
   --query SecretString --output text | otplib token A1B2C3D4
 ```
 
+## Programmatic Usage
+
+`otplib-cli` also ships an importable entry point, for wrapping either program in your own
+tool. The package root is a library and has no side effects on import - the executables live
+behind the `otplib` and `otplibx` bins and are never loaded by `import` or `require`.
+
+```ts
+import { createCli, createOtplibxCli } from "otplib-cli";
+
+// Build the program without running it.
+const program = createCli();
+
+// Add your own command alongside the built-in ones.
+program.command("whoami").action(() => console.log("custom command"));
+
+await program.parseAsync(process.argv);
+```
+
+`createCli()` and `createOtplibxCli()` each return a configured [commander](https://github.com/tj/commander.js)
+`Command`. Nothing is parsed until you call `parseAsync` yourself, so you stay in control of
+argument handling and process exit.
+
+Both accept an optional stdin reader, which is useful for testing or for feeding input from
+somewhere other than the process stdin:
+
+```ts
+import { createCli, type ReadStdinFn } from "otplib-cli";
+
+const readStdin: ReadStdinFn = async () => JSON.stringify({/* entries */});
+
+const program = createCli(readStdin);
+```
+
 ## Security Notes
 
 - **Encryption**: `otplibx` uses AES-256-GCM authenticated encryption. The key is stored in `.env.keys` Never commit this file!
