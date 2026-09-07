@@ -15,6 +15,7 @@ import {
   normalizeSecret,
   normalizeEpochTolerance,
   normalizeHashAlgorithm,
+  validateDigits,
   validateEpochTolerance,
   validatePeriod,
   validateSecret,
@@ -76,6 +77,7 @@ function getTOTPGenerateOptions(options: TOTPGenerateOptions): TOTPGenerateOptio
   validateSecret(secretBytes, guardrails);
   validateTime(epoch);
   validatePeriod(period, guardrails);
+  validateDigits(digits, guardrails);
   // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
   // Checked against the configured plugin's own set, so a plugin supporting
   // fewer algorithms reports what it actually accepts rather than the full set.
@@ -266,6 +268,7 @@ function getTOTPVerifyOptions(options: TOTPVerifyOptions): TOTPVerifyOptionsInte
   validateSecret(secretBytes, guardrails);
   validateTime(epoch);
   validatePeriod(period, guardrails);
+  validateDigits(digits, guardrails);
   // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
   // Checked against the configured plugin's own set, so a plugin supporting
   // fewer algorithms reports what it actually accepts rather than the full set.

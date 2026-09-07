@@ -29,6 +29,7 @@ export {
   PeriodTooSmallError,
   PeriodTooLargeError,
   DigitsError,
+  InvalidDigitsError,
   AlgorithmError,
   AlgorithmUnsupportedError,
   type AlgorithmUnsupportedContext,
@@ -72,6 +73,7 @@ export {
   validateCounter,
   validateTime,
   validatePeriod,
+  validateDigits,
   validateToken,
   validateCounterTolerance,
   validateEpochTolerance,
@@ -103,6 +105,8 @@ export {
   DEFAULT_PERIOD,
   MAX_COUNTER,
   MAX_WINDOW,
+  MIN_DIGITS,
+  MAX_DIGITS,
 } from "./utils.js";
 
 export { CryptoContext, createCryptoContext } from "./crypto-context.js";

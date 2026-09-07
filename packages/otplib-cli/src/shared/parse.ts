@@ -233,6 +233,16 @@ export function parseEnvInput(raw: string): ParsedEnv {
       if (!isNaN(parsed) && parsed >= 1) {
         guardrails.MAX_PERIOD = parsed;
       }
+    } else if (key === "OTPLIB_MIN_DIGITS") {
+      const parsed = parseInt(value, 10);
+      if (!isNaN(parsed) && parsed >= 1) {
+        guardrails.MIN_DIGITS = parsed;
+      }
+    } else if (key === "OTPLIB_MAX_DIGITS") {
+      const parsed = parseInt(value, 10);
+      if (!isNaN(parsed) && parsed >= 1) {
+        guardrails.MAX_DIGITS = parsed;
+      }
     } else {
       try {
         const payload = decodePayload(value);

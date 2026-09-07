@@ -9,12 +9,15 @@ import {
   DEFAULT_PERIOD,
   MAX_COUNTER,
   MAX_WINDOW,
+  MIN_DIGITS,
+  MAX_DIGITS,
   createGuardrails,
   hasGuardrailOverrides,
   validateSecret,
   validateCounter,
   validateTime,
   validatePeriod,
+  validateDigits,
   validateToken,
   validateCounterTolerance,
   validateEpochTolerance,
@@ -53,6 +56,7 @@ import {
   TimeNotFiniteError,
   PeriodTooSmallError,
   PeriodTooLargeError,
+  InvalidDigitsError,
   TokenLengthError,
   TokenFormatError,
   CounterToleranceError,
@@ -90,6 +94,11 @@ describe("Constants", () => {
 
   it("should have correct window constant", () => {
     expect(MAX_WINDOW).toBe(99);
+  });
+
+  it("should have correct digits constants", () => {
+    expect(MIN_DIGITS).toBe(4);
+    expect(MAX_DIGITS).toBe(10);
   });
 });
 
@@ -255,6 +264,48 @@ describe("createGuardrails and hasGuardrailOverrides", () => {
       "Guardrail 'MAX_COUNTER' must be >= 0",
     );
   });
+
+  it("should throw when MIN_DIGITS is invalid", () => {
+    expect(() => createGuardrails({ MIN_DIGITS: 0 })).toThrowError(ConfigurationError);
+    expect(() => createGuardrails({ MIN_DIGITS: 0 })).toThrow(
+      "Guardrail 'MIN_DIGITS' must be >= 1",
+    );
+    expect(() => createGuardrails({ MIN_DIGITS: 1.5 })).toThrow(
+      "Guardrail 'MIN_DIGITS' must be a safe integer",
+    );
+  });
+
+  it("should throw when MAX_DIGITS is invalid", () => {
+    expect(() => createGuardrails({ MAX_DIGITS: 0 })).toThrowError(ConfigurationError);
+    expect(() => createGuardrails({ MAX_DIGITS: 0 })).toThrow(
+      "Guardrail 'MAX_DIGITS' must be >= 1",
+    );
+    expect(() => createGuardrails({ MAX_DIGITS: 1.5 })).toThrow(
+      "Guardrail 'MAX_DIGITS' must be a safe integer",
+    );
+  });
+
+  it("should accept MIN_DIGITS equal to MAX_DIGITS", () => {
+    expect(() => createGuardrails({ MIN_DIGITS: 6, MAX_DIGITS: 6 })).not.toThrow();
+    const guardrails = createGuardrails({ MIN_DIGITS: 6, MAX_DIGITS: 6 });
+    expect(guardrails.MIN_DIGITS).toBe(6);
+    expect(guardrails.MAX_DIGITS).toBe(6);
+  });
+
+  it("should throw when MIN_DIGITS exceeds MAX_DIGITS", () => {
+    expect(() => createGuardrails({ MIN_DIGITS: 9, MAX_DIGITS: 8 })).toThrowError(
+      ConfigurationError,
+    );
+    expect(() => createGuardrails({ MIN_DIGITS: 9, MAX_DIGITS: 8 })).toThrow(
+      "Guardrail 'MIN_DIGITS' must be <= 'MAX_DIGITS'",
+    );
+  });
+
+  it("should expose digits guardrails on the default singleton", () => {
+    const guardrails = createGuardrails();
+    expect(guardrails.MIN_DIGITS).toBe(MIN_DIGITS);
+    expect(guardrails.MAX_DIGITS).toBe(MAX_DIGITS);
+  });
 });
 
 describe("validateSecret", () => {
@@ -395,6 +446,72 @@ describe("validatePeriod with guardrails", () => {
   it("should throw PeriodTooLargeError with custom MAX_PERIOD", () => {
     const g = createGuardrails({ MAX_PERIOD: 60 });
     expect(() => validatePeriod(61, g)).toThrowError(PeriodTooLargeError);
+  });
+});
+
+describe("validateDigits", () => {
+  it("should accept digits across the default range", () => {
+    for (const digits of [4, 5, 6, 7, 8, 9, 10]) {
+      expect(() => validateDigits(digits)).not.toThrow();
+    }
+  });
+
+  it("should default to the RFC guardrails when none are passed", () => {
+    expect(() => validateDigits(6)).not.toThrow();
+    expect(() => validateDigits(MAX_DIGITS + 1)).toThrowError(InvalidDigitsError);
+  });
+
+  it("should throw InvalidDigitsError for non-integers", () => {
+    expect(() => validateDigits(NaN, createGuardrails())).toThrowError(InvalidDigitsError);
+    expect(() => validateDigits(1.5, createGuardrails())).toThrowError(InvalidDigitsError);
+    expect(() => validateDigits(Infinity, createGuardrails())).toThrowError(InvalidDigitsError);
+    expect(() => validateDigits(Number.MAX_SAFE_INTEGER + 2, createGuardrails())).toThrowError(
+      InvalidDigitsError,
+    );
+  });
+
+  it("should throw InvalidDigitsError below the minimum", () => {
+    expect(() => validateDigits(-1, createGuardrails())).toThrowError(InvalidDigitsError);
+    expect(() => validateDigits(0, createGuardrails())).toThrowError(InvalidDigitsError);
+    expect(() => validateDigits(3, createGuardrails())).toThrowError(InvalidDigitsError);
+  });
+
+  it("should throw InvalidDigitsError above the maximum", () => {
+    expect(() => validateDigits(11, createGuardrails())).toThrowError(InvalidDigitsError);
+    expect(() => validateDigits(1e5, createGuardrails())).toThrowError(InvalidDigitsError);
+  });
+
+  it("should report the accepted range and the received value", () => {
+    expect(() => validateDigits(11, createGuardrails())).toThrow(
+      "Digits must be an integer between 4 and 10, received 11",
+    );
+  });
+
+  it("should not leak beyond the digits value in the message", () => {
+    const error = new InvalidDigitsError(MIN_DIGITS, MAX_DIGITS, 11);
+    expect(error.message).toBe("Digits must be an integer between 4 and 10, received 11");
+    expect(error.name).toBe("InvalidDigitsError");
+  });
+});
+
+describe("validateDigits with guardrails", () => {
+  it("should accept a widened range", () => {
+    const g = createGuardrails({ MIN_DIGITS: 1, MAX_DIGITS: 12 });
+    expect(() => validateDigits(1, g)).not.toThrow();
+    expect(() => validateDigits(12, g)).not.toThrow();
+  });
+
+  it("should still reject values outside a widened range", () => {
+    const g = createGuardrails({ MIN_DIGITS: 1, MAX_DIGITS: 12 });
+    expect(() => validateDigits(0, g)).toThrowError(InvalidDigitsError);
+    expect(() => validateDigits(13, g)).toThrowError(InvalidDigitsError);
+  });
+
+  it("should honour a narrowed range", () => {
+    const g = createGuardrails({ MIN_DIGITS: 6, MAX_DIGITS: 8 });
+    expect(() => validateDigits(6, g)).not.toThrow();
+    expect(() => validateDigits(5, g)).toThrowError(InvalidDigitsError);
+    expect(() => validateDigits(9, g)).toThrowError(InvalidDigitsError);
   });
 });
 

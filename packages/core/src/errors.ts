@@ -173,6 +173,16 @@ export class DigitsError extends OTPError {
 }
 
 /**
+ * Error thrown when digits is not a safe integer within the guardrail range
+ */
+export class InvalidDigitsError extends DigitsError {
+  constructor(minDigits: number, maxDigits: number, received: number) {
+    super(`Digits must be an integer between ${minDigits} and ${maxDigits}, received ${received}`);
+    this.name = "InvalidDigitsError";
+  }
+}
+
+/**
  * Error thrown when hash algorithm is invalid
  */
 export class AlgorithmError extends OTPError {

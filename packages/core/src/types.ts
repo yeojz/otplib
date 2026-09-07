@@ -7,7 +7,12 @@ export type HashAlgorithm = "sha1" | "sha256" | "sha512";
  * Number of characters in the OTP code.
  *
  * Standard TOTP/HOTP uses 6-8 digits. Non-standard variants (e.g., Steam Guard)
- * may use different lengths. Runtime validation is handled by guardrails.
+ * may use different lengths.
+ *
+ * Validated at runtime by `validateDigits` against the `MIN_DIGITS` and
+ * `MAX_DIGITS` guardrails (4 and 10 by default), which every generate and
+ * verify entry point calls. Widen the range through `createGuardrails` if a
+ * deployment genuinely needs values outside it.
  */
 export type Digits = number;
 

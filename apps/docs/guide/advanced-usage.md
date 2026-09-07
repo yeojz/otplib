@@ -658,7 +658,8 @@ remaining core-only error classes from `@otplib/core`.
 | `CounterToleranceNegativeError`   | Counter tolerance contains negatives             |
 | `CounterToleranceTooLargeError`   | Counter tolerance exceeds maximum (100)          |
 | `CryptoPluginMissingError`        | No crypto plugin provided                        |
-| `DigitsError`                     | Invalid digits configuration (not 6-8)           |
+| `DigitsError`                     | Base class for digits validation errors          |
+| `InvalidDigitsError`              | Digits outside the guardrail range (4-10)        |
 | `EpochToleranceNegativeError`     | Epoch tolerance contains negatives               |
 | `EpochToleranceTooLargeError`     | Tolerance exceeds maximum (3000 seconds)         |
 | `HMACError`                       | HMAC computation fails in crypto plugin          |

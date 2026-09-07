@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { createGuardrails } from "@otplib/core";
+import { createGuardrails, InvalidDigitsError } from "@otplib/core";
 import { HOTP, HashAlgorithms, KeyEncodings, hotpDigestToToken, type HOTPOptions } from "./index";
 import {
   RFC4226_VECTORS,
@@ -276,6 +276,15 @@ describe("HOTP (v12-adapter)", () => {
 
       expect(token).toHaveLength(8);
       expect(token).toMatch(/^\d{8}$/);
+    });
+
+    it("should reject digits outside the core guardrail range", () => {
+      const hexDigest = "cc93cf18508d94934c64b65d8ba7667fb7cde4b0";
+
+      expect(() => hotpDigestToToken(hexDigest, 0)).toThrow(InvalidDigitsError);
+      expect(() => hotpDigestToToken(hexDigest, -1)).toThrow(InvalidDigitsError);
+      expect(() => hotpDigestToToken(hexDigest, 1.5)).toThrow(InvalidDigitsError);
+      expect(() => hotpDigestToToken(hexDigest, 1e5)).toThrow(InvalidDigitsError);
     });
   });
 });

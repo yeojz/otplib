@@ -13,6 +13,7 @@ import {
   SecretTooShortError,
   PeriodTooLargeError,
   EpochToleranceTooLargeError,
+  InvalidDigitsError,
 } from "@otplib/core";
 import {
   RFC6238_VECTORS,
@@ -2628,6 +2629,68 @@ export function createTOTPTests(ctx: TestContext<CryptoPlugin>): void {
           expect(resultCurrent.valid).toBe(true); // 3 > 2
           expect(resultFuture.valid).toBe(true); // 4 > 2
         });
+      });
+    });
+
+    describe("digits guardrails", () => {
+      const invalid = [NaN, 1.5, -1, 0, 3, 11, 1e5];
+
+      invalid.forEach((digits) => {
+        it(`should reject digits ${digits} on generate`, async () => {
+          await expect(generate({ secret, epoch: 59, crypto, digits })).rejects.toThrow(
+            InvalidDigitsError,
+          );
+        });
+
+        it(`should reject digits ${digits} on generateSync`, () => {
+          expect(() => generateSync({ secret, epoch: 59, crypto, digits })).toThrow(
+            InvalidDigitsError,
+          );
+        });
+
+        it(`should reject digits ${digits} on verify`, async () => {
+          await expect(
+            verify({ secret, epoch: 59, token: "287082", crypto, digits }),
+          ).rejects.toThrow(InvalidDigitsError);
+        });
+
+        it(`should reject digits ${digits} on verifySync`, () => {
+          expect(() => verifySync({ secret, epoch: 59, token: "287082", crypto, digits })).toThrow(
+            InvalidDigitsError,
+          );
+        });
+      });
+
+      it("should accept the minimum and maximum default digits", async () => {
+        expect(await generate({ secret, epoch: 59, crypto, digits: 4 })).toMatch(/^\d{4}$/);
+        expect(await generate({ secret, epoch: 59, crypto, digits: 10 })).toMatch(/^\d{10}$/);
+      });
+
+      it("should still accept digits 5 when hooks supply the encoding", async () => {
+        const token = await generate({
+          secret,
+          epoch: 59,
+          crypto,
+          digits: 5,
+          hooks: { encodeToken: steamEncodeToken },
+        });
+
+        expect(token).toHaveLength(5);
+      });
+
+      it("should accept digits widened past the default ceiling by guardrails", async () => {
+        const guardrails = createGuardrails({ MIN_DIGITS: 1, MAX_DIGITS: 12 });
+        const token = await generate({ secret, epoch: 59, crypto, digits: 12, guardrails });
+
+        expect(token).toMatch(/^\d{12}$/);
+      });
+
+      it("should reject digits the narrowed guardrails exclude", async () => {
+        const guardrails = createGuardrails({ MIN_DIGITS: 6, MAX_DIGITS: 8 });
+
+        await expect(
+          generate({ secret, epoch: 59, crypto, digits: 5, guardrails }),
+        ).rejects.toThrow(InvalidDigitsError);
       });
     });
 
