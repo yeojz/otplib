@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { CryptoPlugin, createGuardrails } from "@otplib/core";
-import { HOTP, HashAlgorithms, type HOTPOptions } from "./index.js";
+import { HOTP, HashAlgorithms, KeyEncodings, type HOTPOptions } from "./index.js";
+import { secretToBytes } from "./hotp.js";
 import {
   RFC4226_VECTORS,
   RFC_TEST_SECRET,
   TEST_SECRET_PARSE_BASE32,
+  TEST_SECRET_RFC_BASE32,
   TEST_SECRET_HEX,
   TEST_SECRET_HEX_INVALID,
 } from "@repo/testing";
@@ -57,6 +59,104 @@ describe("HOTP (v11-adapter)", () => {
     const token = hotp.generate(secret, 0);
 
     expect(hotp.check(token, secret, 0)).toBe(true);
+  });
+
+  describe("secretToBytes encoding support", () => {
+    it("should decode base64-encoded secrets", () => {
+      const base64Secret = Buffer.from(RFC_TEST_SECRET, "utf8").toString("base64");
+      const hotp = new HOTP({ encoding: KeyEncodings.BASE64 });
+      const token = hotp.generate(base64Secret, 0);
+
+      const hotpAscii = new HOTP({ encoding: KeyEncodings.ASCII });
+      const tokenAscii = hotpAscii.generate(RFC_TEST_SECRET, 0);
+
+      expect(token).toBe(tokenAscii);
+    });
+
+    it("should decode base64-encoded secrets identically to base32-encoded secrets (end-to-end)", () => {
+      const base64Secret = Buffer.from(RFC_TEST_SECRET, "utf8").toString("base64");
+      const hotpBase64 = new HOTP({ encoding: KeyEncodings.BASE64 });
+      const tokenBase64 = hotpBase64.generate(base64Secret, 0);
+
+      const hotpBase32 = new HOTP({ encoding: KeyEncodings.BASE32 });
+      const tokenBase32 = hotpBase32.generate(TEST_SECRET_RFC_BASE32, 0);
+
+      expect(tokenBase64).toBe(tokenBase32);
+    });
+
+    it("should decode latin1-encoded secrets by taking the low byte of each code unit", () => {
+      // 16 chars (>= MIN_SECRET_BYTES); includes a code unit above 0xFF
+      // (U+0141) to exercise the truncation path.
+      const secret = "abcdefghijklmnoŁ";
+      const hotp = new HOTP({ encoding: KeyEncodings.LATIN1 });
+      const token = hotp.generate(secret, 0);
+
+      const expectedBytes = Buffer.from(secret, "latin1");
+      const hotpHex = new HOTP({ encoding: KeyEncodings.HEX });
+      const tokenFromExpectedBytes = hotpHex.generate(expectedBytes.toString("hex"), 0);
+
+      expect(token).toBe(tokenFromExpectedBytes);
+    });
+
+    it("should treat ascii encoding the same as latin1 (Node semantics)", () => {
+      const secret = "abcdefghijklmnoŁ";
+      const hotpAscii = new HOTP({ encoding: KeyEncodings.ASCII });
+      const hotpLatin1 = new HOTP({ encoding: KeyEncodings.LATIN1 });
+
+      expect(hotpAscii.generate(secret, 0)).toBe(hotpLatin1.generate(secret, 0));
+    });
+
+    it("should decode utf8-encoded secrets distinctly from latin1/ascii", () => {
+      const secret = "abcdefghijklmnoŁ";
+      const hotpUtf8 = new HOTP({ encoding: KeyEncodings.UTF8 });
+      const hotpLatin1 = new HOTP({ encoding: KeyEncodings.LATIN1 });
+
+      expect(hotpUtf8.generate(secret, 0)).not.toBe(hotpLatin1.generate(secret, 0));
+    });
+  });
+
+  describe("secretToBytes byte-vector coverage", () => {
+    it("should match Buffer.from semantics for base64 encoding", () => {
+      const secret = "SGVsbG8gV29ybGQ=";
+      const expected = new Uint8Array(Buffer.from(secret, "base64"));
+
+      expect(secretToBytes(secret, KeyEncodings.BASE64)).toEqual(expected);
+    });
+
+    it("should match Buffer.from semantics for latin1 encoding", () => {
+      const secret = "abcéŁ";
+      const expected = new Uint8Array(Buffer.from(secret, "latin1"));
+
+      expect(secretToBytes(secret, KeyEncodings.LATIN1)).toEqual(expected);
+    });
+
+    it("should match Buffer.from semantics for ascii encoding", () => {
+      const secret = "abcéŁ";
+      const expected = new Uint8Array(Buffer.from(secret, "ascii"));
+
+      expect(secretToBytes(secret, KeyEncodings.ASCII)).toEqual(expected);
+    });
+
+    it("should match Buffer.from semantics for utf8 encoding", () => {
+      const secret = "abcéŁ";
+      const expected = new Uint8Array(Buffer.from(secret, "utf8"));
+
+      expect(secretToBytes(secret, KeyEncodings.UTF8)).toEqual(expected);
+    });
+
+    it("should match Buffer.from semantics for unrecognised encodings (utf8 fallback)", () => {
+      const secret = "abcéŁ";
+      const expected = new Uint8Array(Buffer.from(secret, "utf8"));
+
+      expect(secretToBytes(secret, "not-a-real-encoding")).toEqual(expected);
+    });
+
+    it("should default to UTF-8 bytes when encoding is undefined", () => {
+      const secret = "abcéŁ";
+      const expected = new Uint8Array(Buffer.from(secret, "utf8"));
+
+      expect(secretToBytes(secret)).toEqual(expected);
+    });
   });
 
   it("should apply guardrails from constructor", () => {

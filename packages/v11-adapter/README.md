@@ -31,6 +31,7 @@ const isValid = authenticator.check(token, secret);
 - **Epoch**: Uses seconds (UNIX timestamp), same as v11.
 - **Error Handling**: `check` and `verify` methods swallow errors and return `false`, matching v11 behavior.
 - **Secret Length**: Enforces strict secret length (> 16 bytes) due to v13 core security requirements.
+- **Key Encodings**: `encoding` accepts `ascii`, `hex`, `base32`, `base64`, `latin1`, and `utf8`, matching Node's `Buffer.from(secret, encoding)` semantics. `ascii` and `latin1` take the low byte of each UTF-16 code unit; `utf8` (and any unrecognised value) is treated as UTF-8.
 
 ## Migration Guide
 
