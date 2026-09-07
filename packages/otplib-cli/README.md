@@ -22,6 +22,10 @@ Two commands are available:
 # Initialize secrets file
 otplibx init
 
+# `otplibx init` creates .env.otplibx (encrypted secrets) and .env.keys
+# (the 256-bit key), both written with 0600 permissions. Never commit
+# either file to version control — add both to .gitignore.
+
 # Add entry from file or clipboard
 cat otp-uri.txt | otplibx add
 pbpaste | otplibx add

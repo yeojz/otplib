@@ -4,9 +4,8 @@ import { Readable } from "node:stream";
 // Mock all dependencies before importing
 vi.mock("node:fs", () => ({
   default: {
-    openSync: vi.fn(),
-    writeSync: vi.fn(),
-    closeSync: vi.fn(),
+    writeFileSync: vi.fn(),
+    chmodSync: vi.fn(),
   },
 }));
 
@@ -124,7 +123,6 @@ describe("CLI", () => {
       mockParseAddInput.mockReturnValue(mockData as ReturnType<typeof parseAddInput>);
       mockGenerateUid.mockReturnValue("test-uid");
       mockEncodePayload.mockReturnValue("payload");
-      mockFs.openSync.mockReturnValue(3);
 
       const { exitCode } = await runCli(
         ["encode", "--save-uid", "/tmp/uids.txt"],
@@ -132,9 +130,11 @@ describe("CLI", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(mockFs.openSync).toHaveBeenCalledWith("/tmp/uids.txt", "a", 0o600);
-      expect(mockFs.writeSync).toHaveBeenCalledWith(3, "test-uid\n");
-      expect(mockFs.closeSync).toHaveBeenCalledWith(3);
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith("/tmp/uids.txt", "test-uid\n", {
+        mode: 0o600,
+        flag: "a",
+      });
+      expect(mockFs.chmodSync).toHaveBeenCalledWith("/tmp/uids.txt", 0o600);
     });
 
     test("handles file save error gracefully", async () => {
@@ -142,7 +142,7 @@ describe("CLI", () => {
       mockParseAddInput.mockReturnValue(mockData as ReturnType<typeof parseAddInput>);
       mockGenerateUid.mockReturnValue("test-uid");
       mockEncodePayload.mockReturnValue("payload");
-      mockFs.openSync.mockImplementation(() => {
+      mockFs.writeFileSync.mockImplementation(() => {
         throw new Error("Permission denied");
       });
 

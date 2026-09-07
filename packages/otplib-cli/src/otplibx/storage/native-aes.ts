@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { parseEnvFile, serializeEnvFile } from "./env-parser.js";
 import { ErrorCodes, OtplibxStorageError } from "./errors.js";
+import { writeSecretFile } from "../../shared/secure-file.js";
 
 import type { OtplibxStorage, StorageStatus } from "./types.js";
 
@@ -101,6 +102,42 @@ function getKeysFilePath(envFilePath: string): string {
 }
 
 /**
+ * Throw if `filePath` is readable/writable by the group or other bits
+ * (i.e. anything beyond owner rwx). No-op on Windows, where POSIX mode
+ * bits are not meaningful.
+ */
+function assertSecurePermissions(filePath: string): void {
+  if (process.platform === "win32") {
+    return;
+  }
+  const { mode } = fs.statSync(filePath);
+  if ((mode & 0o077) !== 0) {
+    throw new OtplibxStorageError(
+      `Encryption key file is readable by group/other: ${filePath}. Run 'chmod 600 ${filePath}' and try again.`,
+      ErrorCodes.INSECURE_PERMISSIONS,
+    );
+  }
+}
+
+/**
+ * Warn (without blocking) if `filePath` is readable/writable by the
+ * group or other bits. Used for the vault file, which is ciphertext —
+ * unlike the key file, an over-permissive vault is not fatal, but it's
+ * still worth flagging so the user can tighten it. No-op on Windows.
+ */
+function warnIfInsecurePermissions(filePath: string): void {
+  if (process.platform === "win32") {
+    return;
+  }
+  const { mode } = fs.statSync(filePath);
+  if ((mode & 0o077) !== 0) {
+    console.error(
+      `Warning: ${filePath} is readable by group/other. Run 'chmod 600 ${filePath}' to restrict access.`,
+    );
+  }
+}
+
+/**
  * Find the encryption key from environment variable or .env.keys file
  */
 function findKey(envFilePath: string): { key: Buffer; source: "env" | "file" } | null {
@@ -113,6 +150,8 @@ function findKey(envFilePath: string): { key: Buffer; source: "env" | "file" } |
   // Then, check .env.keys file
   const keysPath = getKeysFilePath(envFilePath);
   if (fs.existsSync(keysPath)) {
+    assertSecurePermissions(keysPath);
+
     const content = fs.readFileSync(keysPath, "utf8");
     const { entries } = parseEnvFile(content);
     const fileKey = entries.get(ENV_VAR_NAME);
@@ -176,16 +215,18 @@ export const nativeAesStorage: OtplibxStorage = {
     existingEntries.entries.set(ENV_VAR_NAME, key);
     const newKeysContent = serializeEnvFile(keysContent, existingEntries.entries);
 
-    fs.writeFileSync(keysPath, newKeysContent + "\n", { mode: 0o600 });
+    writeSecretFile(keysPath, newKeysContent + "\n");
 
     // Create the empty env file with restricted permissions
-    fs.writeFileSync(filePath, "", { mode: 0o600 });
+    writeSecretFile(filePath, "");
   },
 
   async load(filePath: string): Promise<Record<string, string>> {
     if (!fs.existsSync(filePath)) {
       throw new OtplibxStorageError(`File not found: ${filePath}`, ErrorCodes.FILE_NOT_FOUND);
     }
+
+    warnIfInsecurePermissions(filePath);
 
     const keyResult = findKey(filePath);
     if (!keyResult) {
@@ -231,7 +272,7 @@ export const nativeAesStorage: OtplibxStorage = {
     }
 
     const newContent = serializeEnvFile(content, entries);
-    fs.writeFileSync(filePath, newContent, { mode: 0o600 });
+    writeSecretFile(filePath, newContent);
   },
 
   async remove(filePath: string, key: string): Promise<void> {
@@ -244,7 +285,7 @@ export const nativeAesStorage: OtplibxStorage = {
     entries.delete(key);
 
     const newContent = serializeEnvFile(content, entries);
-    fs.writeFileSync(filePath, newContent, { mode: 0o600 });
+    writeSecretFile(filePath, newContent);
   },
 };
 

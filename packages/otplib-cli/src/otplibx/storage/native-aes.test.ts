@@ -14,13 +14,19 @@ describe("native-aes storage", () => {
   const testIv = Buffer.alloc(12, 0x01);
   const testAuthTag = Buffer.alloc(16, 0x02);
 
+  const originalPlatform = process.platform;
+
   beforeEach(() => {
     vi.resetAllMocks();
     delete process.env.OTPLIBX_ENCRYPTION_KEY;
+    // Default to secure (owner-only) permissions on all statted files unless
+    // a test overrides this to simulate a group/world-readable file.
+    vi.mocked(fs.statSync).mockReturnValue({ mode: 0o600 } as fs.Stats);
   });
 
   afterEach(() => {
     delete process.env.OTPLIBX_ENCRYPTION_KEY;
+    Object.defineProperty(process, "platform", { value: originalPlatform });
   });
 
   describe("status", () => {
@@ -97,13 +103,45 @@ describe("native-aes storage", () => {
       expect(fs.writeFileSync).toHaveBeenCalledWith(
         ".env.keys",
         expect.stringContaining("OTPLIBX_ENCRYPTION_KEY="),
-        { mode: 0o600 },
+        { mode: 0o600, flag: "w" },
       );
 
       // Should write env file
       expect(fs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "", {
         mode: 0o600,
+        flag: "w",
       });
+
+      // Both files should be chmod'd to 0600 after writing, even though the
+      // mode option on writeFileSync only takes effect on file creation.
+      expect(fs.chmodSync).toHaveBeenCalledWith(".env.keys", 0o600);
+      expect(fs.chmodSync).toHaveBeenCalledWith(".env.otplibx", 0o600);
+    });
+
+    test("chmods pre-existing files to 0600 even if they were 0644", async () => {
+      // Simulate: keys file already exists (e.g. checked out from git with a
+      // permissive umask), env file does not exist yet.
+      vi.mocked(fs.existsSync).mockImplementation((p: fs.PathLike) => {
+        return p.toString() === ".env.keys";
+      });
+      vi.mocked(fs.readFileSync).mockReturnValue("");
+      vi.mocked(crypto.randomBytes).mockReturnValue(Buffer.alloc(32, 0xab) as unknown as void);
+
+      await nativeAesStorage.init(".env.otplibx");
+
+      expect(fs.chmodSync).toHaveBeenCalledWith(".env.keys", 0o600);
+      expect(fs.chmodSync).toHaveBeenCalledWith(".env.otplibx", 0o600);
+    });
+
+    test("does not chmod on Windows", async () => {
+      Object.defineProperty(process, "platform", { value: "win32" });
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      vi.mocked(crypto.randomBytes).mockReturnValue(Buffer.alloc(32, 0xab) as unknown as void);
+
+      await nativeAesStorage.init(".env.otplibx");
+
+      expect(fs.writeFileSync).toHaveBeenCalled();
+      expect(fs.chmodSync).not.toHaveBeenCalled();
     });
   });
 
@@ -200,8 +238,9 @@ describe("native-aes storage", () => {
       expect(fs.writeFileSync).toHaveBeenCalledWith(
         ".env.otplibx",
         expect.stringMatching(/KEY=.*encrypted:/),
-        { mode: 0o600 },
+        { mode: 0o600, flag: "w" },
       );
+      expect(fs.chmodSync).toHaveBeenCalledWith(".env.otplibx", 0o600);
     });
 
     test("removes key when value is empty", async () => {
@@ -211,7 +250,10 @@ describe("native-aes storage", () => {
 
       await nativeAesStorage.set(".env.otplibx", "KEY", "");
 
-      expect(fs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "", { mode: 0o600 });
+      expect(fs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "", {
+        mode: 0o600,
+        flag: "w",
+      });
     });
   });
 
@@ -230,7 +272,10 @@ describe("native-aes storage", () => {
 
       await nativeAesStorage.remove(".env.otplibx", "KEY1");
 
-      expect(fs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "KEY2=value2", { mode: 0o600 });
+      expect(fs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "KEY2=value2", {
+        mode: 0o600,
+        flag: "w",
+      });
     });
   });
 
@@ -420,12 +465,12 @@ describe("native-aes storage", () => {
       expect(fs.writeFileSync).toHaveBeenCalledWith(
         ".env.keys",
         expect.stringContaining("OTHER_KEY=somevalue"),
-        { mode: 0o600 },
+        { mode: 0o600, flag: "w" },
       );
       expect(fs.writeFileSync).toHaveBeenCalledWith(
         ".env.keys",
         expect.stringContaining("OTPLIBX_ENCRYPTION_KEY="),
-        { mode: 0o600 },
+        { mode: 0o600, flag: "w" },
       );
     });
   });
@@ -443,6 +488,105 @@ describe("native-aes storage", () => {
         expect(err).toBeInstanceOf(OtplibxStorageError);
         expect((err as OtplibxStorageError).code).toBe(ErrorCodes.NOT_INITIALIZED);
       }
+    });
+  });
+
+  describe("key file permission enforcement", () => {
+    function mockExistingKeyFile() {
+      vi.mocked(fs.existsSync).mockImplementation((p: fs.PathLike) => {
+        const pathStr = p.toString();
+        return pathStr === ".env.otplibx" || pathStr === ".env.keys";
+      });
+      vi.mocked(fs.readFileSync).mockImplementation((p: fs.PathOrFileDescriptor) => {
+        const pathStr = p.toString();
+        if (pathStr === ".env.keys") {
+          return `OTPLIBX_ENCRYPTION_KEY=${testKey}`;
+        }
+        return "KEY=plaintext";
+      });
+    }
+
+    test("throws when the .env.keys file is group/world readable (0644)", async () => {
+      mockExistingKeyFile();
+      vi.mocked(fs.statSync).mockReturnValue({ mode: 0o644 } as fs.Stats);
+
+      try {
+        await nativeAesStorage.load(".env.otplibx");
+        expect.fail("Should have thrown");
+      } catch (err) {
+        expect(err).toBeInstanceOf(OtplibxStorageError);
+        expect((err as OtplibxStorageError).code).toBe(ErrorCodes.INSECURE_PERMISSIONS);
+        expect((err as OtplibxStorageError).message).toContain("chmod 600 .env.keys");
+      }
+    });
+
+    test("succeeds when the .env.keys file is 0600", async () => {
+      mockExistingKeyFile();
+      vi.mocked(fs.statSync).mockReturnValue({ mode: 0o600 } as fs.Stats);
+
+      const result = await nativeAesStorage.load(".env.otplibx");
+
+      expect(result.KEY).toBe("plaintext");
+    });
+
+    test("does not check permissions on Windows", async () => {
+      Object.defineProperty(process, "platform", { value: "win32" });
+      mockExistingKeyFile();
+      // If the permission check ran, this insecure mode would throw.
+      vi.mocked(fs.statSync).mockReturnValue({ mode: 0o644 } as fs.Stats);
+
+      const result = await nativeAesStorage.load(".env.otplibx");
+
+      expect(result.KEY).toBe("plaintext");
+      expect(fs.statSync).not.toHaveBeenCalledWith(".env.keys");
+    });
+  });
+
+  describe("vault file permission warning", () => {
+    test("warns to stderr (does not throw) when the vault file is group/world readable", async () => {
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      process.env.OTPLIBX_ENCRYPTION_KEY = testKey;
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue("");
+      vi.mocked(fs.statSync).mockReturnValue({ mode: 0o644 } as fs.Stats);
+
+      const result = await nativeAesStorage.load(".env.otplibx");
+
+      expect(result).toEqual({});
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("chmod 600 .env.otplibx"),
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    test("does not warn when the vault file is 0600", async () => {
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      process.env.OTPLIBX_ENCRYPTION_KEY = testKey;
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue("");
+      vi.mocked(fs.statSync).mockReturnValue({ mode: 0o600 } as fs.Stats);
+
+      await nativeAesStorage.load(".env.otplibx");
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    test("does not check permissions on Windows", async () => {
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      Object.defineProperty(process, "platform", { value: "win32" });
+      process.env.OTPLIBX_ENCRYPTION_KEY = testKey;
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue("");
+      vi.mocked(fs.statSync).mockReturnValue({ mode: 0o644 } as fs.Stats);
+
+      await nativeAesStorage.load(".env.otplibx");
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
     });
   });
 });
