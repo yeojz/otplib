@@ -1,5 +1,7 @@
 import { normalizeHashAlgorithm } from "@otplib/core";
 
+import { InvalidParameterError } from "./types.js";
+
 import type { OTPAuthURI } from "./types.js";
 import type { HashAlgorithm, Digits } from "@otplib/core";
 
@@ -68,6 +70,9 @@ export type HOTPURIOptions = URIOptions & {
  * @param uri - The URI components
  * @returns The otpauth:// URI string
  * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
+ * @throws {InvalidParameterError} If `type` is not "hotp"/"totp", or if
+ * `digits`, `counter`, or `period` are present but are not safe, in-range
+ * integers
  *
  * @example
  * ```ts
@@ -91,6 +96,28 @@ export type HOTPURIOptions = URIOptions & {
  */
 export function generate(uri: OTPAuthURI): string {
   const { type, label, params } = uri;
+
+  // `type` is interpolated directly into the URI below (unlike label/issuer/
+  // secret, it is never percent-encoded), so untyped JS callers must be
+  // stopped from smuggling extra path/query segments through it.
+  if (type !== "hotp" && type !== "totp") {
+    throw new InvalidParameterError("type", String(type));
+  }
+
+  if (params.digits !== undefined && !(Number.isSafeInteger(params.digits) && params.digits > 0)) {
+    throw new InvalidParameterError("digits", String(params.digits));
+  }
+
+  if (
+    params.counter !== undefined &&
+    !(Number.isSafeInteger(params.counter) && params.counter >= 0)
+  ) {
+    throw new InvalidParameterError("counter", String(params.counter));
+  }
+
+  if (params.period !== undefined && !(Number.isSafeInteger(params.period) && params.period > 0)) {
+    throw new InvalidParameterError("period", String(params.period));
+  }
 
   // Encode label parts while preserving ':' as the issuer/account separator
   const encodedLabel = label

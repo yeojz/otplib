@@ -79,14 +79,14 @@ export function parse(uri: string): OTPAuthURI {
   }
 
   if (!uri.startsWith("otpauth://")) {
-    throw new InvalidURIError(uri);
+    throw new InvalidURIError("expected otpauth:// scheme");
   }
 
   const withoutScheme = uri.slice("otpauth://".length);
   const slashIndex = withoutScheme.indexOf("/");
 
   if (slashIndex === -1) {
-    throw new InvalidURIError(uri);
+    throw new InvalidURIError("missing type or label");
   }
 
   const type = withoutScheme.slice(0, slashIndex);
