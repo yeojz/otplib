@@ -127,10 +127,10 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
+      # pnpm 11 no longer reads npm_config_* environment variables, so
+      # provenance is passed as an explicit --provenance flag in the script.
       - name: Publish to npm
         run: pnpm run release:packages
-        env:
-          NPM_CONFIG_PROVENANCE: true
 
       - name: Trigger smoke tests
         if: success()

@@ -4,14 +4,14 @@
 # Usage: ./scripts/test-docker.sh [runtime]
 # Examples:
 #   ./scripts/test-docker.sh bun-1
-#   ./scripts/test-docker.sh node-20
+#   ./scripts/test-docker.sh node-22
 #   ./scripts/test-docker.sh all
 
 set -e
 
 RUNTIME="${1:-all}"
 
-AVAILABLE_RUNTIMES=("bun-1" "deno-1" "deno-2" "node-20" "node-22" "node-24")
+AVAILABLE_RUNTIMES=("bun-1" "deno-1" "deno-2" "node-22" "node-24")
 
 run_test() {
   local runtime=$1

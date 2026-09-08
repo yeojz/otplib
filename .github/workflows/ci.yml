@@ -146,10 +146,13 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      # pnpm 11 requires Node.js >= 22.13, so the workspace is installed with
+      # the target Node version. The matrix version is only swapped in for the
+      # distribution test itself, which is the thing under test.
+      - name: Setup Node.js ${{ env.NODE_VERSION_TARGET }} (install)
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION_TARGET }}
           cache: "pnpm"
 
       - name: Install dependencies
@@ -161,8 +164,17 @@ jobs:
           name: dist-artifacts
           path: packages
 
+      - name: Setup Node.js ${{ matrix.node-version }} (test)
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # Invoke the vitest binary directly rather than "pnpm run test:dist-node":
+      # pnpm must not be started under a Node version below 22.13.
       - name: Run distribution tests
-        run: pnpm run test:dist-node
+        run: |
+          node --version
+          ./node_modules/.bin/vitest run --config internal/distribution-tests/vitest.config.ts
 
   test-deno:
     name: Distribution Test (Deno ${{ matrix.deno-version }})
