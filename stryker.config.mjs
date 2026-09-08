@@ -1,4 +1,3 @@
-// @ts-check
 /**
  * Stryker mutation testing configuration.
  *
@@ -15,8 +14,15 @@
  *   multi-project vitest workspace config; runs are still ~1 minute for this scope.
  * - Some surviving mutants are intentionally *equivalent* (no observable behaviour
  *   change) — see the "Mutation Testing" section in apps/docs/guide/testing.md.
+ * - Stryker is not a standing devDependency: `pnpm test:mutation` fetches
+ *   `@stryker-mutator/core`, `@stryker-mutator/vitest-runner` and the `typescript`
+ *   peer the vitest-runner needs at runtime, on demand via `pnpm dlx`, all pinned
+ *   to exact versions. `@ts-check` is dropped here since the `@stryker-mutator/api`
+ *   types are not installed; this file is outside the `typecheck`/`lint` inputs
+ *   (root config, not under any package's `src/`) so there is nothing to keep
+ *   passing anyway.
  *
- * @type {import('@stryker-mutator/api/core').PartialStrykerOptions}
+ * @type {object}
  */
 export default {
   packageManager: "pnpm",

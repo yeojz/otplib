@@ -6,6 +6,10 @@ name: Mutation Testing
 # hard ceiling below 100%, so a pass/fail threshold would be arbitrary. Run it on demand to
 # get the current score and browse the HTML report. See the "Mutation Testing" section
 # in apps/docs/guide/testing.md for context.
+#
+# Stryker is not a standing devDependency: `pnpm test:mutation` fetches it (plus the
+# `typescript` peer its vitest-runner needs at runtime) on demand via `pnpm dlx` at
+# pinned versions, so it never sits in pnpm-lock.yaml for a tool that only runs here.
 on:
   workflow_dispatch:
     inputs:
@@ -52,7 +56,9 @@ jobs:
       # reads the summary/report; genuine tooling errors are still visible in the logs.
       - name: Run mutation testing
         continue-on-error: true
-        run: pnpm run test:mutation ${{ github.event.inputs.args }}
+        env:
+          ARGS: ${{ github.event.inputs.args }}
+        run: pnpm run test:mutation $ARGS
 
       - name: Write score to job summary
         if: always()

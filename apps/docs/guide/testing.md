@@ -117,6 +117,12 @@ Coverage tells you which lines _ran_; it does not tell you whether your assertio
 
 otplib uses [StrykerJS](https://stryker-mutator.io/) with the Vitest runner. It complements the 100% coverage target enforced by `pnpm test:ci`.
 
+Stryker is not a standing dependency of the repo — it only runs manually or via the
+`workflow_dispatch`-triggered mutation testing workflow, so it is not worth keeping in
+`pnpm-lock.yaml` permanently. `pnpm test:mutation` fetches Stryker (and the `typescript`
+peer its vitest-runner needs at runtime) on demand via `pnpm dlx`, all pinned to exact
+versions, on first run instead.
+
 ### Running
 
 ```bash
