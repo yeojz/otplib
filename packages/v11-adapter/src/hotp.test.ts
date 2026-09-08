@@ -159,6 +159,51 @@ describe("HOTP (v11-adapter)", () => {
     });
   });
 
+  describe("base64 compatibility (Node Buffer.from parity)", () => {
+    // Bytes chosen so the Base64 encoding contains both "+" and "/", so the
+    // URL-safe-alphabet cases actually exercise the "-"/"_" mapping instead
+    // of coincidentally being identical to the standard-alphabet strings.
+    const PADDED = "AM+R//4=";
+    const UNPADDED = "AM+R//4";
+    const WHITESPACE = "AM+R \n //4=";
+    const URL_SAFE = "AM-R__4=";
+    const URL_SAFE_UNPADDED = "AM-R__4";
+
+    it.each([
+      ["unpadded", UNPADDED],
+      ["padded", PADDED],
+      ["embedded spaces and newlines", WHITESPACE],
+      ["URL-safe alphabet (- and _)", URL_SAFE],
+      ["URL-safe alphabet, unpadded", URL_SAFE_UNPADDED],
+    ])("should match Buffer.from semantics for %s base64 input", (_label, input) => {
+      const expected = new Uint8Array(Buffer.from(input, "base64"));
+
+      expect(secretToBytes(input, KeyEncodings.BASE64)).toEqual(expected);
+    });
+
+    it("should generate the same HOTP token from an unpadded base64 secret as from the equivalent base32 secret", () => {
+      const unpaddedBase64Secret = Buffer.from(RFC_TEST_SECRET, "utf8")
+        .toString("base64")
+        .replace(/=+$/, "");
+      const hotpBase64 = new HOTP({ encoding: KeyEncodings.BASE64 });
+      const tokenBase64 = hotpBase64.generate(unpaddedBase64Secret, 0);
+
+      const hotpBase32 = new HOTP({ encoding: KeyEncodings.BASE32 });
+      const tokenBase32 = hotpBase32.generate(TEST_SECRET_RFC_BASE32, 0);
+
+      expect(tokenBase64).toBe(tokenBase32);
+    });
+
+    it("should throw on genuinely invalid characters instead of silently discarding them like Node", () => {
+      // Node's `Buffer.from("ab!!cd", "base64")` silently drops the "!!"
+      // and decodes as though it read "abcd". This library's `base64ToBytes`
+      // (see hotp.ts) intentionally does NOT replicate that: a secret is a
+      // security-sensitive value, so a mistyped/corrupted secret should
+      // throw rather than silently resolve to a different key.
+      expect(() => secretToBytes("ab!!cd", KeyEncodings.BASE64)).toThrow();
+    });
+  });
+
   it("should apply guardrails from constructor", () => {
     const strictGuardrails = createGuardrails({ MIN_SECRET_BYTES: 100, MAX_SECRET_BYTES: 200 });
     const hotp = new HOTP({ guardrails: strictGuardrails });

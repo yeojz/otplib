@@ -9,7 +9,7 @@ import { generateSync as hotpGenerateSync, verifySync as hotpVerifySync } from "
 import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
 import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 import { generateHOTP as generateHOTPURI } from "@otplib/uri";
-import { base64, hex } from "@scure/base";
+import { base64nopad, hex } from "@scure/base";
 
 import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
@@ -34,13 +34,42 @@ function latin1ToBytes(value: string): Uint8Array {
 }
 
 /**
+ * Decode a Base64 string to bytes, matching the forms Node's
+ * `Buffer.from(str, "base64")` accepts: the standard alphabet or the
+ * URL-safe alphabet (`-`/`_`), with or without `=` padding, and with
+ * embedded whitespace.
+ *
+ * Whitespace is stripped, `-`/`_` are mapped to `+`/`/`, and trailing `=`
+ * padding is stripped, then the result is decoded with the unpadded
+ * `base64nopad` codec.
+ *
+ * Node itself also tolerates genuinely invalid characters (outside the
+ * Base64 alphabet, whitespace, and padding) by silently discarding them
+ * rather than erroring. This helper does NOT replicate that: a secret is
+ * a security-sensitive value, and silently decoding a mistyped/corrupted
+ * secret into a different key - with no error and a token that just
+ * silently fails to validate later - is worse than throwing immediately.
+ * So invalid characters here throw (`base64nopad.decode` rejects them),
+ * which is intentionally stricter than Node for that one case.
+ */
+function base64ToBytes(value: string): Uint8Array {
+  const normalized = value
+    .replace(/\s/g, "")
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .replace(/=+$/, "");
+  return base64nopad.decode(normalized);
+}
+
+/**
  * Convert a string secret to bytes based on encoding.
  *
  * Mirrors the semantics of Node's `Buffer.from(secret, encoding)`, which is
  * what the original v11/v12 implementations relied on:
  *  - `base32`: RFC 4648 Base32 decode.
  *  - `hex`: hex decode (whitespace stripped, as v11/v12 tests expect).
- *  - `base64`: standard (padded) Base64 decode.
+ *  - `base64`: Base64 decode; accepts unpadded, padded, whitespace-
+ *    containing and URL-safe inputs (see `base64ToBytes`).
  *  - `latin1` / `ascii`: low byte of each UTF-16 code unit.
  *  - `utf8`, any other/unrecognised encoding, or `undefined`: UTF-8 bytes.
  */
@@ -52,7 +81,7 @@ export function secretToBytes(secret: SecretKey, encoding?: string): Uint8Array 
     return hex.decode(secret.replace(/\s/g, ""));
   }
   if (encoding === KeyEncodingsConst.BASE64 || encoding === "base64") {
-    return base64.decode(secret);
+    return base64ToBytes(secret);
   }
   if (
     encoding === KeyEncodingsConst.LATIN1 ||
