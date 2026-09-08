@@ -7,14 +7,15 @@ name: Mutation Testing
 # get the current score and browse the HTML report. See the "Mutation Testing" section
 # in apps/docs/guide/testing.md for context.
 #
-# Stryker is not a standing devDependency: `pnpm test:mutation` fetches it (plus the
-# `typescript` peer its vitest-runner needs at runtime) on demand via `pnpm dlx` at
-# pinned versions, so it never sits in pnpm-lock.yaml for a tool that only runs here.
+# Stryker is not a standing devDependency: it lives in a separately locked
+# `internal/mutation` directory that sits outside the pnpm workspace, so it stays out of
+# the root install tree and the root pnpm-lock.yaml while remaining fully reproducible
+# via its own lockfile, which pins the whole transitive tree.
 on:
   workflow_dispatch:
     inputs:
-      args:
-        description: "Extra args passed to `stryker run` (e.g. --mutate \"packages/core/src/**/*.ts\")"
+      mutate:
+        description: "Glob passed as one --mutate argument, e.g. packages/core/src/**/*.ts. Leave empty for the configured default set."
         required: false
         default: ""
 
@@ -52,13 +53,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install mutation toolchain
+        run: pnpm run test:mutation:install
+
+      # Reported, never gating: ci.yml only audits the root lockfile, so surface advisories
+      # for the separately locked mutation toolchain here.
+      - name: Audit mutation toolchain
+        continue-on-error: true
+        run: pnpm audit --dir internal/mutation --ignore-workspace
+
       # Indicator only: never fail the run on mutation score. A human triggered this and
       # reads the summary/report; genuine tooling errors are still visible in the logs.
       - name: Run mutation testing
         continue-on-error: true
         env:
-          ARGS: ${{ github.event.inputs.args }}
-        run: pnpm run test:mutation $ARGS
+          MUTATE: ${{ inputs.mutate }}
+        run: |
+          if [ -n "$MUTATE" ]; then
+            pnpm run test:mutation --mutate "$MUTATE"
+          else
+            pnpm run test:mutation
+          fi
 
       - name: Write score to job summary
         if: always()

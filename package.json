@@ -31,7 +31,8 @@
     "test:dist-deno": "deno test --allow-read --no-check internal/distribution-tests/src/deno.test.ts",
     "test:dist-node": "vitest run --config internal/distribution-tests/vitest.config.ts",
     "test:docker": "sh scripts/test-docker.sh",
-    "test:mutation": "pnpm dlx --package @stryker-mutator/core@9.6.1 --package @stryker-mutator/vitest-runner@9.6.1 --package typescript@6.0.3 stryker run",
+    "test:mutation": "internal/mutation/node_modules/.bin/stryker run",
+    "test:mutation:install": "pnpm install --dir internal/mutation --ignore-workspace --frozen-lockfile",
     "test": "vitest --run",
     "typecheck": "turbo run typecheck"
   },

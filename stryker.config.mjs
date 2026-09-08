@@ -3,7 +3,7 @@
  *
  * Mutation testing complements the 100% line/branch coverage gate: coverage proves
  * code is executed, mutation testing proves the assertions actually detect changes
- * in behaviour. Run with `pnpm test:mutation`.
+ * in behaviour. Run `pnpm test:mutation:install` once, then `pnpm test:mutation`.
  *
  * Scope is limited to the pure-logic, security-critical modules where mutation
  * testing has the highest signal (validation guardrails, RFC truncation, URI
@@ -14,13 +14,14 @@
  *   multi-project vitest workspace config; runs are still ~1 minute for this scope.
  * - Some surviving mutants are intentionally *equivalent* (no observable behaviour
  *   change) — see the "Mutation Testing" section in apps/docs/guide/testing.md.
- * - Stryker is not a standing devDependency: `pnpm test:mutation` fetches
- *   `@stryker-mutator/core`, `@stryker-mutator/vitest-runner` and the `typescript`
- *   peer the vitest-runner needs at runtime, on demand via `pnpm dlx`, all pinned
- *   to exact versions. `@ts-check` is dropped here since the `@stryker-mutator/api`
- *   types are not installed; this file is outside the `typecheck`/`lint` inputs
- *   (root config, not under any package's `src/`) so there is nothing to keep
- *   passing anyway.
+ * - Stryker is not a standing devDependency: it lives in `internal/mutation`, a
+ *   separately locked directory kept outside the pnpm workspace (see its README),
+ *   so it stays out of the root install tree while its own lockfile pins the full
+ *   transitive tree. `pnpm test:mutation` runs its binary from the repo root, so the
+ *   `mutate` globs below resolve against the root. `@ts-check` is dropped here since
+ *   the `@stryker-mutator/api` types are not installed at the root; this file is
+ *   outside the `typecheck`/`lint` inputs (root config, not under any package's
+ *   `src/`) so there is nothing to keep passing anyway.
  *
  * @type {object}
  */

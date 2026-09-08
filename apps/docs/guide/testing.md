@@ -118,14 +118,22 @@ Coverage tells you which lines _ran_; it does not tell you whether your assertio
 otplib uses [StrykerJS](https://stryker-mutator.io/) with the Vitest runner. It complements the 100% coverage target enforced by `pnpm test:ci`.
 
 Stryker is not a standing dependency of the repo — it only runs manually or via the
-`workflow_dispatch`-triggered mutation testing workflow, so it is not worth keeping in
-`pnpm-lock.yaml` permanently. `pnpm test:mutation` fetches Stryker (and the `typescript`
-peer its vitest-runner needs at runtime) on demand via `pnpm dlx`, all pinned to exact
-versions, on first run instead.
+`workflow_dispatch`-triggered mutation testing workflow, so it is not worth putting into
+every contributor's and every CI job's install. It lives in `internal/mutation` instead:
+a small, private project that the root `pnpm-workspace.yaml` deliberately excludes, with
+its own `pnpm-lock.yaml`. That keeps it out of the root install tree and the root
+lockfile while still pinning the entire transitive tree, which an on-demand fetch of
+top-level pins could not do. See `internal/mutation/README.md` for the full rationale.
 
 ### Running
 
+Install the toolchain once (and again whenever `internal/mutation/pnpm-lock.yaml`
+changes), then run Stryker from the repository root:
+
 ```bash
+# Install the separately locked Stryker toolchain
+pnpm test:mutation:install
+
 # Run the default mutation suite
 pnpm test:mutation
 
