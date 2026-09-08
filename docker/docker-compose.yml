@@ -48,18 +48,6 @@ services:
     working_dir: /workspace
     command: sh -c "pnpm install --frozen-lockfile && deno test --allow-read --no-check packages/*/src/*.deno.test.ts"
 
-  # Node.js 20
-  node-20:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.node
-      args:
-        IMAGE_TAG: '20-alpine'
-    volumes:
-      - node-20-node-modules:/workspace/node_modules
-    working_dir: /workspace
-    command: pnpm test:ci run
-
   # Node.js 22
   node-22:
     build:
@@ -90,6 +78,5 @@ volumes:
   deno-1-cache:
   deno-2-node-modules:
   deno-2-cache:
-  node-20-node-modules:
   node-22-node-modules:
   node-24-node-modules:

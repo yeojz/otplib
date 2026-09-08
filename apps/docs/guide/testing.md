@@ -22,7 +22,7 @@ Local testing is the primary development workflow. It uses Vitest for unit tests
 ### Prerequisites
 
 - Node.js >= 24.0.0
-- pnpm >= 10.30.1
+- pnpm >= 11.26.0
 - (Optional) Bun and/or Deno installed locally for distribution tests
 
 ### Unit Tests
@@ -169,7 +169,6 @@ The `test:docker` command runs tests in Docker containers for each runtime:
 pnpm run test:docker
 
 # Test specific runtime
-pnpm run test:docker node-20
 pnpm run test:docker node-22
 pnpm run test:docker node-24
 pnpm run test:docker bun-1
@@ -181,7 +180,6 @@ pnpm run test:docker deno-2
 
 | Runtime   | Command                        | Description                     |
 | --------- | ------------------------------ | ------------------------------- |
-| `node-20` | `pnpm run test:docker node-20` | Tests on Node.js 20 Alpine      |
 | `node-22` | `pnpm run test:docker node-22` | Tests on Node.js 22             |
 | `node-24` | `pnpm run test:docker node-24` | Tests on Node.js 24             |
 | `bun-1`   | `pnpm run test:docker bun-1`   | Tests on Bun 1.3 Alpine         |
@@ -283,7 +281,7 @@ docker compose down
 Docker tests may take longer than CI. Consider testing individual runtimes:
 
 ```bash
-pnpm run test:docker node-20
+pnpm run test:docker node-22
 ```
 
 ### Artifact download fails in CI

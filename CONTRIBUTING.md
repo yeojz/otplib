@@ -7,7 +7,7 @@ Thank you for your interest in contributing to otplib! This guide covers everyth
 ### Environment
 
 - Node.js >= 24.0.0
-- pnpm >= 10.30.1
+- pnpm >= 11.26.0
 
 ### Getting Started
 
@@ -97,11 +97,11 @@ pnpm test:dist-deno   # Deno distribution tests (requires Deno)
 
 ### Docker-based Multi-Runtime Testing
 
-Since this library supports multiple runtimes (Bun 1.x, Deno 1.x/2.x, Node 20/22/23), you can use Docker to test across all environments without installing them locally:
+Since this library supports multiple runtimes (Bun 1.x, Deno 1.x/2.x, Node 22/24), you can use Docker to test across all environments without installing them locally:
 
 ```bash
 # Test a specific runtime
-./scripts/test-docker.sh node-20
+./scripts/test-docker.sh node-22
 ./scripts/test-docker.sh bun
 ./scripts/test-docker.sh deno-2
 
@@ -109,7 +109,7 @@ Since this library supports multiple runtimes (Bun 1.x, Deno 1.x/2.x, Node 20/22
 ./scripts/test-docker.sh all
 ```
 
-Available runtimes: `bun-1`, `deno-1`, `deno-2`, `node-20`, `node-22`, `node-24`
+Available runtimes: `bun-1`, `deno-1`, `deno-2`, `node-22`, `node-24`
 
 See [tests/docker-compose.test.yml](tests/docker-compose.test.yml) for configuration details.
 
