@@ -53,12 +53,15 @@ function latin1ToBytes(value: string): Uint8Array {
  * which is intentionally stricter than Node for that one case.
  */
 function base64ToBytes(value: string): Uint8Array {
-  const normalized = value
-    .replace(/\s/g, "")
-    .replace(/-/g, "+")
-    .replace(/_/g, "/")
-    .replace(/=+$/, "");
-  return base64nopad.decode(normalized);
+  const normalized = value.replace(/\s/g, "").replace(/-/g, "+").replace(/_/g, "/");
+  // Trim trailing padding with a linear scan. A `/=+$/` regex is polynomial on
+  // inputs with many repeated "=" characters (CodeQL js/polynomial-redos), and
+  // this value is caller-supplied.
+  let end = normalized.length;
+  while (end > 0 && normalized[end - 1] === "=") {
+    end--;
+  }
+  return base64nopad.decode(normalized.slice(0, end));
 }
 
 /**
