@@ -278,8 +278,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Audit production dependencies (blocking)
-        run: pnpm audit --prod --audit-level=moderate
+      # Same script contributors run locally: root production tree plus the separately
+      # locked mutation toolchain in internal/mutation (audit reads lockfiles only).
+      - name: Audit production and mutation-toolchain dependencies (blocking)
+        run: pnpm run audit
 
       - name: Audit all dependencies (informational)
         continue-on-error: true

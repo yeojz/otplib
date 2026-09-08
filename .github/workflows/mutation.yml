@@ -56,12 +56,6 @@ jobs:
       - name: Install mutation toolchain
         run: pnpm run test:mutation:install
 
-      # Reported, never gating: ci.yml only audits the root lockfile, so surface advisories
-      # for the separately locked mutation toolchain here.
-      - name: Audit mutation toolchain
-        continue-on-error: true
-        run: pnpm audit --dir internal/mutation --ignore-workspace
-
       # Indicator only: never fail the run on mutation score. A human triggered this and
       # reads the summary/report; genuine tooling errors are still visible in the logs.
       - name: Run mutation testing
