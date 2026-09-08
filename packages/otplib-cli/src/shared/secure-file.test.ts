@@ -1,68 +1,72 @@
 import fs from "node:fs";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { chmodSecure, writeSecretFile } from "./secure-file.js";
+import { writeSecretFile } from "./secure-file.js";
 
 vi.mock("node:fs");
 
 describe("secure-file", () => {
   const originalPlatform = process.platform;
+  const FD = 42;
 
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.mocked(fs.openSync).mockReturnValue(FD);
   });
 
   afterEach(() => {
     Object.defineProperty(process, "platform", { value: originalPlatform });
   });
 
-  describe("chmodSecure", () => {
-    test("chmods the file to 0600 on POSIX platforms", () => {
-      chmodSecure("/tmp/secret");
-
-      expect(fs.chmodSync).toHaveBeenCalledWith("/tmp/secret", 0o600);
-    });
-
-    test("is a no-op on Windows", () => {
-      Object.defineProperty(process, "platform", { value: "win32" });
-
-      chmodSecure("C:\\secret");
-
-      expect(fs.chmodSync).not.toHaveBeenCalled();
-    });
-  });
-
   describe("writeSecretFile", () => {
-    test("writes with mode 0600 and defaults to overwrite", () => {
+    test("opens, fchmods, writes and closes in order, defaulting to overwrite", () => {
       writeSecretFile("/tmp/secret", "content");
 
-      expect(fs.writeFileSync).toHaveBeenCalledWith("/tmp/secret", "content", {
-        mode: 0o600,
-        flag: "w",
-      });
-      expect(fs.chmodSync).toHaveBeenCalledWith("/tmp/secret", 0o600);
+      expect(fs.openSync).toHaveBeenCalledWith("/tmp/secret", "w", 0o600);
+      expect(fs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
+      expect(fs.writeSync).toHaveBeenCalledWith(FD, "content");
+      expect(fs.closeSync).toHaveBeenCalledWith(FD);
+
+      const openOrder = vi.mocked(fs.openSync).mock.invocationCallOrder[0];
+      const fchmodOrder = vi.mocked(fs.fchmodSync).mock.invocationCallOrder[0];
+      const writeOrder = vi.mocked(fs.writeSync).mock.invocationCallOrder[0];
+      const closeOrder = vi.mocked(fs.closeSync).mock.invocationCallOrder[0];
+
+      expect(openOrder).toBeLessThan(fchmodOrder);
+      expect(fchmodOrder).toBeLessThan(writeOrder);
+      expect(writeOrder).toBeLessThan(closeOrder);
     });
 
     test("supports append flag", () => {
       writeSecretFile("/tmp/secret", "more\n", "a");
 
-      expect(fs.writeFileSync).toHaveBeenCalledWith("/tmp/secret", "more\n", {
-        mode: 0o600,
-        flag: "a",
-      });
-      expect(fs.chmodSync).toHaveBeenCalledWith("/tmp/secret", 0o600);
+      expect(fs.openSync).toHaveBeenCalledWith("/tmp/secret", "a", 0o600);
+      expect(fs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
+      expect(fs.writeSync).toHaveBeenCalledWith(FD, "more\n");
+      expect(fs.closeSync).toHaveBeenCalledWith(FD);
     });
 
-    test("does not chmod on Windows even after writing", () => {
+    test("does not chmod on Windows, but still writes and closes", () => {
       Object.defineProperty(process, "platform", { value: "win32" });
 
       writeSecretFile("C:\\secret", "content");
 
-      expect(fs.writeFileSync).toHaveBeenCalledWith("C:\\secret", "content", {
-        mode: 0o600,
-        flag: "w",
+      expect(fs.openSync).toHaveBeenCalledWith("C:\\secret", "w", 0o600);
+      expect(fs.fchmodSync).not.toHaveBeenCalled();
+      expect(fs.writeSync).toHaveBeenCalledWith(FD, "content");
+      expect(fs.closeSync).toHaveBeenCalledWith(FD);
+    });
+
+    test("closes the descriptor and rethrows without writing when fchmod fails", () => {
+      const error = new Error("fchmod failed");
+      vi.mocked(fs.fchmodSync).mockImplementation(() => {
+        throw error;
       });
-      expect(fs.chmodSync).not.toHaveBeenCalled();
+
+      expect(() => writeSecretFile("/tmp/secret", "content")).toThrow(error);
+
+      expect(fs.writeSync).not.toHaveBeenCalled();
+      expect(fs.closeSync).toHaveBeenCalledWith(FD);
     });
   });
 });

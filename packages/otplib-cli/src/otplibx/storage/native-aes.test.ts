@@ -16,12 +16,15 @@ describe("native-aes storage", () => {
 
   const originalPlatform = process.platform;
 
+  const FD = 42;
+
   beforeEach(() => {
     vi.resetAllMocks();
     delete process.env.OTPLIBX_ENCRYPTION_KEY;
     // Default to secure (owner-only) permissions on all statted files unless
     // a test overrides this to simulate a group/world-readable file.
     vi.mocked(fs.statSync).mockReturnValue({ mode: 0o600 } as fs.Stats);
+    vi.mocked(fs.openSync).mockReturnValue(FD);
   });
 
   afterEach(() => {
@@ -99,23 +102,21 @@ describe("native-aes storage", () => {
 
       await nativeAesStorage.init(".env.otplibx");
 
-      // Should write keys file
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        ".env.keys",
+      // Should open and write the keys file, applying 0600 through the fd.
+      expect(fs.openSync).toHaveBeenCalledWith(".env.keys", "w", 0o600);
+      expect(fs.writeSync).toHaveBeenCalledWith(
+        FD,
         expect.stringContaining("OTPLIBX_ENCRYPTION_KEY="),
-        { mode: 0o600, flag: "w" },
       );
 
-      // Should write env file
-      expect(fs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "", {
-        mode: 0o600,
-        flag: "w",
-      });
+      // Should open and write the env file the same way.
+      expect(fs.openSync).toHaveBeenCalledWith(".env.otplibx", "w", 0o600);
+      expect(fs.writeSync).toHaveBeenCalledWith(FD, "");
 
-      // Both files should be chmod'd to 0600 after writing, even though the
-      // mode option on writeFileSync only takes effect on file creation.
-      expect(fs.chmodSync).toHaveBeenCalledWith(".env.keys", 0o600);
-      expect(fs.chmodSync).toHaveBeenCalledWith(".env.otplibx", 0o600);
+      // Both files should be fchmod'd to 0600 before writing, even though the
+      // mode option on openSync only takes effect on file creation.
+      expect(fs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
+      expect(fs.closeSync).toHaveBeenCalledWith(FD);
     });
 
     test("chmods pre-existing files to 0600 even if they were 0644", async () => {
@@ -129,8 +130,9 @@ describe("native-aes storage", () => {
 
       await nativeAesStorage.init(".env.otplibx");
 
-      expect(fs.chmodSync).toHaveBeenCalledWith(".env.keys", 0o600);
-      expect(fs.chmodSync).toHaveBeenCalledWith(".env.otplibx", 0o600);
+      expect(fs.openSync).toHaveBeenCalledWith(".env.keys", "w", 0o600);
+      expect(fs.openSync).toHaveBeenCalledWith(".env.otplibx", "w", 0o600);
+      expect(fs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
     });
 
     test("does not chmod on Windows", async () => {
@@ -140,8 +142,8 @@ describe("native-aes storage", () => {
 
       await nativeAesStorage.init(".env.otplibx");
 
-      expect(fs.writeFileSync).toHaveBeenCalled();
-      expect(fs.chmodSync).not.toHaveBeenCalled();
+      expect(fs.writeSync).toHaveBeenCalled();
+      expect(fs.fchmodSync).not.toHaveBeenCalled();
     });
   });
 
@@ -235,12 +237,9 @@ describe("native-aes storage", () => {
       await nativeAesStorage.set(".env.otplibx", "KEY", "value");
 
       expect(crypto.createCipheriv).toHaveBeenCalledWith("aes-256-gcm", testKeyBuffer, testIv);
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        ".env.otplibx",
-        expect.stringMatching(/KEY=.*encrypted:/),
-        { mode: 0o600, flag: "w" },
-      );
-      expect(fs.chmodSync).toHaveBeenCalledWith(".env.otplibx", 0o600);
+      expect(fs.openSync).toHaveBeenCalledWith(".env.otplibx", "w", 0o600);
+      expect(fs.writeSync).toHaveBeenCalledWith(FD, expect.stringMatching(/KEY=.*encrypted:/));
+      expect(fs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
     });
 
     test("removes key when value is empty", async () => {
@@ -250,10 +249,8 @@ describe("native-aes storage", () => {
 
       await nativeAesStorage.set(".env.otplibx", "KEY", "");
 
-      expect(fs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "", {
-        mode: 0o600,
-        flag: "w",
-      });
+      expect(fs.openSync).toHaveBeenCalledWith(".env.otplibx", "w", 0o600);
+      expect(fs.writeSync).toHaveBeenCalledWith(FD, "");
     });
   });
 
@@ -272,10 +269,8 @@ describe("native-aes storage", () => {
 
       await nativeAesStorage.remove(".env.otplibx", "KEY1");
 
-      expect(fs.writeFileSync).toHaveBeenCalledWith(".env.otplibx", "KEY2=value2", {
-        mode: 0o600,
-        flag: "w",
-      });
+      expect(fs.openSync).toHaveBeenCalledWith(".env.otplibx", "w", 0o600);
+      expect(fs.writeSync).toHaveBeenCalledWith(FD, "KEY2=value2");
     });
   });
 
@@ -462,15 +457,11 @@ describe("native-aes storage", () => {
       await nativeAesStorage.init(".env.otplibx");
 
       expect(fs.readFileSync).toHaveBeenCalledWith(".env.keys", "utf8");
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        ".env.keys",
-        expect.stringContaining("OTHER_KEY=somevalue"),
-        { mode: 0o600, flag: "w" },
-      );
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        ".env.keys",
+      expect(fs.openSync).toHaveBeenCalledWith(".env.keys", "w", 0o600);
+      expect(fs.writeSync).toHaveBeenCalledWith(FD, expect.stringContaining("OTHER_KEY=somevalue"));
+      expect(fs.writeSync).toHaveBeenCalledWith(
+        FD,
         expect.stringContaining("OTPLIBX_ENCRYPTION_KEY="),
-        { mode: 0o600, flag: "w" },
       );
     });
   });

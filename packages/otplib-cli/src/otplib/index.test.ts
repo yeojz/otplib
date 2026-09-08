@@ -4,8 +4,10 @@ import { Readable } from "node:stream";
 // Mock all dependencies before importing
 vi.mock("node:fs", () => ({
   default: {
-    writeFileSync: vi.fn(),
-    chmodSync: vi.fn(),
+    openSync: vi.fn(),
+    fchmodSync: vi.fn(),
+    writeSync: vi.fn(),
+    closeSync: vi.fn(),
   },
 }));
 
@@ -39,6 +41,7 @@ import { createCli } from "./index.js";
 import { encodePayload, formatOutput, generateUid, getLabel } from "../shared/types.js";
 
 const mockFs = vi.mocked(fs);
+const FD = 42;
 const mockGenerateOtp = vi.mocked(generateOtp);
 const mockVerifyOtp = vi.mocked(verifyOtp);
 const mockParseAddInput = vi.mocked(parseAddInput);
@@ -81,6 +84,7 @@ describe("CLI", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    mockFs.openSync.mockReturnValue(FD);
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     stdoutWriteSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
@@ -130,11 +134,10 @@ describe("CLI", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(mockFs.writeFileSync).toHaveBeenCalledWith("/tmp/uids.txt", "test-uid\n", {
-        mode: 0o600,
-        flag: "a",
-      });
-      expect(mockFs.chmodSync).toHaveBeenCalledWith("/tmp/uids.txt", 0o600);
+      expect(mockFs.openSync).toHaveBeenCalledWith("/tmp/uids.txt", "a", 0o600);
+      expect(mockFs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
+      expect(mockFs.writeSync).toHaveBeenCalledWith(FD, "test-uid\n");
+      expect(mockFs.closeSync).toHaveBeenCalledWith(FD);
     });
 
     test("handles file save error gracefully", async () => {
@@ -142,7 +145,7 @@ describe("CLI", () => {
       mockParseAddInput.mockReturnValue(mockData as ReturnType<typeof parseAddInput>);
       mockGenerateUid.mockReturnValue("test-uid");
       mockEncodePayload.mockReturnValue("payload");
-      mockFs.writeFileSync.mockImplementation(() => {
+      mockFs.openSync.mockImplementation(() => {
         throw new Error("Permission denied");
       });
 
