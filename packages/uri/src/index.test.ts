@@ -355,6 +355,67 @@ describe("URI", () => {
         expect(uri).toContain("digits=8");
         expect(uri).toContain("period=60");
       });
+
+      it("should accept numeric strings for digits, counter and period", () => {
+        // digits/counter/period commonly arrive as strings from parsed JSON
+        // or a database row; this worked before validation existed and must
+        // keep working.
+        const totpUri = generate({
+          type: "totp",
+          label: "user",
+          params: {
+            secret: TEST_SECRET_PARSE_BASE32,
+            digits: "8" as never,
+            period: "60" as never,
+          },
+        });
+        expect(totpUri).toContain("digits=8");
+        expect(totpUri).toContain("period=60");
+
+        const hotpUri = generate({
+          type: "hotp",
+          label: "user",
+          params: { secret: TEST_SECRET_PARSE_BASE32, counter: "5" as never },
+        });
+        expect(hotpUri).toContain("counter=5");
+      });
+
+      it("should reject a non-numeric digits value", () => {
+        expect(() =>
+          generate({
+            type: "totp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, digits: "six" as never },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+
+      it("should reject a digits value parse() would not accept back", () => {
+        // digits is bounded to 6-8 (the same set parse() accepts) so
+        // generate() can never emit a URI that this package's own parse()
+        // rejects.
+        expect(() =>
+          generate({
+            type: "totp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, digits: 10 },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+
+      it("should round-trip every digits value it accepts through parse()", () => {
+        for (const digits of [6, 7, 8] as const) {
+          const uri = generate({
+            type: "totp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, digits },
+          });
+
+          // digits=6 is the default, so generate() omits it from the query
+          // string and parse() reports it back as absent rather than 6.
+          expect(parse(uri).params.digits).toBe(digits === 6 ? undefined : digits);
+        }
+      });
     });
   });
 
@@ -637,6 +698,29 @@ describe("URI", () => {
     it("should not leak the secret or the full URI when type/label are missing", () => {
       const secret = TEST_SECRET_PARSE_BASE32;
       const uri = `otpauth://totp?secret=${secret}`;
+
+      let caught: unknown;
+      try {
+        parse(uri);
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).toBeInstanceOf(Error);
+      const message = (caught as Error).message;
+      expect(message).toBe("Invalid otpauth URI: missing type or label");
+      expect(message).not.toContain(secret);
+      expect(message).not.toContain(uri);
+    });
+
+    it("should not leak the secret when a label-less URI's query string contains a slash", () => {
+      // Regression test: the type/label separator search used to scan the
+      // whole remainder for "/", so a "/" inside a query value (e.g. an
+      // image URL) was mistaken for the separator. Everything before it -
+      // including the query string - then became the rejected `type` value
+      // and was embedded verbatim in the error message.
+      const secret = TEST_SECRET_PARSE_BASE32;
+      const uri = `otpauth://totp?secret=${secret}&image=https://acme.com/logo.png`;
 
       let caught: unknown;
       try {

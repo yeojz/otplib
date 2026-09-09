@@ -6,6 +6,30 @@ import type { OTPAuthURI } from "./types.js";
 import type { HashAlgorithm, Digits } from "@otplib/core";
 
 /**
+ * Coerce a number or a strict numeric string (e.g. from parsed JSON or a
+ * database row) into a safe integer within [min, max]. Mirrors parse.ts's
+ * parseIntegerParameter, minus the throw - callers decide how to report a
+ * rejection.
+ */
+function coerceInteger(
+  value: unknown,
+  min: number,
+  max = Number.MAX_SAFE_INTEGER,
+): number | undefined {
+  let numeric: number;
+
+  if (typeof value === "number") {
+    numeric = value;
+  } else if (typeof value === "string" && /^-?\d+$/.test(value)) {
+    numeric = Number(value);
+  } else {
+    return undefined;
+  }
+
+  return Number.isSafeInteger(numeric) && numeric >= min && numeric <= max ? numeric : undefined;
+}
+
+/**
  * Base options for URI generation
  */
 export type URIOptions = {
@@ -71,8 +95,10 @@ export type HOTPURIOptions = URIOptions & {
  * @returns The otpauth:// URI string
  * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  * @throws {InvalidParameterError} If `type` is not "hotp"/"totp", or if
- * `digits`, `counter`, or `period` are present but are not safe, in-range
- * integers
+ * `digits`, `counter`, or `period` are present but are not a safe integer (or
+ * a numeric string of one) in range - `digits` must be 6, 7 or 8 to match
+ * what this package's `parse()` accepts, `counter` must be >= 0, and `period`
+ * must be >= 1
  *
  * @example
  * ```ts
@@ -104,18 +130,25 @@ export function generate(uri: OTPAuthURI): string {
     throw new InvalidParameterError("type", String(type));
   }
 
-  if (params.digits !== undefined && !(Number.isSafeInteger(params.digits) && params.digits > 0)) {
+  // digits/counter/period commonly arrive as numeric strings (parsed JSON, a
+  // database row, form data), which worked before validation existed since
+  // the value was just interpolated with String(). Coerce those alongside
+  // plain numbers rather than rejecting them outright.
+  //
+  // digits is bounded to 6-8 to match parse()'s accepted set, so generate()
+  // can never produce a URI that this package's own parse() rejects.
+  const digits = params.digits === undefined ? undefined : coerceInteger(params.digits, 6, 8);
+  if (params.digits !== undefined && digits === undefined) {
     throw new InvalidParameterError("digits", String(params.digits));
   }
 
-  if (
-    params.counter !== undefined &&
-    !(Number.isSafeInteger(params.counter) && params.counter >= 0)
-  ) {
+  const counter = params.counter === undefined ? undefined : coerceInteger(params.counter, 0);
+  if (params.counter !== undefined && counter === undefined) {
     throw new InvalidParameterError("counter", String(params.counter));
   }
 
-  if (params.period !== undefined && !(Number.isSafeInteger(params.period) && params.period > 0)) {
+  const period = params.period === undefined ? undefined : coerceInteger(params.period, 1);
+  if (params.period !== undefined && period === undefined) {
     throw new InvalidParameterError("period", String(params.period));
   }
 
@@ -149,16 +182,16 @@ export function generate(uri: OTPAuthURI): string {
     }
   }
 
-  if (params.digits && params.digits !== 6) {
-    queryParams.push(`digits=${params.digits}`);
+  if (digits !== undefined && digits !== 6) {
+    queryParams.push(`digits=${digits}`);
   }
 
-  if (type === "hotp" && params.counter !== undefined) {
-    queryParams.push(`counter=${params.counter}`);
+  if (type === "hotp" && counter !== undefined) {
+    queryParams.push(`counter=${counter}`);
   }
 
-  if (type === "totp" && params.period !== undefined && params.period !== 30) {
-    queryParams.push(`period=${params.period}`);
+  if (type === "totp" && period !== undefined && period !== 30) {
+    queryParams.push(`period=${period}`);
   }
 
   result += queryParams.join("&");
