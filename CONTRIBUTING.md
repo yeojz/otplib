@@ -165,7 +165,7 @@ Releases are managed by maintainers:
 
 1. **Merge PRs**: Review and merge contributor PRs to `main`
 2. **Version Bump**: Update package versions in `package.json` files as needed
-3. **Publish**: Trigger the **Publish to npm** workflow via `workflow_dispatch` (Actions tab) to build and publish packages
+3. **Publish**: Trigger the **Publish to npm** workflow via `workflow_dispatch` (Actions tab) to build and publish packages. `pnpm run audit` blocks the release PR and the publish dry run; tick `skip-audit` on the publish dispatch only for an explicitly accepted risk
 
 ## AI Usage Guidelines
 

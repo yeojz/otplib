@@ -280,7 +280,10 @@ jobs:
 
       # Same script contributors run locally: root production tree plus the separately
       # locked mutation toolchain in internal/mutation (audit reads lockfiles only).
-      - name: Audit production and mutation-toolchain dependencies (blocking)
+      # Blocking only on a release PR (label ci-release), since merging that PR creates
+      # the release tag; informational everywhere else.
+      - name: Audit production and mutation-toolchain dependencies
+        continue-on-error: ${{ !contains(github.event.pull_request.labels.*.name, 'ci-release') }}
         run: pnpm run audit
 
       - name: Audit all dependencies (informational)
