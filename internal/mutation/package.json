@@ -1,0 +1,19 @@
+{
+  "name": "@repo/mutation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated, separately locked toolchain for Stryker mutation testing",
+  "devDependencies": {
+    "@stryker-mutator/core": "9.6.1",
+    "@stryker-mutator/vitest-runner": "9.6.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "packageManager": "pnpm@10.30.1",
+  "pnpm": {
+    "overrides": {
+      "qs@>=6.11.1 <6.16.0": ">=6.16.0 <7.0.0"
+    }
+  }
+}

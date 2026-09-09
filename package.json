@@ -5,6 +5,7 @@
   "type": "module",
   "description": "TypeScript-first library for TOTP and HOTP with multi-runtime and plugin support",
   "scripts": {
+    "audit": "pnpm audit --prod --audit-level=moderate && pnpm audit --dir internal/mutation --ignore-workspace --audit-level=moderate",
     "bench:base32": "pnpm --filter @repo/benchmarks bench:base32",
     "bench:hotp": "pnpm --filter @repo/benchmarks bench:hotp",
     "bench:totp": "pnpm --filter @repo/benchmarks bench:totp",
@@ -31,15 +32,14 @@
     "test:dist-deno": "deno test --allow-read --no-check internal/distribution-tests/src/deno.test.ts",
     "test:dist-node": "vitest run --config internal/distribution-tests/vitest.config.ts",
     "test:docker": "sh scripts/test-docker.sh",
-    "test:mutation": "stryker run",
+    "test:mutation": "internal/mutation/node_modules/.bin/stryker run",
+    "test:mutation:install": "pnpm install --dir internal/mutation --ignore-workspace --frozen-lockfile",
     "test": "vitest --run",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@codecov/bundle-analyzer": "^2.0.1",
     "@eslint/js": "^9.39.5",
-    "@stryker-mutator/core": "^9.6.1",
-    "@stryker-mutator/vitest-runner": "^9.6.1",
     "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^8.68.0",
     "@typescript-eslint/parser": "^8.68.0",

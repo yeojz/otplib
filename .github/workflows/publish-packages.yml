@@ -4,6 +4,12 @@ on:
   # Dispatch against the release tag, not a branch. The ref selects both
   # the source that gets published and the workflow that publishes it.
   workflow_dispatch:
+    inputs:
+      skip-audit:
+        description: "Skip the dependency audit (accepted risk). Leave unchecked normally."
+        type: boolean
+        required: false
+        default: false
 
 permissions: {}
 
@@ -62,6 +68,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Audit dependencies
+        if: ${{ !inputs.skip-audit }}
+        run: pnpm run audit
 
       - name: Build packages
         run: pnpm run build
