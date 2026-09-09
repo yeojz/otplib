@@ -43,6 +43,7 @@ const isValid = authenticator.verify({ token, secret });
 
 - **Class/Instance API Only**: This adapter only exports the `authenticator`, `totp`, and `hotp` singleton instances and their classes. If you were importing specific utility functions directly from `otplib/core` or other internal paths in v12, those are not covered by this adapter.
 - **Sync/Async**: While this adapter provides a synchronous-looking API (like v12), it uses v13's plugins under the hood. For standard Node.js usage with the default `crypto` module, this works seamlessly.
+- **Key Encodings (HOTP/TOTP)**: for `HOTP` and `TOTP`, `encoding` accepts `ascii`, `hex`, `base32`, `base64`, `latin1`, and `utf8`, matching Node's `Buffer.from(secret, encoding)` semantics. `ascii` and `latin1` take the low byte of each UTF-16 code unit; `utf8` (and any unrecognised value) is treated as UTF-8. Base64 decoding is stricter than Node: any non-canonical input (invalid characters, or legal-alphabet input with non-zero padding bits) throws instead of silently decoding to a different key. This does not apply to `Authenticator`: its `encode`/`decode` defaults ignore `encoding` and always use UTF-8/Base32.
 
 ## Migration Guide
 
