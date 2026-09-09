@@ -2,14 +2,18 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { Readable } from "node:stream";
 
 // Mock all dependencies before importing
-vi.mock("node:fs", () => ({
-  default: {
-    openSync: vi.fn(),
-    fchmodSync: vi.fn(),
-    writeSync: vi.fn(),
-    closeSync: vi.fn(),
-  },
-}));
+vi.mock("node:fs", async () => {
+  const actual = await vi.importActual<typeof import("node:fs")>("node:fs");
+  return {
+    default: {
+      constants: actual.constants,
+      openSync: vi.fn(),
+      fchmodSync: vi.fn(),
+      writeFileSync: vi.fn(),
+      closeSync: vi.fn(),
+    },
+  };
+});
 
 vi.mock("../shared/otp.js", () => ({
   generateOtp: vi.fn(),
@@ -42,6 +46,8 @@ import { encodePayload, formatOutput, generateUid, getLabel } from "../shared/ty
 
 const mockFs = vi.mocked(fs);
 const FD = 42;
+const APPEND_FLAGS =
+  fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_APPEND | fs.constants.O_NOFOLLOW;
 const mockGenerateOtp = vi.mocked(generateOtp);
 const mockVerifyOtp = vi.mocked(verifyOtp);
 const mockParseAddInput = vi.mocked(parseAddInput);
@@ -134,9 +140,9 @@ describe("CLI", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(mockFs.openSync).toHaveBeenCalledWith("/tmp/uids.txt", "a", 0o600);
+      expect(mockFs.openSync).toHaveBeenCalledWith("/tmp/uids.txt", APPEND_FLAGS, 0o600);
       expect(mockFs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
-      expect(mockFs.writeSync).toHaveBeenCalledWith(FD, "test-uid\n");
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(FD, "test-uid\n");
       expect(mockFs.closeSync).toHaveBeenCalledWith(FD);
     });
 

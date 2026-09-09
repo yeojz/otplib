@@ -102,35 +102,57 @@ function getKeysFilePath(envFilePath: string): string {
 }
 
 /**
- * Throw if `filePath` is readable/writable by the group or other bits
- * (i.e. anything beyond owner rwx). No-op on Windows, where POSIX mode
- * bits are not meaningful.
+ * Throw if `filePath` is a symlink, or is readable/writable by the group
+ * or other bits (i.e. anything beyond owner rwx). `lstatSync` (rather than
+ * `statSync`) is used deliberately so a symlink is inspected itself rather
+ * than followed — a symlink planted at `filePath` pointing at an
+ * attacker-controlled file would otherwise read as whatever mode that
+ * target happens to have, defeating the check. No-op on Windows, where
+ * POSIX mode bits are not meaningful.
+ *
+ * This only inspects `filePath` itself: a 0600 key file inside a
+ * world-writable directory can still be replaced or deleted by another
+ * user, since directory write permission — not the file's own mode —
+ * controls unlink/rename. Keep the containing directory private too.
  */
 function assertSecurePermissions(filePath: string): void {
   if (process.platform === "win32") {
     return;
   }
-  const { mode } = fs.statSync(filePath);
-  if ((mode & 0o077) !== 0) {
+  const stats = fs.lstatSync(filePath);
+  if (stats.isSymbolicLink()) {
     throw new OtplibxStorageError(
-      `Encryption key file is readable by group/other: ${filePath}. Run 'chmod 600 ${filePath}' and try again.`,
+      `Encryption key file is a symlink, which is not allowed: ${filePath}. Replace it with a regular file.`,
+      ErrorCodes.INSECURE_PERMISSIONS,
+    );
+  }
+  if ((stats.mode & 0o077) !== 0) {
+    throw new OtplibxStorageError(
+      `Encryption key file is readable by group/other: ${filePath}. Run 'chmod 600 ${filePath}' and try again, or set ${ENV_VAR_NAME} to bypass the file entirely.`,
       ErrorCodes.INSECURE_PERMISSIONS,
     );
   }
 }
 
 /**
- * Warn (without blocking) if `filePath` is readable/writable by the
- * group or other bits. Used for the vault file, which is ciphertext —
- * unlike the key file, an over-permissive vault is not fatal, but it's
- * still worth flagging so the user can tighten it. No-op on Windows.
+ * Warn (without blocking) if `filePath` is a symlink, or is readable/
+ * writable by the group or other bits. Used for the vault file, which is
+ * ciphertext — unlike the key file, an over-permissive or symlinked vault
+ * is not fatal, but it's still worth flagging so the user can tighten it.
+ * Uses `lstatSync` for the same reason as `assertSecurePermissions`: a
+ * symlink is reported as itself, not as whatever it points at. No-op on
+ * Windows.
  */
 function warnIfInsecurePermissions(filePath: string): void {
   if (process.platform === "win32") {
     return;
   }
-  const { mode } = fs.statSync(filePath);
-  if ((mode & 0o077) !== 0) {
+  const stats = fs.lstatSync(filePath);
+  if (stats.isSymbolicLink()) {
+    console.error(`Warning: ${filePath} is a symlink. Replace it with a regular file.`);
+    return;
+  }
+  if ((stats.mode & 0o077) !== 0) {
     console.error(
       `Warning: ${filePath} is readable by group/other. Run 'chmod 600 ${filePath}' to restrict access.`,
     );
@@ -171,18 +193,12 @@ export const nativeAesStorage: OtplibxStorage = {
     const envExists = fs.existsSync(filePath);
     const keysPath = getKeysFilePath(filePath);
     const keysExists = fs.existsSync(keysPath);
-    const envKeyExists = !!process.env[ENV_VAR_NAME];
 
-    let keySource: "env" | "file" | null = null;
-    if (envKeyExists) {
-      keySource = "env";
-    } else if (keysExists) {
-      const content = fs.readFileSync(keysPath, "utf8");
-      const { entries } = parseEnvFile(content);
-      if (entries.has(ENV_VAR_NAME)) {
-        keySource = "file";
-      }
-    }
+    // Routed through findKey() (the same lookup load()/set() use) so status
+    // is subject to the same permission check on .env.keys — otherwise a
+    // key file with loose permissions would report as usable here while
+    // every other command refuses to read it.
+    const keySource = findKey(filePath)?.source ?? null;
 
     return {
       initialized: envExists && keySource !== null,
