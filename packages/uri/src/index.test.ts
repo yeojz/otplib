@@ -229,6 +229,194 @@ describe("URI", () => {
 
       expect(uri).not.toContain("period=");
     });
+
+    describe("type validation", () => {
+      it("should throw when type is neither 'hotp' nor 'totp'", () => {
+        // `type` is interpolated directly (unencoded) into the otpauth:// URI,
+        // so an attacker-controlled string could smuggle extra path/query
+        // segments - e.g. injecting a second, attacker-chosen `secret`.
+        expect(() =>
+          generate({
+            type: "totp/x?secret=EVIL#" as unknown as OTPAuthURI["type"],
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32 },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+
+      it("should not embed the injected type value in the generated URI", () => {
+        let caught: unknown;
+        try {
+          generate({
+            type: "totp/x?secret=EVIL#" as unknown as OTPAuthURI["type"],
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32 },
+          });
+        } catch (error) {
+          caught = error;
+        }
+
+        expect(caught).toBeInstanceOf(InvalidParameterError);
+        expect((caught as Error).message).toContain("type");
+      });
+
+      it("should reject an empty string type", () => {
+        expect(() =>
+          generate({
+            type: "" as unknown as OTPAuthURI["type"],
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32 },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+    });
+
+    describe("numeric parameter validation", () => {
+      const invalidNumbers = [NaN, 6.5, -1, 1e300, Infinity, -Infinity];
+
+      describe.each(invalidNumbers)("digits = %p", (digits) => {
+        it("should throw InvalidParameterError", () => {
+          expect(() =>
+            generate({
+              type: "totp",
+              label: "user",
+              params: { secret: TEST_SECRET_PARSE_BASE32, digits: digits as never },
+            }),
+          ).toThrow(InvalidParameterError);
+        });
+      });
+
+      // digits must be strictly positive (unlike counter, 0 is not valid)
+      it("should throw when digits is 0", () => {
+        expect(() =>
+          generate({
+            type: "totp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, digits: 0 as never },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+
+      describe.each(invalidNumbers)("counter = %p", (counter) => {
+        it("should throw InvalidParameterError", () => {
+          expect(() =>
+            generate({
+              type: "hotp",
+              label: "user",
+              params: { secret: TEST_SECRET_PARSE_BASE32, counter: counter as never },
+            }),
+          ).toThrow(InvalidParameterError);
+        });
+      });
+
+      it("should accept counter = 0 (inclusive lower bound)", () => {
+        const uri = generate({
+          type: "hotp",
+          label: "user",
+          params: { secret: TEST_SECRET_PARSE_BASE32, counter: 0 },
+        });
+        expect(uri).toContain("counter=0");
+      });
+
+      describe.each(invalidNumbers)("period = %p", (period) => {
+        it("should throw InvalidParameterError", () => {
+          expect(() =>
+            generate({
+              type: "totp",
+              label: "user",
+              params: { secret: TEST_SECRET_PARSE_BASE32, period: period as never },
+            }),
+          ).toThrow(InvalidParameterError);
+        });
+      });
+
+      // period must be strictly positive (unlike counter, 0 is not valid)
+      it("should throw when period is 0", () => {
+        expect(() =>
+          generate({
+            type: "totp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, period: 0 },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+
+      it("should still accept valid, in-range numeric parameters", () => {
+        const uri = generate({
+          type: "totp",
+          label: "user",
+          params: {
+            secret: TEST_SECRET_PARSE_BASE32,
+            digits: 8,
+            period: 60,
+          },
+        });
+
+        expect(uri).toContain("digits=8");
+        expect(uri).toContain("period=60");
+      });
+
+      it("should accept numeric strings for digits, counter and period", () => {
+        // digits/counter/period commonly arrive as strings from parsed JSON
+        // or a database row; this worked before validation existed and must
+        // keep working.
+        const totpUri = generate({
+          type: "totp",
+          label: "user",
+          params: {
+            secret: TEST_SECRET_PARSE_BASE32,
+            digits: "8" as never,
+            period: "60" as never,
+          },
+        });
+        expect(totpUri).toContain("digits=8");
+        expect(totpUri).toContain("period=60");
+
+        const hotpUri = generate({
+          type: "hotp",
+          label: "user",
+          params: { secret: TEST_SECRET_PARSE_BASE32, counter: "5" as never },
+        });
+        expect(hotpUri).toContain("counter=5");
+      });
+
+      it("should reject a non-numeric digits value", () => {
+        expect(() =>
+          generate({
+            type: "totp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, digits: "six" as never },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+
+      it("should reject a digits value parse() would not accept back", () => {
+        // digits is bounded to 6-8 (the same set parse() accepts) so
+        // generate() can never emit a URI that this package's own parse()
+        // rejects.
+        expect(() =>
+          generate({
+            type: "totp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, digits: 10 },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+
+      it("should round-trip every digits value it accepts through parse()", () => {
+        for (const digits of [6, 7, 8] as const) {
+          const uri = generate({
+            type: "totp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, digits },
+          });
+
+          // digits=6 is the default, so generate() omits it from the query
+          // string and parse() reports it back as absent rather than 6.
+          expect(parse(uri).params.digits).toBe(digits === 6 ? undefined : digits);
+        }
+      });
+    });
   });
 
   describe("generateHOTP", () => {
@@ -386,6 +574,27 @@ describe("URI", () => {
       expect(() => parse(uri)).toThrow("Invalid otpauth URI");
     });
 
+    it("should not leak the secret or the full URI when the scheme is wrong", () => {
+      // Regression test: InvalidURIError used to be constructed with the raw
+      // URI, so a rejected `otpauth://`-lookalike containing `secret=...`
+      // would put the secret straight into Error.message.
+      const secret = TEST_SECRET_PARSE_BASE32;
+      const uri = `not-otpauth://totp/user?secret=${secret}`;
+
+      let caught: unknown;
+      try {
+        parse(uri);
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).toBeInstanceOf(Error);
+      const message = (caught as Error).message;
+      expect(message).toBe("Invalid otpauth URI: expected otpauth:// scheme");
+      expect(message).not.toContain(secret);
+      expect(message).not.toContain(uri);
+    });
+
     it("should handle URIs with extra parameters", () => {
       const uri = `otpauth://totp/Service:user?secret=${TEST_SECRET_PARSE_BASE32}&unknown=value&issuer=Service`;
       const parsed = parse(uri);
@@ -484,6 +693,47 @@ describe("URI", () => {
       const uri = "otpauth://totp";
 
       expect(() => parse(uri)).toThrow("Invalid otpauth URI");
+    });
+
+    it("should not leak the secret or the full URI when type/label are missing", () => {
+      const secret = TEST_SECRET_PARSE_BASE32;
+      const uri = `otpauth://totp?secret=${secret}`;
+
+      let caught: unknown;
+      try {
+        parse(uri);
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).toBeInstanceOf(Error);
+      const message = (caught as Error).message;
+      expect(message).toBe("Invalid otpauth URI: missing type or label");
+      expect(message).not.toContain(secret);
+      expect(message).not.toContain(uri);
+    });
+
+    it("should not leak the secret when a label-less URI's query string contains a slash", () => {
+      // Regression test: the type/label separator search used to scan the
+      // whole remainder for "/", so a "/" inside a query value (e.g. an
+      // image URL) was mistaken for the separator. Everything before it -
+      // including the query string - then became the rejected `type` value
+      // and was embedded verbatim in the error message.
+      const secret = TEST_SECRET_PARSE_BASE32;
+      const uri = `otpauth://totp?secret=${secret}&image=https://acme.com/logo.png`;
+
+      let caught: unknown;
+      try {
+        parse(uri);
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).toBeInstanceOf(Error);
+      const message = (caught as Error).message;
+      expect(message).toBe("Invalid otpauth URI: missing type or label");
+      expect(message).not.toContain(secret);
+      expect(message).not.toContain(uri);
     });
 
     it("should parse URI without query string", () => {

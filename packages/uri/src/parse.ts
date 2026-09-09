@@ -79,14 +79,24 @@ export function parse(uri: string): OTPAuthURI {
   }
 
   if (!uri.startsWith("otpauth://")) {
-    throw new InvalidURIError(uri);
+    throw new InvalidURIError("expected otpauth:// scheme");
   }
 
   const withoutScheme = uri.slice("otpauth://".length);
-  const slashIndex = withoutScheme.indexOf("/");
+
+  // Bound the search for the type/label separator to the part of the URI
+  // before the query string. Otherwise a `/` inside a query value (e.g. an
+  // `image=https://...` param on a label-less URI) is mistaken for the
+  // separator, and everything before it - including the query string, which
+  // may contain the secret - becomes the rejected `type` value and is
+  // embedded verbatim in the thrown error's message.
+  const schemeQueryIndex = withoutScheme.indexOf("?");
+  const authority =
+    schemeQueryIndex === -1 ? withoutScheme : withoutScheme.slice(0, schemeQueryIndex);
+  const slashIndex = authority.indexOf("/");
 
   if (slashIndex === -1) {
-    throw new InvalidURIError(uri);
+    throw new InvalidURIError("missing type or label");
   }
 
   const type = withoutScheme.slice(0, slashIndex);

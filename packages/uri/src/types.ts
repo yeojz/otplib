@@ -82,8 +82,14 @@ export class URIParseError extends Error {
  * Error thrown when URI is invalid
  */
 export class InvalidURIError extends URIParseError {
-  constructor(uri: string) {
-    super(`Invalid otpauth URI: ${uri}`);
+  /**
+   * @param reason - A short, non-sensitive description of why the URI was
+   * rejected. Callers must never pass the URI itself (or any substring of
+   * it, such as the secret) here, since it is embedded verbatim in
+   * `Error.message`.
+   */
+  constructor(reason: string) {
+    super(`Invalid otpauth URI: ${reason}`);
     this.name = "InvalidURIError";
   }
 }
