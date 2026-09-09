@@ -404,6 +404,21 @@ describe("HOTP (v12-adapter)", () => {
       // throw rather than silently resolve to a different key.
       expect(() => secretToBytes("ab!!cd", KeyEncodings.BASE64)).toThrow();
     });
+
+    it.each([
+      ["AB", [0x00]],
+      ["QR==", [0x41]],
+      ["AA/", [0x00, 0x0f]],
+      ["a", []],
+    ])(
+      "should throw on non-canonical base64 input %j, which Node decodes to %j",
+      (input, expectedNodeBytes) => {
+        // Pin what Node actually does, so this test documents the
+        // divergence rather than just asserting a throw in isolation.
+        expect([...Buffer.from(input, "base64")]).toEqual(expectedNodeBytes);
+        expect(() => secretToBytes(input, KeyEncodings.BASE64)).toThrow();
+      },
+    );
   });
 
   describe("hotpDigestToToken", () => {

@@ -43,14 +43,18 @@ function latin1ToBytes(value: string): Uint8Array {
  * padding is stripped, then the result is decoded with the unpadded
  * `base64nopad` codec.
  *
- * Node itself also tolerates genuinely invalid characters (outside the
- * Base64 alphabet, whitespace, and padding) by silently discarding them
- * rather than erroring. This helper does NOT replicate that: a secret is
- * a security-sensitive value, and silently decoding a mistyped/corrupted
- * secret into a different key - with no error and a token that just
- * silently fails to validate later - is worse than throwing immediately.
- * So invalid characters here throw (`base64nopad.decode` rejects them),
- * which is intentionally stricter than Node for that one case.
+ * Node is lenient in two ways this helper is NOT: it tolerates genuinely
+ * invalid characters (outside the Base64 alphabet, whitespace, and padding)
+ * by silently discarding them, and it tolerates non-canonical encodings -
+ * legal-alphabet input whose trailing bits aren't zero (e.g. "AB", "QR==",
+ * "AA/") or that has excess padding (e.g. "a") - by silently masking off
+ * the unused bits. `base64nopad.decode` rejects both cases and throws.
+ *
+ * This is intentional: a secret is a security-sensitive value, and silently
+ * decoding a mistyped/corrupted secret into a different key - with no error
+ * and a token that just silently fails to validate later - is worse than
+ * throwing immediately. So any non-canonical Base64 input throws here,
+ * which is intentionally stricter than Node.
  */
 function base64ToBytes(value: string): Uint8Array {
   const normalized = value.replace(/\s/g, "").replace(/-/g, "+").replace(/_/g, "/");
