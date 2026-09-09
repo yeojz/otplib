@@ -49,7 +49,9 @@ guardrails.MAX_WINDOW = 30; // TypeError: Cannot assign to read only property
 You only need to specify the guardrails you want to override. Unspecified limits use their defaults.
 
 ::: warning
-Only basic sanity checks are performed: each value must be a positive safe integer, and the `MIN_*`/`MAX_*` pairs must not be inverted (`MIN_SECRET_BYTES` <= `MAX_SECRET_BYTES`, `MIN_PERIOD` <= `MAX_PERIOD`, `MIN_DIGITS` <= `MAX_DIGITS`). Beyond that it is up to you to ensure the limits you pick are safe - widening them weakens the protections they exist to provide.
+There is NO validation performed on the guardrails that are set this way. It is up to the developer to ensure that the guardrails are valid.
+
+For example, setting `MIN_SECRET_BYTES` to a value higher than `MAX_SECRET_BYTES` might result in unexpected behavior.
 :::
 
 ### Overridable Guardrails
@@ -61,8 +63,6 @@ Only basic sanity checks are performed: each value must be a positive safe integ
 | **MIN_PERIOD**       | 1 second              | Below 1 second, TOTP, behaviour will become unpredicatable.                                       | Use HOTP instead if you need event-based OTPs.                                        |
 | **MAX_PERIOD**       | 3600 seconds (1 hour) | Tokens remain valid longer, increasing replay attack window.                                      | Specialized systems with coarse time granularity (e.g., daily batch processes).       |
 | **MAX_WINDOW**       | 99 total checks       | Larger verification windows increase replay attack surface exponentially.                         | Systems with extreme desynchronization. Consider fixing the underlying issue instead. |
-| **MIN_DIGITS**       | 4 digits              | Fewer digits shrink the token space; 3 digits is only 1000 possible codes.                        | Non-standard variants with their own encoding via hooks.                              |
-| **MAX_DIGITS**       | 10 digits             | 31-bit dynamic truncation carries at most 10 decimal digits; more is zero-padding and allocation. | Rarely needed. Standard tokens are 6-8 digits.                                        |
 
 ### Usage Examples
 

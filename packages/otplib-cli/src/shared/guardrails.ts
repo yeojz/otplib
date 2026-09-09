@@ -5,8 +5,6 @@ export const GUARDRAIL_DEFAULTS = {
   MAX_SECRET_BYTES: 64, // 512 bits maximum
   MIN_PERIOD: 1, // 1 second minimum
   MAX_PERIOD: 3600, // 1 hour maximum
-  MIN_DIGITS: 4, // below this the token space collapses
-  MAX_DIGITS: 10, // 31-bit truncation carries at most 10 decimal digits
 } as const;
 
 export type GuardrailKey = keyof typeof GUARDRAIL_DEFAULTS;

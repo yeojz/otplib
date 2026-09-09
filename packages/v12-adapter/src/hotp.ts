@@ -5,13 +5,7 @@
  * Provides synchronous API wrapper around v13's HOTP implementation.
  */
 
-import {
-  stringToBytes,
-  dynamicTruncate,
-  truncateDigits,
-  createGuardrails,
-  validateDigits,
-} from "@otplib/core";
+import { stringToBytes, dynamicTruncate, truncateDigits, createGuardrails } from "@otplib/core";
 import { generateSync as hotpGenerateSync, verifySync as hotpVerifySync } from "@otplib/hotp";
 import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
 import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
@@ -41,12 +35,8 @@ export function secretToBytes(secret: SecretKey, encoding?: string): Uint8Array 
 /**
  * Converts a digest to a token of a specified length.
  * Uses dynamicTruncate and truncateDigits from core.
- *
- * @throws {InvalidDigitsError} If digits is outside the core guardrail range
  */
 export function hotpDigestToToken(hexDigest: string, digits: number): string {
-  validateDigits(digits);
-
   const digestBytes = hex.decode(hexDigest);
   const truncated = dynamicTruncate(digestBytes);
   return truncateDigits(truncated, digits);

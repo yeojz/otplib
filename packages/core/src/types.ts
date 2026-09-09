@@ -6,13 +6,12 @@ export type HashAlgorithm = "sha1" | "sha256" | "sha512";
 /**
  * Number of characters in the OTP code.
  *
- * Standard TOTP/HOTP uses 6-8 digits. Non-standard variants (e.g., Steam Guard)
- * may use different lengths.
- *
- * Validated at runtime by `validateDigits` against the `MIN_DIGITS` and
- * `MAX_DIGITS` guardrails (4 and 10 by default), which every generate and
- * verify entry point calls. Widen the range through `createGuardrails` if a
- * deployment genuinely needs values outside it.
+ * RFC 4226/6238 specify 6-8 digits. Non-standard variants (e.g., Steam Guard's
+ * 5-digit codes) may use different lengths. This is not validated at runtime -
+ * it is configuration supplied by the integrator, not external input, and
+ * enforcing a range here would break those variants. Callers that accept
+ * digits from untrusted input are responsible for validating it themselves,
+ * as `@otplib/uri` and the CLI already do by restricting it to 6-8.
  */
 export type Digits = number;
 

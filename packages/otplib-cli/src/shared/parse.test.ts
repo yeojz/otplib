@@ -538,7 +538,7 @@ describe("parseEnvInput", () => {
 
   test("extracts all guardrail variables", () => {
     const result = parseEnvInput(
-      `{"OTPLIB_MIN_SECRET_BYTES":"8","OTPLIB_MAX_SECRET_BYTES":"128","OTPLIB_MIN_PERIOD":"5","OTPLIB_MAX_PERIOD":"7200","OTPLIB_MIN_DIGITS":"5","OTPLIB_MAX_DIGITS":"9"}`,
+      `{"OTPLIB_MIN_SECRET_BYTES":"8","OTPLIB_MAX_SECRET_BYTES":"128","OTPLIB_MIN_PERIOD":"5","OTPLIB_MAX_PERIOD":"7200"}`,
     );
 
     expect(result.entries).toHaveLength(0);
@@ -547,14 +547,7 @@ describe("parseEnvInput", () => {
       MAX_SECRET_BYTES: 128,
       MIN_PERIOD: 5,
       MAX_PERIOD: 7200,
-      MIN_DIGITS: 5,
-      MAX_DIGITS: 9,
     });
-  });
-
-  test("ignores invalid digits guardrail values", () => {
-    expect(parseEnvInput(`{"OTPLIB_MIN_DIGITS":"abc"}`).guardrails).toBeUndefined();
-    expect(parseEnvInput(`{"OTPLIB_MAX_DIGITS":"0"}`).guardrails).toBeUndefined();
   });
 
   test("ignores invalid guardrail values (non-numeric)", () => {

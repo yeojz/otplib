@@ -9,7 +9,6 @@ import {
   TimeNotFiniteError,
   PeriodTooSmallError,
   PeriodTooLargeError,
-  InvalidDigitsError,
   TokenLengthError,
   TokenFormatError,
   CounterToleranceError,
@@ -97,35 +96,6 @@ export const MAX_COUNTER = Number.MAX_SAFE_INTEGER;
 export const MAX_WINDOW = 99;
 
 /**
- * Minimum number of digits in a generated token
- *
- * RFC 4226 Section 5.3 recommends 6-8 digits. The floor is set to 4 rather than 6
- * so that non-standard variants which are already supported through
- * {@link OTPHooks} keep working - Steam Guard, for example, uses 5-character
- * codes. Below 4 the token space collapses (3 digits is 1000 values), which
- * makes online guessing trivial.
- *
- * Override via {@link createGuardrails} only for non-standard deployments.
- *
- * @see {@link https://tools.ietf.org/html/rfc4226#section-5.3 | RFC 4226 Section 5.3}
- */
-export const MIN_DIGITS = 4;
-
-/**
- * Maximum number of digits in a generated token
- *
- * RFC 4226 Section 5.3 recommends 6-8 digits. The ceiling is 10 because dynamic
- * truncation yields a 31-bit integer (max 2147483647), so 10 decimal digits is
- * the most information the algorithm can ever carry. Anything larger is pure
- * zero-padding that costs memory without adding entropy.
- *
- * Override via {@link createGuardrails} only for non-standard deployments.
- *
- * @see {@link https://tools.ietf.org/html/rfc4226#section-5.3 | RFC 4226 Section 5.3}
- */
-export const MAX_DIGITS = 10;
-
-/**
  * Configurable guardrails for OTP validation
  *
  * Allows overriding default safety limits for non-standard production requirements.
@@ -138,8 +108,6 @@ export type OTPGuardrailsConfig = {
   MAX_PERIOD: number;
   MAX_COUNTER: number;
   MAX_WINDOW: number;
-  MIN_DIGITS: number;
-  MAX_DIGITS: number;
 };
 
 /**
@@ -205,8 +173,6 @@ const DEFAULT_GUARDRAILS: OTPGuardrails = Object.freeze({
   MAX_PERIOD,
   MAX_COUNTER,
   MAX_WINDOW,
-  MIN_DIGITS,
-  MAX_DIGITS,
   [OVERRIDE_SYMBOL]: false,
 });
 
@@ -283,14 +249,6 @@ export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuar
     assertGuardrailSafeInteger("MAX_WINDOW", custom.MAX_WINDOW, 1);
   }
 
-  if (custom.MIN_DIGITS !== undefined) {
-    assertGuardrailSafeInteger("MIN_DIGITS", custom.MIN_DIGITS, 1);
-  }
-
-  if (custom.MAX_DIGITS !== undefined) {
-    assertGuardrailSafeInteger("MAX_DIGITS", custom.MAX_DIGITS, 1);
-  }
-
   const merged = {
     ...DEFAULT_GUARDRAILS,
     ...custom,
@@ -302,10 +260,6 @@ export function createGuardrails(custom?: Partial<OTPGuardrailsConfig>): OTPGuar
 
   if (merged.MIN_PERIOD > merged.MAX_PERIOD) {
     throw new ConfigurationError("Guardrail 'MIN_PERIOD' must be <= 'MAX_PERIOD'");
-  }
-
-  if (merged.MIN_DIGITS > merged.MAX_DIGITS) {
-    throw new ConfigurationError("Guardrail 'MIN_DIGITS' must be <= 'MAX_DIGITS'");
   }
 
   return Object.freeze({
@@ -586,32 +540,6 @@ export function validatePeriod(
 
   if (period > guardrails.MAX_PERIOD) {
     throw new PeriodTooLargeError(guardrails.MAX_PERIOD);
-  }
-}
-
-/**
- * Validate digits value
- *
- * The digit count drives both the modulo in {@link truncateDigits} and the
- * zero-padding width, so an unchecked value is not merely a wrong-looking
- * token: a negative or fractional count produces a non-numeric string, a very
- * small one collapses the token space, and a very large one allocates a
- * proportionally large string on every generation.
- *
- * @param digits - The number of digits to validate
- * @param guardrails - Validation guardrails (defaults to RFC recommendations)
- * @throws {InvalidDigitsError} If digits is not a safe integer within the guardrail range
- */
-export function validateDigits(
-  digits: number,
-  guardrails: OTPGuardrails = DEFAULT_GUARDRAILS,
-): void {
-  if (
-    !Number.isSafeInteger(digits) ||
-    digits < guardrails.MIN_DIGITS ||
-    digits > guardrails.MAX_DIGITS
-  ) {
-    throw new InvalidDigitsError(guardrails.MIN_DIGITS, guardrails.MAX_DIGITS, digits);
   }
 }
 

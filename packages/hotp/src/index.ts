@@ -13,7 +13,6 @@ import {
   dynamicTruncate,
   truncateDigits,
   validateCounter,
-  validateDigits,
   validateSecret,
   validateToken,
   validateCounterTolerance,
@@ -69,7 +68,6 @@ function getHOTPGenerateOptions(options: HOTPGenerateOptions): HOTPGenerateOptio
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
-  validateDigits(digits, guardrails);
   // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
   // Checked against the configured plugin's own set, so a plugin supporting
   // fewer algorithms reports what it actually accepts rather than the full set.
@@ -208,7 +206,6 @@ function getHOTPVerifyOptions(options: HOTPVerifyOptions): HOTPVerifyOptionsInte
   const secretBytes = normalizeSecret(secret, base32);
   validateSecret(secretBytes, guardrails);
   validateCounter(counter, guardrails);
-  validateDigits(digits, guardrails);
   // Case-fold at the public API boundary: untyped JS callers may pass 'SHA1'.
   // Checked against the configured plugin's own set, so a plugin supporting
   // fewer algorithms reports what it actually accepts rather than the full set.

@@ -13,7 +13,6 @@ import {
   PeriodTooSmallError,
   PeriodTooLargeError,
   DigitsError,
-  InvalidDigitsError,
   AlgorithmError,
   AlgorithmUnsupportedError,
   TokenError,
@@ -154,16 +153,6 @@ describe("DigitsError", () => {
     const error = new DigitsError("Invalid digits");
     expect(error.message).toBe("Invalid digits");
     expect(error.name).toBe("DigitsError");
-    expect(error).toBeInstanceOf(OTPError);
-  });
-});
-
-describe("InvalidDigitsError", () => {
-  it("should create invalid digits error with range and received value", () => {
-    const error = new InvalidDigitsError(4, 10, 11);
-    expect(error.message).toBe("Digits must be an integer between 4 and 10, received 11");
-    expect(error.name).toBe("InvalidDigitsError");
-    expect(error).toBeInstanceOf(DigitsError);
     expect(error).toBeInstanceOf(OTPError);
   });
 });
