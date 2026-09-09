@@ -84,13 +84,16 @@ otplibx init
 otplibx init .env.otp
 ```
 
-This creates `.env.otplibx` (or your custom filename) to store encrypted secrets, along with a `.env.keys` file containing the 256-bit symmetric encryption key.
+This creates `.env.otplibx` (or your custom filename) to store encrypted secrets, along with a `.env.keys` file containing the 256-bit symmetric encryption key. Both files are written (and re-chmod'd on every update) with `0600` permissions — readable and writable only by the current user — and `otplibx` refuses to load a `.env.keys` file that isn't `0600` or that has been replaced with a symlink. If you'd rather not have the key touch disk at all (e.g. in CI), skip `.env.keys` entirely and set `OTPLIBX_ENCRYPTION_KEY` instead — every command checks the environment variable first.
+
+This only covers `.env.keys` itself: it does not check the permissions or ownership of the directory containing it, so a key file that's `0600` inside a directory other users can write to is still not private. Keep that directory locked down too (e.g. your home directory's default permissions, not a shared or world-writable one).
 
 ::: warning
-**Never commit `.env.keys` to version control.** This file contains your encryption key. Add it to `.gitignore`:
+**Never commit `.env.keys` or `.env.otplibx` to version control.** `.env.keys` contains your encryption key and `.env.otplibx` contains the ciphertext it unlocks — keep both out of your repo. Add them to `.gitignore`:
 
 ```bash
 echo ".env.keys" >> .gitignore
+echo ".env.otplibx" >> .gitignore
 ```
 
 :::
