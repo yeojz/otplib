@@ -21,7 +21,6 @@ import {
   truncateDigits,
   stringToBytes,
 } from "@otplib/core";
-import { hexToBytes } from "@repo/testing";
 import { generate as generateHOTP } from "@otplib/hotp";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
@@ -32,7 +31,7 @@ import {
   generate as generateURI,
   generateTOTP as generateTOTPUri,
 } from "@otplib/uri";
-import { TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
+import { hexToBytes, TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 import { Bench } from "tinybench";
 
 console.log("=".repeat(60));

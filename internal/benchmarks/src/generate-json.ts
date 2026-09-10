@@ -9,12 +9,12 @@ import {
   truncateDigits,
   stringToBytes,
 } from "@otplib/core";
-import { hexToBytes } from "@repo/testing";
 import { generate as generateHOTP } from "@otplib/hotp";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
 import { NobleCryptoPlugin } from "@otplib/plugin-crypto-noble";
 import { NodeCryptoPlugin } from "@otplib/plugin-crypto-node";
 import { generate as generateTOTP } from "@otplib/totp";
+import { hexToBytes } from "@repo/testing";
 import { Bench } from "tinybench";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
