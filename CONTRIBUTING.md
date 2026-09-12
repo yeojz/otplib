@@ -97,7 +97,9 @@ pnpm test:dist-deno   # Deno distribution tests (requires Deno)
 
 ### Docker-based Multi-Runtime Testing
 
-Since this library supports multiple runtimes (Bun 1.x, Deno 1.x/2.x, Node 22/24), you can use Docker to test across all environments without installing them locally:
+Since this library supports multiple runtimes (Bun 1.x, Deno 1.x/2.x, Node 20/22/24), you can use Docker to test across all environments without installing them locally.
+
+The Docker images install pnpm 11, which needs Node.js 22.13 or newer, so the Node targets are `node-22` and `node-24`. That is a constraint on the contributor toolchain only: Node 20 remains a supported runtime for the published packages and is still exercised by the CI distribution-test matrix.
 
 ```bash
 # Test a specific runtime

@@ -187,6 +187,8 @@ pnpm run test:docker deno-2
 | `deno-2`  | `pnpm run test:docker deno-2`  | Tests on Deno 2.x               |
 | `all`     | `pnpm run test:docker`         | Tests all runtimes sequentially |
 
+The Node images install pnpm 11, which needs Node.js 22.13 or newer, so there is no `node-20` target. Node 20 remains a supported runtime for the published packages and is still exercised by the CI distribution-test matrix.
+
 ### Docker Test Architecture
 
 Each runtime has its own Docker configuration:
