@@ -2,9 +2,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { writeSecretFile } from "./secure-file.js";
+
+const describeOnPosix = describe.skipIf(process.platform === "win32");
 
 // Deliberately does NOT mock node:fs — secure-file.test.ts verifies the call
 // sequence against mocks, but that leaves the actual resulting permission
@@ -21,44 +23,89 @@ describe("secure-file (real fs)", () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
-  test("creates a new file with 0600 permissions", () => {
+  test("creates a new file with the given content", () => {
     const filePath = path.join(dir, "secret");
 
     writeSecretFile(filePath, "content");
 
     expect(fs.readFileSync(filePath, "utf8")).toBe("content");
-    expect(fs.statSync(filePath).mode & 0o777).toBe(0o600);
   });
 
-  test("tightens an existing 0644 file to 0600 and overwrites its content", () => {
+  test("overwrites an existing file's content", () => {
     const filePath = path.join(dir, "secret");
-    fs.writeFileSync(filePath, "stale", { mode: 0o644 });
-    expect(fs.statSync(filePath).mode & 0o777).toBe(0o644);
+    fs.writeFileSync(filePath, "a much longer stale value", { mode: 0o644 });
 
     writeSecretFile(filePath, "fresh");
 
     expect(fs.readFileSync(filePath, "utf8")).toBe("fresh");
-    expect(fs.statSync(filePath).mode & 0o777).toBe(0o600);
   });
 
-  test("appends to an existing file while keeping 0600 permissions", () => {
+  test("appends to an existing file", () => {
     const filePath = path.join(dir, "secret");
     fs.writeFileSync(filePath, "first\n", { mode: 0o644 });
 
     writeSecretFile(filePath, "second\n", "a");
 
     expect(fs.readFileSync(filePath, "utf8")).toBe("first\nsecond\n");
-    expect(fs.statSync(filePath).mode & 0o777).toBe(0o600);
   });
 
-  test("refuses to write through a symlink", () => {
-    const targetPath = path.join(dir, "attacker-owned");
-    fs.writeFileSync(targetPath, "untouched", { mode: 0o600 });
-    const linkPath = path.join(dir, "secret");
-    fs.symlinkSync(targetPath, linkPath);
+  // Mode bits, fchmod and O_NOFOLLOW have no POSIX meaning on Windows, so
+  // these expectations cannot hold there.
+  describeOnPosix("posix", () => {
+    test("creates a new file with 0600 permissions", () => {
+      const filePath = path.join(dir, "secret");
 
-    expect(() => writeSecretFile(linkPath, "content")).toThrow(/symlink/i);
+      writeSecretFile(filePath, "content");
 
-    expect(fs.readFileSync(targetPath, "utf8")).toBe("untouched");
+      expect(fs.statSync(filePath).mode & 0o777).toBe(0o600);
+    });
+
+    test("tightens an existing 0644 file to 0600 and overwrites its content", () => {
+      const filePath = path.join(dir, "secret");
+      fs.writeFileSync(filePath, "stale", { mode: 0o644 });
+      expect(fs.statSync(filePath).mode & 0o777).toBe(0o644);
+
+      writeSecretFile(filePath, "fresh");
+
+      expect(fs.readFileSync(filePath, "utf8")).toBe("fresh");
+      expect(fs.statSync(filePath).mode & 0o777).toBe(0o600);
+    });
+
+    test("appends to an existing file while keeping 0600 permissions", () => {
+      const filePath = path.join(dir, "secret");
+      fs.writeFileSync(filePath, "first\n", { mode: 0o644 });
+
+      writeSecretFile(filePath, "second\n", "a");
+
+      expect(fs.readFileSync(filePath, "utf8")).toBe("first\nsecond\n");
+      expect(fs.statSync(filePath).mode & 0o777).toBe(0o600);
+    });
+
+    test("keeps the previous content when the chmod step fails", () => {
+      const filePath = path.join(dir, "secret");
+      fs.writeFileSync(filePath, "keep me", { mode: 0o600 });
+
+      const fchmodSync = vi.spyOn(fs, "fchmodSync").mockImplementation(() => {
+        throw Object.assign(new Error("EPERM"), { code: "EPERM" });
+      });
+
+      try {
+        expect(() => writeSecretFile(filePath, "replacement")).toThrow(/EPERM/);
+        expect(fs.readFileSync(filePath, "utf8")).toBe("keep me");
+      } finally {
+        fchmodSync.mockRestore();
+      }
+    });
+
+    test("refuses to write through a symlink", () => {
+      const targetPath = path.join(dir, "attacker-owned");
+      fs.writeFileSync(targetPath, "untouched", { mode: 0o600 });
+      const linkPath = path.join(dir, "secret");
+      fs.symlinkSync(targetPath, linkPath);
+
+      expect(() => writeSecretFile(linkPath, "content")).toThrow(/symlink/i);
+
+      expect(fs.readFileSync(targetPath, "utf8")).toBe("untouched");
+    });
   });
 });

@@ -23,7 +23,12 @@ Two commands are available:
 otplibx init
 
 # `otplibx init` creates .env.otplibx (encrypted secrets) and .env.keys
-# (the 256-bit key), both written with 0600 permissions. Never commit
+# (the 256-bit key). On POSIX systems both are written with 0600
+# permissions; on Windows the bits are not applied, so the files rely on
+# the NTFS ACLs of their directory. The key is always written to
+# .env.keys — to keep it off disk (e.g. in CI), copy the value into
+# OTPLIBX_ENCRYPTION_KEY and delete the file; every command checks the
+# environment variable before it looks for .env.keys. Never commit
 # either file to version control — add both to .gitignore.
 
 # Add entry from file or clipboard

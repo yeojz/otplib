@@ -1,7 +1,7 @@
 import fs from "node:fs";
 
 const OPEN_FLAGS: Record<"w" | "a", number> = {
-  w: fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_TRUNC,
+  w: fs.constants.O_WRONLY | fs.constants.O_CREAT,
   a: fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_APPEND,
 };
 
@@ -10,22 +10,19 @@ const OPEN_FLAGS: Record<"w" | "a", number> = {
  * file descriptor before any content is written, so a broader-permission
  * window is never observable.
  *
- * The sequence is: open the file (creating it with mode 0600 when new),
- * fchmod the descriptor to 0600 on POSIX platforms, then write and close.
- * If the fchmod call throws, the descriptor is closed and the error is
- * rethrown before anything is written — a failed hardening step must not
- * leave the secret exposed.
- *
- * Note: opening an existing file with flag `"w"` truncates it before the
- * fchmod runs. That is acceptable — truncation only destroys the previous
- * (already-written) content, it does not expose the new secret, and the
- * file's permissions are corrected before any new bytes land.
+ * The sequence for flag `"w"` is: open the file without `O_TRUNC` (creating
+ * it with mode 0600 when new), fchmod the descriptor to 0600 on POSIX
+ * platforms, truncate it, then write and close. Truncation deliberately
+ * comes after the fchmod so a failed hardening step leaves the previous
+ * contents intact — for a key or vault file, truncating first would destroy
+ * the stored secret on an fchmod error such as `EPERM` — while the file's
+ * permissions are still corrected before any new bytes land.
  *
  * `flag` mirrors `fs.writeFileSync`'s `flag` option: `"w"` (default)
- * overwrites the file, `"a"` appends to it. The write itself goes through
- * `fs.writeFileSync(fd, ...)` rather than a single `fs.writeSync` call, so a
- * short underlying write (which `writeSync` does not retry) can't silently
- * truncate the secret.
+ * overwrites the file, `"a"` appends to it and never truncates. The write
+ * itself goes through `fs.writeFileSync(fd, ...)` rather than a single
+ * `fs.writeSync` call, so a short underlying write (which `writeSync` does
+ * not retry) can't silently truncate the secret.
  *
  * On POSIX platforms the open also passes `O_NOFOLLOW`, so a symlink planted
  * at `filePath` by another party causes the open to fail (`ELOOP`) instead
@@ -50,6 +47,9 @@ export function writeSecretFile(filePath: string, content: string, flag: "w" | "
   try {
     if (!isWindows) {
       fs.fchmodSync(fd, 0o600);
+    }
+    if (flag === "w") {
+      fs.ftruncateSync(fd, 0);
     }
     fs.writeFileSync(fd, content);
   } finally {

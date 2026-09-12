@@ -8,8 +8,7 @@ import { nativeAesStorage } from "./native-aes.js";
 vi.mock("node:fs");
 vi.mock("node:crypto");
 
-const WRITE_FLAGS =
-  fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_TRUNC | fs.constants.O_NOFOLLOW;
+const WRITE_FLAGS = fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_NOFOLLOW;
 
 describe("native-aes storage", () => {
   const testKey = "a".repeat(64); // 64 hex chars = 32 bytes

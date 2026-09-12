@@ -5,8 +5,8 @@ import { writeSecretFile } from "./secure-file.js";
 
 vi.mock("node:fs");
 
-const { O_WRONLY, O_CREAT, O_TRUNC, O_APPEND, O_NOFOLLOW } = fs.constants;
-const WRITE_FLAGS = O_WRONLY | O_CREAT | O_TRUNC;
+const { O_WRONLY, O_CREAT, O_APPEND, O_NOFOLLOW } = fs.constants;
+const WRITE_FLAGS = O_WRONLY | O_CREAT;
 const APPEND_FLAGS = O_WRONLY | O_CREAT | O_APPEND;
 
 describe("secure-file", () => {
@@ -23,45 +23,50 @@ describe("secure-file", () => {
   });
 
   describe("writeSecretFile", () => {
-    test("opens, fchmods, writes and closes in order, defaulting to overwrite", () => {
+    test("opens, fchmods, truncates, writes and closes in order, defaulting to overwrite", () => {
       writeSecretFile("/tmp/secret", "content");
 
       expect(fs.openSync).toHaveBeenCalledWith("/tmp/secret", WRITE_FLAGS | O_NOFOLLOW, 0o600);
       expect(fs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
+      expect(fs.ftruncateSync).toHaveBeenCalledWith(FD, 0);
       expect(fs.writeFileSync).toHaveBeenCalledWith(FD, "content");
       expect(fs.closeSync).toHaveBeenCalledWith(FD);
 
       const openOrder = vi.mocked(fs.openSync).mock.invocationCallOrder[0];
       const fchmodOrder = vi.mocked(fs.fchmodSync).mock.invocationCallOrder[0];
+      const truncateOrder = vi.mocked(fs.ftruncateSync).mock.invocationCallOrder[0];
       const writeOrder = vi.mocked(fs.writeFileSync).mock.invocationCallOrder[0];
       const closeOrder = vi.mocked(fs.closeSync).mock.invocationCallOrder[0];
 
       expect(openOrder).toBeLessThan(fchmodOrder);
-      expect(fchmodOrder).toBeLessThan(writeOrder);
+      expect(fchmodOrder).toBeLessThan(truncateOrder);
+      expect(truncateOrder).toBeLessThan(writeOrder);
       expect(writeOrder).toBeLessThan(closeOrder);
     });
 
-    test("supports append flag", () => {
+    test("supports append flag without truncating", () => {
       writeSecretFile("/tmp/secret", "more\n", "a");
 
       expect(fs.openSync).toHaveBeenCalledWith("/tmp/secret", APPEND_FLAGS | O_NOFOLLOW, 0o600);
       expect(fs.fchmodSync).toHaveBeenCalledWith(FD, 0o600);
+      expect(fs.ftruncateSync).not.toHaveBeenCalled();
       expect(fs.writeFileSync).toHaveBeenCalledWith(FD, "more\n");
       expect(fs.closeSync).toHaveBeenCalledWith(FD);
     });
 
-    test("does not chmod or set O_NOFOLLOW on Windows, but still writes and closes", () => {
+    test("does not chmod or set O_NOFOLLOW on Windows, but still truncates, writes and closes", () => {
       Object.defineProperty(process, "platform", { value: "win32" });
 
       writeSecretFile("C:\\secret", "content");
 
       expect(fs.openSync).toHaveBeenCalledWith("C:\\secret", WRITE_FLAGS, 0o600);
       expect(fs.fchmodSync).not.toHaveBeenCalled();
+      expect(fs.ftruncateSync).toHaveBeenCalledWith(FD, 0);
       expect(fs.writeFileSync).toHaveBeenCalledWith(FD, "content");
       expect(fs.closeSync).toHaveBeenCalledWith(FD);
     });
 
-    test("closes the descriptor and rethrows without writing when fchmod fails", () => {
+    test("closes the descriptor and rethrows without truncating or writing when fchmod fails", () => {
       const error = new Error("fchmod failed");
       vi.mocked(fs.fchmodSync).mockImplementation(() => {
         throw error;
@@ -69,6 +74,7 @@ describe("secure-file", () => {
 
       expect(() => writeSecretFile("/tmp/secret", "content")).toThrow(error);
 
+      expect(fs.ftruncateSync).not.toHaveBeenCalled();
       expect(fs.writeFileSync).not.toHaveBeenCalled();
       expect(fs.closeSync).toHaveBeenCalledWith(FD);
     });
@@ -82,6 +88,7 @@ describe("secure-file", () => {
       expect(() => writeSecretFile("/tmp/secret", "content")).toThrow(/symlink/i);
 
       expect(fs.fchmodSync).not.toHaveBeenCalled();
+      expect(fs.ftruncateSync).not.toHaveBeenCalled();
       expect(fs.writeFileSync).not.toHaveBeenCalled();
       expect(fs.closeSync).not.toHaveBeenCalled();
     });
