@@ -17,9 +17,19 @@ packages themselves depend on.
 
 So this directory is a standalone project instead:
 
-- It is excluded from the workspace by the `!internal/mutation` negation glob in
-  the root `pnpm-workspace.yaml`, so it never enters the root install tree or the
-  root `pnpm-lock.yaml`.
+- It is excluded from the root workspace by the `!internal/mutation` negation
+  glob in the root `pnpm-workspace.yaml`, so it never enters the root install
+  tree or the root `pnpm-lock.yaml`.
+- It is its own workspace root: the `pnpm-workspace.yaml` here carries its
+  settings (the `qs` security override). That is the one settings home both
+  pnpm 10 and pnpm 11 read for this directory, since pnpm 11 no longer reads
+  the package.json `pnpm` field and neither version reads this file under
+  `--ignore-workspace`. The root's `minimumReleaseAge` is not repeated here:
+  pnpm 11 enforces it against a frozen install's lockfile, and a freshly pinned
+  toolchain lockfile always has entries younger than the window. The Dependabot
+  cooldown on this directory covers the same risk.
+- It carries no `packageManager` pin of its own, so it runs under whatever pnpm
+  the root pins and needs no separate bump when the root moves.
 - It carries its own `pnpm-lock.yaml`, so the entire transitive tree is pinned and
   reproducible, and Dependabot keeps it updated like any other manifest.
 - Direct dependencies are pinned to exact versions. `vitest` and `typescript` are
