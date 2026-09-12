@@ -130,7 +130,6 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
    */
   checkDelta(token: string, secret: SecretKey): number | null {
     const opts = this.allOptions();
-    const secretBytes = secretToBytes(secret, opts.encoding);
     // v12 uses epoch in milliseconds, always convert to seconds
     const epochSeconds = Math.floor(opts.epoch / 1000);
     const step = opts.step;
@@ -139,6 +138,7 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
     const epochTolerance = parseWindow(window, step);
 
     try {
+      const secretBytes = secretToBytes(secret, opts.encoding);
       const result = totpVerifySync({
         secret: secretBytes,
         token,

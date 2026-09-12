@@ -204,19 +204,40 @@ describe("HOTP (v11-adapter)", () => {
     });
 
     it.each([
-      ["AB", [0x00]],
-      ["QR==", [0x41]],
-      ["AA/", [0x00, 0x0f]],
-      ["a", []],
+      ["leftover bits that are not zero", "AB", [0x00]],
+      ["leftover bits that are not zero", "QR==", [0x41]],
+      ["leftover bits that are not zero", "AA/", [0x00, 0x0f]],
+      ["a single leftover character", "a", []],
     ])(
-      "should throw on non-canonical base64 input %j, which Node decodes to %j",
-      (input, expectedNodeBytes) => {
+      "should throw on base64 input with %s (%j), which Node silently repairs to %j",
+      (_label, input, expectedNodeBytes) => {
         // Pin what Node actually does, so this test documents the
         // divergence rather than just asserting a throw in isolation.
         expect([...Buffer.from(input, "base64")]).toEqual(expectedNodeBytes);
         expect(() => secretToBytes(input, KeyEncodings.BASE64)).toThrow();
       },
     );
+
+    it.each(["QUJD", "QUJD=", "QUJD==", "QUJD====="])(
+      "should tolerate the trailing padding of %j, matching Buffer.from",
+      (input) => {
+        const expected = new Uint8Array(Buffer.from(input, "base64"));
+
+        expect([...expected]).toEqual([0x41, 0x42, 0x43]);
+        expect(secretToBytes(input, KeyEncodings.BASE64)).toEqual(expected);
+      },
+    );
+
+    it("should return false from check and verify when the base64 secret cannot be decoded", () => {
+      // The decode also runs on the verification path, whose contract is to
+      // report failure rather than throw.
+      const hotp = new HOTP({ encoding: KeyEncodings.BASE64 });
+      const token = hotp.generate(Buffer.from(RFC_TEST_SECRET, "utf8").toString("base64"), 0);
+
+      expect(hotp.check(token, "QR==", 0)).toBe(false);
+      expect(hotp.verify({ token, secret: "QR==", counter: 0 })).toBe(false);
+      expect(() => hotp.generate("QR==", 0)).toThrow();
+    });
   });
 
   it("should apply guardrails from constructor", () => {

@@ -36,27 +36,27 @@ function latin1ToBytes(value: string): Uint8Array {
 }
 
 /**
- * Decode a Base64 string to bytes, matching the forms Node's
- * `Buffer.from(str, "base64")` accepts: the standard alphabet or the
- * URL-safe alphabet (`-`/`_`), with or without `=` padding, and with
- * embedded whitespace.
+ * Decode a Base64 string to bytes, matching Node's
+ * `Buffer.from(str, "base64")` for everything Node decodes unambiguously:
+ * the standard alphabet or the URL-safe alphabet (`-`/`_`), embedded
+ * whitespace, and any amount of trailing `=` padding, including none and
+ * more than two.
  *
- * Whitespace is stripped, `-`/`_` are mapped to `+`/`/`, and trailing `=`
- * padding is stripped, then the result is decoded with the unpadded
+ * Whitespace is stripped, `-`/`_` are mapped to `+`/`/`, and every trailing
+ * `=` is stripped, then the result is decoded with the unpadded
  * `base64nopad` codec.
  *
- * Node is lenient in two ways this helper is NOT: it tolerates genuinely
- * invalid characters (outside the Base64 alphabet, whitespace, and padding)
- * by silently discarding them, and it tolerates non-canonical encodings -
- * legal-alphabet input whose trailing bits aren't zero (e.g. "AB", "QR==",
- * "AA/") or that has excess padding (e.g. "a") - by silently masking off
- * the unused bits. `base64nopad.decode` rejects both cases and throws.
+ * The divergence from Node is limited to the inputs where Node would
+ * silently hand back a key the caller did not write, all of which throw here:
+ *  - characters outside the Base64 alphabet, whitespace and padding, which
+ *    Node discards ("ab!!cd" decodes as "abcd").
+ *  - legal-alphabet input whose leftover bits are not zero ("AB", "QR==",
+ *    "AA/"), which Node masks off.
+ *  - a length leaving a single leftover character ("a"), which Node drops.
  *
- * This is intentional: a secret is a security-sensitive value, and silently
- * decoding a mistyped/corrupted secret into a different key - with no error
- * and a token that just silently fails to validate later - is worse than
- * throwing immediately. So any non-canonical Base64 input throws here,
- * which is intentionally stricter than Node.
+ * Throwing is the safer trade for a security-sensitive value: decoding a
+ * mistyped or corrupted secret into a different key gives no error, only a
+ * token that fails to validate later.
  * @internal
  */
 function base64ToBytes(value: string): Uint8Array {
@@ -217,9 +217,9 @@ export class HOTP<T extends HOTPOptions = HOTPOptions> {
    */
   check(token: string, secret: SecretKey, counter: number): boolean {
     const opts = this.allOptions();
-    const secretBytes = secretToBytes(secret, opts.encoding);
 
     try {
+      const secretBytes = secretToBytes(secret, opts.encoding);
       const result = hotpVerifySync({
         secret: secretBytes,
         token,
