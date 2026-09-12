@@ -96,9 +96,8 @@ export type HOTPURIOptions = URIOptions & {
  * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
  * @throws {InvalidParameterError} If `type` is not "hotp"/"totp", or if
  * `digits`, `counter`, or `period` are present but are not a safe integer (or
- * a numeric string of one) in range - `digits` must be 6, 7 or 8 to match
- * what this package's `parse()` accepts, `counter` must be >= 0, and `period`
- * must be >= 1
+ * a numeric string of one) in range - `digits` must be >= 1, `counter` must
+ * be >= 0, and `period` must be >= 1
  *
  * @example
  * ```ts
@@ -135,9 +134,10 @@ export function generate(uri: OTPAuthURI): string {
   // the value was just interpolated with String(). Coerce those alongside
   // plain numbers rather than rejecting them outright.
   //
-  // digits is bounded to 6-8 to match parse()'s accepted set, so generate()
-  // can never produce a URI that this package's own parse() rejects.
-  const digits = params.digits === undefined ? undefined : coerceInteger(params.digits, 6, 8);
+  // Digits is typed as `number` in @otplib/core, and core supports custom
+  // token lengths, so generate() must not narrow what it emits to match
+  // parse()'s accepted set (6/7/8) - that narrowing is parse()'s own concern.
+  const digits = params.digits === undefined ? undefined : coerceInteger(params.digits, 1);
   if (params.digits !== undefined && digits === undefined) {
     throw new InvalidParameterError("digits", String(params.digits));
   }

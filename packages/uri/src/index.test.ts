@@ -390,17 +390,42 @@ describe("URI", () => {
         ).toThrow(InvalidParameterError);
       });
 
-      it("should reject a digits value parse() would not accept back", () => {
-        // digits is bounded to 6-8 (the same set parse() accepts) so
-        // generate() can never emit a URI that this package's own parse()
-        // rejects.
-        expect(() =>
-          generate({
-            type: "totp",
-            label: "user",
-            params: { secret: TEST_SECRET_PARSE_BASE32, digits: 10 },
-          }),
-        ).toThrow(InvalidParameterError);
+      it("should emit digits values outside parse()'s 6-8 range", () => {
+        // Digits is typed as `number` in @otplib/core and core supports
+        // custom token lengths, so generate() must emit whatever valid
+        // digits value it is given rather than narrowing to parse()'s
+        // accepted set.
+        const uriFive = generate({
+          type: "totp",
+          label: "user",
+          params: { secret: TEST_SECRET_PARSE_BASE32, digits: 5 },
+        });
+        expect(uriFive).toContain("digits=5");
+
+        const uriTen = generate({
+          type: "totp",
+          label: "user",
+          params: { secret: TEST_SECRET_PARSE_BASE32, digits: 10 },
+        });
+        expect(uriTen).toContain("digits=10");
+      });
+
+      it("should emit digits values outside parse()'s 6-8 range via generateTOTP and generateHOTP", () => {
+        const totpUri = generateTOTP({
+          issuer: "ACME Co",
+          label: "john@example.com",
+          secret: TEST_SECRET_PARSE_BASE32,
+          digits: 5,
+        });
+        expect(totpUri).toContain("digits=5");
+
+        const hotpUri = generateHOTP({
+          issuer: "ACME Co",
+          label: "john@example.com",
+          secret: TEST_SECRET_PARSE_BASE32,
+          digits: 10,
+        });
+        expect(hotpUri).toContain("digits=10");
       });
 
       it("should round-trip every digits value it accepts through parse()", () => {
