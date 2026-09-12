@@ -35,9 +35,11 @@ pnpm test:mutation:install   # once, and after this lockfile changes
 pnpm test:mutation
 ```
 
-`pnpm run audit` (also what CI runs; blocking on release PRs and before publishing,
-informational otherwise) audits the root production tree and this
-toolchain's lockfile together, so advisories here surface on every pull request.
+`pnpm run audit:mutation` audits this toolchain's lockfile. CI runs it on every
+pull request as an informational step (a warning plus a job-summary entry) rather
+than a blocking one: this toolchain never builds the published packages, so an
+advisory here should not block a library change or a release. The root production
+tree is audited separately by `pnpm run audit`, which does block.
 
 `test:mutation` invokes `internal/mutation/node_modules/.bin/stryker` from the repo
 root, so `stryker.config.mjs` and its `mutate` globs resolve against the root as

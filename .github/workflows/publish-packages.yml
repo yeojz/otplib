@@ -69,7 +69,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Audit dependencies
+      # Production tree only: the mutation toolchain does not build what gets published.
+      - name: Audit production dependencies
         if: ${{ !inputs.skip-audit }}
         run: pnpm run audit
 

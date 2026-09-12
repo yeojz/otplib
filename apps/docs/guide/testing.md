@@ -245,7 +245,7 @@ The GitHub Actions workflow (`.github/workflows/ci.yml`) automatically runs on:
 Stage 1: Quality Checks (parallel)
   |- lint
   |- typecheck
-  \- security-audit (independent, no blocking)
+  \- security-audit (independent; production tree blocks, tooling and full tree informational)
 
 Stage 2: Build & Test
   \- build-and-test (needs lint + typecheck)
