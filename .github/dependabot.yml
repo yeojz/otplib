@@ -37,6 +37,40 @@ updates:
       prefix-development: "chore"
       include: "scope"
 
+  # Separately locked Stryker toolchain, outside the pnpm workspace.
+  # See internal/mutation/README.md.
+  - package-ecosystem: "npm"
+    directory: "/internal/mutation"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    versioning-strategy: "increase"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      dependencies-minor:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+      dependencies-patch:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+      dev-dependencies-minor:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+      dev-dependencies-patch:
+        dependency-type: "development"
+        update-types:
+          - "patch"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

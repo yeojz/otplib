@@ -2,6 +2,8 @@ packages:
   - "apps/*"
   - "internal/*"
   - "packages/*"
+  # Separately locked Stryker toolchain — see internal/mutation/README.md
+  - "!internal/mutation"
 
 # Delay installing newly published versions to reduce risk of compromised packages
 minimumReleaseAge: 10080
