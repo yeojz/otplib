@@ -31,6 +31,7 @@ const isValid = authenticator.check(token, secret);
 - **Epoch**: Uses seconds (UNIX timestamp), same as v11.
 - **Error Handling**: `check` and `verify` methods swallow errors and return `false`, matching v11 behavior.
 - **Secret Length**: Enforces strict secret length (> 16 bytes) due to v13 core security requirements.
+- **Key Encodings (HOTP/TOTP)**: for `HOTP` and `TOTP`, `encoding` accepts `ascii`, `hex`, `base32`, `base64`, `latin1`, and `utf8`, matching Node's `Buffer.from(secret, encoding)` semantics. `ascii` and `latin1` take the low byte of each UTF-16 code unit; `utf8` (and any unrecognised value) is treated as UTF-8. Base64 decoding accepts the same forms as `Buffer.from`, including missing or excess `=` padding, embedded whitespace and the URL-safe alphabet (`-`/`_`). It diverges only where Node would silently hand back a different key than the one written: characters outside the Base64 alphabet, whitespace and padding; legal-alphabet input whose leftover bits are not zero; and a length that leaves a single leftover character. Those throw instead. This does not apply to `Authenticator`: its `encode`/`decode` defaults ignore `encoding` and always use UTF-8/Base32.
 
 ## Migration Guide
 

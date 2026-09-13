@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CryptoPlugin, createGuardrails } from "@otplib/core";
-import { TOTP, HashAlgorithms, type TOTPOptions } from "./index.js";
+import { TOTP, HashAlgorithms, KeyEncodings, type TOTPOptions } from "./index.js";
 import { RFC6238_VECTORS, RFC_TEST_SECRET, TEST_SECRET_PARSE_BASE32 } from "@repo/testing";
 
 describe("TOTP (v11-adapter)", () => {
@@ -186,6 +186,18 @@ describe("TOTP (v11-adapter)", () => {
 
       // Should catch the error and return null instead of throwing
       expect(totp.checkDelta("123456", RFC_TEST_SECRET)).toBe(null);
+    });
+
+    it("should return null when the base64 secret cannot be decoded", () => {
+      // The decode also runs on the verification path, whose contract is to
+      // report failure rather than throw.
+      const totp = new TOTP({ epoch: 0, encoding: KeyEncodings.BASE64 });
+      const token = totp.generate(Buffer.from(RFC_TEST_SECRET, "utf8").toString("base64"));
+
+      expect(totp.checkDelta(token, "QR==")).toBe(null);
+      expect(totp.check(token, "QR==")).toBe(false);
+      expect(totp.verify({ token, secret: "QR==" })).toBe(false);
+      expect(() => totp.generate("QR==")).toThrow();
     });
   });
 

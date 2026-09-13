@@ -88,10 +88,10 @@ export class TOTP<T extends TOTPOptions = TOTPOptions> extends HOTP<T> {
 
   checkDelta(token: string, secret: SecretKey): number | null {
     const opts = this.allOptions();
-    const secretBytes = secretToBytes(secret, opts.encoding);
     const epochTolerance = parseWindow(opts.window, opts.step);
 
     try {
+      const secretBytes = secretToBytes(secret, opts.encoding);
       const result = totpVerifySync({
         secret: secretBytes,
         token,
