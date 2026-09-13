@@ -1,6 +1,5 @@
-import fs from "node:fs";
-
 import { parseAddInput } from "../../shared/parse.js";
+import { writeSecretFile } from "../../shared/secure-file.js";
 import { encodePayload, generateUid } from "../../shared/types.js";
 
 import type { ReadStdinFn } from "../../shared/stdin.js";
@@ -60,9 +59,7 @@ export function registerEncodeCommand(program: Command, readStdinFn: ReadStdinFn
 
         if (options.saveUid) {
           try {
-            const fd = fs.openSync(options.saveUid, "a", 0o600);
-            fs.writeSync(fd, id + "\n");
-            fs.closeSync(fd);
+            writeSecretFile(options.saveUid, id + "\n", "a");
           } catch (err) {
             console.error(
               `\nWarning: Could not save UID to ${options.saveUid}: ${(err as Error).message}`,

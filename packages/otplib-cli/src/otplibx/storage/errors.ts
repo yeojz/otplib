@@ -4,6 +4,7 @@ export const ErrorCodes = {
   DECRYPT_FAILED: "DECRYPT_FAILED",
   FILE_NOT_FOUND: "FILE_NOT_FOUND",
   ALREADY_INITIALIZED: "ALREADY_INITIALIZED",
+  INSECURE_PERMISSIONS: "INSECURE_PERMISSIONS",
 } as const;
 
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
