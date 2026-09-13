@@ -1,7 +1,32 @@
 import { normalizeHashAlgorithm } from "@otplib/core";
 
+import { InvalidParameterError } from "./types.js";
+
 import type { OTPAuthURI } from "./types.js";
 import type { HashAlgorithm, Digits } from "@otplib/core";
+
+/**
+ * Coerce a number or numeric string (e.g. from parsed JSON or a database
+ * row) into a safe integer within [min, max]. Callers decide how to report
+ * a rejection.
+ *
+ * Only numbers and non-blank strings reach Number(): it maps null, booleans,
+ * arrays and blank strings to 0 or 1, and 0 is a valid counter, so letting
+ * them through would invent a value rather than accept a spelling of one.
+ */
+function coerceInteger(
+  value: unknown,
+  min: number,
+  max = Number.MAX_SAFE_INTEGER,
+): number | undefined {
+  if (typeof value !== "number" && (typeof value !== "string" || value.trim() === "")) {
+    return undefined;
+  }
+
+  const numeric = Number(value);
+
+  return Number.isSafeInteger(numeric) && numeric >= min && numeric <= max ? numeric : undefined;
+}
 
 /**
  * Base options for URI generation
@@ -68,6 +93,10 @@ export type HOTPURIOptions = URIOptions & {
  * @param uri - The URI components
  * @returns The otpauth:// URI string
  * @throws {AlgorithmUnsupportedError} If a non-empty algorithm is not supported
+ * @throws {InvalidParameterError} If `type` is not "hotp"/"totp", or if
+ * `digits`, `counter`, or `period` are present but are not a safe integer (or
+ * a numeric string of one) in range - `digits` must be >= 1, `counter` must
+ * be >= 0, and `period` must be >= 1
  *
  * @example
  * ```ts
@@ -91,6 +120,36 @@ export type HOTPURIOptions = URIOptions & {
  */
 export function generate(uri: OTPAuthURI): string {
   const { type, label, params } = uri;
+
+  // `type` is interpolated directly into the URI below (unlike label/issuer/
+  // secret, it is never percent-encoded), so untyped JS callers must be
+  // stopped from smuggling extra path/query segments through it.
+  if (type !== "hotp" && type !== "totp") {
+    throw new InvalidParameterError("type", String(type));
+  }
+
+  // digits/counter/period commonly arrive as numeric strings (parsed JSON, a
+  // database row, form data), which worked before validation existed since
+  // the value was just interpolated with String(). Coerce those alongside
+  // plain numbers rather than rejecting them outright.
+  //
+  // Digits is typed as `number` in @otplib/core, and core supports custom
+  // token lengths, so generate() must not narrow what it emits to match
+  // parse()'s accepted set (6/7/8) - that narrowing is parse()'s own concern.
+  const digits = params.digits === undefined ? undefined : coerceInteger(params.digits, 1);
+  if (params.digits !== undefined && digits === undefined) {
+    throw new InvalidParameterError("digits", String(params.digits));
+  }
+
+  const counter = params.counter === undefined ? undefined : coerceInteger(params.counter, 0);
+  if (params.counter !== undefined && counter === undefined) {
+    throw new InvalidParameterError("counter", String(params.counter));
+  }
+
+  const period = params.period === undefined ? undefined : coerceInteger(params.period, 1);
+  if (params.period !== undefined && period === undefined) {
+    throw new InvalidParameterError("period", String(params.period));
+  }
 
   // Encode label parts while preserving ':' as the issuer/account separator
   const encodedLabel = label
@@ -122,16 +181,16 @@ export function generate(uri: OTPAuthURI): string {
     }
   }
 
-  if (params.digits && params.digits !== 6) {
-    queryParams.push(`digits=${params.digits}`);
+  if (digits !== undefined && digits !== 6) {
+    queryParams.push(`digits=${digits}`);
   }
 
-  if (type === "hotp" && params.counter !== undefined) {
-    queryParams.push(`counter=${params.counter}`);
+  if (type === "hotp" && counter !== undefined) {
+    queryParams.push(`counter=${counter}`);
   }
 
-  if (type === "totp" && params.period !== undefined && params.period !== 30) {
-    queryParams.push(`period=${params.period}`);
+  if (type === "totp" && period !== undefined && period !== 30) {
+    queryParams.push(`period=${period}`);
   }
 
   result += queryParams.join("&");
