@@ -6,25 +6,24 @@ import type { OTPAuthURI } from "./types.js";
 import type { HashAlgorithm, Digits } from "@otplib/core";
 
 /**
- * Coerce a number or a strict numeric string (e.g. from parsed JSON or a
- * database row) into a safe integer within [min, max]. Mirrors parse.ts's
- * parseIntegerParameter, minus the throw - callers decide how to report a
- * rejection.
+ * Coerce a number or numeric string (e.g. from parsed JSON or a database
+ * row) into a safe integer within [min, max]. Callers decide how to report
+ * a rejection.
+ *
+ * Only numbers and non-blank strings reach Number(): it maps null, booleans,
+ * arrays and blank strings to 0 or 1, and 0 is a valid counter, so letting
+ * them through would invent a value rather than accept a spelling of one.
  */
 function coerceInteger(
   value: unknown,
   min: number,
   max = Number.MAX_SAFE_INTEGER,
 ): number | undefined {
-  let numeric: number;
-
-  if (typeof value === "number") {
-    numeric = value;
-  } else if (typeof value === "string" && /^-?\d+$/.test(value)) {
-    numeric = Number(value);
-  } else {
+  if (typeof value !== "number" && (typeof value !== "string" || value.trim() === "")) {
     return undefined;
   }
+
+  const numeric = Number(value);
 
   return Number.isSafeInteger(numeric) && numeric >= min && numeric <= max ? numeric : undefined;
 }

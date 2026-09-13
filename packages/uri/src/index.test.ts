@@ -390,6 +390,40 @@ describe("URI", () => {
         ).toThrow(InvalidParameterError);
       });
 
+      it.each([
+        ["hexadecimal", "0x10", 16],
+        ["exponent", "1e3", 1000],
+        ["whitespace-padded", " 7 ", 7],
+      ])(
+        "should accept a %s numeric string for counter and emit the canonical integer",
+        (_label, counter, expected) => {
+          const uri = generate({
+            type: "hotp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, counter: counter as never },
+          });
+          expect(uri).toContain(`counter=${expected}`);
+        },
+      );
+
+      it.each([
+        ["an empty string", ""],
+        ["a blank string", "  "],
+        ["null", null],
+        ["false", false],
+        ["an empty array", []],
+      ])("should reject %s as a counter instead of treating it as 0", (_label, counter) => {
+        // Number() maps all of these to 0, and 0 is a valid counter, so letting
+        // them through would invent a value rather than accept a spelling of one.
+        expect(() =>
+          generate({
+            type: "hotp",
+            label: "user",
+            params: { secret: TEST_SECRET_PARSE_BASE32, counter: counter as never },
+          }),
+        ).toThrow(InvalidParameterError);
+      });
+
       it("should emit digits values outside parse()'s 6-8 range", () => {
         // Digits is typed as `number` in @otplib/core and core supports
         // custom token lengths, so generate() must emit whatever valid
