@@ -21,6 +21,9 @@ describe("native-aes storage", () => {
   const FD = 42;
 
   beforeEach(() => {
+    // The mocked expectations describe the POSIX call sequence, so the platform is
+    // pinned rather than inherited from the host; Windows cases opt in explicitly.
+    Object.defineProperty(process, "platform", { value: "linux" });
     vi.resetAllMocks();
     delete process.env.OTPLIBX_ENCRYPTION_KEY;
     // Default to secure (owner-only, non-symlink) permissions on all

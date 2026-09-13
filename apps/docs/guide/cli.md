@@ -88,7 +88,7 @@ This creates `.env.otplibx` (or your custom filename) to store encrypted secrets
 
 This only covers `.env.keys` itself: it does not check the permissions or ownership of the directory containing it, so a key file that's `0600` inside a directory other users can write to is still not private. Keep that directory locked down too (e.g. your home directory's default permissions, not a shared or world-writable one).
 
-`otplibx init` always generates the key and writes it to `.env.keys`. To keep the key off disk (e.g. in CI), copy the value out of `.env.keys` into `OTPLIBX_ENCRYPTION_KEY` and delete the file — every command checks the environment variable before it looks for `.env.keys`.
+`otplibx init` always generates the key and writes it to `.env.keys`. To avoid leaving the key on disk (e.g. in CI), copy the value out of `.env.keys` into `OTPLIBX_ENCRYPTION_KEY` and delete the file — commands that load the key check the environment variable before they look for `.env.keys`.
 
 ::: warning
 **Never commit `.env.keys` or `.env.otplibx` to version control.** `.env.keys` contains your encryption key and `.env.otplibx` contains the ciphertext it unlocks — keep both out of your repo. Add them to `.gitignore`:

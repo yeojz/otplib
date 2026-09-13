@@ -26,9 +26,9 @@ otplibx init
 # (the 256-bit key). On POSIX systems both are written with 0600
 # permissions; on Windows the bits are not applied, so the files rely on
 # the NTFS ACLs of their directory. The key is always written to
-# .env.keys — to keep it off disk (e.g. in CI), copy the value into
-# OTPLIBX_ENCRYPTION_KEY and delete the file; every command checks the
-# environment variable before it looks for .env.keys. Never commit
+# .env.keys — to avoid leaving it on disk (e.g. in CI), copy the value
+# into OTPLIBX_ENCRYPTION_KEY and delete the file; commands that load the
+# key check the environment variable before .env.keys. Never commit
 # either file to version control — add both to .gitignore.
 
 # Add entry from file or clipboard
