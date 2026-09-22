@@ -278,8 +278,29 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Same script contributors run locally. Blocking on every run: this is the
+      # tree that ships in the published packages.
       - name: Audit production dependencies (blocking)
-        run: pnpm audit --prod --audit-level=moderate
+        run: pnpm run audit
+
+      # The separately locked Stryker toolchain in internal/mutation never builds the
+      # published packages, so an advisory there must not block a library change or a
+      # release. Reported separately so it is still visible on every run (audit reads
+      # the lockfile only, no install needed).
+      - name: Audit mutation toolchain (informational)
+        continue-on-error: true
+        run: |
+          if ! pnpm run audit:mutation > audit-mutation.txt 2>&1; then
+            {
+              echo "## Security Audit — mutation toolchain (informational)"
+              echo ""
+              echo "Advisories found in internal/mutation (non-blocking):"
+              echo '```'
+              cat audit-mutation.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Informational audit found advisories in the mutation toolchain — see the job summary."
+          fi
 
       - name: Audit all dependencies (informational)
         continue-on-error: true

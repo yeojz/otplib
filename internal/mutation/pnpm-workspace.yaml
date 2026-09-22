@@ -1,0 +1,14 @@
+# Settings for the standalone Stryker toolchain. This directory is its own
+# workspace root: it is the one settings home that pnpm 10 and pnpm 11 both
+# read here (pnpm 11 ignores the package.json "pnpm" field, and neither
+# version reads this file under --ignore-workspace).
+#
+# minimumReleaseAge is deliberately not set here: pnpm 11 checks a frozen
+# install's lockfile against it and rejects entries younger than the window,
+# which a freshly pinned toolchain lockfile always contains. The Dependabot
+# cooldown on this directory covers the same risk.
+
+# Security overrides. Mirrors the root entry: typed-rest-client pulls a
+# vulnerable qs range.
+overrides:
+  'qs@>=6.11.1 <6.16.0': '>=6.16.0 <7.0.0'
