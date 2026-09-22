@@ -22,7 +22,7 @@ Local testing is the primary development workflow. It uses Vitest for unit tests
 ### Prerequisites
 
 - Node.js >= 24.0.0
-- pnpm >= 10.30.1
+- pnpm >= 11.26.0
 - (Optional) Bun and/or Deno installed locally for distribution tests
 
 ### Unit Tests
