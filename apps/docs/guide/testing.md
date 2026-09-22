@@ -201,7 +201,7 @@ pnpm run test:docker deno-2
 | `deno-2`  | `pnpm run test:docker deno-2`  | Tests on Deno 2.x               |
 | `all`     | `pnpm run test:docker`         | Tests all runtimes sequentially |
 
-There is no `node-20` target. Node.js 20 reached end-of-life in April 2026 and is no longer tested here or in CI.
+There is no `node-20` target. Node.js 20 reached end-of-life in April 2026 and has left the main CI matrix; it is still exercised on `main` by the non-blocking Node.js Compatibility workflow described below.
 
 ### Docker Test Architecture
 
@@ -270,6 +270,12 @@ This architecture ensures:
 - Each runtime downloads and validates the same built artifacts
 - Maximum parallelization across distribution tests
 - Ensures that tests run on the distributed code instead of raw code
+
+### Node.js Compatibility Workflow
+
+A separate workflow (`.github/workflows/node-compat.yml`) runs the Node.js distribution tests against Node.js lines that have been retired from the main CI matrix but that the published packages still run on. It runs on pushes to `main` and on manual dispatch. It never runs on pull requests and is not a required check, so a failure turns the workflow red on `main` without blocking merges.
+
+The job installs and builds under the target Node.js version and only switches to the matrix version for the distribution test itself, so it keeps working for versions older than the toolchain supports. Retiring a Node.js line from main CI is a two-line move: delete it from the `test-node` matrix in `ci.yml` and add it to the matrix in `node-compat.yml`.
 
 ### Artifacts
 
