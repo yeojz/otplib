@@ -136,13 +136,13 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
-      # Auth is via npm trusted publishing (OIDC): id-token: write above plus
-      # NPM_CONFIG_PROVENANCE lets npm exchange the workflow's OIDC token for
-      # a short-lived publish token, so no NPM_TOKEN secret is required.
+      # Auth is via npm trusted publishing (OIDC): id-token: write above lets
+      # pnpm exchange the workflow's OIDC token for a short-lived publish
+      # token, so no NPM_TOKEN secret is required. pnpm 11 no longer reads
+      # npm_config_* environment variables, so provenance is requested with an
+      # explicit --provenance flag in the release script.
       - name: Publish to npm
         run: pnpm run release:packages
-        env:
-          NPM_CONFIG_PROVENANCE: true
 
       - name: Trigger smoke tests
         if: success()
