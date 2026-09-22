@@ -27,6 +27,9 @@ internal/typedoc/api/
 .env
 .env.local
 .env.*.local
+# otplibx vault + key files — never commit encrypted secrets or the master key
+.env.keys
+.env.otplibx
 
 # IDE
 .vscode/
