@@ -9,7 +9,7 @@ import { generateSync as hotpGenerateSync, verifySync as hotpVerifySync } from "
 import { base32 as defaultBase32 } from "@otplib/plugin-base32-scure";
 import { crypto as defaultCrypto } from "@otplib/plugin-crypto-noble";
 import { generateHOTP as generateHOTPURI } from "@otplib/uri";
-import { hex } from "@scure/base";
+import { base64nopad, hex } from "@scure/base";
 
 import { HashAlgorithms, KeyEncodings as KeyEncodingsConst } from "./types.js";
 
@@ -17,7 +17,68 @@ import type { HOTPOptions, SecretKey, ResolvedHOTPOptions } from "./types.js";
 import type { Digits } from "@otplib/core";
 
 /**
- * Convert a string secret to bytes based on encoding
+ * Convert a string to bytes by taking the low byte of each UTF-16 code unit.
+ *
+ * Matches Node's `Buffer.from(str, "latin1")` semantics. Per Node's docs,
+ * `Buffer.from(str, "ascii")` uses this same conversion when encoding a
+ * string to bytes, so this is reused for both `latin1` and `ascii`.
+ *
+ * Implemented without `Buffer` so the adapters stay cross-runtime.
+ */
+function latin1ToBytes(value: string): Uint8Array {
+  const bytes = new Uint8Array(value.length);
+  for (let i = 0; i < value.length; i++) {
+    bytes[i] = value.charCodeAt(i) & 0xff;
+  }
+  return bytes;
+}
+
+/**
+ * Decode a Base64 string to bytes, matching Node's
+ * `Buffer.from(str, "base64")` for everything Node decodes unambiguously:
+ * the standard alphabet or the URL-safe alphabet (`-`/`_`), embedded
+ * whitespace, and any amount of trailing `=` padding, including none and
+ * more than two.
+ *
+ * Whitespace is stripped, `-`/`_` are mapped to `+`/`/`, and every trailing
+ * `=` is stripped, then the result is decoded with the unpadded
+ * `base64nopad` codec.
+ *
+ * The divergence from Node is limited to the inputs where Node would
+ * silently hand back a key the caller did not write, all of which throw here:
+ *  - characters outside the Base64 alphabet, whitespace and padding, which
+ *    Node discards ("ab!!cd" decodes as "abcd").
+ *  - legal-alphabet input whose leftover bits are not zero ("AB", "QR==",
+ *    "AA/"), which Node masks off.
+ *  - a length leaving a single leftover character ("a"), which Node drops.
+ *
+ * Throwing is the safer trade for a security-sensitive value: decoding a
+ * mistyped or corrupted secret into a different key gives no error, only a
+ * token that fails to validate later.
+ */
+function base64ToBytes(value: string): Uint8Array {
+  const normalized = value.replace(/\s/g, "").replace(/-/g, "+").replace(/_/g, "/");
+  // Trim trailing padding with a linear scan. A `/=+$/` regex is polynomial on
+  // inputs with many repeated "=" characters (CodeQL js/polynomial-redos), and
+  // this value is caller-supplied.
+  let end = normalized.length;
+  while (end > 0 && normalized[end - 1] === "=") {
+    end--;
+  }
+  return base64nopad.decode(normalized.slice(0, end));
+}
+
+/**
+ * Convert a string secret to bytes based on encoding.
+ *
+ * Mirrors the semantics of Node's `Buffer.from(secret, encoding)`, which is
+ * what the original v11/v12 implementations relied on:
+ *  - `base32`: RFC 4648 Base32 decode.
+ *  - `hex`: hex decode (whitespace stripped, as v11/v12 tests expect).
+ *  - `base64`: Base64 decode; accepts unpadded, padded, whitespace-
+ *    containing and URL-safe inputs (see `base64ToBytes`).
+ *  - `latin1` / `ascii`: low byte of each UTF-16 code unit.
+ *  - `utf8`, any other/unrecognised encoding, or `undefined`: UTF-8 bytes.
  */
 export function secretToBytes(secret: SecretKey, encoding?: string): Uint8Array {
   if (encoding === KeyEncodingsConst.BASE32 || encoding === "base32") {
@@ -25,6 +86,17 @@ export function secretToBytes(secret: SecretKey, encoding?: string): Uint8Array 
   }
   if (encoding === KeyEncodingsConst.HEX || encoding === "hex") {
     return hex.decode(secret.replace(/\s/g, ""));
+  }
+  if (encoding === KeyEncodingsConst.BASE64 || encoding === "base64") {
+    return base64ToBytes(secret);
+  }
+  if (
+    encoding === KeyEncodingsConst.LATIN1 ||
+    encoding === "latin1" ||
+    encoding === KeyEncodingsConst.ASCII ||
+    encoding === "ascii"
+  ) {
+    return latin1ToBytes(secret);
   }
   return stringToBytes(secret);
 }
@@ -99,9 +171,9 @@ export class HOTP<T extends HOTPOptions = HOTPOptions> {
 
   check(token: string, secret: SecretKey, counter: number): boolean {
     const opts = this.allOptions();
-    const secretBytes = secretToBytes(secret, opts.encoding);
 
     try {
+      const secretBytes = secretToBytes(secret, opts.encoding);
       const result = hotpVerifySync({
         secret: secretBytes,
         token,
