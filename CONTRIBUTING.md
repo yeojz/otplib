@@ -113,7 +113,7 @@ The Node targets are `node-22` and `node-24`. Node.js 20 reached end-of-life in 
 
 Available runtimes: `bun-1`, `deno-1`, `deno-2`, `node-22`, `node-24`
 
-See [tests/docker-compose.test.yml](tests/docker-compose.test.yml) for configuration details.
+See [docker/docker-compose.yml](docker/docker-compose.yml) for configuration details.
 
 ## Making Changes
 

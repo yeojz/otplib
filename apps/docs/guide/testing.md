@@ -207,11 +207,11 @@ There is no `node-20` target. Node.js 20 reached end-of-life in April 2026 and h
 
 Each runtime has its own Docker configuration:
 
-- **Node.js tests**: Use `Dockerfile.test` (based on `node:20-alpine`)
+- **Node.js tests**: Use `Dockerfile.node` (based on `node:24-alpine`; the `node-22` target overrides `IMAGE_TAG`)
 - **Bun tests**: Use `Dockerfile.bun` (based on `bun:1.3.5-alpine`)
 - **Deno tests**: Use `Dockerfile.deno` (based on official Deno images)
 
-The Docker Compose configuration (`tests/docker-compose.test.yml`) orchestrates the build and execution of tests for each runtime.
+The Docker Compose configuration (`docker/docker-compose.yml`) orchestrates the build and execution of tests for each runtime.
 
 ### When to Use Docker Testing
 
