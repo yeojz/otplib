@@ -86,7 +86,7 @@ pnpm test:ci && pnpm fix && pnpm typecheck
 | `pnpm lint`      | Code quality and style checks                        |
 | `pnpm format`    | Code formatting (Prettier)                           |
 | `pnpm typecheck` | TypeScript type validation across all packages       |
-| `pnpm size`      | Bundle size validation                               |
+| `pnpm size`      | Bundle size validation (builds production bundles)   |
 
 ### Recommended Workflow
 

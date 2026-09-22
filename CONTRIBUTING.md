@@ -49,7 +49,7 @@ pnpm docs:dev         # Start docs dev server. (Requires a manual pnpm run build
 pnpm docs:build       # Build documentation
 
 # Other
-pnpm size             # Check bundle sizes
+pnpm size             # Build production bundles and check their sizes
 ```
 
 ## Project Structure
