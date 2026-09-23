@@ -99,7 +99,7 @@ pnpm test:dist-deno   # Deno distribution tests (requires Deno)
 
 Since this library supports multiple runtimes (Bun 1.x, Deno 1.x/2.x, Node 22/24), you can use Docker to test across all environments without installing them locally.
 
-The Node targets are `node-22` and `node-24`. Node.js 20 reached end-of-life in April 2026 and is no longer tested here or in CI.
+The Node targets are `node-22` and `node-24`. Node.js 20 reached end-of-life in April 2026 and has left the main CI matrix; it is still exercised on `main` by the non-blocking Node.js Compatibility workflow (`.github/workflows/node-compat.yml`).
 
 ```bash
 # Test a specific runtime
@@ -113,7 +113,7 @@ The Node targets are `node-22` and `node-24`. Node.js 20 reached end-of-life in 
 
 Available runtimes: `bun-1`, `deno-1`, `deno-2`, `node-22`, `node-24`
 
-See [tests/docker-compose.test.yml](tests/docker-compose.test.yml) for configuration details.
+See [docker/docker-compose.yml](docker/docker-compose.yml) for configuration details.
 
 ## Making Changes
 

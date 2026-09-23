@@ -1,0 +1,69 @@
+name: Node.js Compatibility
+
+# Non-blocking compatibility check for Node.js lines that have left the main CI
+# matrix but that the published packages still run on. It never runs on pull
+# requests and is not a required check: a failure turns this workflow red on
+# main so the drift is visible without gating merges.
+#
+# Retiring a Node.js line from main CI is a two-line move: delete it from the
+# test-node matrix in ci.yml and add it to the matrix below. The job installs
+# and builds under NODE_VERSION_TARGET and only switches to the matrix version
+# for the distribution test itself, so it keeps working for versions older
+# than the toolchain supports (pnpm 11 needs Node.js >= 22.13).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION_TARGET: "24"
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  test-node:
+    name: Distribution Test (Node.js ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    environment: test
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Setup Node.js ${{ env.NODE_VERSION_TARGET }} (install and build)
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION_TARGET }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Setup Node.js ${{ matrix.node-version }} (test)
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # The vitest binary is invoked directly rather than through "pnpm run":
+      # the matrix version may be older than pnpm itself supports.
+      - name: Run distribution tests
+        run: |
+          node --version
+          ./node_modules/.bin/vitest run --config internal/distribution-tests/vitest.config.ts
