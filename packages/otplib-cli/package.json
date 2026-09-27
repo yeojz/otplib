@@ -27,9 +27,9 @@
     "vault"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "clean": "rm -rf dist .tsbuildinfo",
-    "dev": "tsup --watch",
+    "dev": "tsdown --watch",
     "test": "vitest",
     "test:ci": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.5.0",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.23.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
   }

@@ -21,7 +21,7 @@ export default [
   },
   {
     // Config files that don't need TypeScript project service
-    files: ["**/tsup.config.ts", "**/vitest.config.ts"],
+    files: ["**/tsdown.config.ts", "**/vitest.config.ts"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
@@ -32,7 +32,7 @@ export default [
     // All other TypeScript files with TypeScript project service
     files: ["**/*.ts", "**/*.tsx"],
     ignores: [
-      "**/tsup.config.ts",
+      "**/tsdown.config.ts",
       "**/vitest.config.ts",
       "**/*.test.ts",
       "**/*.spec.ts",
