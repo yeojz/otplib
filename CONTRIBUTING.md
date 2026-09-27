@@ -6,7 +6,7 @@ Thank you for your interest in contributing to otplib! This guide covers everyth
 
 ### Environment
 
-- Node.js >= 24.0.0
+- Node.js >= 24.11.0
 - pnpm >= 11.26.0
 
 ### Getting Started
