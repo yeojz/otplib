@@ -65,6 +65,7 @@
     "@scure/base": "^2.4.0"
   },
   "devDependencies": {
+    "@repo/build-config": "workspace:*",
     "@repo/testing": "workspace:*",
     "tsdown": "^0.23.0",
     "typescript": "^6.0.3",

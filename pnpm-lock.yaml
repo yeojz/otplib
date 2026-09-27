@@ -142,6 +142,15 @@ importers:
         specifier: ^4.23.13
         version: 4.23.13
 
+  internal/build-config:
+    devDependencies:
+      tsdown:
+        specifier: ^0.23.0
+        version: 0.23.0(tsx@4.23.13)(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   internal/distribution-tests:
     dependencies:
       '@otplib/core':
@@ -231,6 +240,9 @@ importers:
 
   packages/core:
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -259,6 +271,9 @@ importers:
       '@otplib/plugin-crypto-node':
         specifier: workspace:*
         version: link:../plugin-crypto-node
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -293,6 +308,9 @@ importers:
         specifier: workspace:*
         version: link:../uri
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -318,6 +336,9 @@ importers:
         specifier: workspace:*
         version: link:../otplib
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@types/node':
         specifier: ^26.5.0
         version: 26.5.1
@@ -337,6 +358,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@types/node':
         specifier: ^26.5.0
         version: 26.5.1
@@ -359,6 +383,9 @@ importers:
         specifier: ^2.4.0
         version: 2.4.0
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@types/node':
         specifier: ^26.5.0
         version: 26.5.1
@@ -381,6 +408,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -400,6 +430,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -419,6 +452,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -447,6 +483,9 @@ importers:
       '@otplib/plugin-crypto-node':
         specifier: workspace:*
         version: link:../plugin-crypto-node
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -466,6 +505,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -503,6 +545,9 @@ importers:
         specifier: ^2.4.0
         version: 2.4.0
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing
@@ -540,6 +585,9 @@ importers:
         specifier: ^2.4.0
         version: 2.4.0
     devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
       '@repo/testing':
         specifier: workspace:*
         version: link:../../internal/testing

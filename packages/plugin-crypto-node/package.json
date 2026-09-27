@@ -55,6 +55,7 @@
     "@otplib/core": "workspace:*"
   },
   "devDependencies": {
+    "@repo/build-config": "workspace:*",
     "@repo/testing": "workspace:*",
     "tsdown": "^0.23.0",
     "typescript": "^6.0.3",
