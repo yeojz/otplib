@@ -8,7 +8,7 @@ export default defineConfig({
   format: ["cjs"],
   clean: true,
   sourcemap: true,
-  target: "node20",
+  target: "node22",
   shims: true,
   banner: {
     js: "#!/usr/bin/env node",
