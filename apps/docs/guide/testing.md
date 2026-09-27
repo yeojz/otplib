@@ -113,57 +113,11 @@ For day-to-day development:
 
 ## Mutation Testing
 
-Coverage tells you which lines _ran_; it does not tell you whether your assertions would _notice_ if the behaviour changed. Mutation testing closes that gap: it introduces small faults ("mutants") into the source — flipping `<` to `<=`, replacing a condition with `true`, emptying a string literal — and re-runs the tests. A mutant that makes a test fail is "killed"; one that survives points to a weak or missing assertion.
+Coverage tells you which lines _ran_; it does not tell you whether your assertions would _notice_ if the behaviour changed. Mutation testing closes that gap by introducing small faults into the source and checking that some test fails.
 
-otplib uses [StrykerJS](https://stryker-mutator.io/) with the Vitest runner. It complements the 100% coverage target enforced by `pnpm test:ci`.
+The core, URI, HOTP/TOTP class and Base32 modules were audited with [StrykerJS](https://stryker-mutator.io/) once, and the gaps it found were closed with new tests. Stryker is not kept as a repo dependency, because its toolchain is large relative to how rarely it runs. To repeat an audit, install `@stryker-mutator/core` and `@stryker-mutator/vitest-runner` outside the repo and point them at `vitest.config.ts`.
 
-Stryker is not a standing dependency of the repo — it only runs manually or via the
-`workflow_dispatch`-triggered mutation testing workflow, so it is not worth putting into
-every contributor's and every CI job's install. It lives in `internal/mutation` instead:
-a small, private project that the root `pnpm-workspace.yaml` deliberately excludes, with
-its own `pnpm-lock.yaml`. That keeps it out of the root install tree and the root
-lockfile while still pinning the entire transitive tree, which an on-demand fetch of
-top-level pins could not do. See `internal/mutation/README.md` for the full rationale.
-
-### Running
-
-Install the toolchain once (and again whenever `internal/mutation/pnpm-lock.yaml`
-changes), then run Stryker from the repository root:
-
-```bash
-# Install the separately locked Stryker toolchain
-pnpm test:mutation:install
-
-# Run the default mutation suite
-pnpm test:mutation
-
-# Narrow the scope to specific files
-pnpm test:mutation --mutate "packages/core/src/**/*.ts"
-```
-
-Configuration lives in `stryker.config.mjs`. By default it targets the pure-logic, security-critical modules where mutation testing has the highest signal:
-
-| Module                                    | Covers                                      |
-| ----------------------------------------- | ------------------------------------------- |
-| `core/src/utils.ts`                       | guardrails, validation, RFC 4226 truncation |
-| `uri/src/parse.ts`, `uri/src/generate.ts` | `otpauth://` parsing and generation         |
-| `hotp/src/class.ts`, `totp/src/class.ts`  | public class wrappers                       |
-| `plugin-base32-{scure,alt}`               | Base32 / hex codecs                         |
-
-An HTML report is written to `reports/mutation/mutation.html` — open it to browse surviving mutants line-by-line.
-
-### Indicator, not a gate
-
-Mutation score is a **diagnostic, not a pass/fail gate**, and is deliberately kept out of the required CI checks. Not every surviving mutant is a bug in your tests:
-
-- **Equivalent mutants** change the code without changing observable behaviour (e.g. `BigInt(x)` where `x` is already a `bigint`), so no test can ever kill them.
-- **Defence-in-depth mutants** sit behind a later check that enforces the same invariant (e.g. a length pre-check backstopped by a post-decode length check), so removing them is undetectable.
-
-Both cap the achievable score below 100%, so a hard threshold would either be meaningless or fail on un-killable mutants. Treat a _drop_ in score on new code as a prompt to inspect the surviving mutant — decide whether it is a real gap (add an assertion) or equivalent (leave it) — rather than as a build failure.
-
-### On-demand CI
-
-A separate, manual-only GitHub Actions workflow (`.github/workflows/mutation.yml`) runs the same command via **workflow dispatch**. It uploads the HTML report as an artifact and writes the per-file score to the run summary. It is intentionally not part of `ci.yml` and never a required check, so it cannot block a merge.
+Treat the score as a diagnostic, not a gate. Some surviving mutants are equivalent (no observable behaviour change) or sit behind a later check that enforces the same invariant, so no test can kill them.
 
 ## Docker Testing
 
