@@ -33,7 +33,7 @@
     "test": "vitest",
     "test:ci": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/"
+    "lint": "oxlint src/"
   },
   "dependencies": {
     "@otplib/core": "workspace:*",

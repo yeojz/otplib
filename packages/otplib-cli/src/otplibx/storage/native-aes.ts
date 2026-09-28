@@ -2,9 +2,9 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+import { writeSecretFile } from "../../shared/secure-file.js";
 import { parseEnvFile, serializeEnvFile } from "./env-parser.js";
 import { ErrorCodes, OtplibxStorageError } from "./errors.js";
-import { writeSecretFile } from "../../shared/secure-file.js";
 
 import type { OtplibxStorage, StorageStatus } from "./types.js";
 

@@ -26,6 +26,10 @@
  * ```
  */
 
+import { Authenticator } from "./authenticator.js";
+import { HOTP } from "./hotp.js";
+import { TOTP } from "./totp.js";
+
 // Classes
 export { HOTP } from "./hotp.js";
 export { TOTP } from "./totp.js";
@@ -52,10 +56,6 @@ export type {
 } from "./types.js";
 
 // Pre-configured instances (v12 style)
-import { Authenticator } from "./authenticator.js";
-import { HOTP } from "./hotp.js";
-import { TOTP } from "./totp.js";
-
 /**
  * Pre-configured HOTP instance
  *

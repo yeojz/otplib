@@ -1,0 +1,49 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "quoteProps": "as-needed",
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    "cache/",
+    "*.tsbuildinfo",
+    "coverage/",
+    ".turbo/",
+    "pnpm-lock.yaml",
+    "package-lock.json",
+    "yarn.lock"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "excludeFiles": [
+        "**/tsdown.config.ts",
+        "**/vitest.config.ts",
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "**/*-test.ts",
+        "**/.vitepress/**",
+        "**/*.d.ts",
+        "apps/benchmarks/**"
+      ],
+      "options": {
+        "sortImports": {
+          "groups": ["builtin", "external", "internal", ["parent", "sibling"], "index", "type"],
+          "newlinesBetween": true,
+          "ignoreCase": true,
+          "order": "asc"
+        }
+      }
+    }
+  ]
+}
