@@ -1,8 +1,8 @@
 <script setup>
 defineProps({
   title: String,
-  description: String
-})
+  description: String,
+});
 </script>
 
 <template>
@@ -47,7 +47,8 @@ defineProps({
 }
 
 @keyframes pulse-dot {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }

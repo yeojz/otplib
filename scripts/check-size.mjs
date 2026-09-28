@@ -109,11 +109,7 @@ function normalizeArtifactPath(packageDir, file) {
   const resolved = path.resolve(packageDir, file);
   const relative = path.relative(packageDir, resolved);
 
-  if (
-    path.isAbsolute(relative) ||
-    relative === ".." ||
-    relative.startsWith(`..${path.sep}`)
-  ) {
+  if (path.isAbsolute(relative) || relative === ".." || relative.startsWith(`..${path.sep}`)) {
     throw new Error(`Artifact path "${file}" resolves outside the package directory.`);
   }
 
@@ -227,7 +223,9 @@ function createResolvers({ packages, bundleConfig }) {
     const pkg = packages.get(packageName);
 
     if (!pkg) {
-      throw new Error(`Configured bundle size package "${packageName}" was not found under packages/.`);
+      throw new Error(
+        `Configured bundle size package "${packageName}" was not found under packages/.`,
+      );
     }
 
     return pkg;
@@ -278,7 +276,12 @@ function createResolvers({ packages, bundleConfig }) {
 
   async function resolveMeasurement(packageName, preferredExtensions, { allowFallback }) {
     const candidates = allowFallback
-      ? uniqueExtensionGroups([preferredExtensions, packageExtensions(packageName), DEFAULT_EXTENSIONS, [".cjs"]])
+      ? uniqueExtensionGroups([
+          preferredExtensions,
+          packageExtensions(packageName),
+          DEFAULT_EXTENSIONS,
+          [".cjs"],
+        ])
       : [preferredExtensions];
 
     for (const extensions of candidates) {
@@ -301,7 +304,11 @@ function createResolvers({ packages, bundleConfig }) {
 
 function resolveTransitiveDependencies(packages, rootName) {
   const visited = new Set();
-  const queue = [...(packages.get(rootName)?.dependencies ?? []).filter((dependency) => packages.has(dependency))];
+  const queue = [
+    ...(packages.get(rootName)?.dependencies ?? []).filter((dependency) =>
+      packages.has(dependency),
+    ),
+  ];
 
   while (queue.length > 0) {
     const current = queue.shift();
@@ -333,7 +340,9 @@ export async function analyzeBundleSizes({ repoRoot }) {
   for (const packageName of Object.keys(bundleConfig)) {
     const packageConfig = bundleConfig[packageName];
     const extensions = resolvers.packageExtensions(packageName);
-    const ownMeasurement = await resolvers.resolveMeasurement(packageName, extensions, { allowFallback: false });
+    const ownMeasurement = await resolvers.resolveMeasurement(packageName, extensions, {
+      allowFallback: false,
+    });
     const limitBytes = parseKilobytes(packageConfig.limit);
     let nsSizeBytes = null;
     let nsLimitBytes = null;
@@ -399,7 +408,10 @@ function formatTable(results) {
   return lines.join("\n");
 }
 
-export async function main(argv = process.argv.slice(2), { stdout = process.stdout, stderr = process.stderr } = {}) {
+export async function main(
+  argv = process.argv.slice(2),
+  { stdout = process.stdout, stderr = process.stderr } = {},
+) {
   const jsonMode = argv.includes("--json");
   const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -411,7 +423,11 @@ export async function main(argv = process.argv.slice(2), { stdout = process.stdo
       stdout.write(`${formatJson(results)}\n`);
     } else {
       stdout.write(`${formatTable(results)}\n\n`);
-      stdout.write(hasFailure ? "ERROR: One or more bundle size checks failed.\n" : "All bundle size checks passed.\n");
+      stdout.write(
+        hasFailure
+          ? "ERROR: One or more bundle size checks failed.\n"
+          : "All bundle size checks passed.\n",
+      );
     }
 
     return hasFailure ? 1 : 0;

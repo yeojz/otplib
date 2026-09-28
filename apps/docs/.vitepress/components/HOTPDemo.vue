@@ -174,7 +174,7 @@ onMounted(() => {
       @verify="verifyToken"
     >
       <template #match-info="{ delta }">
-        Matched at counter {{ delta > 0 ? '+' : '' }}{{ delta }}
+        Matched at counter {{ delta > 0 ? "+" : "" }}{{ delta }}
       </template>
       <template #explanation>
         The server accepts any token from the current counter up to a window ahead (resync).
@@ -182,6 +182,3 @@ onMounted(() => {
     </DemoVerifyCard>
   </div>
 </template>
-
-
-
