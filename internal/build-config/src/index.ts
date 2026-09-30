@@ -7,6 +7,7 @@ type Entries = Record<string, string>;
 const exportShape = { strict: true, esModule: true, generatedCode: { symbols: false } };
 
 // rolldown-plugin-dts drops an emptied export list, which would make every top-level declaration public.
+// Remove once https://github.com/sxzz/rolldown-plugin-dts/issues/312 is fixed (regressed in 0.28.2).
 const declarationFooter = { dts: "export {};" };
 
 function isProductionBuild(): boolean {
