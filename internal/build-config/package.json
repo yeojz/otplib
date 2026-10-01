@@ -7,7 +7,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
-    "lint": "eslint src/",
+    "lint": "oxlint src/",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {

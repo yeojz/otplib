@@ -381,7 +381,8 @@ jobs:
   all-checks:
     name: All Checks Passed
     if: always()
-    needs: [lint, typecheck, build-and-test, test-node, test-deno, test-bun, security-audit, reporting]
+    needs:
+      [lint, typecheck, build-and-test, test-node, test-deno, test-bun, security-audit, reporting]
     runs-on: ubuntu-latest
     environment: test
     permissions:

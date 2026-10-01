@@ -83,8 +83,8 @@ pnpm test:ci && pnpm fix && pnpm typecheck
 | ---------------- | ---------------------------------------------------- |
 | `pnpm test`      | Unit tests across all packages                       |
 | `pnpm test:ci`   | Unit tests with coverage (enforces coverage targets) |
-| `pnpm lint`      | Code quality and style checks                        |
-| `pnpm format`    | Code formatting (Prettier)                           |
+| `pnpm lint`      | Code quality and style checks (oxlint)               |
+| `pnpm format`    | Code formatting (oxfmt)                              |
 | `pnpm typecheck` | TypeScript type validation across all packages       |
 | `pnpm size`      | Bundle size validation (builds production bundles)   |
 

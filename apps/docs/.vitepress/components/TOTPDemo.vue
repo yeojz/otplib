@@ -1,88 +1,92 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import QRCode from 'qrcode'
-import { generate as totpGenerate, verify as totpVerify, generateSecret as generateSecretFn, generateURI } from 'otplib'
+import { ref, onMounted, onUnmounted } from "vue";
+import QRCode from "qrcode";
+import {
+  generate as totpGenerate,
+  verify as totpVerify,
+  generateSecret as generateSecretFn,
+  generateURI,
+} from "otplib";
 import DemoSetupCard from "./DemoSetupCard.vue";
 import DemoVerifyCard from "./DemoVerifyCard.vue";
 
-const issuer = ref('DemoApp')
-const label = ref('user@example.com')
-const secret = ref('')
-const token = ref('')
-const tokens = ref([])
-const userInput = ref('')
-const isValid = ref(null)
-const delta = ref(null)
-const qrCodeUrl = ref('')
-const timeElapsed = ref(0)
-let intervalId = null
+const issuer = ref("DemoApp");
+const label = ref("user@example.com");
+const secret = ref("");
+const token = ref("");
+const tokens = ref([]);
+const userInput = ref("");
+const isValid = ref(null);
+const delta = ref(null);
+const qrCodeUrl = ref("");
+const timeElapsed = ref(0);
+let intervalId = null;
 
 async function generateNewSecret() {
-  secret.value = generateSecretFn()
+  secret.value = generateSecretFn();
 
-  await generateQR()
-  await updateToken(true)
+  await generateQR();
+  await updateToken(true);
 
-  isValid.value = null
-  userInput.value = ''
-  delta.value = null
+  isValid.value = null;
+  userInput.value = "";
+  delta.value = null;
 
-  const now = Math.floor(Date.now() / 1000)
-  timeElapsed.value = now % 30
+  const now = Math.floor(Date.now() / 1000);
+  timeElapsed.value = now % 30;
 }
 
 async function updateToken(resetPrevious = false) {
-  if (!secret.value) return
+  if (!secret.value) return;
   try {
-    const now = Math.floor(Date.now() / 1000)
+    const now = Math.floor(Date.now() / 1000);
 
     if (tokens.value.length === 0 || resetPrevious) {
       for (let i = -1; i <= 1; i++) {
         const tempToken = await totpGenerate({
           secret: secret.value,
-          epoch: now + (i * 30),
-        })
-        tokens.value[i + 1] = tempToken
+          epoch: now + i * 30,
+        });
+        tokens.value[i + 1] = tempToken;
       }
     } else {
-      tokens.value.shift()
+      tokens.value.shift();
       const newToken = await totpGenerate({
         secret: secret.value,
-        epoch: now + (1 * 30),
-      })
-      tokens.value.push(newToken)
+        epoch: now + 1 * 30,
+      });
+      tokens.value.push(newToken);
     }
-
   } catch (e) {
-    console.error('Token generation error:', e)
-    token.value = 'ERROR'
+    console.error("Token generation error:", e);
+    token.value = "ERROR";
   }
 }
 
 async function generateQR() {
-  if (!secret.value) return
+  if (!secret.value) return;
   try {
     const uri = generateURI({
       issuer: issuer.value,
       label: label.value,
       secret: secret.value,
-    })
+    });
 
     qrCodeUrl.value = await QRCode.toDataURL(uri, {
       width: 200,
       margin: 2,
-      color: { dark: '#000000', light: '#ffffff' }
-    })
+      color: { dark: "#000000", light: "#ffffff" },
+    });
   } catch (e) {
-    console.error('QR generation error:', e)
+    console.error("QR generation error:", e);
   }
 }
 
 async function verifyToken() {
   if (!userInput.value || !tokens.value[2]) {
-    isValid.value = null
-    delta.value = null
-    return
+    isValid.value = null;
+    delta.value = null;
+    return;
   }
 
   try {
@@ -91,35 +95,35 @@ async function verifyToken() {
       token: userInput.value,
       epoch: Math.floor(Date.now() / 1000),
       epochTolerance: 30, // Large tolerance for demo
-    })
+    });
 
-    isValid.value = result.valid
-    delta.value = result.delta
+    isValid.value = result.valid;
+    delta.value = result.delta;
   } catch (e) {
-    console.error('Verification error:', e)
-    isValid.value = false
-    delta.value = null
+    console.error("Verification error:", e);
+    isValid.value = false;
+    delta.value = null;
   }
 }
 
 function updateTimer() {
-  const now = Math.floor(Date.now() / 1000)
-  timeElapsed.value = now % 30
+  const now = Math.floor(Date.now() / 1000);
+  timeElapsed.value = now % 30;
   if (timeElapsed.value === 0) {
-    updateToken()
+    updateToken();
   }
 }
 
 onMounted(() => {
-  generateNewSecret()
-  const now = Math.floor(Date.now() / 1000)
-  timeElapsed.value = now % 30
-  intervalId = setInterval(updateTimer, 1000)
-})
+  generateNewSecret();
+  const now = Math.floor(Date.now() / 1000);
+  timeElapsed.value = now % 30;
+  intervalId = setInterval(updateTimer, 1000);
+});
 
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId)
-})
+  if (intervalId) clearInterval(intervalId);
+});
 </script>
 
 <template>
@@ -138,14 +142,13 @@ onUnmounted(() => {
       </div>
       <div class="token-display">
         <div class="tokens">
-          <div v-for="(token, index) in tokens" :key="`token-${index}-${token}`" :class="[
-            'token-item',
-            index === 1 ? 'current-token' : 'outer-token'
-          ]">
+          <div
+            v-for="(token, index) in tokens"
+            :key="`token-${index}-${token}`"
+            :class="['token-item', index === 1 ? 'current-token' : 'outer-token']"
+          >
             <span class="token-value">{{ token }}</span>
-            <span v-if="index !== 1" class="token-label">{{
-              index === 0 ? '−30s' : '+30s'
-              }}</span>
+            <span v-if="index !== 1" class="token-label">{{ index === 0 ? "−30s" : "+30s" }}</span>
           </div>
         </div>
       </div>
@@ -153,7 +156,7 @@ onUnmounted(() => {
       <div class="timer-bar">
         <div class="time-text">Resets in: {{ 30 - timeElapsed }}s</div>
         <div class="progress">
-          <div class="progress-fill" :style="{ width: (timeElapsed / 30 * 100) + '%' }"></div>
+          <div class="progress-fill" :style="{ width: (timeElapsed / 30) * 100 + '%' }"></div>
         </div>
       </div>
     </div>
@@ -165,7 +168,7 @@ onUnmounted(() => {
       @verify="verifyToken"
     >
       <template #match-info="{ delta }">
-        Matched at period {{ delta > 0 ? '+' : '' }}{{ delta }}
+        Matched at period {{ delta > 0 ? "+" : "" }}{{ delta }}
       </template>
     </DemoVerifyCard>
   </div>

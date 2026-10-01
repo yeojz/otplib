@@ -1,152 +1,152 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from "vue";
 
-const activeTab = ref('otplibx')
-const currentStep = ref(0)
-const isTyping = ref(false)
-const currentOutput = ref('')
-const cursorVisible = ref(true)
+const activeTab = ref("otplibx");
+const currentStep = ref(0);
+const isTyping = ref(false);
+const currentOutput = ref("");
+const cursorVisible = ref(true);
 
 const otplibxCommands = [
   {
-    cmd: 'otplibx init',
-    label: 'init',
+    cmd: "otplibx init",
+    label: "init",
     output: `created .env.otplibx
 created .env.keys
 
 Next steps:
   1. Add .env.keys to .gitignore
   2. Run: cat uri.txt | otplibx add`,
-    delay: 800
+    delay: 800,
   },
   {
-    cmd: 'cat account.txt | otplibx add',
-    label: 'add',
+    cmd: "cat account.txt | otplibx add",
+    label: "add",
     output: `A7KX4N2PQ`,
-    delay: 600
+    delay: 600,
   },
   {
-    cmd: 'otplibx list',
-    label: 'list',
+    cmd: "otplibx list",
+    label: "list",
     output: `GitHub:user@example.com	A7KX4N2PQ	totp`,
-    delay: 400
+    delay: 400,
   },
   {
-    cmd: 'otplibx token A7KX4N2PQ',
-    label: 'token',
+    cmd: "otplibx token A7KX4N2PQ",
+    label: "token",
     output: `847291`,
-    delay: 300
+    delay: 300,
   },
   {
-    cmd: 'otplibx verify AABC12345 492817',
-    label: 'verify',
+    cmd: "otplibx verify AABC12345 492817",
+    label: "verify",
     output: `// exit 0 = success`,
-    delay: 400
+    delay: 400,
   },
-]
+];
 
 const otplibCommands = [
   {
-    cmd: 'cat account.txt | otplib encode',
-    label: 'encode',
+    cmd: "cat account.txt | otplib encode",
+    label: "encode",
     output: `AABC12345=eyJkYXRhIjp7InR5cGUiOiJ0b3RwIiwic2VjcmV0Ijoi...`,
-    delay: 600
+    delay: 600,
   },
   {
-    cmd: 'cat accounts.json | otplib list',
-    label: 'list',
+    cmd: "cat accounts.json | otplib list",
+    label: "list",
     output: `AABC12345	totp	GitHub:user@example.com`,
-    delay: 400
+    delay: 400,
   },
   {
-    cmd: 'cat accounts.json | otplib token AABC12345',
-    label: 'token',
+    cmd: "cat accounts.json | otplib token AABC12345",
+    label: "token",
     output: `492817`,
-    delay: 300
+    delay: 300,
   },
   {
-    cmd: 'cat accounts.json | otplib verify AABC12345 492817',
-    label: 'verify',
+    cmd: "cat accounts.json | otplib verify AABC12345 492817",
+    label: "verify",
     output: `// exit 0 = success`,
-    delay: 400
+    delay: 400,
   },
-]
+];
 
-const commands = computed(() => activeTab.value === 'otplibx' ? otplibxCommands : otplibCommands)
-const currentCommand = computed(() => commands.value[currentStep.value])
+const commands = computed(() => (activeTab.value === "otplibx" ? otplibxCommands : otplibCommands));
+const currentCommand = computed(() => commands.value[currentStep.value]);
 
-let typingInterval = null
-let cursorInterval = null
-let autoPlayTimeout = null
+let typingInterval = null;
+let cursorInterval = null;
+let autoPlayTimeout = null;
 
 const typeCommand = () => {
-  isTyping.value = true
-  currentOutput.value = ''
-  const cmd = currentCommand.value.cmd
-  let charIndex = 0
+  isTyping.value = true;
+  currentOutput.value = "";
+  const cmd = currentCommand.value.cmd;
+  let charIndex = 0;
 
   typingInterval = setInterval(() => {
     if (charIndex < cmd.length) {
-      charIndex++
+      charIndex++;
     } else {
-      clearInterval(typingInterval)
+      clearInterval(typingInterval);
       setTimeout(() => {
-        showOutput()
-      }, 300)
+        showOutput();
+      }, 300);
     }
-  }, 50)
-}
+  }, 50);
+};
 
 const showOutput = () => {
-  currentOutput.value = currentCommand.value.output
-  isTyping.value = false
+  currentOutput.value = currentCommand.value.output;
+  isTyping.value = false;
 
   autoPlayTimeout = setTimeout(() => {
-    nextStep()
-  }, 2500)
-}
+    nextStep();
+  }, 2500);
+};
 
 const nextStep = () => {
-  clearTimeout(autoPlayTimeout)
-  currentStep.value = (currentStep.value + 1) % commands.value.length
-  typeCommand()
-}
+  clearTimeout(autoPlayTimeout);
+  currentStep.value = (currentStep.value + 1) % commands.value.length;
+  typeCommand();
+};
 
 const goToStep = (index) => {
-  clearTimeout(autoPlayTimeout)
-  clearInterval(typingInterval)
-  currentStep.value = index
-  currentOutput.value = ''
-  typeCommand()
-}
+  clearTimeout(autoPlayTimeout);
+  clearInterval(typingInterval);
+  currentStep.value = index;
+  currentOutput.value = "";
+  typeCommand();
+};
 
 const switchTab = (tab) => {
-  if (tab === activeTab.value) return
-  clearTimeout(autoPlayTimeout)
-  clearInterval(typingInterval)
-  activeTab.value = tab
-  currentStep.value = 0
-  currentOutput.value = ''
+  if (tab === activeTab.value) return;
+  clearTimeout(autoPlayTimeout);
+  clearInterval(typingInterval);
+  activeTab.value = tab;
+  currentStep.value = 0;
+  currentOutput.value = "";
   setTimeout(() => {
-    typeCommand()
-  }, 200)
-}
+    typeCommand();
+  }, 200);
+};
 
 onMounted(() => {
   cursorInterval = setInterval(() => {
-    cursorVisible.value = !cursorVisible.value
-  }, 530)
+    cursorVisible.value = !cursorVisible.value;
+  }, 530);
 
   setTimeout(() => {
-    typeCommand()
-  }, 500)
-})
+    typeCommand();
+  }, 500);
+});
 
 onUnmounted(() => {
-  clearInterval(typingInterval)
-  clearInterval(cursorInterval)
-  clearTimeout(autoPlayTimeout)
-})
+  clearInterval(typingInterval);
+  clearInterval(cursorInterval);
+  clearTimeout(autoPlayTimeout);
+});
 </script>
 
 <template>
@@ -179,7 +179,9 @@ onUnmounted(() => {
           <span class="btn-minimize"></span>
           <span class="btn-maximize"></span>
         </div>
-        <div class="terminal-title">{{ activeTab === 'otplibx' ? 'otplibx - encrypted storage' : 'otplib - stateless cli' }}</div>
+        <div class="terminal-title">
+          {{ activeTab === "otplibx" ? "otplibx - encrypted storage" : "otplib - stateless cli" }}
+        </div>
         <div class="terminal-spacer"></div>
       </div>
       <div class="terminal-body">
@@ -194,10 +196,15 @@ onUnmounted(() => {
             :key="i"
             class="output-line"
             :class="{
-              'output-highlight': line.startsWith('A') && /^A[0-9A-Z]+/.test(line) || /^\d{6}$/.test(line) || line === 'true',
-              'output-label': line.includes('\t')
+              'output-highlight':
+                (line.startsWith('A') && /^A[0-9A-Z]+/.test(line)) ||
+                /^\d{6}$/.test(line) ||
+                line === 'true',
+              'output-label': line.includes('\t'),
             }"
-          >{{ line }}</div>
+          >
+            {{ line }}
+          </div>
         </div>
       </div>
     </div>
@@ -219,9 +226,7 @@ onUnmounted(() => {
       <p v-if="activeTab === 'otplibx'">
         Using an encrypted <code>.env</code> file (symmetric key) for storage.
       </p>
-      <p v-else>
-        Stateless CLI for scripting, pipelines, and custom secret backends.
-      </p>
+      <p v-else>Stateless CLI for scripting, pipelines, and custom secret backends.</p>
     </div>
   </div>
 </template>

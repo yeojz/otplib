@@ -1,25 +1,29 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
 const props = defineProps({
   issuer: String,
   label: String,
   secret: String,
-  qrCodeUrl: String
-})
+  qrCodeUrl: String,
+});
 
-const emit = defineEmits(['update:issuer', 'update:label', 'generate-new-secret'])
+const emit = defineEmits(["update:issuer", "update:label", "generate-new-secret"]);
 
-const showConfig = ref(false)
-const showSecret = ref(false)
+const showConfig = ref(false);
+const showSecret = ref(false);
 </script>
 
 <template>
   <div class="card qr-config-card">
     <div class="card-header">
       <h3>Setup</h3>
-      <button :class="showConfig ? 'btn-save' : 'gear-icon'" @click="showConfig = !showConfig" title="Configuration"
-        aria-label="Configuration">
+      <button
+        :class="showConfig ? 'btn-save' : 'gear-icon'"
+        @click="showConfig = !showConfig"
+        title="Configuration"
+        aria-label="Configuration"
+      >
         <span v-if="showConfig">Save</span>
         <span v-else class="icon-gear"></span>
       </button>

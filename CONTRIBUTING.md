@@ -125,7 +125,8 @@ See [docker/docker-compose.yml](docker/docker-compose.yml) for configuration det
 ### Code Style
 
 - TypeScript strict mode enabled
-- ESLint and Prettier for formatting
+- [oxlint](https://oxc.rs/docs/guide/usage/linter) for linting and [oxfmt](https://oxc.rs/docs/guide/usage/formatter) for formatting, configured in `.oxlintrc.json` and `.oxfmtrc.json`
+- Editor support comes from the Oxc extension (`oxc.oxc-vscode`), which uses the `oxlint` and `oxfmt` installed in the workspace
 - Run `pnpm fix` before committing
 
 ### Commit Messages

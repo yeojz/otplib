@@ -93,7 +93,7 @@
     "test": "vitest",
     "test:ci": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/",
+    "lint": "oxlint src/",
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "devDependencies": {

@@ -19,7 +19,7 @@
     },
     "lint": {
       "outputs": [],
-      "inputs": ["src/**/*.ts", "*.config.{js,mjs,cjs,ts}"]
+      "inputs": ["src/**/*.ts", "$TURBO_ROOT$/.oxlintrc.json"]
     },
     "typecheck": {
       "dependsOn": ["^build"],
