@@ -55,7 +55,6 @@ export type {
   KeyDecoder,
 } from "./types.js";
 
-// Pre-configured instances (v12 style)
 /**
  * Pre-configured HOTP instance
  *
