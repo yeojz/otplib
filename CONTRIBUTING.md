@@ -6,7 +6,7 @@ Thank you for your interest in contributing to otplib! This guide covers everyth
 
 ### Environment
 
-- Node.js >= 24.0.0
+- Node.js >= 24.11.0
 - pnpm >= 11.26.0
 
 ### Getting Started
@@ -56,7 +56,7 @@ pnpm size             # Build production bundles and check their sizes
 
 - `packages/` - Published packages in the `otplib` ecosystem (core, hotp, totp, uri, otplib bundle, crypto/base32 plugins)
 - `apps/` - Applications built on top of `packages/` (docs site, CLI)
-- `internal/` - Internal tooling, not published (distribution tests, benchmarks, fuzz tests, test utilities)
+- `internal/` - Internal tooling, not published (shared build configuration, distribution tests, benchmarks, fuzz tests, test utilities)
 
 ## Testing Requirements
 

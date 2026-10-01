@@ -88,8 +88,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest",
     "test:ci": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
@@ -97,8 +97,9 @@
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "devDependencies": {
+    "@repo/build-config": "workspace:*",
     "@repo/testing": "workspace:*",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.23.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
   },

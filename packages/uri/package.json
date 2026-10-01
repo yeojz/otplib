@@ -44,8 +44,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest",
     "test:ci": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
@@ -56,7 +56,8 @@
     "@otplib/core": "workspace:*"
   },
   "devDependencies": {
-    "tsup": "^8.5.1",
+    "@repo/build-config": "workspace:*",
+    "tsdown": "^0.23.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11",
     "@repo/testing": "workspace:*"
