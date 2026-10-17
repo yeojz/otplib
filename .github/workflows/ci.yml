@@ -403,7 +403,7 @@ jobs:
             exit 1
           fi
           if [[ "$IS_DRAFT" == "true" ]]; then
-            echo "Draft PR: tests skipped until the PR is marked ready for review"
+            echo "::notice title=Tests skipped::Draft PR: tests run once the PR is marked ready for review"
             exit 0
           fi
           if [[ "${{ needs.build-and-test.result }}" != "success" ]] || \
