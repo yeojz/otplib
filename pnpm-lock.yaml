@@ -4,6 +4,24 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@scure/base':
+      specifier: ^2.4.0
+      version: 2.4.0
+    '@types/node':
+      specifier: ^26.6.4
+      version: 26.6.4
+    tsdown:
+      specifier: ^0.23.0
+      version: 0.23.0
+    typescript:
+      specifier: ^6.0.3
+      version: 6.0.3
+    vitest:
+      specifier: ^4.1.11
+      version: 4.1.11
+
 overrides:
   esbuild@<=0.24.2: '>=0.25.0 <0.28.0'
   fast-uri@>=3.0.0 <3.1.6: '>=3.1.6 <4.0.0'
@@ -124,10 +142,10 @@ importers:
   internal/build-config:
     devDependencies:
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
 
   internal/distribution-tests:
@@ -197,7 +215,7 @@ importers:
         specifier: ^4.10.2
         version: 4.10.2
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   internal/testing: {}
@@ -214,7 +232,7 @@ importers:
         specifier: ^1.1.4
         version: 1.1.4(typedoc-plugin-markdown@4.13.1(typedoc@0.28.20(typescript@6.0.3)))(typedoc@0.28.20(typescript@6.0.3))
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
 
   packages/core:
@@ -226,13 +244,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/hotp:
@@ -257,13 +275,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/otplib:
@@ -294,13 +312,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/otplib-cli:
@@ -319,16 +337,16 @@ importers:
         specifier: workspace:*
         version: link:../../internal/build-config
       '@types/node':
-        specifier: ^26.6.4
+        specifier: 'catalog:'
         version: 26.6.4
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/plugin-base32-alt:
@@ -341,16 +359,16 @@ importers:
         specifier: workspace:*
         version: link:../../internal/build-config
       '@types/node':
-        specifier: ^26.6.4
+        specifier: 'catalog:'
         version: 26.6.4
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/plugin-base32-scure:
@@ -359,23 +377,23 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@scure/base':
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.4.0
     devDependencies:
       '@repo/build-config':
         specifier: workspace:*
         version: link:../../internal/build-config
       '@types/node':
-        specifier: ^26.6.4
+        specifier: 'catalog:'
         version: 26.6.4
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/plugin-crypto-noble:
@@ -394,13 +412,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/plugin-crypto-node:
@@ -416,13 +434,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/plugin-crypto-web:
@@ -438,13 +456,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/totp:
@@ -469,13 +487,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/uri:
@@ -491,13 +509,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/v11-adapter:
@@ -521,7 +539,7 @@ importers:
         specifier: workspace:*
         version: link:../uri
       '@scure/base':
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.4.0
     devDependencies:
       '@repo/build-config':
@@ -531,13 +549,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/v12-adapter:
@@ -561,7 +579,7 @@ importers:
         specifier: workspace:*
         version: link:../uri
       '@scure/base':
-        specifier: ^2.4.0
+        specifier: 'catalog:'
         version: 2.4.0
     devDependencies:
       '@repo/build-config':
@@ -571,13 +589,13 @@ importers:
         specifier: workspace:*
         version: link:../../internal/testing
       tsdown:
-        specifier: ^0.23.0
+        specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
 packages:

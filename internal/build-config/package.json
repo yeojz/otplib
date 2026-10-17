@@ -11,10 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "tsdown": "^0.23.0"
+    "tsdown": "catalog:"
   },
   "devDependencies": {
-    "tsdown": "^0.23.0",
-    "typescript": "^6.0.3"
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
   }
 }

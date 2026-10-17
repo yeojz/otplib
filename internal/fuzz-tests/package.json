@@ -20,6 +20,6 @@
   },
   "devDependencies": {
     "fast-check": "^4.10.2",
-    "vitest": "^4.1.11"
+    "vitest": "catalog:"
   }
 }
