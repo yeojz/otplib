@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    # ready_for_review runs the tests that were skipped while the PR was a draft.
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions: {}
@@ -77,6 +79,8 @@ jobs:
   build-and-test:
     name: Build & Test
     needs: [lint, typecheck]
+    # Skipping here also skips every job that needs build-and-test.
+    if: ${{ github.event.pull_request.draft != true }}
     runs-on: ubuntu-latest
     environment: test
     permissions:
@@ -389,14 +393,23 @@ jobs:
       contents: read # Required for checking job results
     steps:
       - name: Check all jobs
+        env:
+          IS_DRAFT: ${{ github.event.pull_request.draft == true }}
         run: |
           if [[ "${{ needs.lint.result }}" != "success" ]] || \
              [[ "${{ needs.typecheck.result }}" != "success" ]] || \
-             [[ "${{ needs.build-and-test.result }}" != "success" ]] || \
+             [[ "${{ needs.security-audit.result }}" != "success" ]]; then
+            echo "One or more checks failed"
+            exit 1
+          fi
+          if [[ "$IS_DRAFT" == "true" ]]; then
+            echo "::notice title=Tests skipped::Draft PR: tests run once the PR is marked ready for review"
+            exit 0
+          fi
+          if [[ "${{ needs.build-and-test.result }}" != "success" ]] || \
              [[ "${{ needs.test-node.result }}" != "success" ]] || \
              [[ "${{ needs.test-deno.result }}" != "success" ]] || \
              [[ "${{ needs.test-bun.result }}" != "success" ]] || \
-             [[ "${{ needs.security-audit.result }}" != "success" ]] || \
              [[ "${{ needs.reporting.result }}" != "success" && "${{ needs.reporting.result }}" != "skipped" ]]; then
             echo "One or more checks failed"
             exit 1
