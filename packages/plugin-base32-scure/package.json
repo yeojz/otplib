@@ -52,14 +52,14 @@
   },
   "dependencies": {
     "@otplib/core": "workspace:*",
-    "@scure/base": "^2.4.0"
+    "@scure/base": "catalog:"
   },
   "devDependencies": {
     "@repo/build-config": "workspace:*",
-    "@types/node": "^26.6.4",
-    "tsdown": "^0.23.0",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.11"
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"

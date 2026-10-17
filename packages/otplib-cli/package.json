@@ -42,9 +42,9 @@
   },
   "devDependencies": {
     "@repo/build-config": "workspace:*",
-    "@types/node": "^26.6.4",
-    "tsdown": "^0.23.0",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.11"
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

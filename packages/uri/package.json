@@ -57,9 +57,9 @@
   },
   "devDependencies": {
     "@repo/build-config": "workspace:*",
-    "tsdown": "^0.23.0",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.11",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
     "@repo/testing": "workspace:*"
   },
   "publishConfig": {
