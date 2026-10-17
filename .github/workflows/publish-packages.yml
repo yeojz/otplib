@@ -158,10 +158,12 @@ jobs:
               inputs: { version: '${{ steps.version.outputs.version }}' }
             })
 
+      # pnpm pack, unlike npm pack, rewrites workspace: and catalog: specifiers
+      # to real ranges, so the attached tarballs match what was published.
       - name: Pack release artifacts
         run: |
           mkdir -p release-artifacts
-          pnpm -r --filter "./packages/*" exec npm pack --pack-destination ${{ github.workspace }}/release-artifacts
+          pnpm -r --filter "./packages/*" pack --pack-destination ${{ github.workspace }}/release-artifacts
 
       - name: Create GitHub Release
         if: success()
