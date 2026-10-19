@@ -14,7 +14,24 @@ yarn add @otplib/plugin-base32-rfc
 
 This plugin implements the standard RFC 4648 Base32 alphabet (`A-Z2-7`) used by authenticator apps, with no dependencies.
 
-It accepts and rejects the same inputs as `@otplib/plugin-base32-scure`, with the same error messages, so the two plugins are interchangeable. Because it has no ESM-only dependencies, its CommonJS build loads with `require()` on any Node.js version.
+It accepts and rejects the same inputs as `@otplib/plugin-base32-scure`, with the same error messages, so the two plugins are interchangeable.
+
+## Why this plugin
+
+`@otplib/plugin-base32-scure`, the default in `otplib`, works well in most setups. This plugin exists for two cases where it doesn't fit:
+
+- **CommonJS without ESM support.** `@scure/base` is published only as an ES module. The scure plugin's CommonJS build loads it with `require()`, which fails with `ERR_REQUIRE_ESM` on runtimes that can't `require()` ES modules: Node.js older than 20.19 / 22.12, or setups with a CommonJS loader hook such as a TypeScript register hook. This plugin has no dependencies, so its CommonJS build loads anywhere.
+- **No third-party dependencies.** The whole plugin is maintained in the otplib repository and released with the rest of otplib. It adds no other maintainer or package to your dependency tree, which keeps your supply chain smaller and simpler to review.
+
+### Which plugin should I use?
+
+| Situation                                               | Plugin                       |
+| ------------------------------------------------------- | ---------------------------- |
+| ESM, or Node.js that can `require()` ES modules         | Either; scure is the default |
+| CommonJS on a runtime that can't `require()` ES modules | `@otplib/plugin-base32-rfc`  |
+| You want no dependencies outside otplib                 | `@otplib/plugin-base32-rfc`  |
+
+Both produce and accept the same secrets, so you can switch at any time without re-enrolling users.
 
 ## Usage
 
