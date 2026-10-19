@@ -5,91 +5,10 @@
  * Works universally across all JavaScript runtimes, from both ESM and CommonJS.
  */
 
+import { createCodec, RFC4648_ALPHABET } from "./codec.js";
+
 import type { Base32EncodeOptions } from "@otplib/core";
 import type { Base32Plugin } from "@otplib/core";
-
-/**
- * RFC 4648 Section 6 Base32 alphabet
- */
-const RFC4648_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-
-type Codec = {
-  encode(data: Uint8Array): string;
-  /** Expects input padded to a multiple of 8 letters. */
-  decode(str: string): Uint8Array;
-};
-
-/**
- * Create a padded, uppercase RFC 4648 Base32 codec for a 32-letter alphabet
- *
- * Decoding is strict: every input has exactly one valid spelling. It rejects letters outside
- * the alphabet, padding that covers a whole byte, a trailing letter that carries no full byte,
- * and non-zero leftover bits.
- */
-function createCodec(alphabet: string): Codec {
-  const decodeTable = new Int8Array(128).fill(-1);
-  for (let i = 0; i < alphabet.length; i++) {
-    decodeTable[alphabet.charCodeAt(i)] = i;
-  }
-
-  return {
-    encode(data) {
-      let encoded = "";
-      let buffer = 0;
-      let bits = 0;
-      for (let i = 0; i < data.length; i++) {
-        buffer = ((buffer << 8) | data[i]) & 0xfff;
-        bits += 8;
-        while (bits >= 5) {
-          bits -= 5;
-          encoded += alphabet[(buffer >> bits) & 31];
-        }
-      }
-      if (bits > 0) {
-        encoded += alphabet[(buffer << (5 - bits)) & 31];
-      }
-      while (encoded.length % 8 !== 0) {
-        encoded += "=";
-      }
-      return encoded;
-    },
-
-    decode(str) {
-      let end = str.length;
-      for (; end > 0 && str[end - 1] === "="; end--) {
-        if (((end - 1) * 5) % 8 === 0) {
-          throw new Error("padding: excess padding");
-        }
-      }
-
-      const decoded = new Uint8Array(Math.floor((end * 5) / 8));
-      let buffer = 0;
-      let bits = 0;
-      let j = 0;
-      for (let i = 0; i < end; i++) {
-        const code = str.charCodeAt(i);
-        const digit = code < 128 ? decodeTable[code] : -1;
-        if (digit === -1) {
-          throw new Error(`Unknown letter "${str[i]}". Allowed: ${alphabet}`);
-        }
-        buffer = ((buffer << 5) | digit) & 0xfff;
-        bits += 5;
-        if (bits >= 8) {
-          bits -= 8;
-          decoded[j++] = (buffer >> bits) & 0xff;
-        }
-      }
-      if (bits >= 5) {
-        throw new Error("Excess padding");
-      }
-      const leftover = (buffer << (8 - bits)) & 0xff;
-      if (leftover > 0) {
-        throw new Error(`Non-zero padding: ${leftover}`);
-      }
-      return decoded;
-    },
-  };
-}
 
 const rfc4648 = createCodec(RFC4648_ALPHABET);
 

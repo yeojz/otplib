@@ -97,6 +97,10 @@ Full documentation available at [otplib.yeojz.dev](https://otplib.yeojz.dev):
 - [Getting Started Guide](https://otplib.yeojz.dev/guide/getting-started)
 - [API Reference](https://otplib.yeojz.dev/api/)
 
+## Acknowledgements
+
+The decoding checks and error messages are adapted from [`@scure/base`](https://github.com/paulmillr/scure-base) (MIT, Copyright (c) 2022 Paul Miller), so this plugin rejects exactly the same inputs as `@otplib/plugin-base32-scure`. The adapted parts are in [`src/codec.ts`](./src/codec.ts), and the `@scure/base` licence is included in [`LICENSE`](./LICENSE).
+
 ## License
 
 [MIT](./LICENSE)
