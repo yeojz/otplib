@@ -6,6 +6,7 @@
     "../../packages/totp",
     "../../packages/uri",
     "../../packages/plugin-base32-alt",
+    "../../packages/plugin-base32-rfc",
     "../../packages/plugin-base32-scure",
     "../../packages/plugin-crypto-node",
     "../../packages/plugin-crypto-noble",

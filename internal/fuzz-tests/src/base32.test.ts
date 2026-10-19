@@ -4,7 +4,10 @@
 
 import { describe, it, expect } from "vitest";
 import * as fc from "fast-check";
+import { Rfc4648Base32Plugin } from "@otplib/plugin-base32-rfc";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+
+import type { Base32Plugin } from "@otplib/core";
 
 const base32 = new ScureBase32Plugin();
 
@@ -76,5 +79,48 @@ describe("Base32 fuzz tests", () => {
         ),
       );
     });
+  });
+});
+
+const rfc4648 = new Rfc4648Base32Plugin();
+
+type DecodeOutcome = { ok: true; bytes: Uint8Array } | { ok: false; message: string };
+
+function decodeOutcome(plugin: Base32Plugin, input: string): DecodeOutcome {
+  try {
+    return { ok: true, bytes: plugin.decode(input) };
+  } catch (err) {
+    return { ok: false, message: (err as Error).message };
+  }
+}
+
+describe("Rfc4648Base32Plugin parity with ScureBase32Plugin", () => {
+  it("should encode the same output", async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.uint8Array({ minLength: 0, maxLength: 1024 }),
+        fc.boolean(),
+        async (bytes, padding) => {
+          expect(rfc4648.encode(bytes, { padding })).toBe(base32.encode(bytes, { padding }));
+        },
+      ),
+    );
+  });
+
+  it("should accept and reject the same strings", async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.oneof(
+          fc.string(),
+          // Mostly valid letters, padding and case, to reach the length and padding checks
+          fc.stringMatching(/^[A-Za-z2-7=]{0,40}$/),
+          fc.stringMatching(/^[A-Z2-7]{0,40}={0,8}$/),
+        ),
+        async (input) => {
+          expect(decodeOutcome(rfc4648, input)).toEqual(decodeOutcome(base32, input));
+        },
+      ),
+      { numRuns: 2000 },
+    );
   });
 });

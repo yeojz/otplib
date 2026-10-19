@@ -156,6 +156,9 @@ importers:
       '@otplib/hotp':
         specifier: workspace:*
         version: link:../../packages/hotp
+      '@otplib/plugin-base32-rfc':
+        specifier: workspace:*
+        version: link:../../packages/plugin-base32-rfc
       '@otplib/plugin-base32-scure':
         specifier: workspace:*
         version: link:../../packages/plugin-base32-scure
@@ -189,6 +192,9 @@ importers:
       '@otplib/hotp':
         specifier: workspace:*
         version: link:../../packages/hotp
+      '@otplib/plugin-base32-rfc':
+        specifier: workspace:*
+        version: link:../../packages/plugin-base32-rfc
       '@otplib/plugin-base32-scure':
         specifier: workspace:*
         version: link:../../packages/plugin-base32-scure
@@ -350,6 +356,28 @@ importers:
         version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/plugin-base32-alt:
+    dependencies:
+      '@otplib/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@repo/build-config':
+        specifier: workspace:*
+        version: link:../../internal/build-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.4
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
+
+  packages/plugin-base32-rfc:
     dependencies:
       '@otplib/core':
         specifier: workspace:*

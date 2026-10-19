@@ -16,6 +16,7 @@
     "@otplib/totp": "workspace:*",
     "@otplib/uri": "workspace:*",
     "otplib": "workspace:*",
+    "@otplib/plugin-base32-rfc": "workspace:*",
     "@otplib/plugin-base32-scure": "workspace:*",
     "@otplib/plugin-crypto-node": "workspace:*",
     "@otplib/plugin-crypto-noble": "workspace:*",

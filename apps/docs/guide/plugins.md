@@ -10,18 +10,20 @@ otplib uses a plugin architecture for cryptographic operations and Base32 encodi
 | `@otplib/plugin-crypto-web`   | Browser, Edge | No               | None (native) |
 | `@otplib/plugin-crypto-noble` | Universal     | Yes              | ~15KB         |
 | `@otplib/plugin-base32-scure` | Universal     | N/A              | ~3KB          |
+| `@otplib/plugin-base32-rfc`   | Universal     | N/A              | ~1KB          |
 | `@otplib/plugin-base32-alt`   | Universal     | N/A              | ~1KB          |
 
 ## Class Availability
 
 While the examples above use the convenient singleton exports (e.g., `import { crypto } ...`), the plugin classes are also available for cases where you need manual instantiation, dependency injection, or custom configuration.
 
-| Plugin Package                | Singleton Export | Class Export        |
-| ----------------------------- | ---------------- | ------------------- |
-| `@otplib/plugin-crypto-node`  | `crypto`         | `NodeCryptoPlugin`  |
-| `@otplib/plugin-crypto-web`   | `crypto`         | `WebCryptoPlugin`   |
-| `@otplib/plugin-crypto-noble` | `crypto`         | `NobleCryptoPlugin` |
-| `@otplib/plugin-base32-scure` | `base32`         | `ScureBase32Plugin` |
+| Plugin Package                | Singleton Export | Class Export          |
+| ----------------------------- | ---------------- | --------------------- |
+| `@otplib/plugin-crypto-node`  | `crypto`         | `NodeCryptoPlugin`    |
+| `@otplib/plugin-crypto-web`   | `crypto`         | `WebCryptoPlugin`     |
+| `@otplib/plugin-crypto-noble` | `crypto`         | `NobleCryptoPlugin`   |
+| `@otplib/plugin-base32-scure` | `base32`         | `ScureBase32Plugin`   |
+| `@otplib/plugin-base32-rfc`   | `base32`         | `Rfc4648Base32Plugin` |
 
 **Example: Manual Instantiation**
 
@@ -155,7 +157,9 @@ const token = await generate({
 
 ```
 Do you need standard Base32 secrets (RFC 4648) or otpauth URIs?
-├── Yes → Use plugin-base32-scure (default, interoperable)
+├── Yes
+│   ├── Default                          → plugin-base32-scure (included in otplib)
+│   └── No dependencies / CommonJS-safe  → plugin-base32-rfc
 └── No
     ├── Plain UTF-8 string secret → plugin-base32-alt (bypassAsString)
     ├── Hex/Base16 secret         → plugin-base32-alt (bypassAsHex)
@@ -186,6 +190,30 @@ const decoded = base32.decode("GEZDGNBVGY3TQOJQGEZDGNBVGY");
 - Audited implementation
 
 [Full documentation →](/api/@otplib/plugin-base32-scure/)
+
+### @otplib/plugin-base32-rfc
+
+A dependency-free RFC 4648 Base32 implementation.
+
+```typescript
+import { base32 } from "@otplib/plugin-base32-rfc";
+
+// Encoding
+const encoded = base32.encode(new Uint8Array([1, 2, 3, 4, 5]));
+// 'AEBAGBAF'
+
+// Decoding
+const decoded = base32.decode("GEZDGNBVGY3TQOJQGEZDGNBVGY");
+// Uint8Array
+```
+
+**Features:**
+
+- RFC 4648 compliant, using the standard `A-Z2-7` alphabet that authenticator apps use
+- Accepts and rejects the same inputs as `plugin-base32-scure`, with the same error messages, so the two are interchangeable
+- No dependencies: its CommonJS build loads with `require()` on any Node.js version (see [CommonJS](/guide/runtime-compatibility#commonjs))
+
+[Full documentation →](/api/@otplib/plugin-base32-rfc/)
 
 ### @otplib/plugin-base32-alt
 

@@ -31,6 +31,7 @@
       "@otplib/plugin-crypto-noble": ["./packages/plugin-crypto-noble/src"],
       "@otplib/plugin-base32-scure": ["./packages/plugin-base32-scure/src"],
       "@otplib/plugin-base32-alt": ["./packages/plugin-base32-alt/src"],
+      "@otplib/plugin-base32-rfc": ["./packages/plugin-base32-rfc/src"],
       "@otplib/preset-v11": ["./packages/v11-adapter/src"],
       "@otplib/v12-adapter": ["./packages/v12-adapter/src"],
       "@repo/testing": ["./internal/testing/src"]

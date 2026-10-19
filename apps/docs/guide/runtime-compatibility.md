@@ -11,7 +11,7 @@ otplib is designed to work across multiple JavaScript runtimes. This guide cover
 | `@otplib/plugin-crypto-noble` | Alternative     | **Recommended** | **Recommended** |
 | `@otplib/plugin-crypto-web`   | Alternative     | Alternative     | **Recommended** |
 
-> **Core packages** include: `otplib`, `@otplib/core`, `@otplib/hotp`, `@otplib/totp`, `@otplib/uri`, `@otplib/plugin-base32-scure`
+> **Core packages** include: `otplib`, `@otplib/core`, `@otplib/hotp`, `@otplib/totp`, `@otplib/uri`, `@otplib/plugin-base32-scure`, `@otplib/plugin-base32-rfc`
 
 ## Recommended Plugins by Runtime
 
@@ -174,6 +174,33 @@ Then import normally:
 ```typescript
 import { generate, generateSecret } from "otplib";
 ```
+
+## CommonJS {#commonjs}
+
+otplib publishes CommonJS builds alongside ES modules. Some packages depend on ESM-only libraries:
+
+| Package                       | ESM-only dependency                     |
+| ----------------------------- | --------------------------------------- |
+| `@otplib/plugin-base32-scure` | `@scure/base`                           |
+| `@otplib/plugin-crypto-noble` | `@noble/hashes`                         |
+| `otplib`                      | Both, through the default plugins above |
+
+Loading these with `require()` needs a runtime that can `require()` ES modules: Node.js 20.19+, 22.12+ or 24, without a CommonJS loader hook that rejects them.
+
+Where that isn't available, combine packages with no ESM-only dependencies:
+
+```javascript
+const { generateSecret } = require("@otplib/core");
+const { generate, verify } = require("@otplib/totp");
+const { crypto } = require("@otplib/plugin-crypto-node");
+const { base32 } = require("@otplib/plugin-base32-rfc");
+
+const secret = generateSecret({ crypto, base32 });
+const token = await generate({ secret, crypto, base32 });
+const result = await verify({ secret, token, crypto, base32 });
+```
+
+`@otplib/plugin-base32-rfc` accepts and produces the same Base32 secrets as `@otplib/plugin-base32-scure`, so existing secrets keep working.
 
 ## Performance Considerations
 

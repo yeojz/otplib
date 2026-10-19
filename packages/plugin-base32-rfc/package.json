@@ -1,0 +1,67 @@
+{
+  "name": "@otplib/plugin-base32-rfc",
+  "version": "13.5.0",
+  "description": "Dependency-free RFC 4648 Base32 plugin for otplib",
+  "license": "MIT",
+  "author": "Gerald Yeo <support@yeojz.dev>",
+  "homepage": "https://otplib.yeojz.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeojz/otplib.git",
+    "directory": "packages/plugin-base32-rfc"
+  },
+  "bugs": {
+    "url": "https://github.com/yeojz/otplib/issues"
+  },
+  "keywords": [
+    "otp",
+    "base32",
+    "rfc4648",
+    "encoding",
+    "plugin"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest",
+    "test:ci": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src/",
+    "clean": "rm -rf dist .tsbuildinfo"
+  },
+  "dependencies": {
+    "@otplib/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/build-config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
