@@ -242,6 +242,42 @@ if (typeof globalThis.crypto?.subtle === "undefined") {
 2. For local development, use `localhost` (treated as secure)
 3. Use `NobleCryptoPlugin` as a fallback
 
+### `ERR_REQUIRE_ESM` when using `require()` {#err-require-esm}
+
+Loading otplib with `require()` fails with an error like:
+
+```text
+Error [ERR_REQUIRE_ESM]: require() of ES Module .../node_modules/@scure/base/index.js
+from .../node_modules/@otplib/plugin-base32-scure/dist/index.cjs not supported.
+```
+
+The module named in the error may also be `@noble/hashes`.
+
+`@otplib/plugin-base32-scure` and `@otplib/plugin-crypto-noble` depend on libraries that are published only as ES modules (`@scure/base` and `@noble/hashes`). Their CommonJS builds, and the `otplib` CommonJS build that uses them, load those libraries with `require()`. That only works when the runtime can `require()` ES modules.
+
+**Common causes:**
+
+- Node.js older than 20.19 or 22.12, where `require()` of ES modules is not enabled by default
+- Node.js started with `--no-experimental-require-module`, for example through `NODE_OPTIONS`
+- A CommonJS loader hook that handles `require()` itself and rejects ES modules, such as a TypeScript register hook (for example `ts-node`) or some instrumentation agents
+
+**Solutions:**
+
+1. Load otplib as an ES module:
+
+   ```typescript
+   import { generate, verify } from "otplib";
+   ```
+
+   From CommonJS code you can't convert, use a dynamic import:
+
+   ```javascript
+   const { generate, verify } = await import("otplib");
+   ```
+
+2. Run Node.js 20.19+ or 22.12+ and later, and check that `--no-experimental-require-module` is not set
+3. Remove or update the loader hook, or configure it to leave `node_modules` to Node.js
+
 ## Time-Related Issues
 
 ### "TimeNegativeError"
