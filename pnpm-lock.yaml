@@ -192,9 +192,6 @@ importers:
       '@otplib/hotp':
         specifier: workspace:*
         version: link:../../packages/hotp
-      '@otplib/plugin-base32-rfc':
-        specifier: workspace:*
-        version: link:../../packages/plugin-base32-rfc
       '@otplib/plugin-base32-scure':
         specifier: workspace:*
         version: link:../../packages/plugin-base32-scure
@@ -383,12 +380,18 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@otplib/plugin-base32-scure':
+        specifier: workspace:*
+        version: link:../plugin-base32-scure
       '@repo/build-config':
         specifier: workspace:*
         version: link:../../internal/build-config
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.4
+      fast-check:
+        specifier: ^4.10.2
+        version: 4.10.2
       tsdown:
         specifier: 'catalog:'
         version: 0.23.0(tsx@4.23.15)(typescript@6.0.3)

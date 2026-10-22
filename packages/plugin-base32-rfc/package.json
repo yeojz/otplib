@@ -55,8 +55,10 @@
     "@otplib/core": "workspace:*"
   },
   "devDependencies": {
+    "@otplib/plugin-base32-scure": "workspace:*",
     "@repo/build-config": "workspace:*",
     "@types/node": "catalog:",
+    "fast-check": "^4.10.2",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
