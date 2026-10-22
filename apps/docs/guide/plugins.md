@@ -171,7 +171,7 @@ import { base32 } from "@otplib/plugin-base32-scure";
 
 // Encoding
 const encoded = base32.encode(new Uint8Array([1, 2, 3, 4, 5]));
-// 'AEBAGBA='
+// 'AEBAGBAF'
 
 // Decoding
 const decoded = base32.decode("GEZDGNBVGY3TQOJQGEZDGNBVGY");
