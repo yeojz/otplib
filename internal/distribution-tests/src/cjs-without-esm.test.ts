@@ -7,13 +7,38 @@
  */
 
 import { execFileSync } from "child_process";
+import { readFileSync } from "fs";
 import { createRequire } from "module";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import { describe, it, expect } from "vitest";
 import { Rfc4648Base32Plugin } from "@otplib/plugin-base32-rfc";
 import { ScureBase32Plugin } from "@otplib/plugin-base32-scure";
+import { RFC6238_VECTORS } from "@repo/testing";
 
 const require = createRequire(import.meta.url);
+const testsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const rootDir = path.resolve(testsDir, "../..");
+
+/** Run code as CommonJS in a Node.js process that cannot require() ES modules. */
+function runWithoutRequireESM(script: string): string {
+  return execFileSync(
+    process.execPath,
+    ["--no-experimental-require-module", "--input-type=commonjs", "-e", script],
+    { cwd: testsDir, encoding: "utf8" },
+  );
+}
+
+/** The first javascript code block after `heading` in a Markdown file. */
+function codeBlockAfter(file: string, heading: string): string {
+  const markdown = readFileSync(path.resolve(rootDir, file), "utf8");
+  const start = markdown.indexOf(heading);
+  expect(start, `${heading} in ${file}`).toBeGreaterThanOrEqual(0);
+  const block = /```javascript\n([\s\S]*?)```/.exec(markdown.slice(start));
+  expect(block, `javascript block after ${heading} in ${file}`).not.toBeNull();
+  return block![1];
+}
 
 describe("CommonJS without require() of ES modules", () => {
   it("generates and verifies a TOTP with @otplib/totp, plugin-crypto-node and plugin-base32-rfc", () => {
@@ -37,13 +62,34 @@ describe("CommonJS without require() of ES modules", () => {
       })();
     `;
 
-    const output = execFileSync(
-      process.execPath,
-      ["--no-experimental-require-module", "-e", script],
-      { encoding: "utf8" },
-    );
+    expect(JSON.parse(runWithoutRequireESM(script))).toEqual({ base32: "rfc4648", valid: true });
+  });
 
-    expect(JSON.parse(output)).toEqual({ base32: "rfc4648", valid: true });
+  it("generates the RFC 6238 SHA-1 token from an existing Base32 secret", () => {
+    // Base32 for the RFC 6238 SHA-1 secret "12345678901234567890", as an authenticator stores it.
+    const secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+    const { epoch, expected } = RFC6238_VECTORS.sha1.vectors[0];
+    const script = `
+      const { generate } = require("@otplib/totp");
+      const { crypto } = require("@otplib/plugin-crypto-node");
+      const { base32 } = require("@otplib/plugin-base32-rfc");
+
+      generate({ secret: ${JSON.stringify(secret)}, epoch: ${epoch}, digits: 8, crypto, base32 })
+        .then((token) => console.log(token));
+    `;
+
+    expect(runWithoutRequireESM(script).trim()).toBe(expected);
+  });
+
+  // The documented recipes must run as written in a CommonJS file.
+  it.each([
+    {
+      file: "packages/plugin-base32-rfc/README.md",
+      heading: "### CommonJS without require() of ES modules",
+    },
+    { file: "apps/docs/guide/runtime-compatibility.md", heading: "## CommonJS {#commonjs}" },
+  ])("runs the recipe in $file", ({ file, heading }) => {
+    expect(runWithoutRequireESM(codeBlockAfter(file, heading)).trim()).toBe("true");
   });
 });
 

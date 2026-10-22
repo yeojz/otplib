@@ -189,15 +189,24 @@ Loading these with `require()` needs a runtime that can `require()` ES modules: 
 
 Where that isn't available, combine packages with no ESM-only dependencies:
 
+::: warning Use the standalone packages, not `otplib`
+Passing `@otplib/plugin-base32-rfc` as the `base32` option to functions imported from `otplib` is not enough. `require("otplib")` still loads its default plugins, and with them their ESM-only dependencies. Import from `@otplib/core`, `@otplib/totp` and the plugins directly, as below.
+:::
+
 ```javascript
 const { generateSecret } = require("@otplib/core");
 const { generate, verify } = require("@otplib/totp");
 const { crypto } = require("@otplib/plugin-crypto-node");
 const { base32 } = require("@otplib/plugin-base32-rfc");
 
-const secret = generateSecret({ crypto, base32 });
-const token = await generate({ secret, crypto, base32 });
-const result = await verify({ secret, token, crypto, base32 });
+async function main() {
+  const secret = generateSecret({ crypto, base32 });
+  const token = await generate({ secret, crypto, base32 });
+  const result = await verify({ secret, token, crypto, base32 });
+  console.log(result.valid); // true
+}
+
+main();
 ```
 
 `@otplib/plugin-base32-rfc` accepts and produces the same Base32 secrets as `@otplib/plugin-base32-scure`, so existing secrets keep working.
