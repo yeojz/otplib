@@ -52,7 +52,9 @@ async function generateNewSecret() {
 }
 
 async function updateToken() {
-  if (!secret.value) return;
+  if (!secret.value) {
+    return;
+  }
   try {
     currentToken.value = await hotpGenerate({
       secret: secret.value,
@@ -73,7 +75,9 @@ async function incrementCounter() {
 }
 
 async function generateQR() {
-  if (!secret.value) return;
+  if (!secret.value) {
+    return;
+  }
   try {
     const uri = generateURI({
       strategy: "hotp",

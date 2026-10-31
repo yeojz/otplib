@@ -37,7 +37,9 @@ async function generateNewSecret() {
 }
 
 async function updateToken(resetPrevious = false) {
-  if (!secret.value) return;
+  if (!secret.value) {
+    return;
+  }
   try {
     const now = Math.floor(Date.now() / 1000);
 
@@ -64,7 +66,9 @@ async function updateToken(resetPrevious = false) {
 }
 
 async function generateQR() {
-  if (!secret.value) return;
+  if (!secret.value) {
+    return;
+  }
   try {
     const uri = generateURI({
       issuer: issuer.value,
@@ -122,7 +126,9 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId);
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
 });
 </script>
 

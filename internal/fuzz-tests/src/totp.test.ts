@@ -127,7 +127,9 @@ describe("TOTP fuzz tests", () => {
 
             for (let offset = -toleranceSteps; offset <= toleranceSteps; offset++) {
               const testEpoch = epoch + period * offset;
-              if (testEpoch < 0) continue;
+              if (testEpoch < 0) {
+                continue;
+              }
 
               const result = await verify({
                 secret,

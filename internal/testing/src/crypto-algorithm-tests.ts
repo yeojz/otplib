@@ -9,11 +9,11 @@ import type { TestContext } from "./types.js";
  * Declared locally rather than imported from `@otplib/core` so this package
  * stays dependency-free and can also run against built `dist/` output.
  */
-interface CryptoPluginUnderTest {
+type CryptoPluginUnderTest = {
   name: string;
   algorithms?: readonly string[];
   hmac(algorithm: string, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> | Uint8Array;
-}
+};
 
 /**
  * Digest sizes in bytes for each supported algorithm
@@ -114,7 +114,7 @@ export type CryptoAlgorithmTestContext = TestContext<CryptoPluginUnderTest> & {
    * The `AlgorithmUnsupportedError` class, injected by the caller so this
    * package does not need to depend on `@otplib/core`.
    */
-  errorClass: new (...args: any[]) => Error;
+  errorClass: new (...args: never[]) => Error;
 };
 
 /**

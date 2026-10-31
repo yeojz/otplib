@@ -59,7 +59,9 @@ function describeAlgorithm(alg: unknown): string {
 function normalizeAlgorithm(alg?: unknown): OtpAlgorithm {
   // JSON spells "absent" as null, and an empty string carries no value either
   // way - both take the default, as they did before validation moved to core.
-  if (alg === undefined || alg === null || alg === "") return "SHA1";
+  if (alg === undefined || alg === null || alg === "") {
+    return "SHA1";
+  }
   try {
     return normalizeHashAlgorithm(alg).toUpperCase() as OtpAlgorithm;
   } catch {
@@ -71,8 +73,12 @@ function normalizeAlgorithm(alg?: unknown): OtpAlgorithm {
 }
 
 function normalizeDigits(digits?: number): OtpDigits {
-  if (digits === undefined) return 6;
-  if (digits === 6 || digits === 7 || digits === 8) return digits;
+  if (digits === undefined) {
+    return 6;
+  }
+  if (digits === 6 || digits === 7 || digits === 8) {
+    return digits;
+  }
   throw new Error(`Invalid digits: ${digits}, expected 6, 7, or 8`);
 }
 
@@ -120,12 +126,16 @@ export function parseOtpauthUri(uri: string): OtpData {
   if (type === "totp") {
     const periodParam = url.searchParams.get("period");
     const period = periodParam !== null ? parseInt(periodParam, 10) : 30;
-    if (period <= 0) throw new Error("Invalid period: must be positive");
+    if (period <= 0) {
+      throw new Error("Invalid period: must be positive");
+    }
     return { type: "totp", secret, issuer, account, algorithm, digits, period };
   } else {
     const counterParam = url.searchParams.get("counter");
     const counter = counterParam !== null ? parseInt(counterParam, 10) : 0;
-    if (counter < 0) throw new Error("Invalid counter: must be non-negative");
+    if (counter < 0) {
+      throw new Error("Invalid counter: must be non-negative");
+    }
     return { type: "hotp", secret, issuer, account, algorithm, digits, counter };
   }
 }
@@ -211,7 +221,9 @@ export function parseEnvInput(raw: string): ParsedEnv {
   const guardrails: Partial<OTPGuardrailsConfig> = {};
 
   for (const [key, value] of Object.entries(json as Record<string, unknown>)) {
-    if (typeof value !== "string") continue;
+    if (typeof value !== "string") {
+      continue;
+    }
 
     if (key === "OTPLIB_MIN_SECRET_BYTES") {
       const parsed = parseInt(value, 10);
