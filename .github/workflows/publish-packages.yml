@@ -77,6 +77,11 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
+      # pnpm publish --dry-run lists only name@version, so print each
+      # tarball's files to review what the publish job will upload.
+      - name: List package contents
+        run: pnpm -r --filter "./packages/*" pack --dry-run
+
       - name: Dry run publish
         run: pnpm run release:packages-dry-run
 
