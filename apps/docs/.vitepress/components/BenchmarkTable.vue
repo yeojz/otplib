@@ -6,14 +6,18 @@ const loading = ref(true);
 const error = ref(null);
 
 const capturedAt = computed(() => {
-  if (!data.value?.timestamp) return "";
+  if (!data.value?.timestamp) {
+    return "";
+  }
   return `${new Date(data.value.timestamp).toISOString().replace("T", " ").slice(0, 19)} UTC`;
 });
 
 onMounted(async () => {
   try {
     const res = await fetch("/benchmarks.json");
-    if (!res.ok) throw new Error("Failed to load benchmarks");
+    if (!res.ok) {
+      throw new Error("Failed to load benchmarks");
+    }
     data.value = await res.json();
   } catch (e) {
     error.value = e.message;

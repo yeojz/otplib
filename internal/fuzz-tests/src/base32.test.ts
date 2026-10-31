@@ -54,7 +54,9 @@ describe("Base32 fuzz tests", () => {
           fc.integer({ min: 0, max: 99 }), // index to mutate (will be mod length)
           async (bytes, idx) => {
             const encoded = base32.encode(bytes);
-            if (encoded.length === 0) return;
+            if (encoded.length === 0) {
+              return;
+            }
 
             const mutationIndex = idx % encoded.length;
             // Replace with an invalid character, e.g., '1', '8', '9' are often invalid in RFC4648 standard base32 if not extended hex

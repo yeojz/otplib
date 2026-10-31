@@ -121,7 +121,9 @@ const goToStep = (index) => {
 };
 
 const switchTab = (tab) => {
-  if (tab === activeTab.value) return;
+  if (tab === activeTab.value) {
+    return;
+  }
   clearTimeout(autoPlayTimeout);
   clearInterval(typingInterval);
   activeTab.value = tab;

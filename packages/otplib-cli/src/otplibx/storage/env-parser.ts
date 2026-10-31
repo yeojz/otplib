@@ -3,10 +3,10 @@
  * Preserves comments and whitespace
  */
 
-export interface ParsedEnvFile {
+export type ParsedEnvFile = {
   entries: Map<string, string>;
   lines: string[];
-}
+};
 
 /**
  * Parse a .env file content into key-value pairs

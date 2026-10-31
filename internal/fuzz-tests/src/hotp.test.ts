@@ -91,7 +91,9 @@ describe("HOTP fuzz tests", () => {
 
             for (let offset = -tolerance; offset <= tolerance; offset++) {
               const testCounter = counter + offset;
-              if (testCounter < 0) continue;
+              if (testCounter < 0) {
+                continue;
+              }
 
               const result = await verify({
                 secret,

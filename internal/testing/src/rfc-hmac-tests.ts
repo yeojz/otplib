@@ -6,9 +6,9 @@ import type { ExpectFn } from "./types.js";
 /**
  * Minimal interface for crypto plugin
  */
-interface CryptoPlugin {
+type CryptoPlugin = {
   hmac(algorithm: string, secret: Uint8Array, counter: Uint8Array): Promise<Uint8Array>;
-}
+};
 
 /**
  * Test a crypto plugin against RFC 4226 Appendix D intermediate HMAC values
