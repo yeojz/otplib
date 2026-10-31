@@ -17,8 +17,8 @@ export type ExpectMatchers<T> = {
   toBeGreaterThanOrEqual(expected: number): void;
   toBeLessThan(expected: number): void;
   toBeLessThanOrEqual(expected: number): void;
-  toBeInstanceOf(expected: new (...args: unknown[]) => unknown): void;
-  toThrow(expected?: string | RegExp | Error | (new (...args: any[]) => any)): void;
+  toBeInstanceOf(expected: new (...args: never[]) => unknown): void;
+  toThrow(expected?: string | RegExp | Error | (new (...args: never[]) => unknown)): void;
   toContain(expected: string): void;
   toBeTruthy(): void;
   not: ExpectMatchers<T>;
@@ -34,7 +34,7 @@ export type ExpectFn = <T>(actual: T) => ExpectMatchers<T>;
 /**
  * Test context type for dependency injection
  */
-export type TestContext<TCrypto = any, TBase32 = any> = {
+export type TestContext<TCrypto = unknown, TBase32 = unknown> = {
   /** describe block function */
   describe: (name: string, fn: () => void) => void;
   /** it/test function */
@@ -50,6 +50,6 @@ export type TestContext<TCrypto = any, TBase32 = any> = {
 /**
  * Type for test suite creator functions
  */
-export type TestSuiteCreator<TCrypto = any, TBase32 = any> = (
+export type TestSuiteCreator<TCrypto = unknown, TBase32 = unknown> = (
   ctx: TestContext<TCrypto, TBase32>,
 ) => void;

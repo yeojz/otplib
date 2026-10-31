@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["eslint", "typescript", "import"],
+  "plugins": ["eslint", "typescript", "import", "vitest"],
   "categories": {
     "correctness": "off"
   },
@@ -28,6 +28,12 @@
         "minimumDescriptionLength": 3
       }
     ],
+    "eslint/curly": ["error", "all"],
+    "typescript/consistent-type-definitions": ["error", "type"],
+    "vitest/no-disabled-tests": "error",
+    "vitest/no-focused-tests": "error",
+    "vitest/no-commented-out-tests": "error",
+    "vitest/expect-expect": ["error", { "assertFunctionNames": ["expect", "testRFC4226HMAC"] }],
     "eslint/no-array-constructor": "error",
     "typescript/no-duplicate-enum-values": "error",
     "typescript/no-empty-object-type": "error",
@@ -248,8 +254,8 @@
         "**/.vitepress/**"
       ],
       "rules": {
-        "typescript/no-explicit-any": "warn",
-        "typescript/no-non-null-assertion": "warn",
+        "typescript/no-explicit-any": "error",
+        "typescript/no-non-null-assertion": "error",
         "eslint/no-unused-vars": [
           "error",
           {
@@ -258,6 +264,22 @@
           }
         ],
         "import/first": "error"
+      }
+    },
+    {
+      "files": ["packages/*/src/**/*.ts"],
+      "excludeFiles": ["packages/otplib-cli/**", "**/*.test.ts", "**/*.spec.ts", "**/*-test.ts"],
+      "rules": {
+        "eslint/no-restricted-globals": [
+          "error",
+          "globalThis",
+          "window",
+          "self",
+          "document",
+          "process",
+          "Buffer"
+        ],
+        "eslint/no-console": "error"
       }
     }
   ]

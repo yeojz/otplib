@@ -91,6 +91,7 @@ export class WebCryptoPlugin implements CryptoPlugin {
       supported: this.algorithms,
       plugin: this.name,
     });
+    // oxlint-disable-next-line eslint/no-restricted-globals -- this plugin wraps the platform Web Crypto API
     const webCrypto = globalThis.crypto;
 
     if (!webCrypto?.subtle) {
@@ -121,6 +122,7 @@ export class WebCryptoPlugin implements CryptoPlugin {
    * @returns Random bytes
    */
   randomBytes(length: number): Uint8Array {
+    // oxlint-disable-next-line eslint/no-restricted-globals -- this plugin wraps the platform Web Crypto API
     const webCrypto = globalThis.crypto;
 
     if (!webCrypto?.getRandomValues) {
