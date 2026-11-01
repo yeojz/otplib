@@ -46,7 +46,7 @@
     "oxlint": "^1.86.0",
     "tsdown": "^0.23.0",
     "tsx": "^4.23.15",
-    "turbo": "^2.11.7",
+    "turbo": "^2.11.10",
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.13.1",
     "typedoc-vitepress-theme": "^1.1.4",
