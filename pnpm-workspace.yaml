@@ -8,8 +8,8 @@ packages:
 # Deno 2.8, while CI still runs Deno 1.x; keep the two in step when bumping.
 catalog:
   "@scure/base": ^2.4.0
-  "@types/node": ^26.6.4
-  tsdown: ^0.23.0
+  "@types/node": ^26.6.5
+  tsdown: ^0.23.2
   typescript: ^6.0.3
   vitest: ^4.1.12
 
