@@ -52,7 +52,7 @@
     "typedoc-vitepress-theme": "^1.1.4",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
-    "vitest": "^4.1.12",
+    "vitest": "^5.0.5",
     "vitest-tsconfig-paths": "^3.4.1"
   },
   "packageManager": "pnpm@11.26.0",
